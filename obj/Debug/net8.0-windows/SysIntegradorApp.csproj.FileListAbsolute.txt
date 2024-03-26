@@ -34,3 +34,4 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Deb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Debug\net8.0-windows\Npgsql.EntityFrameworkCore.PostgreSQL.dll
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.csproj.AssemblyReference.cache
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysInteg.F25DF0CA.Up2Date
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.sourcelink.json

@@ -19,7 +19,7 @@ internal class Ifood
     public static async Task Pulling() //pulling feito de 30 em 30 Segundos, Caso seja encontrado algum novo pedido ele chama o GetPedidos
     {
         string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
-       // Token.TokenDaSessao = "eyJraWQiOiJlZGI4NWY2Mi00ZWY5LTExZTktODY0Ny1kNjYzYmQ4NzNkOTMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJiZDg2MmYwNy0zYTgxLTRkZTYtYWM5Ni05NzJiNjZhNDljZTciLCJvd25lcl9uYW1lIjoiZ3VpbGhlcm1ldGVzdGVzIiwiaXNzIjoiaUZvb2QiLCJjbGllbnRfaWQiOiJjYzQ0Y2Q2MS1jYmI3LTQ0MjQtOTE5Yi1hM2RmNDI4N2FlYzEiLCJhcHBfbmFtZSI6Imd1aWxoZXJtZXRlc3Rlcy10ZXN0ZS1kIiwiYXVkIjpbInNoaXBwaW5nIiwiY2F0YWxvZyIsInJldmlldyIsImZpbmFuY2lhbCIsIm1lcmNoYW50IiwibG9naXN0aWNzIiwiZ3JvY2VyaWVzIiwiZXZlbnRzIiwib3JkZXIiLCJvYXV0aC1zZXJ2ZXIiXSwic2NvcGUiOlsic2hpcHBpbmciLCJjYXRhbG9nIiwicmV2aWV3IiwibWVyY2hhbnQiLCJsb2dpc3RpY3MiLCJncm9jZXJpZXMiLCJldmVudHMiLCJvcmRlciIsImNvbmNpbGlhdG9yIl0sInR2ZXIiOiJ2MiIsIm1lcmNoYW50X3Njb3BlIjpbIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTptZXJjaGFudCIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpvcmRlciIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpjYXRhbG9nIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmNvbmNpbGlhdG9yIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOnJldmlldyIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpsb2dpc3RpY3MiLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6c2hpcHBpbmciLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6Z3JvY2VyaWVzIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmV2ZW50cyJdLCJleHAiOjE3MTEwNzAzNzEsImlhdCI6MTcxMTA0ODc3MSwianRpIjoiYmQ4NjJmMDctM2E4MS00ZGU2LWFjOTYtOTcyYjY2YTQ5Y2U3OmNjNDRjZDYxLWNiYjctNDQyNC05MTliLWEzZGY0Mjg3YWVjMSIsIm1lcmNoYW50X3Njb3BlZCI6dHJ1ZX0.K6i31FGzFFaJmc2nxCN5u3s9pNGaBr_SfsAkQpBj_zY4Ve7BQ_oPX-j5p80rszThN0fw-VPm-teQFwN5T0E7X3itab2cOklALgxHjy0Um5DP0xcV1IW4ywj6E49rtlkAVBUe9KNa2AiVe-zV2gaMZE7x9N9PzBzQJiqZyeaF50I";
+        // Token.TokenDaSessao = "eyJraWQiOiJlZGI4NWY2Mi00ZWY5LTExZTktODY0Ny1kNjYzYmQ4NzNkOTMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJiZDg2MmYwNy0zYTgxLTRkZTYtYWM5Ni05NzJiNjZhNDljZTciLCJvd25lcl9uYW1lIjoiZ3VpbGhlcm1ldGVzdGVzIiwiaXNzIjoiaUZvb2QiLCJjbGllbnRfaWQiOiJjYzQ0Y2Q2MS1jYmI3LTQ0MjQtOTE5Yi1hM2RmNDI4N2FlYzEiLCJhcHBfbmFtZSI6Imd1aWxoZXJtZXRlc3Rlcy10ZXN0ZS1kIiwiYXVkIjpbInNoaXBwaW5nIiwiY2F0YWxvZyIsInJldmlldyIsImZpbmFuY2lhbCIsIm1lcmNoYW50IiwibG9naXN0aWNzIiwiZ3JvY2VyaWVzIiwiZXZlbnRzIiwib3JkZXIiLCJvYXV0aC1zZXJ2ZXIiXSwic2NvcGUiOlsic2hpcHBpbmciLCJjYXRhbG9nIiwicmV2aWV3IiwibWVyY2hhbnQiLCJsb2dpc3RpY3MiLCJncm9jZXJpZXMiLCJldmVudHMiLCJvcmRlciIsImNvbmNpbGlhdG9yIl0sInR2ZXIiOiJ2MiIsIm1lcmNoYW50X3Njb3BlIjpbIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTptZXJjaGFudCIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpvcmRlciIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpjYXRhbG9nIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmNvbmNpbGlhdG9yIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOnJldmlldyIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpsb2dpc3RpY3MiLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6c2hpcHBpbmciLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6Z3JvY2VyaWVzIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmV2ZW50cyJdLCJleHAiOjE3MTEwNzAzNzEsImlhdCI6MTcxMTA0ODc3MSwianRpIjoiYmQ4NjJmMDctM2E4MS00ZGU2LWFjOTYtOTcyYjY2YTQ5Y2U3OmNjNDRjZDYxLWNiYjctNDQyNC05MTliLWEzZGY0Mjg3YWVjMSIsIm1lcmNoYW50X3Njb3BlZCI6dHJ1ZX0.K6i31FGzFFaJmc2nxCN5u3s9pNGaBr_SfsAkQpBj_zY4Ve7BQ_oPX-j5p80rszThN0fw-VPm-teQFwN5T0E7X3itab2cOklALgxHjy0Um5DP0xcV1IW4ywj6E49rtlkAVBUe9KNa2AiVe-zV2gaMZE7x9N9PzBzQJiqZyeaF50I";
         try
         {
             using HttpClient client = new HttpClient();
@@ -29,46 +29,44 @@ internal class Ifood
             int statusCode = (int)reponse.StatusCode;
             if (statusCode == 200)
             {
-                throw new NullReferenceException("Nenhum novo pedido encontrado");
-            }
 
-            string jsonContent = await reponse.Content.ReadAsStringAsync();
-            List<Pedido>? pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonContent);
+                string jsonContent = await reponse.Content.ReadAsStringAsync();
+                List<Pedido>? pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonContent);
 
 
 
-            using (var dbContex = new ApplicationDbContext())
-            {
-                var pullingsNaBase = dbContex.pulling.ToList();
-                foreach (var pullingAtual in pedidos)
+                using (var dbContex = new ApplicationDbContext())
                 {
-                    var confereSeJaExiste = pullingsNaBase.Any((p) => p.id.Contains(pullingAtual.id));
-
-                    await Console.Out.WriteLineAsync(pullingAtual.fullCode);
-
-                    if (!confereSeJaExiste) //só entra aqui caso o pulling não existir
+                    var pullingsNaBase = dbContex.pulling.ToList();
+                    foreach (var pullingAtual in pedidos)
                     {
-                        dbContex.pulling.Add(new Pulling() { id = pullingAtual.id });
-                        dbContex.SaveChanges();
-                        await SetPedido(pullingAtual.orderId, pullingAtual.fullCode);
+                        var confereSeJaExiste = pullingsNaBase.Any((p) => p.id.Contains(pullingAtual.id));
+
+                        await Console.Out.WriteLineAsync(pullingAtual.fullCode);
+
+                        if (!confereSeJaExiste) //só entra aqui caso o pulling não existir
+                        {
+                            dbContex.pulling.Add(new Pulling() { id = pullingAtual.id });
+                            dbContex.SaveChanges();
+                            await SetPedido(pullingAtual.orderId, pullingAtual.fullCode);
+                        }
+
+                        var order = dbContex.pedidocompleto.Where(p => p.id == pullingAtual.orderId).FirstOrDefault();
+
+                        if (order != null)
+                        {
+                            order.StatusCode = pullingAtual.fullCode;
+                            dbContex.SaveChanges();
+                        }
+
                     }
 
-                    var order = dbContex.pedidocompleto.Where(p => p.id == pullingAtual.orderId).FirstOrDefault();
+                    var pulingsToJson = JsonSerializer.Serialize(pullingsNaBase);
+                    StringContent content = new StringContent(pulingsToJson, Encoding.UTF8, "application/json");
 
-                    if (order != null)
-                    {
-                        order.StatusCode = pullingAtual.fullCode;
-                        dbContex.SaveChanges();
-                    }
+                    await client.PostAsync($"{url}/acknowledgment", content);
 
                 }
-
-                var pulingsToJson = JsonSerializer.Serialize(pullingsNaBase);
-                StringContent content = new StringContent(pulingsToJson, Encoding.UTF8, "application/json");
-
-                await client.PostAsync($"{url}/acknowledgment", content);
-
-             
 
             }
 
@@ -205,9 +203,9 @@ internal class Ifood
             Console.ForegroundColor = ConsoleColor.White;
         }
     }
-    
 
-    public static async Task GetPedido(string pedido_id)
+
+    public static async Task GetPedido(/*string pedido_id*/)
     {
         string path = @"C:\Users\gui-c\OneDrive\Área de Trabalho\primeiro\testeSeriliazeJson.json";
         try
@@ -243,12 +241,12 @@ internal class Ifood
                 string pedidoSerializado = JsonSerializer.Serialize(resultado);
                 var pedidosList = resultado.ToList();
 
-                foreach(var item in pedidosList)
+                foreach (var item in pedidosList)
                 {
                     UCPedido UserControlPedido = new UCPedido();
-                    UserControlPedido.SetLabels(item.Pedido.id ,item.Pedido.displayId, item.Pedido.salesChannel, item.Pedido.createdAt, item.Pedido.StatusCode);
+                    UserControlPedido.SetLabels(item.Pedido.id, item.Pedido.displayId, item.Pedido.salesChannel, item.Pedido.createdAt, item.Pedido.StatusCode);
                     FormMenuInicial.panelPedidos.Controls.Add(UserControlPedido);
-                
+
                 }
 
                 FormMenuInicial.panelPedidos.PerformLayout();
@@ -258,6 +256,7 @@ internal class Ifood
         }
         catch (Exception ex)
         {
+            MessageBox.Show(ex.Message);
             await Console.Out.WriteLineAsync(ex.Message);
         }
 
@@ -267,7 +266,7 @@ internal class Ifood
     public static async void SetTimer()//set timer pra fazer o acionamento a cada 30 segundos do pulling
     {
 
-        aTimer = new System.Timers.Timer(5000);
+        aTimer = new System.Timers.Timer(30000);
         aTimer.Elapsed += OnTimedEvent;
         aTimer.AutoReset = true;
         aTimer.Enabled = true;
@@ -277,7 +276,8 @@ internal class Ifood
 
     private static async void OnTimedEvent(System.Object source, ElapsedEventArgs e)
     {
-        // await Pulling();
-       // Ifood.GetPedido("fefcb2b0-f56f-4080-aa1d-80406ef0ecde");
+        await Pulling();
+        // Função para corrigir a diferença de thread 
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => await Ifood.GetPedido()));
     }
 }

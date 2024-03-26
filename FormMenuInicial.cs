@@ -23,15 +23,12 @@ namespace SysIntegradorApp
 
         }
 
-        private void FormMenuInicial_Load(object sender, EventArgs e)
+        private  void FormMenuInicial_Load(object sender, EventArgs e)
         {
             Ifood.SetTimer();
-            this.Invoke((MethodInvoker)delegate
-            {
-                
-                Ifood.GetPedido("fefcb2b0-f56f-4080-aa1d-80406ef0ecde");
-                //UCInfoPedido infoPedido = new UCInfoPedido();
-                //panelDetalhePedido.Controls.Add(infoPedido);
+            this.Invoke((MethodInvoker)async delegate
+            { 
+               await Ifood.GetPedido();
             });
 
         }
@@ -46,9 +43,9 @@ namespace SysIntegradorApp
 
         }
 
-        private void btnTeste_Click(object sender, EventArgs e)
+        private async void btnTeste_Click(object sender, EventArgs e)
         {
-            Ifood.GetPedido("fefcb2b0-f56f-4080-aa1d-80406ef0ecde");
+          await Ifood.GetPedido();
         }
     }
 }
