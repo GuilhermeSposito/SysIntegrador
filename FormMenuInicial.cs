@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SysIntegradorApp.ClassesAuxiliares;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -23,13 +24,10 @@ namespace SysIntegradorApp
 
         }
 
-        private  void FormMenuInicial_Load(object sender, EventArgs e)
+        private void FormMenuInicial_Load(object sender, EventArgs e)
         {
             Ifood.SetTimer();
-            this.Invoke((MethodInvoker)async delegate
-            { 
-               await Ifood.GetPedido();
-            });
+            SetarPanelPedidos();
 
         }
 
@@ -45,7 +43,32 @@ namespace SysIntegradorApp
 
         private async void btnTeste_Click(object sender, EventArgs e)
         {
-          await Ifood.GetPedido();
+            await Ifood.GetPedido();
+        }
+
+        public async void SetarPanelPedidos()
+        {
+            try
+            {
+                List<PedidoParaOFront> pedidos = await Ifood.GetPedido();
+
+                panelPedidos.Controls.Clear();
+                panelPedidos.PerformLayout();
+
+                foreach (PedidoParaOFront item in pedidos)
+                {
+                        UCPedido UserControlPedido = new UCPedido();
+                        UserControlPedido.SetLabels(item.PedidoInfos.id, item.PedidoInfos.displayId, item.Customer.name, item.PedidoInfos.createdAt, item.PedidoInfos.StatusCode);;
+                        panelPedidos.Controls.Add(UserControlPedido);
+                }
+
+                panelPedidos.PerformLayout();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK);
+            }
         }
     }
 }

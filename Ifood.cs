@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
+using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -66,6 +67,8 @@ internal class Ifood
 
                     await client.PostAsync($"{url}/acknowledgment", content);
 
+                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => await Ifood.GetPedido()));
+
                 }
 
             }
@@ -78,6 +81,7 @@ internal class Ifood
 
     }
 
+    //Função que Insere o pediddo que vem no pulling no banco de dados
     public static async Task SetPedido(string orderId, string statusCode = "PLACED")
     {
         // Token.TokenDaSessao = "eyJraWQiOiJlZGI4NWY2Mi00ZWY5LTExZTktODY0Ny1kNjYzYmQ4NzNkOTMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJiZDg2MmYwNy0zYTgxLTRkZTYtYWM5Ni05NzJiNjZhNDljZTciLCJvd25lcl9uYW1lIjoiZ3VpbGhlcm1ldGVzdGVzIiwiaXNzIjoiaUZvb2QiLCJjbGllbnRfaWQiOiJjYzQ0Y2Q2MS1jYmI3LTQ0MjQtOTE5Yi1hM2RmNDI4N2FlYzEiLCJhcHBfbmFtZSI6Imd1aWxoZXJtZXRlc3Rlcy10ZXN0ZS1kIiwiYXVkIjpbInNoaXBwaW5nIiwiY2F0YWxvZyIsInJldmlldyIsImZpbmFuY2lhbCIsIm1lcmNoYW50IiwibG9naXN0aWNzIiwiZ3JvY2VyaWVzIiwiZXZlbnRzIiwib3JkZXIiLCJvYXV0aC1zZXJ2ZXIiXSwic2NvcGUiOlsic2hpcHBpbmciLCJjYXRhbG9nIiwicmV2aWV3IiwibWVyY2hhbnQiLCJsb2dpc3RpY3MiLCJncm9jZXJpZXMiLCJldmVudHMiLCJvcmRlciIsImNvbmNpbGlhdG9yIl0sInR2ZXIiOiJ2MiIsIm1lcmNoYW50X3Njb3BlIjpbIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTptZXJjaGFudCIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpvcmRlciIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpjYXRhbG9nIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmNvbmNpbGlhdG9yIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOnJldmlldyIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpsb2dpc3RpY3MiLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6c2hpcHBpbmciLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6Z3JvY2VyaWVzIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmV2ZW50cyJdLCJleHAiOjE3MTA5NTk3NDIsImlhdCI6MTcxMDkzODE0MiwianRpIjoiYmQ4NjJmMDctM2E4MS00ZGU2LWFjOTYtOTcyYjY2YTQ5Y2U3OmNjNDRjZDYxLWNiYjctNDQyNC05MTliLWEzZGY0Mjg3YWVjMSIsIm1lcmNoYW50X3Njb3BlZCI6dHJ1ZX0.NO1_-hgj4h4XeN8bZXIWBKztACHnJZzWYnuvDClluXzjYE6b7sm7wwzbMow7wOHRHgkGjRkHduiUVNAFB7-yULunwX350PLRiIGxuBf_cFUyK1_xvO_M14p59s4yGkntobm6pj57ZH1MxPnbxTw4Rgftqc7eQCW54cfhdebbO7s";
@@ -122,6 +126,7 @@ internal class Ifood
                 db.SaveChanges();
 
                 //terceito insere na coluna deliveryaddress relacionando com o delivery
+                pedidoCompletoTotal.delivery.deliveryAddress.id_pedido = pedidocompletoDB.id;
                 pedidoCompletoTotal.delivery.deliveryAddress.id_delivery = pedidoCompletoTotal.delivery.id;
                 db.deliveryaddress.Add(pedidoCompletoTotal.delivery.deliveryAddress);
                 db.SaveChanges();
@@ -137,18 +142,16 @@ internal class Ifood
                 db.SaveChanges();
 
                 //sexto faz a inserção na tabela Customer relacionando com o id do pedido (Porém verifica se já existe antes) (Só vai ser inserido o phone também se já não existir o customer)
-                var customerUnique_IdSerch = db.customer.Find(pedidoCompletoTotal.customer.id_pedido);
-                if (customerUnique_IdSerch == null)
-                {
-                    pedidoCompletoTotal.customer.id_pedido = pedidoCompletoTotal.id;
-                    db.customer.Add(pedidoCompletoTotal.customer);
-                    db.SaveChanges();
+                pedidoCompletoTotal.customer.id_pedido = pedidoCompletoTotal.id;
+                db.customer.Add(pedidoCompletoTotal.customer);
+                db.SaveChanges();
 
-                    //setimo faz a inserção na tabela phone relacionando com a coluna id_db da tabela customer 
-                    pedidoCompletoTotal.customer.phone.id_customer_pedido = pedidoCompletoTotal.customer.id_pedido;
-                    db.phone.Add(pedidoCompletoTotal.customer.phone);
-                    db.SaveChanges();
-                }
+                //setimo faz a inserção na tabela phone relacionando com a coluna id_db da tabela customer 
+                pedidoCompletoTotal.customer.phone.id_customer_pedido = pedidoCompletoTotal.customer.id_pedido;
+                pedidoCompletoTotal.customer.phone.id_pedido = pedidocompletoDB.id;
+                db.phone.Add(pedidoCompletoTotal.customer.phone);
+                db.SaveChanges();
+
 
                 //oitavo insere um array de itens fazerndo um loop para uma inserção de cada vez
                 foreach (var item in pedidoCompletoTotal.items)
@@ -204,28 +207,71 @@ internal class Ifood
         }
     }
 
-
-    public static async Task GetPedido(/*string pedido_id*/)
+    //função que está mostrando os pedidos no panel
+    public static async Task<List<PedidoParaOFront>> GetPedido(/*string pedido_id*/)
     {
+        List<PedidoParaOFront> pedidoCompleto = new List<PedidoParaOFront>();
         string path = @"C:\Users\gui-c\OneDrive\Área de Trabalho\primeiro\testeSeriliazeJson.json";
         try
         {
-            FormMenuInicial.panelPedidos.Controls.Clear();
-            FormMenuInicial.panelPedidos.PerformLayout();
+            using ApplicationDbContext db = new ApplicationDbContext();
 
-            using (var db = new ApplicationDbContext())
-            {
 
-                var resultado = from a in db.pedidocompleto
-                                join b in db.items on a.id equals b.id_pedido
-                                join c in db.payments on a.id equals c.id_pedido
-                                join d in db.methods on c.id equals d.payments_id
-                                join e in db.total on a.id equals e.id_pedido
-                                group new { a, b, c, d, e } by a into grupo
+
+                var resultado = from a in db.pedidocompleto // aqui faz o select no pedidocompleto
+                                join b in db.items on a.id equals b.id_pedido // aqui faz o select no items 
+                                join c in db.payments on a.id equals c.id_pedido // aqui faz o select no payment
+                                join d in db.methods on c.id equals d.payments_id // aqui faz o select no methods
+                                join e in db.total on a.id equals e.id_pedido  // aqui faz o selectno total
+                                join f in db.delivery on a.id equals f.id_pedido // aqui faz o select no delivery
+                                join g in db.deliveryaddress on a.id equals g.id_pedido // aqui faz o select no deliveryAdress
+                                join h in db.coordinates on g.id equals h.id_DeliveryAddress // aqui faz o select no cordinates relacionando com o deliveryadress
+                                join i in db.customer on a.id equals i.id_pedido //aqui faz o select na tabela customer (Cliente)
+                                join j in db.phone on a.id equals j.id_pedido
+                                group new { a, b, c, d, e, f, g, h, i, j } by a into grupo
                                 select new
                                 {
-                                    Pedido = grupo.Key,
+                                    PedidoInfos = grupo.Key,
                                     Items = grupo.Select(x => x.b).ToList(),
+                                    Delivery = new
+                                    {
+                                        mode = grupo.Select(p => p.f.mode).FirstOrDefault(),
+                                        deliveryBy = grupo.Select(p => p.f.deliveredBy).FirstOrDefault(),
+                                        deliveryDateTime = grupo.Select(p => p.f.deliveryDateTime).FirstOrDefault(),
+                                        observations = grupo.Select(p => p.f.observations).FirstOrDefault(),
+                                        pickupCode = grupo.Select(p => p.f.pickupCode).FirstOrDefault(),
+                                        deliveryAddress = new
+                                        {
+                                            streetName = grupo.Select(p => p.g.streetName).FirstOrDefault(),
+                                            streetNumber = grupo.Select(p => p.g.streetNumber).FirstOrDefault(),
+                                            formattedAddress = grupo.Select(p => p.g.formattedAddress).FirstOrDefault(),
+                                            neighborhood = grupo.Select(p => p.g.neighborhood).FirstOrDefault(),
+                                            complement = grupo.Select(p => p.g.complement).FirstOrDefault(),
+                                            postalCode = grupo.Select(p => p.g.postalCode).FirstOrDefault(),
+                                            city = grupo.Select(p => p.g.city).FirstOrDefault(),
+                                            state = "SP",
+                                            country = "BRASIL",
+                                            coordinates = new
+                                            {
+                                                latitude = grupo.Select(p => p.h.latitude).FirstOrDefault(),
+                                                longitude = grupo.Select(p => p.h.longitude).FirstOrDefault(),
+                                            }
+                                        },
+
+                                    },
+                                    customer = new
+                                    {
+                                        id = grupo.Select(p => p.i.id).FirstOrDefault(),
+                                        name = grupo.Select(p => p.i.name).FirstOrDefault(),
+                                        documentNumber = grupo.Select(p => p.i.documentNumber).FirstOrDefault(),
+                                        phone = new
+                                        {
+                                            number = grupo.Select(p => p.j.number).FirstOrDefault(),
+                                            localizer = grupo.Select(p => p.j.localizer).FirstOrDefault(),
+                                            localizerExpiration = grupo.Select(p => p.j.localizerExpiration).FirstOrDefault()
+                                        }
+
+                                    },
                                     Payments = new
                                     {
                                         IdPedido = grupo.Select(p => p.c.id_pedido).FirstOrDefault(),
@@ -238,21 +284,17 @@ internal class Ifood
 
                                 };
 
-                string pedidoSerializado = JsonSerializer.Serialize(resultado);
-                var pedidosList = resultado.ToList();
+            var resultadoList = await resultado.ToListAsync();
+            string pedidoSerializado = JsonSerializer.Serialize(resultado);
 
-                foreach (var item in pedidosList)
-                {
-                    UCPedido UserControlPedido = new UCPedido();
-                    UserControlPedido.SetLabels(item.Pedido.id, item.Pedido.displayId, item.Pedido.salesChannel, item.Pedido.createdAt, item.Pedido.StatusCode);
-                    FormMenuInicial.panelPedidos.Controls.Add(UserControlPedido);
-
-                }
-
-                FormMenuInicial.panelPedidos.PerformLayout();
+            List<PedidoParaOFront>? pedidoDeserializado = JsonSerializer.Deserialize<List<PedidoParaOFront>>(pedidoSerializado);
+            foreach (PedidoParaOFront item in pedidoDeserializado)
+            {
+                pedidoCompleto.Add(item);
 
             }
 
+            return pedidoCompleto; // Retorne a lista deserializada ou uma lista vazia se for nula
         }
         catch (Exception ex)
         {
@@ -260,6 +302,7 @@ internal class Ifood
             await Console.Out.WriteLineAsync(ex.Message);
         }
 
+        return pedidoCompleto;
 
     }
 
@@ -278,6 +321,6 @@ internal class Ifood
     {
         await Pulling();
         // Função para corrigir a diferença de thread 
-        FormMenuInicial.panelPedidos.Invoke(new Action(async () => await Ifood.GetPedido()));
+        
     }
 }

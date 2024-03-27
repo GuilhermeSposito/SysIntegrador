@@ -19,7 +19,7 @@ public partial class UCPedido : UserControl
         InitializeComponent();
     }
 
-    public void SetLabels(string id_pedido, string numPedido, string nomePedido, string horarioPedido, string statusPedido)
+    public void SetLabels(string id_pedido = "Null", string numPedido = "Null", string nomePedido = "Null", string horarioPedido = "Null" , string statusPedido = "Null")
     {
         Id_pedido = id_pedido;
         labelNumPedido.Text = $"#{numPedido}";

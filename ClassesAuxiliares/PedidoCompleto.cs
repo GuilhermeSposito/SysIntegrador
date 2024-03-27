@@ -7,6 +7,10 @@ using System.Threading.Tasks;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
+/// <summary>
+/// Este arquivo é para a serialização e inserção no banco de dados OBS: NÂO VAI SERVIR PARA ENVIAR PARA O FRONT
+/// </summary>
+
 public class PedidoCompleto
 {
     public string? id { get; set; }
@@ -14,6 +18,7 @@ public class PedidoCompleto
     public string? createdAt { get; set; }
     public string? orderTiming { get; set; }
     public string? orderType { get; set; }
+    public string? StatusCode { get; set; }
     public Delivery delivery { get; set; } = new Delivery(); //tabela nova //não inserir no banco inicialmente
     public string? preparationStartDateTime { get; set; }
     public bool isTest { get; set; }
@@ -27,6 +32,7 @@ public class PedidoCompleto
 
     public PedidoCompleto() { }
 }
+
 
 public class pedidocompleto //Classe para inserir na tabela pedido completo no banco de dados, está dando erro caso tentarmos fazer com a classe PedidoCompleto 
 {
