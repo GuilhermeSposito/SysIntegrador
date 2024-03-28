@@ -18,7 +18,6 @@ public class PedidoCompleto
     public string? createdAt { get; set; }
     public string? orderTiming { get; set; }
     public string? orderType { get; set; }
-    public string? StatusCode { get; set; }
     public Delivery delivery { get; set; } = new Delivery(); //tabela nova //não inserir no banco inicialmente
     public string? preparationStartDateTime { get; set; }
     public bool isTest { get; set; }

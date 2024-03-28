@@ -52,11 +52,11 @@ internal class Ifood
                             await SetPedido(pullingAtual.orderId, pullingAtual.fullCode);
                         }
 
-                        var order = dbContex.pedidocompleto.Where(p => p.id == pullingAtual.orderId).FirstOrDefault();
+                        var order = dbContex.parametrosdopedido.Where(p => p.Id == pullingAtual.orderId).FirstOrDefault();
 
                         if (order != null)
                         {
-                            order.StatusCode = pullingAtual.fullCode;
+                            order.Situacao = pullingAtual.fullCode;
                             dbContex.SaveChanges();
                         }
 
@@ -67,7 +67,7 @@ internal class Ifood
 
                     await client.PostAsync($"{url}/acknowledgment", content);
 
-                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => await Ifood.GetPedido()));
+                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
 
                 }
 
@@ -98,105 +98,21 @@ internal class Ifood
             }
 
 
-            string leituraDoPedido = await response.Content.ReadAsStringAsync();
-            PedidoCompleto? pedidoCompletoTotal = JsonSerializer.Deserialize<PedidoCompleto>(leituraDoPedido);
+            string? pedidoJson = await response.Content.ReadAsStringAsync();
+            PedidoCompleto? pedidoCompletoTotal = JsonSerializer.Deserialize<PedidoCompleto>(pedidoJson);
 
-            pedidocompleto? pedidocompletoDB = JsonSerializer.Deserialize<pedidocompleto>(leituraDoPedido);
+            //pedidocompleto? pedidocompletoDB = JsonSerializer.Deserialize<pedidocompleto>(leituraDoPedido);
 
             //setar o id_pedido de cada objeto relacionado para inserção no banco
             //fazer o insert no banco de dados separando todo o pedido em tabelas relacionadas
 
             using (var db = new ApplicationDbContext())
             {
-                //primeiro insere na coluna pedidocompleto (primeiro verifica se o pedido já existe)
-                if (db.pedidocompleto.Find(pedidocompletoDB.id) != null)
-                {
-                    throw new Exception("Pedido já encontrado no banco de dados");
-                }
+                ParametrosDoPedido pedidoDB = new ParametrosDoPedido(id: pedidoCompletoTotal.id, json: pedidoJson, situacao: statusCode) ;
 
-                //caso exista vai ser inserido o pedido no banco de dados
-                pedidocompletoDB.StatusCode = statusCode;
-                string jsonContent = JsonSerializer.Serialize(pedidocompletoDB);
-                db.pedidocompleto.Add(pedidocompletoDB);
+                //inserir na tabela parâmetros do pedido
+                db.parametrosdopedido.Add(pedidoDB);
                 db.SaveChanges();
-
-                //segundo insere na coluna delivery relacionando com o id do pedido 
-                pedidoCompletoTotal.delivery.id_pedido = pedidoCompletoTotal.id;
-                db.delivery.Add(pedidoCompletoTotal.delivery);
-                db.SaveChanges();
-
-                //terceito insere na coluna deliveryaddress relacionando com o delivery
-                pedidoCompletoTotal.delivery.deliveryAddress.id_pedido = pedidocompletoDB.id;
-                pedidoCompletoTotal.delivery.deliveryAddress.id_delivery = pedidoCompletoTotal.delivery.id;
-                db.deliveryaddress.Add(pedidoCompletoTotal.delivery.deliveryAddress);
-                db.SaveChanges();
-
-                //quarto insere na coluna coordinates relacionando com o deliveryaddress 
-                pedidoCompletoTotal.delivery.deliveryAddress.coordinates.id_DeliveryAddress = pedidoCompletoTotal.delivery.deliveryAddress.id;
-                db.coordinates.Add(pedidoCompletoTotal.delivery.deliveryAddress.coordinates);
-                db.SaveChanges();
-
-                //quinto insere na tabela merchant 
-                pedidoCompletoTotal.merchant.id_pedido = pedidoCompletoTotal.id;
-                db.merchant.Add(pedidoCompletoTotal.merchant);
-                db.SaveChanges();
-
-                //sexto faz a inserção na tabela Customer relacionando com o id do pedido (Porém verifica se já existe antes) (Só vai ser inserido o phone também se já não existir o customer)
-                pedidoCompletoTotal.customer.id_pedido = pedidoCompletoTotal.id;
-                db.customer.Add(pedidoCompletoTotal.customer);
-                db.SaveChanges();
-
-                //setimo faz a inserção na tabela phone relacionando com a coluna id_db da tabela customer 
-                pedidoCompletoTotal.customer.phone.id_customer_pedido = pedidoCompletoTotal.customer.id_pedido;
-                pedidoCompletoTotal.customer.phone.id_pedido = pedidocompletoDB.id;
-                db.phone.Add(pedidoCompletoTotal.customer.phone);
-                db.SaveChanges();
-
-
-                //oitavo insere um array de itens fazerndo um loop para uma inserção de cada vez
-                foreach (var item in pedidoCompletoTotal.items)
-                {
-                    item.id_pedido = pedidocompletoDB.id;
-                    db.items.Add(item);
-                    db.SaveChanges();
-                }
-
-                //nono insere na tabela total relacionando o id do pedido com a coluna id_pedido da tabela total
-                pedidoCompletoTotal.total.id_pedido = pedidocompletoDB.id;
-                db.total.Add(pedidoCompletoTotal.total);
-                db.SaveChanges();
-
-                //decimo insere na tabela Payments relacionando a coluna id_pedido com a tabela pedidototal
-                pedidoCompletoTotal.payments.id_pedido = pedidocompletoDB.id;
-                db.payments.Add(pedidoCompletoTotal.payments);
-                db.SaveChanges();
-
-                //decimo primeiro faz um for e insere na tabela methods relacionando as colunas payments_id com o id do paymant e id_pedido relacionando com o id da coluna pedidocompleto 
-                foreach (var method in pedidoCompletoTotal.payments.methods)
-                {
-
-                    method.id_pedido = pedidocompletoDB.id;
-                    method.payments_id = pedidoCompletoTotal.payments.id;
-                    db.methods.Add(method);
-                    db.SaveChanges();
-
-                }
-
-                //decimo segundo insere na tabela additionalinfo para depois poder relacionar a tabela metadata com a additionalinfo
-                pedidoCompletoTotal.additionalInfo.id_pedido = pedidocompletoDB.id;
-                db.additionalinfo.Add(pedidoCompletoTotal.additionalInfo);
-                db.SaveChanges();
-
-                //decimo terceiro insere na tabela metadata relacionando com a tabela id do pedidototal e id da addicionalinfo 
-                pedidoCompletoTotal.additionalInfo.metadata.id_pedido = pedidocompletoDB.id;
-                pedidoCompletoTotal.additionalInfo.metadata.id_additionalinfo = pedidoCompletoTotal.additionalInfo.id;
-                db.metadata.Add(pedidoCompletoTotal.additionalInfo.metadata);
-                db.SaveChanges();
-
-                Console.ForegroundColor = ConsoleColor.Green;
-                await Console.Out.WriteLineAsync("Pedido inserido na base de dados");
-                Console.ForegroundColor = ConsoleColor.White;
-
             }
         }
         catch (Exception ex)
@@ -208,93 +124,24 @@ internal class Ifood
     }
 
     //função que está mostrando os pedidos no panel
-    public static async Task<List<PedidoParaOFront>> GetPedido(/*string pedido_id*/)
+    public static async Task<List<PedidoCompleto>> GetPedido(/*string pedido_id*/)
     {
-        List<PedidoParaOFront> pedidoCompleto = new List<PedidoParaOFront>();
+
         string path = @"C:\Users\gui-c\OneDrive\Área de Trabalho\primeiro\testeSeriliazeJson.json";
+         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
             using ApplicationDbContext db = new ApplicationDbContext();
 
-
-
-                var resultado = from a in db.pedidocompleto // aqui faz o select no pedidocompleto
-                                join b in db.items on a.id equals b.id_pedido // aqui faz o select no items 
-                                join c in db.payments on a.id equals c.id_pedido // aqui faz o select no payment
-                                join d in db.methods on c.id equals d.payments_id // aqui faz o select no methods
-                                join e in db.total on a.id equals e.id_pedido  // aqui faz o selectno total
-                                join f in db.delivery on a.id equals f.id_pedido // aqui faz o select no delivery
-                                join g in db.deliveryaddress on a.id equals g.id_pedido // aqui faz o select no deliveryAdress
-                                join h in db.coordinates on g.id equals h.id_DeliveryAddress // aqui faz o select no cordinates relacionando com o deliveryadress
-                                join i in db.customer on a.id equals i.id_pedido //aqui faz o select na tabela customer (Cliente)
-                                join j in db.phone on a.id equals j.id_pedido
-                                group new { a, b, c, d, e, f, g, h, i, j } by a into grupo
-                                select new
-                                {
-                                    PedidoInfos = grupo.Key,
-                                    Items = grupo.Select(x => x.b).ToList(),
-                                    Delivery = new
-                                    {
-                                        mode = grupo.Select(p => p.f.mode).FirstOrDefault(),
-                                        deliveryBy = grupo.Select(p => p.f.deliveredBy).FirstOrDefault(),
-                                        deliveryDateTime = grupo.Select(p => p.f.deliveryDateTime).FirstOrDefault(),
-                                        observations = grupo.Select(p => p.f.observations).FirstOrDefault(),
-                                        pickupCode = grupo.Select(p => p.f.pickupCode).FirstOrDefault(),
-                                        deliveryAddress = new
-                                        {
-                                            streetName = grupo.Select(p => p.g.streetName).FirstOrDefault(),
-                                            streetNumber = grupo.Select(p => p.g.streetNumber).FirstOrDefault(),
-                                            formattedAddress = grupo.Select(p => p.g.formattedAddress).FirstOrDefault(),
-                                            neighborhood = grupo.Select(p => p.g.neighborhood).FirstOrDefault(),
-                                            complement = grupo.Select(p => p.g.complement).FirstOrDefault(),
-                                            postalCode = grupo.Select(p => p.g.postalCode).FirstOrDefault(),
-                                            city = grupo.Select(p => p.g.city).FirstOrDefault(),
-                                            state = "SP",
-                                            country = "BRASIL",
-                                            coordinates = new
-                                            {
-                                                latitude = grupo.Select(p => p.h.latitude).FirstOrDefault(),
-                                                longitude = grupo.Select(p => p.h.longitude).FirstOrDefault(),
-                                            }
-                                        },
-
-                                    },
-                                    customer = new
-                                    {
-                                        id = grupo.Select(p => p.i.id).FirstOrDefault(),
-                                        name = grupo.Select(p => p.i.name).FirstOrDefault(),
-                                        documentNumber = grupo.Select(p => p.i.documentNumber).FirstOrDefault(),
-                                        phone = new
-                                        {
-                                            number = grupo.Select(p => p.j.number).FirstOrDefault(),
-                                            localizer = grupo.Select(p => p.j.localizer).FirstOrDefault(),
-                                            localizerExpiration = grupo.Select(p => p.j.localizerExpiration).FirstOrDefault()
-                                        }
-
-                                    },
-                                    Payments = new
-                                    {
-                                        IdPedido = grupo.Select(p => p.c.id_pedido).FirstOrDefault(),
-                                        Prepaid = grupo.Select(p => p.c.prepaid).FirstOrDefault(),
-                                        Pending = grupo.Select(p => p.c.pending).FirstOrDefault(),
-                                        Methods = grupo.Select(x => x.d).Take(1).ToList(),
-                                    },
-                                    Total = grupo.Select(p => p.e).FirstOrDefault()
-
-
-                                };
-
-            var resultadoList = await resultado.ToListAsync();
-            string pedidoSerializado = JsonSerializer.Serialize(resultado);
-
-            List<PedidoParaOFront>? pedidoDeserializado = JsonSerializer.Deserialize<List<PedidoParaOFront>>(pedidoSerializado);
-            foreach (PedidoParaOFront item in pedidoDeserializado)
+            List<ParametrosDoPedido> pedidosFromDb = db.parametrosdopedido.ToList();
+            //adicionar cada json em uma lista para poder deserializar nas funções
+            foreach(ParametrosDoPedido item in pedidosFromDb)
             {
-                pedidoCompleto.Add(item);
-
+                PedidoCompleto pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
+                pedidos.Add(pedido);
             }
 
-            return pedidoCompleto; // Retorne a lista deserializada ou uma lista vazia se for nula
+            return pedidos;  
         }
         catch (Exception ex)
         {
@@ -302,8 +149,7 @@ internal class Ifood
             await Console.Out.WriteLineAsync(ex.Message);
         }
 
-        return pedidoCompleto;
-
+        return pedidos;
     }
 
     public static async void SetTimer()//set timer pra fazer o acionamento a cada 30 segundos do pulling
@@ -321,6 +167,6 @@ internal class Ifood
     {
         await Pulling();
         // Função para corrigir a diferença de thread 
-        
+
     }
 }

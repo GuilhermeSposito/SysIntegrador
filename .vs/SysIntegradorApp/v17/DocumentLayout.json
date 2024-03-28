@@ -3,32 +3,40 @@
   "WorkspaceRootPath": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\dbconection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:dbconection.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\classesauxiliares\\pedidocompleto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:classesauxiliares\\pedidocompleto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\formmenuinicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:formmenuinicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ucinfopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:ucinfopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\ifood.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:ifood.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\classesauxiliares\\parametrosdopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:classesauxiliares\\parametrosdopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\classesauxiliares\\pedidocompleto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:classesauxiliares\\pedidocompleto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\classesauxiliares\\pedidoparaofront.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:classesauxiliares\\pedidoparaofront.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\ucpedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ucpedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:ucpedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\classesauxiliares\\usercodereturnfromapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:classesauxiliares\\usercodereturnfromapi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ucinfopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:ucinfopedido.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|c:\\users\\gui-c\\onedrive\\\u00E1rea de trabalho\\sysintegrador\\sysintegradorapp\\formmenuinicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:formmenuinicial.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{97605A53-12AF-4D46-87A4-0D615F976A87}|SysIntegradorApp.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -38,98 +46,123 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 6,
+          "SelectedChildIndex": 4,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UserCodeReturnFromAPI.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\UserCodeReturnFromAPI.cs",
-              "RelativeDocumentMoniker": "ClassesAuxiliares\\UserCodeReturnFromAPI.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\UserCodeReturnFromAPI.cs",
-              "RelativeToolTip": "ClassesAuxiliares\\UserCodeReturnFromAPI.cs",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAAA5AAAA",
+              "DocumentIndex": 7,
+              "Title": "UCInfoPedido.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCInfoPedido.cs",
+              "RelativeDocumentMoniker": "UCInfoPedido.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCInfoPedido.cs",
+              "RelativeToolTip": "UCInfoPedido.cs",
+              "ViewState": "AQIAABcAAAAAAAAAAAA0wCMAAAAqAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-27T19:21:16.447Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "UCPedido.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCPedido.cs",
-              "RelativeDocumentMoniker": "UCPedido.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCPedido.cs",
-              "RelativeToolTip": "UCPedido.cs",
-              "ViewState": "AQIAAAkAAAAAAAAAAAAAABUAAABhAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-27T15:08:15.944Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "PedidoParaOFront.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoParaOFront.cs",
-              "RelativeDocumentMoniker": "ClassesAuxiliares\\PedidoParaOFront.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoParaOFront.cs",
-              "RelativeToolTip": "ClassesAuxiliares\\PedidoParaOFront.cs",
-              "ViewState": "AQIAABQAAAAAAAAAAAAIwBkAAAAsAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-27T14:54:41.798Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "PedidoCompleto.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoCompleto.cs",
-              "RelativeDocumentMoniker": "ClassesAuxiliares\\PedidoCompleto.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoCompleto.cs",
-              "RelativeToolTip": "ClassesAuxiliares\\PedidoCompleto.cs",
-              "ViewState": "AQIAABIAAAAAAAAAAAAAACAAAAAfAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-27T14:04:04.054Z",
+              "WhenOpened": "2024-03-28T13:00:59.668Z",
+              "IsPinned": true,
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "FormMenuInicial.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\FormMenuInicial.cs",
-              "RelativeDocumentMoniker": "FormMenuInicial.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\FormMenuInicial.cs",
-              "RelativeToolTip": "FormMenuInicial.cs",
-              "ViewState": "AQIAAC0AAAAAAAAAAAAuwDwAAAClAAAA",
+              "Title": "UCPedido.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCPedido.cs",
+              "RelativeDocumentMoniker": "UCPedido.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCPedido.cs",
+              "RelativeToolTip": "UCPedido.cs",
+              "ViewState": "AQIAACQAAAAAAAAAAAAcwCUAAACFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-27T14:00:44.702Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-03-28T13:13:40.737Z",
+              "IsPinned": true
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
-              "Title": "Form1.cs",
-              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Form1.cs",
-              "RelativeDocumentMoniker": "Form1.cs",
-              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Form1.cs",
-              "RelativeToolTip": "Form1.cs",
-              "ViewState": "AQIAAGcAAAAAAAAAAAAkwHcAAAALAAAA",
+              "Title": "PedidoCompleto.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoCompleto.cs",
+              "RelativeDocumentMoniker": "ClassesAuxiliares\\PedidoCompleto.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\PedidoCompleto.cs",
+              "RelativeToolTip": "ClassesAuxiliares\\PedidoCompleto.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABMAAAAqAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-26T19:53:33.791Z",
+              "WhenOpened": "2024-03-28T17:53:40.899Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "ParametrosDoPedido.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\ParametrosDoPedido.cs",
+              "RelativeDocumentMoniker": "ClassesAuxiliares\\ParametrosDoPedido.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\ClassesAuxiliares\\ParametrosDoPedido.cs",
+              "RelativeToolTip": "ClassesAuxiliares\\ParametrosDoPedido.cs",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAABkAAAAAAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-28T17:20:07.862Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "DbConection.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\DbConection.cs",
+              "RelativeDocumentMoniker": "DbConection.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\DbConection.cs",
+              "RelativeToolTip": "DbConection.cs",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABEAAABRAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-28T17:18:50.021Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "FormMenuInicial.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\FormMenuInicial.cs",
+              "RelativeDocumentMoniker": "FormMenuInicial.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\FormMenuInicial.cs",
+              "RelativeToolTip": "FormMenuInicial.cs",
+              "ViewState": "AQIAADcAAAAAAAAAAAAAADQAAAANAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-28T13:19:09.671Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "UCInfoPedido.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCInfoPedido.cs",
+              "RelativeDocumentMoniker": "UCInfoPedido.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\UCInfoPedido.cs [Design]",
+              "RelativeToolTip": "UCInfoPedido.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-28T13:51:25.475Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "Ifood.cs",
               "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Ifood.cs",
               "RelativeDocumentMoniker": "Ifood.cs",
               "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Ifood.cs",
               "RelativeToolTip": "Ifood.cs",
-              "ViewState": "AQIAAGAAAAAAAAAAAAAkwHcAAAA4AAAA",
+              "ViewState": "AQIAAHQAAAAAAAAAAAAkwJcAAAAWAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-03-26T19:37:55.425Z",
+              "WhenOpened": "2024-03-28T17:12:55.714Z",
               "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "C:\\Users\\gui-c\\OneDrive\\\u00C1rea de Trabalho\\SysIntegrador\\SysIntegradorApp\\Form1.cs",
+              "RelativeToolTip": "Form1.cs",
+              "ViewState": "AQIAAGIAAAAAAAAAAAAAAHYAAAA5AAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-03-28T17:49:40.019Z"
             }
           ]
         }

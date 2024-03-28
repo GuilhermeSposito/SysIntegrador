@@ -38,8 +38,9 @@
             labelIdPedidoNM = new Label();
             labelNumIfood = new Label();
             panel2 = new Panel();
-            label3 = new Label();
-            labelTipoEntrega = new Label();
+            tipoEntrega = new Label();
+            labelEndereco = new Label();
+            labelTipoEntregaNM = new Label();
             panel4 = new Panel();
             panel5 = new Panel();
             tempoPedidoConcluido = new Label();
@@ -169,32 +170,43 @@
             // 
             panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.BorderStyle = BorderStyle.FixedSingle;
-            panel2.Controls.Add(label3);
-            panel2.Controls.Add(labelTipoEntrega);
+            panel2.Controls.Add(tipoEntrega);
+            panel2.Controls.Add(labelEndereco);
+            panel2.Controls.Add(labelTipoEntregaNM);
             panel2.Location = new Point(105, 166);
             panel2.Name = "panel2";
             panel2.Size = new Size(984, 68);
             panel2.TabIndex = 4;
             // 
-            // label3
+            // tipoEntrega
             // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI", 12F);
-            label3.Location = new Point(411, 18);
-            label3.Name = "label3";
-            label3.Size = new Size(397, 28);
-            label3.TabIndex = 1;
-            label3.Text = "Rua Dr Jonas Novaes, 979 - Planalto Paraíso ";
+            tipoEntrega.AutoSize = true;
+            tipoEntrega.Font = new Font("Segoe UI Semibold", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            tipoEntrega.Location = new Point(118, 23);
+            tipoEntrega.Name = "tipoEntrega";
+            tipoEntrega.Size = new Size(107, 23);
+            tipoEntrega.TabIndex = 2;
+            tipoEntrega.Text = "Tipo Entrega";
             // 
-            // labelTipoEntrega
+            // labelEndereco
             // 
-            labelTipoEntrega.AutoSize = true;
-            labelTipoEntrega.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelTipoEntrega.Location = new Point(128, 18);
-            labelTipoEntrega.Name = "labelTipoEntrega";
-            labelTipoEntrega.Size = new Size(152, 28);
-            labelTipoEntrega.TabIndex = 0;
-            labelTipoEntrega.Text = "Entrega Propria:";
+            labelEndereco.AutoSize = true;
+            labelEndereco.Font = new Font("Segoe UI", 12F);
+            labelEndereco.Location = new Point(411, 18);
+            labelEndereco.Name = "labelEndereco";
+            labelEndereco.Size = new Size(397, 28);
+            labelEndereco.TabIndex = 1;
+            labelEndereco.Text = "Rua Dr Jonas Novaes, 979 - Planalto Paraíso ";
+            // 
+            // labelTipoEntregaNM
+            // 
+            labelTipoEntregaNM.AutoSize = true;
+            labelTipoEntregaNM.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point, 0);
+            labelTipoEntregaNM.Location = new Point(24, 18);
+            labelTipoEntregaNM.Name = "labelTipoEntregaNM";
+            labelTipoEntregaNM.Size = new Size(88, 28);
+            labelTipoEntregaNM.TabIndex = 0;
+            labelTipoEntregaNM.Text = "Entrega: ";
             // 
             // panel4
             // 
@@ -578,9 +590,9 @@
         private Label numId;
         private Label labelIdPedidoNM;
         private Label labelNumIfood;
-        private Label labelTipoEntrega;
+        private Label labelTipoEntregaNM;
         private PictureBox pictureBox1;
-        private Label label3;
+        private Label labelEndereco;
         private Label tempoPedidoConcluido;
         private Label labelPedidoConcluidoaNM;
         private Label labelTotalNM;
@@ -597,5 +609,6 @@
         private Label infoPagPedido;
         private Label labelCPF;
         private Label label16;
+        private Label tipoEntrega;
     }
 }

@@ -6,6 +6,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -43,23 +44,40 @@ namespace SysIntegradorApp
 
         private async void btnTeste_Click(object sender, EventArgs e)
         {
-            await Ifood.GetPedido();
+            SetarPanelPedidos();
         }
 
-        public async void SetarPanelPedidos()
+        public static async void SetarPanelPedidos()
         {
             try
             {
-                List<PedidoParaOFront> pedidos = await Ifood.GetPedido();
+                List<PedidoCompleto> pedidos = await Ifood.GetPedido();
 
                 panelPedidos.Controls.Clear();
                 panelPedidos.PerformLayout();
 
-                foreach (PedidoParaOFront item in pedidos)
+                //Faz um loop para adicionar os UserControls De pedido no panel
+                foreach (PedidoCompleto item in pedidos)
                 {
-                        UCPedido UserControlPedido = new UCPedido();
-                        UserControlPedido.SetLabels(item.PedidoInfos.id, item.PedidoInfos.displayId, item.Customer.name, item.PedidoInfos.createdAt, item.PedidoInfos.StatusCode);;
-                        panelPedidos.Controls.Add(UserControlPedido);
+                        UCPedido UserControlPedido = new UCPedido() { Id_pedido = item.id, //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega =  item.orderTiming,
+                            LocalizadorPedido = item.delivery.pickupCode,
+                            EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
+                            Bairro = item.delivery.deliveryAddress.neighborhood,
+                            TipoDaEntrega = item.delivery.deliveredBy,
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            Observations=  item.delivery.observations };
+
+
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt); // aqui muda as labels do user control para cada pedido em questão
+                          
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel 
                 }
 
                 panelPedidos.PerformLayout();
