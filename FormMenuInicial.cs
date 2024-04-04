@@ -100,7 +100,7 @@ public partial class FormMenuInicial : Form
             });
 
 
-            int contador = 0;
+         
             //Faz um loop para adicionar os UserControls De pedido no panel
             foreach (var item in pedidosOrdenado)
             {
@@ -154,15 +154,15 @@ public partial class FormMenuInicial : Form
                     };
 
 
-                    UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, pedidoOrdenado[contador].Situacao); // aqui muda as labels do user control para cada pedido em questão
+                    UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
                     panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
 
                 }
-                contador++;
+               
             }
 
-            contador = 0;
+         
             panelPedidos.PerformLayout();
 
         }

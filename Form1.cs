@@ -140,22 +140,24 @@ namespace SysIntegradorApp
                 string idMerchant = "9362018a-6ae2-439c-968b-a40177a085ea";
                 string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
 
-                using ApplicationDbContext db = new ApplicationDbContext();
-
-                Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-
-
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
-                HttpResponseMessage response = await client.GetAsync(url);
-
-                if (response.IsSuccessStatusCode)
+                using (ApplicationDbContext db = new ApplicationDbContext())
                 {
-                    Token.TokenDaSessao = tokenNoDb.accessToken;
 
-                    FormMenuInicial menu = new FormMenuInicial();
-                    menu.Show();
-                    this.Hide();
+                    Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+
+
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
+                    HttpResponseMessage response = await client.GetAsync(url);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Token.TokenDaSessao = tokenNoDb.accessToken;
+
+                        FormMenuInicial menu = new FormMenuInicial();
+                        menu.Show();
+                        this.Hide();
+                    }
                 }
 
             }

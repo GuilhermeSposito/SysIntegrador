@@ -34,21 +34,16 @@ internal class Ifood
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
                 List<Pedido>? pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonContent); //pedidos nesse caso é o pulling 
+                List<string> listaDePullings = new List<string>();
 
                 using (var dbContex = new ApplicationDbContext())
                 {
-                    var pullingsNaBase = dbContex.pulling.ToList();
+                    var pullingNoDB = dbContex.pulling.ToList();
 
                     foreach (var pullingAtual in pedidos)
                     {
-                        var confereSeJaExiste = pullingsNaBase.Any((p) => p.id.Contains(pullingAtual.id));
-
-                        if (!confereSeJaExiste) //só entra aqui caso o pulling não existir
-                        {
-                            dbContex.pulling.Add(new Pulling() { id = pullingAtual.id });
-                        }
-
-                        var confereSeJaExisteOPedido = dbContex.parametrosdopedido.Any((p) => p.Id.Contains(pullingAtual.orderId));
+                        bool confereSeJaExisteOPedido = dbContex.parametrosdopedido.Any(p => p.Id == pullingAtual.orderId);
+                        bool verificaSeJaExistePulling = dbContex.pulling.Any(p=> p.id == pullingAtual.id);
 
                         if (confereSeJaExisteOPedido)
                         {
@@ -57,26 +52,26 @@ internal class Ifood
                             dbContex.SaveChanges();
                         }
 
-                        if (!confereSeJaExisteOPedido)
+                        if (!confereSeJaExisteOPedido && !verificaSeJaExistePulling)
                         {
                             await SetPedido(pullingAtual.orderId, pullingAtual.fullCode);
                             ConfirmarPedido(pullingAtual.orderId);
                         }
 
+                        listaDePullings.Add(pullingAtual.id);
+
                     }
 
-                    var pullingsNaBaseAtualizado = dbContex.pulling.ToList();
-
-                    var pulingsToJson = JsonSerializer.Serialize(pullingsNaBaseAtualizado);
+                    var pulingsToJson = JsonSerializer.Serialize(listaDePullings);
                     StringContent content = new StringContent(pulingsToJson, Encoding.UTF8, "application/json");
 
                     await client.PostAsync($"{url}/acknowledgment", content);
+                    listaDePullings.Clear();
+
+                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                 }
 
             }
-
-            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-
         }
         catch (Exception ex)
         {
@@ -96,15 +91,10 @@ internal class Ifood
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
             HttpResponseMessage response = await client.GetAsync(url);
 
-            if (Convert.ToInt32(response.StatusCode) == 404)
-            {
-                throw new HttpRequestException("Pedido Não Encontrado");
-            }
-
+                
 
             string? pedidoJson = await response.Content.ReadAsStringAsync();
             PedidoCompleto? pedidoCompletoTotal = JsonSerializer.Deserialize<PedidoCompleto>(pedidoJson);
-
 
             using (var db = new ApplicationDbContext())
             {
@@ -356,7 +346,7 @@ internal class Ifood
         {
             MessageBox.Show(ex.Message, "ERRO AO ATIVAR PULLING");
         }
-     
+
 
     }
 }
