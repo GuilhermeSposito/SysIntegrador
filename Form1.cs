@@ -1,5 +1,8 @@
+using System.Net.Http.Headers;
 using System.Security.Policy;
 using System.Text.Json;
+using ExCSS;
+using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares;
 
@@ -83,16 +86,33 @@ namespace SysIntegradorApp
                     throw new HttpRequestException("\nErro ao acessar o token de acesso\n");
                 }
 
-                string jsonObjTokenFromAPI = await responseWithToken.Content.ReadAsStringAsync();
+                string? jsonObjTokenFromAPI = await responseWithToken.Content.ReadAsStringAsync();
                 Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(jsonObjTokenFromAPI);
+
+                using ApplicationDbContext db = new ApplicationDbContext();
+
+                //var order = dbContex.parametrosdopedido.Where(p => p.Id == pullingAtual.orderId).FirstOrDefault();
+
+                var tokenDB = db.parametrosdeautenticacao.Where(p => p.id == 1).FirstOrDefault();
+
+                if (tokenDB == null)
+                { // se entrar aqui é porque não existe nenhum token no banco de dados
+                    db.parametrosdeautenticacao.Add(propriedadesAPIWithToken);
+                    db.SaveChanges();
+                }
+                else
+                { //entra aqui e atualiza as informações dentro do banco de dados para o novo token, e não cria um novo no banco de dados, só atualiza
+                    tokenDB.accessToken = propriedadesAPIWithToken.accessToken;
+                    tokenDB.refreshToken = propriedadesAPIWithToken.refreshToken;
+                    tokenDB.expiresIn = propriedadesAPIWithToken.expiresIn;
+                    db.SaveChanges();
+                }
 
                 Token.TokenDaSessao = propriedadesAPIWithToken.accessToken;
 
-                //MessageBox.Show("Conexão Feita com sucesso", "Parabens", MessageBoxButtons.OKCancel);
                 FormMenuInicial menu = new FormMenuInicial();
                 menu.Show();
                 this.Hide();
-
             }
             catch (Exception ex)
             {
@@ -113,12 +133,38 @@ namespace SysIntegradorApp
             this.Close();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
+        private async void Form1_Load(object sender, EventArgs e)
         {
-            
-            FormMenuInicial menu = new FormMenuInicial();
-            menu.Show();
-            Token.TokenDaSessao = "eyJraWQiOiJlZGI4NWY2Mi00ZWY5LTExZTktODY0Ny1kNjYzYmQ4NzNkOTMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJiZDg2MmYwNy0zYTgxLTRkZTYtYWM5Ni05NzJiNjZhNDljZTciLCJvd25lcl9uYW1lIjoiZ3VpbGhlcm1ldGVzdGVzIiwiaXNzIjoiaUZvb2QiLCJjbGllbnRfaWQiOiJjYzQ0Y2Q2MS1jYmI3LTQ0MjQtOTE5Yi1hM2RmNDI4N2FlYzEiLCJhcHBfbmFtZSI6Imd1aWxoZXJtZXRlc3Rlcy10ZXN0ZS1kIiwiYXVkIjpbInNoaXBwaW5nIiwiY2F0YWxvZyIsInJldmlldyIsImZpbmFuY2lhbCIsIm1lcmNoYW50IiwibG9naXN0aWNzIiwiZ3JvY2VyaWVzIiwiZXZlbnRzIiwib3JkZXIiLCJvYXV0aC1zZXJ2ZXIiXSwic2NvcGUiOlsic2hpcHBpbmciLCJjYXRhbG9nIiwicmV2aWV3IiwibWVyY2hhbnQiLCJsb2dpc3RpY3MiLCJncm9jZXJpZXMiLCJldmVudHMiLCJvcmRlciIsImNvbmNpbGlhdG9yIl0sInR2ZXIiOiJ2MiIsIm1lcmNoYW50X3Njb3BlIjpbIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTptZXJjaGFudCIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpvcmRlciIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpjYXRhbG9nIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmNvbmNpbGlhdG9yIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOnJldmlldyIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpsb2dpc3RpY3MiLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6c2hpcHBpbmciLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6Z3JvY2VyaWVzIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmV2ZW50cyJdLCJleHAiOjE3MTE0MTM3MTAsImlhdCI6MTcxMTM5MjExMCwianRpIjoiYmQ4NjJmMDctM2E4MS00ZGU2LWFjOTYtOTcyYjY2YTQ5Y2U3OmNjNDRjZDYxLWNiYjctNDQyNC05MTliLWEzZGY0Mjg3YWVjMSIsIm1lcmNoYW50X3Njb3BlZCI6dHJ1ZX0.MG9Yx5HnoHcHGgfNjdF1SNMkYgDJvT1v32hJzmHHdqN8wfWJWpVujmYtA42ksRxRaEqApzgOmzo-iRzifzsol1XkLNMeqRP2yP6Z9zrDzf660_2Z-J6q63UXYi_UTS0rNy4KlO4R1bJgz6kcuvM9KrWyX0nps6RsSVCNnuNOQHY";
+            try
+            {
+                string idMerchant = "9362018a-6ae2-439c-968b-a40177a085ea";
+                string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
+
+                using ApplicationDbContext db = new ApplicationDbContext();
+
+                Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+
+
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Token.TokenDaSessao = tokenNoDb.accessToken;
+
+                    FormMenuInicial menu = new FormMenuInicial();
+                    menu.Show();
+                    this.Hide();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString(), "Ops");
+            }
+
+
         }
     }
 }

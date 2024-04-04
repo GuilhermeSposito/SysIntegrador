@@ -101,7 +101,6 @@
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            BorderStyle = BorderStyle.FixedSingle;
             Controls.Add(labelStatus);
             Controls.Add(labelHorarioDeEntrega);
             Controls.Add(labelEntregarAte);
@@ -110,9 +109,11 @@
             Controls.Add(pictureBox1);
             Cursor = Cursors.Hand;
             Name = "UCPedido";
-            Size = new Size(359, 115);
+            Size = new Size(350, 116);
             Load += UCPedido_Load;
             Click += UCPedido_Click;
+            Enter += UCPedido_Enter;
+            Leave += UCPedido_Leave;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();

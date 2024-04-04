@@ -41,10 +41,6 @@
             tipoEntrega = new Label();
             labelEndereco = new Label();
             labelTipoEntregaNM = new Label();
-            panel4 = new Panel();
-            panel5 = new Panel();
-            tempoPedidoConcluido = new Label();
-            labelPedidoConcluidoaNM = new Label();
             panel6 = new Panel();
             valorTotal = new Label();
             labelTotalNM = new Label();
@@ -63,6 +59,7 @@
             labelCPF = new Label();
             label16 = new Label();
             panel9 = new Panel();
+            btnDespacharIfood = new Button();
             btnImprimir = new Button();
             labelPedidoNM = new Label();
             label4 = new Label();
@@ -71,10 +68,13 @@
             labelLocalizadorNM = new Label();
             labelLocalizadorPedido = new Label();
             pictureBox1 = new PictureBox();
+            panelDeItens = new FlowLayoutPanel();
+            groupBoxDeItens = new GroupBox();
+            btnDespacharDelMacth = new Button();
+            btnCancelar = new Button();
             panel1.SuspendLayout();
             panel3.SuspendLayout();
             panel2.SuspendLayout();
-            panel5.SuspendLayout();
             panel6.SuspendLayout();
             panel7.SuspendLayout();
             panel8.SuspendLayout();
@@ -99,7 +99,7 @@
             panel1.BorderStyle = BorderStyle.FixedSingle;
             panel1.Controls.Add(horarioEntregaPrevista);
             panel1.Controls.Add(labelEntregaPrevistaNM);
-            panel1.Location = new Point(105, 99);
+            panel1.Location = new Point(106, 84);
             panel1.Name = "panel1";
             panel1.Size = new Size(251, 40);
             panel1.TabIndex = 1;
@@ -131,7 +131,7 @@
             panel3.Controls.Add(numId);
             panel3.Controls.Add(labelIdPedidoNM);
             panel3.Controls.Add(labelNumIfood);
-            panel3.Location = new Point(475, 99);
+            panel3.Location = new Point(484, 83);
             panel3.Name = "panel3";
             panel3.Size = new Size(605, 40);
             panel3.TabIndex = 3;
@@ -173,7 +173,7 @@
             panel2.Controls.Add(tipoEntrega);
             panel2.Controls.Add(labelEndereco);
             panel2.Controls.Add(labelTipoEntregaNM);
-            panel2.Location = new Point(105, 166);
+            panel2.Location = new Point(106, 144);
             panel2.Name = "panel2";
             panel2.Size = new Size(984, 68);
             panel2.TabIndex = 4;
@@ -207,46 +207,6 @@
             labelTipoEntregaNM.Size = new Size(88, 28);
             labelTipoEntregaNM.TabIndex = 0;
             labelTipoEntregaNM.Text = "Entrega: ";
-            // 
-            // panel4
-            // 
-            panel4.BackColor = SystemColors.ButtonHighlight;
-            panel4.BorderStyle = BorderStyle.FixedSingle;
-            panel4.Location = new Point(105, 282);
-            panel4.Name = "panel4";
-            panel4.Size = new Size(984, 470);
-            panel4.TabIndex = 5;
-            // 
-            // panel5
-            // 
-            panel5.BackColor = SystemColors.AppWorkspace;
-            panel5.BorderStyle = BorderStyle.FixedSingle;
-            panel5.Controls.Add(tempoPedidoConcluido);
-            panel5.Controls.Add(labelPedidoConcluidoaNM);
-            panel5.Location = new Point(105, 282);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(984, 68);
-            panel5.TabIndex = 6;
-            // 
-            // tempoPedidoConcluido
-            // 
-            tempoPedidoConcluido.AutoSize = true;
-            tempoPedidoConcluido.Font = new Font("Segoe UI", 12F);
-            tempoPedidoConcluido.Location = new Point(229, 17);
-            tempoPedidoConcluido.Name = "tempoPedidoConcluido";
-            tempoPedidoConcluido.Size = new Size(111, 28);
-            tempoPedidoConcluido.TabIndex = 1;
-            tempoPedidoConcluido.Text = "23 Minutos";
-            // 
-            // labelPedidoConcluidoaNM
-            // 
-            labelPedidoConcluidoaNM.AutoSize = true;
-            labelPedidoConcluidoaNM.Font = new Font("Segoe UI", 12F);
-            labelPedidoConcluidoaNM.Location = new Point(39, 17);
-            labelPedidoConcluidoaNM.Name = "labelPedidoConcluidoaNM";
-            labelPedidoConcluidoaNM.Size = new Size(198, 28);
-            labelPedidoConcluidoaNM.TabIndex = 0;
-            labelPedidoConcluidoaNM.Text = "Pedido Conclúido há ";
             // 
             // panel6
             // 
@@ -425,12 +385,33 @@
             panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonHighlight;
             panel9.BorderStyle = BorderStyle.FixedSingle;
+            panel9.Controls.Add(btnCancelar);
+            panel9.Controls.Add(btnDespacharDelMacth);
+            panel9.Controls.Add(btnDespacharIfood);
             panel9.Controls.Add(btnImprimir);
             panel9.Location = new Point(105, 1390);
             panel9.Name = "panel9";
             panel9.Padding = new Padding(0, 10, 0, 0);
             panel9.Size = new Size(984, 70);
             panel9.TabIndex = 10;
+            // 
+            // btnDespacharIfood
+            // 
+            btnDespacharIfood.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnDespacharIfood.BackColor = SystemColors.ButtonHighlight;
+            btnDespacharIfood.FlatAppearance.BorderColor = Color.Blue;
+            btnDespacharIfood.FlatAppearance.BorderSize = 2;
+            btnDespacharIfood.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnDespacharIfood.FlatAppearance.MouseOverBackColor = Color.White;
+            btnDespacharIfood.FlatStyle = FlatStyle.Flat;
+            btnDespacharIfood.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDespacharIfood.ForeColor = Color.Blue;
+            btnDespacharIfood.Location = new Point(166, 13);
+            btnDespacharIfood.Name = "btnDespacharIfood";
+            btnDespacharIfood.Size = new Size(107, 39);
+            btnDespacharIfood.TabIndex = 1;
+            btnDespacharIfood.Text = "Despachar";
+            btnDespacharIfood.UseVisualStyleBackColor = false;
             // 
             // btnImprimir
             // 
@@ -519,13 +500,73 @@
             pictureBox1.TabIndex = 19;
             pictureBox1.TabStop = false;
             // 
+            // panelDeItens
+            // 
+            panelDeItens.AutoScroll = true;
+            panelDeItens.BackColor = SystemColors.ControlLightLight;
+            panelDeItens.BorderStyle = BorderStyle.FixedSingle;
+            panelDeItens.FlowDirection = FlowDirection.TopDown;
+            panelDeItens.Location = new Point(106, 265);
+            panelDeItens.Name = "panelDeItens";
+            panelDeItens.Padding = new Padding(85, 0, 0, 0);
+            panelDeItens.Size = new Size(983, 498);
+            panelDeItens.TabIndex = 20;
+            panelDeItens.WrapContents = false;
+            // 
+            // groupBoxDeItens
+            // 
+            groupBoxDeItens.FlatStyle = FlatStyle.Popup;
+            groupBoxDeItens.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            groupBoxDeItens.Location = new Point(98, 231);
+            groupBoxDeItens.Name = "groupBoxDeItens";
+            groupBoxDeItens.Size = new Size(1006, 546);
+            groupBoxDeItens.TabIndex = 21;
+            groupBoxDeItens.TabStop = false;
+            groupBoxDeItens.Text = "Itens:";
+            // 
+            // btnDespacharDelMacth
+            // 
+            btnDespacharDelMacth.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnDespacharDelMacth.BackColor = SystemColors.ButtonHighlight;
+            btnDespacharDelMacth.FlatAppearance.BorderColor = Color.DarkOrange;
+            btnDespacharDelMacth.FlatAppearance.BorderSize = 2;
+            btnDespacharDelMacth.FlatAppearance.MouseDownBackColor = Color.DarkOrange;
+            btnDespacharDelMacth.FlatAppearance.MouseOverBackColor = Color.White;
+            btnDespacharDelMacth.FlatStyle = FlatStyle.Flat;
+            btnDespacharDelMacth.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDespacharDelMacth.ForeColor = Color.DarkOrange;
+            btnDespacharDelMacth.Location = new Point(313, 13);
+            btnDespacharDelMacth.Name = "btnDespacharDelMacth";
+            btnDespacharDelMacth.Size = new Size(107, 39);
+            btnDespacharDelMacth.TabIndex = 2;
+            btnDespacharDelMacth.Text = "Despachar";
+            btnDespacharDelMacth.UseVisualStyleBackColor = false;
+            // 
+            // btnCancelar
+            // 
+            btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnCancelar.BackColor = SystemColors.ButtonHighlight;
+            btnCancelar.FlatAppearance.BorderColor = Color.Red;
+            btnCancelar.FlatAppearance.BorderSize = 2;
+            btnCancelar.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnCancelar.FlatAppearance.MouseOverBackColor = Color.White;
+            btnCancelar.FlatStyle = FlatStyle.Flat;
+            btnCancelar.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancelar.ForeColor = Color.Red;
+            btnCancelar.Location = new Point(846, 13);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(107, 39);
+            btnCancelar.TabIndex = 3;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = false;
+            // 
             // UCInfoPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = SystemColors.ControlLight;
-            BorderStyle = BorderStyle.FixedSingle;
+            Controls.Add(panelDeItens);
             Controls.Add(pictureBox1);
             Controls.Add(labelLocalizadorPedido);
             Controls.Add(labelLocalizadorNM);
@@ -537,23 +578,20 @@
             Controls.Add(panel8);
             Controls.Add(panel7);
             Controls.Add(panel6);
-            Controls.Add(panel5);
-            Controls.Add(panel4);
             Controls.Add(panel2);
             Controls.Add(panel3);
             Controls.Add(panel1);
             Controls.Add(label1);
-            Margin = new Padding(60, 10, 10, 20);
+            Controls.Add(groupBoxDeItens);
+            Margin = new Padding(0);
             Name = "UCInfoPedido";
-            Size = new Size(1328, 1519);
+            Size = new Size(1330, 1521);
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
-            panel5.ResumeLayout(false);
-            panel5.PerformLayout();
             panel6.ResumeLayout(false);
             panel6.PerformLayout();
             panel7.ResumeLayout(false);
@@ -572,8 +610,6 @@
         private Panel panel1;
         private Panel panel3;
         private Panel panel2;
-        private Panel panel4;
-        private Panel panel5;
         private Panel panel6;
         private Panel panel7;
         private Panel panel8;
@@ -593,8 +629,6 @@
         private Label labelTipoEntregaNM;
         private PictureBox pictureBox1;
         private Label labelEndereco;
-        private Label tempoPedidoConcluido;
-        private Label labelPedidoConcluidoaNM;
         private Label labelTotalNM;
         private Label valorDescontos;
         private Label labelDescontosNM;
@@ -610,5 +644,10 @@
         private Label labelCPF;
         private Label label16;
         private Label tipoEntrega;
+        private FlowLayoutPanel panelDeItens;
+        private GroupBox groupBoxDeItens;
+        private Button btnDespacharIfood;
+        private Button btnCancelar;
+        private Button btnDespacharDelMacth;
     }
 }

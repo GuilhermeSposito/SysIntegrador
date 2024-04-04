@@ -12,6 +12,7 @@ namespace SysIntegradorApp;
 
 public class ApplicationDbContext : DbContext
 {
+    public DbSet<Token> parametrosdeautenticacao {  get; set; }
     public DbSet<Pulling> pulling { get; set; }
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
 

@@ -13,11 +13,13 @@ namespace SysIntegradorApp.ClassesAuxiliares;
 
 public class PedidoCompleto
 {
+    public string? Situacao {  get; set; }
     public string? id { get; set; }
     public string? displayId { get; set; }
     public string? createdAt { get; set; }
     public string? orderTiming { get; set; }
     public string? orderType { get; set; }
+    public TakeOut takeout { get; set; } = new TakeOut();
     public Delivery delivery { get; set; } = new Delivery(); //tabela nova //não inserir no banco inicialmente
     public string? preparationStartDateTime { get; set; }
     public bool isTest { get; set; }
@@ -53,6 +55,13 @@ public class pedidocompleto //Classe para inserir na tabela pedido completo no b
     [Column("statuscode")]
     public string StatusCode { get; set; }
     public pedidocompleto() { }
+}
+
+
+public class TakeOut
+{
+    public string? mode { get; set; }
+    public string? takeoutDateTime {  get; set; } 
 }
 
 public class Delivery
@@ -174,8 +183,23 @@ public class Items
 
     public float totalPrice { get; set; }
     public float price { get; set; }
+    public List<Options> options { get; set; } = new List<Options>();
 
     public Items() { }
+}
+
+public class Options
+{
+    public int index { set; get; }
+    public string? id { set; get; } 
+    public string? name { set; get; }   
+    public int quantity { set; get; }
+    public string? unit { set; get; }
+    public float unitPrice { set; get; }
+    public float addition { set; get; }
+    public float price { set; get; }
+
+    public Options(){}
 }
 
 [Table("total")]

@@ -15,7 +15,7 @@ public partial class UCPedido : UserControl
 {
     public string? Id_pedido { get; set; }
     public string? NomePedido { get; set; }
-    public string? FeitoAs {  get; set; }
+    public string? FeitoAs { get; set; }
     public string? HorarioEntrega { get; set; }
     public string? LocalizadorPedido { get; set; }
     public string? EnderecoFormatado { get; set; }
@@ -27,6 +27,7 @@ public partial class UCPedido : UserControl
     public float Descontos { get; set; }
     public float TotalDoPedido { get; set; }
     public string? Observations { get; set; }
+    public List<Items> items { get; set; }
 
     public UCPedido()
     {
@@ -35,12 +36,12 @@ public partial class UCPedido : UserControl
 
 
 
-    public void SetLabels(string id_pedido, string numPedido, string nomePedido, string horarioPedido, string statusPedido = "teste")
+    public void SetLabels(string id_pedido, string numPedido, string nomePedido, string horarioPedido, string statusPedido)
     {
         Id_pedido = id_pedido;
         labelNumPedido.Text = $"#{numPedido}";
         labelNomePedido.Text = nomePedido;
-        labelHorarioDeEntrega.Text = horarioPedido;
+        labelHorarioDeEntrega.Text = horarioPedido.Substring(11, 5);
         labelStatus.Text = statusPedido;
     }
 
@@ -48,12 +49,12 @@ public partial class UCPedido : UserControl
 
     private void UCPedido_Load(object sender, EventArgs e) { }
 
-    public void UCPedido_Click(object sender, EventArgs e)
+    public async void UCPedido_Click(object sender, EventArgs e)
     {
         FormMenuInicial.panelDetalhePedido.Controls.Clear();
         FormMenuInicial.panelDetalhePedido.PerformLayout();
         UCInfoPedido infoPedido = new UCInfoPedido();
-        infoPedido.SetLabels(   id_Pedido: Id_pedido,
+        infoPedido.SetLabels(id_Pedido: Id_pedido,
                                nomePedido: NomePedido,
                                feitoAs: FeitoAs,
                                horarioEntrega: HorarioEntrega,
@@ -67,6 +68,39 @@ public partial class UCPedido : UserControl
                                descontos: Descontos,
                                total: TotalDoPedido,
                                observations: Observations);
+
+        infoPedido.InsereItemNoPedido(items);
+        FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
         FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+
+    }
+
+    private void UCPedido_Enter(object sender, EventArgs e)
+    {
+        this.BackColor = SystemColors.Control;
+        UCInfoPedido infoPedido = new UCInfoPedido();
+        infoPedido.SetLabels(id_Pedido: Id_pedido,
+                              nomePedido: NomePedido,
+                              feitoAs: FeitoAs,
+                              horarioEntrega: HorarioEntrega,
+                              localizadorPedido: LocalizadorPedido,
+                              enderecoFormatado: EnderecoFormatado,
+                              bairro: Bairro,
+                              TipoEntrega: TipoDaEntrega,
+                              valorTotalItens: ValorTotalItens,
+                              valorTaxaDeentrega: ValorTaxaDeentrega,
+                              valortaxaadicional: Valortaxaadicional,
+                              descontos: Descontos,
+                              total: TotalDoPedido,
+                              observations: Observations);
+
+        infoPedido.InsereItemNoPedido(items);
+        FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+
+    }
+
+    private void UCPedido_Leave(object sender, EventArgs e)
+    {
+        this.BackColor = Color.White;
     }
 }
