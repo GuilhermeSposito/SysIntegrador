@@ -5,6 +5,9 @@ using ExCSS;
 using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares;
+using System.Diagnostics;
+using System.Windows.Forms;
+
 
 namespace SysIntegradorApp
 {
@@ -45,6 +48,16 @@ namespace SysIntegradorApp
                     UserCodeReturnFromAPI codesOfVerif = JsonSerializer.Deserialize<UserCodeReturnFromAPI>(jsonContent);
                     UserCodeReturnFromAPI.CodeVerifier = codesOfVerif.authorizationCodeVerifier; //seta o valor em uma propriedade static para podermos pegar no proximo método 
 
+                    string? urlVerificacao = codesOfVerif.verificationUrlComplete;
+
+                    if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = urlVerificacao,
+                            UseShellExecute = true
+                        });
+                    }
 
                     Clipboard.SetText(codesOfVerif.userCode);
                     LabelInfoToUser.Visible = true;

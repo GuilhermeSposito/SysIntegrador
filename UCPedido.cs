@@ -77,7 +77,7 @@ public partial class UCPedido : UserControl
 
     private void UCPedido_Enter(object sender, EventArgs e)
     {
-        this.BackColor = SystemColors.Control;
+        this.BackColor = Color.DarkGray;
         UCInfoPedido infoPedido = new UCInfoPedido();
         infoPedido.SetLabels(id_Pedido: Id_pedido,
                               nomePedido: NomePedido,

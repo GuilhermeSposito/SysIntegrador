@@ -14,18 +14,4 @@ public class Pulling
     {
 
     }
-
-    public static void GetPullings()
-    {
-        using (var dbContext = new ApplicationDbContext())
-        {
-            var pullings = dbContext.pulling;
-
-            Console.WriteLine("\n\tPullings já relizados\n");
-            foreach (var pulling in pullings)
-            {
-                Console.WriteLine($" id: {pulling.id}");
-            }
-        }
-    }
 }

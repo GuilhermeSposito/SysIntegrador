@@ -11,6 +11,7 @@ using SysIntegradorApp.ClassesAuxiliares;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Data;
 using System.Data.OleDb;
+using System.Net.Http.Json;
 
 
 namespace SysIntegradorApp;
@@ -19,59 +20,54 @@ internal class Ifood
 {
     private static System.Timers.Timer aTimer;
 
-    public static async Task Pulling() //pulling feito de 30 em 30 Segundos, Caso seja encontrado algum novo pedido ele chama o GetPedidos
+    public static async Task Polling() //pulling feito de 30 em 30 Segundos, Caso seja encontrado algum novo pedido ele chama o GetPedidos
     {
         string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
         try
         {
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
-            HttpResponseMessage reponse = await client.GetAsync($"{url}:polling");
+            var reponse = await client.GetAsync($"{url}:polling");
 
             int statusCode = (int)reponse.StatusCode;
             if (statusCode == 200)
             {
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
-                List<Pedido>? pedidos = JsonSerializer.Deserialize<List<Pedido>>(jsonContent); //pedidos nesse caso é o pulling 
-                List<string> listaDePullings = new List<string>();
+                List<Pedido>? pollings = JsonSerializer.Deserialize<List<Pedido>>(jsonContent); //pedidos nesse caso é o pulling 
 
-                using (var dbContex = new ApplicationDbContext())
+                foreach (var P in pollings)
                 {
-                    var pullingNoDB = dbContex.pulling.ToList();
-
-                    foreach (var pullingAtual in pedidos)
+                    switch (P.code)
                     {
-                        bool confereSeJaExisteOPedido = dbContex.parametrosdopedido.Any(p => p.Id == pullingAtual.orderId);
-                        bool verificaSeJaExistePulling = dbContex.pulling.Any(p=> p.id == pullingAtual.id);
-
-                        if (confereSeJaExisteOPedido)
-                        {
-                            var order = dbContex.parametrosdopedido.Where(p => p.Id == pullingAtual.orderId).FirstOrDefault();
-                            order.Situacao = pullingAtual.fullCode;
-                            dbContex.SaveChanges();
-                        }
-
-                        if (!confereSeJaExisteOPedido && !verificaSeJaExistePulling)
-                        {
-                            await SetPedido(pullingAtual.orderId, pullingAtual.fullCode);
-                            ConfirmarPedido(pullingAtual.orderId);
-                        }
-
-                        listaDePullings.Add(pullingAtual.id);
-
+                        case "PLC": //caso entre aqui é porque é um novo pedido
+                            await SetPedido(P.orderId, P.fullCode);
+                            await AvisarAcknowledge(P);
+                            break;
+                        case "CFM":
+                            await AtualizarStatusPedido(P.orderId, P.fullCode);
+                            await AvisarAcknowledge(P);
+                            break;
+                        case "CAN":
+                            //mandaria um pedido pro ifood cancelando 
+                            await AtualizarStatusPedido(P.orderId, P.fullCode);
+                            await AvisarAcknowledge(P);
+                            break;
+                        case "CON": //mudaria o status ou na tabela do sys menu
+                            await AtualizarStatusPedido(P.orderId, P.fullCode);
+                            await AvisarAcknowledge(P);
+                            break;
+                        case "DSP":
+                            await AtualizarStatusPedido(P.orderId, P.fullCode);
+                            await AvisarAcknowledge(P);
+                            break;
                     }
 
-                    var pulingsToJson = JsonSerializer.Serialize(listaDePullings);
-                    StringContent content = new StringContent(pulingsToJson, Encoding.UTF8, "application/json");
-
-                    await client.PostAsync($"{url}/acknowledgment", content);
-                    listaDePullings.Clear();
-
-                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                 }
 
+                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
             }
+
         }
         catch (Exception ex)
         {
@@ -80,50 +76,80 @@ internal class Ifood
 
     }
 
-    //Função que Insere o pediddo que vem no pulling no banco de dados
-    public static async Task SetPedido(string orderId, string statusCode = "PLACED")
+
+    //função para avisar para o ifood o ACK
+    public static async Task AvisarAcknowledge(Pedido polling)
     {
-        // Token.TokenDaSessao = "eyJraWQiOiJlZGI4NWY2Mi00ZWY5LTExZTktODY0Ny1kNjYzYmQ4NzNkOTMiLCJ0eXAiOiJKV1QiLCJhbGciOiJSUzUxMiJ9.eyJzdWIiOiJiZDg2MmYwNy0zYTgxLTRkZTYtYWM5Ni05NzJiNjZhNDljZTciLCJvd25lcl9uYW1lIjoiZ3VpbGhlcm1ldGVzdGVzIiwiaXNzIjoiaUZvb2QiLCJjbGllbnRfaWQiOiJjYzQ0Y2Q2MS1jYmI3LTQ0MjQtOTE5Yi1hM2RmNDI4N2FlYzEiLCJhcHBfbmFtZSI6Imd1aWxoZXJtZXRlc3Rlcy10ZXN0ZS1kIiwiYXVkIjpbInNoaXBwaW5nIiwiY2F0YWxvZyIsInJldmlldyIsImZpbmFuY2lhbCIsIm1lcmNoYW50IiwibG9naXN0aWNzIiwiZ3JvY2VyaWVzIiwiZXZlbnRzIiwib3JkZXIiLCJvYXV0aC1zZXJ2ZXIiXSwic2NvcGUiOlsic2hpcHBpbmciLCJjYXRhbG9nIiwicmV2aWV3IiwibWVyY2hhbnQiLCJsb2dpc3RpY3MiLCJncm9jZXJpZXMiLCJldmVudHMiLCJvcmRlciIsImNvbmNpbGlhdG9yIl0sInR2ZXIiOiJ2MiIsIm1lcmNoYW50X3Njb3BlIjpbIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTptZXJjaGFudCIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpvcmRlciIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpjYXRhbG9nIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmNvbmNpbGlhdG9yIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOnJldmlldyIsIjkzNjIwMThhLTZhZTItNDM5Yy05NjhiLWE0MDE3N2EwODVlYTpsb2dpc3RpY3MiLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6c2hpcHBpbmciLCI5MzYyMDE4YS02YWUyLTQzOWMtOTY4Yi1hNDAxNzdhMDg1ZWE6Z3JvY2VyaWVzIiwiOTM2MjAxOGEtNmFlMi00MzljLTk2OGItYTQwMTc3YTA4NWVhOmV2ZW50cyJdLCJleHAiOjE3MTA5NTk3NDIsImlhdCI6MTcxMDkzODE0MiwianRpIjoiYmQ4NjJmMDctM2E4MS00ZGU2LWFjOTYtOTcyYjY2YTQ5Y2U3OmNjNDRjZDYxLWNiYjctNDQyNC05MTliLWEzZGY0Mjg3YWVjMSIsIm1lcmNoYW50X3Njb3BlZCI6dHJ1ZX0.NO1_-hgj4h4XeN8bZXIWBKztACHnJZzWYnuvDClluXzjYE6b7sm7wwzbMow7wOHRHgkGjRkHduiUVNAFB7-yULunwX350PLRiIGxuBf_cFUyK1_xvO_M14p59s4yGkntobm6pj57ZH1MxPnbxTw4Rgftqc7eQCW54cfhdebbO7s";
-        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}";
+        string? url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
         try
         {
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
-            HttpResponseMessage response = await client.GetAsync(url);
+            List<Pedido> pollingList = new List<Pedido>();
+            pollingList.Add(polling);
 
-                
 
-            string? pedidoJson = await response.Content.ReadAsStringAsync();
-            PedidoCompleto? pedidoCompletoTotal = JsonSerializer.Deserialize<PedidoCompleto>(pedidoJson);
+            var polingToJson = JsonSerializer.Serialize(pollingList);
+            StringContent content = new StringContent(polingToJson, Encoding.UTF8, "application/json");
 
-            using (var db = new ApplicationDbContext())
+            await client.PostAsync($"{url}/acknowledgment", content);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "OPS");
+        }
+    }
+
+
+    public static async Task AtualizarStatusPedido(string? orderId, string? newStatus)
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+
+            var pedido = await db.parametrosdopedido.Where(p => p.Id == orderId).FirstOrDefaultAsync();
+
+            if (pedido != null)
             {
-                string? mesa = pedidoCompletoTotal.takeout.takeoutDateTime == null ? "WEB" : "WEBB";
-
-                int insertNoSysMenuConta = IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoTotal.total.benefits,
-                    taxaEntrega: pedidoCompletoTotal.total.deliveryFee,
-                    taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoTotal.payments.methods[0].method,
-                    valorPagamento: pedidoCompletoTotal.payments.methods[0].value,
-                    dtInicio: pedidoCompletoTotal.createdAt.Substring(0, 10),
-                    hrInicio: pedidoCompletoTotal.createdAt.Substring(11, 5),
-                    contatoNome: pedidoCompletoTotal.customer.name,
-                    usuario: "CAIXA",
-                    dataSaida: pedidoCompletoTotal.createdAt.Substring(0, 10),
-                    hrSaida: pedidoCompletoTotal.createdAt.Substring(11, 5),
-                    obsConta1: "teste1",
-                    obsConta2: "Teste2",
-                    endEntrega: pedidoCompletoTotal.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveryAddress.formattedAddress,
-                    bairEntrega: pedidoCompletoTotal.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveryAddress.neighborhood,
-                    entregador: pedidoCompletoTotal.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveredBy
-                    ); //fim dos parâmetros do método de integração
-
-
-                ParametrosDoPedido pedidoDB = new ParametrosDoPedido(id: pedidoCompletoTotal.id, json: pedidoJson, situacao: statusCode, conta: insertNoSysMenuConta);
-
-                //inserir na tabela parâmetros do pedido
-                db.parametrosdopedido.Add(pedidoDB);
+                pedido.Situacao = newStatus;
                 db.SaveChanges();
             }
+
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("Erro ao atualizar Status Pedido", "OPS");
+        }
+    }
+
+
+    //Função que Insere o pediddo que vem no pulling no banco de dados
+    public static async Task SetPedido(string? orderId, string? statusCode = "PLACED")
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}";
+        try
+        {
+            using var db = new ApplicationDbContext();
+            bool verificaSeExistePedido = await db.parametrosdopedido.AnyAsync(p => p.Id == orderId);
+
+            if (!verificaSeExistePedido)
+            {
+
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                string? pedidoJson = await response.Content.ReadAsStringAsync();
+                PedidoCompleto? pedidoCompletoTotal = JsonSerializer.Deserialize<PedidoCompleto>(pedidoJson);
+
+
+                var pedidoDB = new ParametrosDoPedido() { Id = pedidoCompletoTotal.id, Json = pedidoJson, Situacao = statusCode, Conta = 1 };
+
+                //inserir na tabela parâmetros do pedido
+                await db.parametrosdopedido.AddAsync(pedidoDB);
+                await db.SaveChangesAsync();
+            }
+
         }
         catch (Exception ex)
         {
@@ -166,6 +192,31 @@ internal class Ifood
 
         return pedidosFromDb;
     }
+
+
+
+
+
+
+    // string? mesa = pedidoCompletoTotal.takeout.takeoutDateTime == null ? "WEB" : "WEBB";
+
+    /* int insertNoSysMenuConta = IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoTotal.total.benefits,
+         taxaEntrega: pedidoCompletoTotal.total.deliveryFee,
+         taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoTotal.payments.methods[0].method,
+         valorPagamento: pedidoCompletoTotal.payments.methods[0].value,
+         dtInicio: pedidoCompletoTotal.createdAt.Substring(0, 10),
+         hrInicio: pedidoCompletoTotal.createdAt.Substring(11, 5),
+         contatoNome: pedidoCompletoTotal.customer.name,
+         usuario: "CAIXA",
+         dataSaida: pedidoCompletoTotal.createdAt.Substring(0, 10),
+         hrSaida: pedidoCompletoTotal.createdAt.Substring(11, 5),
+         obsConta1: "teste1",
+         obsConta2: "Teste2",
+         endEntrega: pedidoCompletoTotal.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveryAddress.formattedAddress,
+         bairEntrega: pedidoCompletoTotal.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveryAddress.neighborhood,
+         entregador: pedidoCompletoTotal.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoTotal.delivery.deliveredBy
+         ); //fim dos parâmetros do método de integração*/
+
 
     public static int IntegracaoSequencia(string? mesa, //COMEÇO DOS PARÂMETROS DO MÉTODO
         float cortesia,
@@ -305,7 +356,7 @@ internal class Ifood
     }
 
 
-    public static async void ConfirmarPedido(string idPedido)
+    public static async Task ConfirmarPedido(string idPedido)
     {
         string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{idPedido}/confirm";
         try
@@ -339,14 +390,12 @@ internal class Ifood
     {
         try
         {
-            await Pulling();
+            await Polling();
             // Função para corrigir a diferença de thread 
         }
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "ERRO AO ATIVAR PULLING");
         }
-
-
     }
 }

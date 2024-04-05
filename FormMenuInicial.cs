@@ -45,19 +45,6 @@ public partial class FormMenuInicial : Form
     {
         Ifood.SetTimer();
         SetarPanelPedidos();
-
-        /*// Caminho para o arquivo SVG
-        string svgFilePath = "caminho/para/seu/arquivo.svg";
-
-        // Carregar o arquivo SVG
-        SvgDocument svgDocument = SvgDocument.Open(svgFilePath);
-
-        // Converter o documento SVG em uma imagem
-        Bitmap bitmap = svgDocument.Draw();
-
-        // Exibir a imagem em um controle PictureBox
-        pictureBox1.Image = bitmap;*/
-
     }
 
     private void FormMenuInicial_FormClosed(object sender, FormClosedEventArgs e)
