@@ -1,5 +1,6 @@
 ﻿using Svg;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows.Forms;
 
 namespace SysIntegradorApp;
@@ -17,6 +19,9 @@ namespace SysIntegradorApp;
 public partial class FormMenuInicial : Form
 {
     //public Panel panelPedidos; 
+
+    private System.Threading.Timer _timer;
+
     public FormMenuInicial()
     {
         InitializeComponent();
@@ -32,18 +37,15 @@ public partial class FormMenuInicial : Form
             SetRoundedRegion(panel1, 20);
         };
 
-        Ifood.SetTimer();
+       // Ifood.SetTimer();
         SetarPanelPedidos();
     }
 
-    private void panelPedidos_Paint(object sender, PaintEventArgs e)
-    {
-
-    }
+    private void panelPedidos_Paint(object sender, PaintEventArgs e){ }
 
     private void FormMenuInicial_Load(object sender, EventArgs e)
     {
-        Ifood.SetTimer();
+        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
     }
 
@@ -52,10 +54,7 @@ public partial class FormMenuInicial : Form
         Application.Exit();
     }
 
-    private void FormMenuInicial_Shown(object sender, EventArgs e)
-    {
-
-    }
+    private void FormMenuInicial_Shown(object sender, EventArgs e){ }
 
 
 
@@ -74,7 +73,7 @@ public partial class FormMenuInicial : Form
 
             foreach (ParametrosDoPedido item in pedidoOrdenado)
             {
-                PedidoCompleto pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
+                PedidoCompleto? pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
                 pedido.Situacao = item.Situacao;
                 pedidos.Add(pedido);
             }
@@ -87,7 +86,7 @@ public partial class FormMenuInicial : Form
             });
 
 
-         
+
             //Faz um loop para adicionar os UserControls De pedido no panel
             foreach (var item in pedidosOrdenado)
             {
@@ -146,10 +145,11 @@ public partial class FormMenuInicial : Form
                     panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
 
                 }
-               
+
             }
 
-         
+            pedidos.Clear();
+
             panelPedidos.PerformLayout();
 
         }
@@ -180,4 +180,18 @@ public partial class FormMenuInicial : Form
         panelDetalhePedido.Controls.Add(labelDeAvisoPedidoDetalhe);
         labelDeAvisoPedidoDetalhe.Visible = true;
     }
+
+    private void pollingManual_Click(object sender, EventArgs e)
+    {
+        Ifood.Polling();
+        SetarPanelPedidos();
+    }
+
+
+    private async void TimerCallback(object state) // função para ser chamada a cada 30 segundos, e com isso chamando o pulling
+    {
+        await Ifood.Polling();
+    }
+
+
 }

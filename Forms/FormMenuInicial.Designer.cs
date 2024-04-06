@@ -33,6 +33,7 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            pollingManual = new Button();
             pictureBoxConfig = new PictureBox();
             pictureBoxChat = new PictureBox();
             pictureBoxHome = new PictureBox();
@@ -102,6 +103,7 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(pollingManual);
             panel1.Controls.Add(pictureBoxConfig);
             panel1.Controls.Add(pictureBoxChat);
             panel1.Controls.Add(pictureBoxHome);
@@ -111,6 +113,20 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
+            // 
+            // pollingManual
+            // 
+            pollingManual.FlatAppearance.BorderColor = Color.Red;
+            pollingManual.FlatAppearance.BorderSize = 3;
+            pollingManual.FlatStyle = FlatStyle.Flat;
+            pollingManual.ForeColor = Color.Red;
+            pollingManual.Location = new Point(740, 13);
+            pollingManual.Name = "pollingManual";
+            pollingManual.Size = new Size(123, 39);
+            pollingManual.TabIndex = 8;
+            pollingManual.Text = "Polling";
+            pollingManual.UseVisualStyleBackColor = true;
+            pollingManual.Click += pollingManual_Click;
             // 
             // pictureBoxConfig
             // 
@@ -226,6 +242,7 @@
         private Label labelStatusLojaNM;
         private PictureBox pictureBoxOnline;
         private Panel panelStatusLoja;
+        private Button pollingManual;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
         public static FlowLayoutPanel panelPedidos;

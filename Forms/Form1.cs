@@ -7,6 +7,7 @@ using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares;
 using System.Diagnostics;
 using System.Windows.Forms;
+using SysIntegradorApp.data;
 
 
 namespace SysIntegradorApp

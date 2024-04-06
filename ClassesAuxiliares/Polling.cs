@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
-internal class Pedido
+public class Polling
 {
     public string? id { get; set; }
     public string? code { get; set; }
@@ -17,7 +17,7 @@ internal class Pedido
 
     public Metadata metadata { get; set; } = new Metadata();
 
-    public Pedido()
+    public Polling()
     {
 
     }

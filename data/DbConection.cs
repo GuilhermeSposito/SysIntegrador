@@ -8,12 +8,11 @@ using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
 using System.Data.OleDb;
 
-namespace SysIntegradorApp;
+namespace SysIntegradorApp.data;
 
 public class ApplicationDbContext : DbContext
 {
-    public DbSet<Token> parametrosdeautenticacao {  get; set; }
-    //public DbSet<Pulling> pulling { get; set; }
+    public DbSet<Token> parametrosdeautenticacao { get; set; }
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
