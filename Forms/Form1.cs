@@ -8,6 +8,7 @@ using SysIntegradorApp.ClassesAuxiliares;
 using System.Diagnostics;
 using System.Windows.Forms;
 using SysIntegradorApp.data;
+using System.Drawing.Drawing2D;
 
 
 namespace SysIntegradorApp
@@ -17,65 +18,15 @@ namespace SysIntegradorApp
         public Form1()
         {
             InitializeComponent();
+            SetRoundedRegion(majorPanel, 24);
+            SetRoundedRegion(pictureBoxSysLogica, 24);
+            SetRoundedRegion(CodeFromUser, 24);
+
+            CodeFromUser.Height = 500;
+            groupBoxAut.Visible = false;
+            CodeFromUser.Visible = false;
+            labelCodigo.Visible = false;
         }
-
-        private void LabelInfoToUser_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private async void PedirCod_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                AvisoParaPegarCod.Visible = false;
-
-                string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
-
-                using (HttpClient client = new HttpClient())
-                {
-                    FormUrlEncodedContent formData = new FormUrlEncodedContent(new[]
-                        {
-                        new KeyValuePair<string, string>("clientId", UserCodes.clientId)
-                         });
-
-                    HttpResponseMessage response = await client.PostAsync($"{url}userCode", formData);
-                    if (!response.IsSuccessStatusCode)
-                    {
-                        throw new HttpRequestException("\nErro ao acessar o user code\n");
-                    }
-
-                    string jsonContent = await response.Content.ReadAsStringAsync();
-                    UserCodeReturnFromAPI codesOfVerif = JsonSerializer.Deserialize<UserCodeReturnFromAPI>(jsonContent);
-                    UserCodeReturnFromAPI.CodeVerifier = codesOfVerif.authorizationCodeVerifier; //seta o valor em uma propriedade static para podermos pegar no proximo método 
-
-                    string? urlVerificacao = codesOfVerif.verificationUrlComplete;
-
-                    if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
-                    {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = urlVerificacao,
-                            UseShellExecute = true
-                        });
-                    }
-
-                    Clipboard.SetText(codesOfVerif.userCode);
-                    LabelInfoToUser.Visible = true;
-                    LabelCodeToUser.Visible = true;
-                    LabelCodeToUser.Text = codesOfVerif.userCode;
-                    CodeLabel1.Visible = true;
-                    CodeFromUser.Visible = true;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
-
-        }
-
         private async void BrnAutorizar_Click(object sender, EventArgs e)
         {
             string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
@@ -142,10 +93,7 @@ namespace SysIntegradorApp
             }
         }
 
-        private void BtnCancelar_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+
 
         private async void Form1_Load(object sender, EventArgs e)
         {
@@ -182,5 +130,79 @@ namespace SysIntegradorApp
 
 
         }
+
+        private async void pictureBoxCadeado_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                panelInstrucoes.Visible = false;
+
+                CodeFromUser.Visible = true;
+                labelCodigo.Visible = true;
+                groupBoxAut.Visible = true;
+
+                string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
+
+                using (HttpClient client = new HttpClient())
+                {
+                    FormUrlEncodedContent formData = new FormUrlEncodedContent(new[]
+                        {
+                        new KeyValuePair<string, string>("clientId", UserCodes.clientId)
+                         });
+
+                    HttpResponseMessage response = await client.PostAsync($"{url}userCode", formData);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException("\nErro ao acessar o user code\n");
+                    }
+
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+                    UserCodeReturnFromAPI codesOfVerif = JsonSerializer.Deserialize<UserCodeReturnFromAPI>(jsonContent);
+                    UserCodeReturnFromAPI.CodeVerifier = codesOfVerif.authorizationCodeVerifier; //seta o valor em uma propriedade static para podermos pegar no proximo método 
+
+                    string? urlVerificacao = codesOfVerif.verificationUrlComplete;
+
+                    if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = urlVerificacao,
+                            UseShellExecute = true
+                        });
+                    }
+
+                    Clipboard.SetText(codesOfVerif.userCode);
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+        }
+
+        private void SetRoundedRegion(Control control, int radius) //Método para arredondar os cantos dos paineis
+        {
+            GraphicsPath path = new GraphicsPath();
+            int width = control.Width;
+            int height = control.Height;
+            path.AddArc(0, 0, radius, radius, 180, 90);
+            path.AddArc(width - radius, 0, radius, radius, 270, 90);
+            path.AddArc(width - radius, height - radius, radius, radius, 0, 90);
+            path.AddArc(0, height - radius, radius, radius, 90, 90);
+            path.CloseFigure();
+
+            control.Region = new Region(path);
+        }
+
+        private void pictureBoxInfo_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("Caso nescessite de mais ajuda contatar a SysLogica", "Informações", MessageBoxButtons.OK);
+        }
     }
+
+
+
 }

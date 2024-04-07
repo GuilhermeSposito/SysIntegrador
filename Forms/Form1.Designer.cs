@@ -29,146 +29,270 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            pictureBox1 = new PictureBox();
-            PedirCod = new Button();
-            BtnCancelar = new Button();
             BrnAutorizar = new Button();
-            LabelInfoToUser = new Label();
-            LabelCodeToUser = new Label();
             CodeFromUser = new TextBox();
-            CodeLabel1 = new Label();
-            AvisoParaPegarCod = new Label();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            pictureBoxSysLogica = new PictureBox();
+            majorPanel = new Panel();
+            label1 = new Label();
+            pictureBoxCadeado = new PictureBox();
+            groupBoxAut = new GroupBox();
+            labelCodigo = new Label();
+            panelInstrucoes = new Panel();
+            groupBoxInstru = new GroupBox();
+            label7 = new Label();
+            label6 = new Label();
+            label5 = new Label();
+            label4 = new Label();
+            label3 = new Label();
+            label2 = new Label();
+            pictureBoxInfo = new PictureBox();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).BeginInit();
+            majorPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).BeginInit();
+            groupBoxAut.SuspendLayout();
+            panelInstrucoes.SuspendLayout();
+            groupBoxInstru.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).BeginInit();
             SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.InitialImage = (Image)resources.GetObject("pictureBox1.InitialImage");
-            pictureBox1.Location = new Point(132, -73);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(509, 212);
-            pictureBox1.TabIndex = 0;
-            pictureBox1.TabStop = false;
-            // 
-            // PedirCod
-            // 
-            PedirCod.Location = new Point(91, 367);
-            PedirCod.Name = "PedirCod";
-            PedirCod.Size = new Size(180, 69);
-            PedirCod.TabIndex = 1;
-            PedirCod.Text = "Pedir Cod.";
-            PedirCod.UseVisualStyleBackColor = true;
-            PedirCod.Click += PedirCod_Click;
-            // 
-            // BtnCancelar
-            // 
-            BtnCancelar.Location = new Point(293, 367);
-            BtnCancelar.Name = "BtnCancelar";
-            BtnCancelar.Size = new Size(180, 71);
-            BtnCancelar.TabIndex = 2;
-            BtnCancelar.Text = "Cancelar";
-            BtnCancelar.UseVisualStyleBackColor = true;
-            BtnCancelar.Click += BtnCancelar_Click;
             // 
             // BrnAutorizar
             // 
-            BrnAutorizar.Location = new Point(496, 367);
+            BrnAutorizar.BackColor = Color.Red;
+            BrnAutorizar.FlatAppearance.BorderColor = Color.White;
+            BrnAutorizar.FlatAppearance.BorderSize = 2;
+            BrnAutorizar.FlatStyle = FlatStyle.Flat;
+            BrnAutorizar.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            BrnAutorizar.ForeColor = SystemColors.ButtonHighlight;
+            BrnAutorizar.Location = new Point(121, 106);
             BrnAutorizar.Name = "BrnAutorizar";
             BrnAutorizar.Size = new Size(180, 74);
             BrnAutorizar.TabIndex = 3;
             BrnAutorizar.Text = "Autorizar";
-            BrnAutorizar.UseVisualStyleBackColor = true;
+            BrnAutorizar.UseVisualStyleBackColor = false;
             BrnAutorizar.Click += BrnAutorizar_Click;
-            // 
-            // LabelInfoToUser
-            // 
-            LabelInfoToUser.AutoSize = true;
-            LabelInfoToUser.Font = new Font("Tahoma", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            LabelInfoToUser.Location = new Point(207, 142);
-            LabelInfoToUser.Name = "LabelInfoToUser";
-            LabelInfoToUser.Size = new Size(356, 18);
-            LabelInfoToUser.TabIndex = 4;
-            LabelInfoToUser.Text = "Insira o Seguinte Código no portal do parceiro:";
-            LabelInfoToUser.Visible = false;
-            LabelInfoToUser.Click += LabelInfoToUser_Click;
-            // 
-            // LabelCodeToUser
-            // 
-            LabelCodeToUser.Font = new Font("Segoe UI", 15F);
-            LabelCodeToUser.Location = new Point(293, 160);
-            LabelCodeToUser.Name = "LabelCodeToUser";
-            LabelCodeToUser.Size = new Size(170, 43);
-            LabelCodeToUser.TabIndex = 5;
-            LabelCodeToUser.Text = "BXBB-XXHS";
-            LabelCodeToUser.TextAlign = ContentAlignment.MiddleCenter;
-            LabelCodeToUser.Visible = false;
             // 
             // CodeFromUser
             // 
-            CodeFromUser.Location = new Point(236, 265);
+            CodeFromUser.BackColor = SystemColors.Menu;
+            CodeFromUser.BorderStyle = BorderStyle.None;
+            CodeFromUser.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            CodeFromUser.Location = new Point(203, 399);
+            CodeFromUser.Multiline = true;
             CodeFromUser.Name = "CodeFromUser";
             CodeFromUser.PlaceholderText = "Insira o código Fornecido pelo ifood";
-            CodeFromUser.Size = new Size(279, 27);
+            CodeFromUser.Size = new Size(379, 44);
             CodeFromUser.TabIndex = 6;
             CodeFromUser.TextAlign = HorizontalAlignment.Center;
-            CodeFromUser.Visible = false;
             CodeFromUser.KeyDown += CodeFromUser_KeyDown;
             // 
-            // CodeLabel1
+            // pictureBoxSysLogica
             // 
-            CodeLabel1.AutoSize = true;
-            CodeLabel1.Location = new Point(236, 242);
-            CodeLabel1.Name = "CodeLabel1";
-            CodeLabel1.Size = new Size(61, 20);
-            CodeLabel1.TabIndex = 7;
-            CodeLabel1.Text = "Código:";
-            CodeLabel1.Visible = false;
+            pictureBoxSysLogica.Image = (Image)resources.GetObject("pictureBoxSysLogica.Image");
+            pictureBoxSysLogica.Location = new Point(203, 0);
+            pictureBoxSysLogica.Name = "pictureBoxSysLogica";
+            pictureBoxSysLogica.Size = new Size(379, 109);
+            pictureBoxSysLogica.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxSysLogica.TabIndex = 8;
+            pictureBoxSysLogica.TabStop = false;
             // 
-            // AvisoParaPegarCod
+            // majorPanel
             // 
-            AvisoParaPegarCod.Font = new Font("Tahoma", 14F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            AvisoParaPegarCod.Location = new Point(38, 226);
-            AvisoParaPegarCod.Name = "AvisoParaPegarCod";
-            AvisoParaPegarCod.Size = new Size(750, 66);
-            AvisoParaPegarCod.TabIndex = 8;
-            AvisoParaPegarCod.Text = "Clique em Perdir Código para gerar um Cod. de Autorização";
-            AvisoParaPegarCod.TextAlign = ContentAlignment.MiddleCenter;
+            majorPanel.BackColor = SystemColors.ActiveBorder;
+            majorPanel.Controls.Add(label1);
+            majorPanel.Controls.Add(pictureBoxCadeado);
+            majorPanel.Location = new Point(92, 130);
+            majorPanel.Name = "majorPanel";
+            majorPanel.Size = new Size(598, 195);
+            majorPanel.TabIndex = 9;
+            // 
+            // label1
+            // 
+            label1.Font = new Font("Segoe UI", 19.8000011F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            label1.ForeColor = SystemColors.ButtonHighlight;
+            label1.Location = new Point(192, 3);
+            label1.Name = "label1";
+            label1.Size = new Size(401, 160);
+            label1.TabIndex = 1;
+            label1.Text = "Clique no Cadeado Para Autorizar Nosso Aplicativo ";
+            label1.TextAlign = ContentAlignment.MiddleCenter;
+            // 
+            // pictureBoxCadeado
+            // 
+            pictureBoxCadeado.Cursor = Cursors.Hand;
+            pictureBoxCadeado.Image = (Image)resources.GetObject("pictureBoxCadeado.Image");
+            pictureBoxCadeado.Location = new Point(0, 3);
+            pictureBoxCadeado.Name = "pictureBoxCadeado";
+            pictureBoxCadeado.Size = new Size(186, 189);
+            pictureBoxCadeado.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxCadeado.TabIndex = 0;
+            pictureBoxCadeado.TabStop = false;
+            pictureBoxCadeado.Click += pictureBoxCadeado_Click;
+            // 
+            // groupBoxAut
+            // 
+            groupBoxAut.Controls.Add(labelCodigo);
+            groupBoxAut.Controls.Add(BrnAutorizar);
+            groupBoxAut.Location = new Point(175, 343);
+            groupBoxAut.Name = "groupBoxAut";
+            groupBoxAut.Size = new Size(441, 192);
+            groupBoxAut.TabIndex = 10;
+            groupBoxAut.TabStop = false;
+            groupBoxAut.Text = "Autorização";
+            groupBoxAut.Visible = false;
+            // 
+            // labelCodigo
+            // 
+            labelCodigo.AutoSize = true;
+            labelCodigo.Font = new Font("Segoe UI", 9F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
+            labelCodigo.Location = new Point(28, 33);
+            labelCodigo.Name = "labelCodigo";
+            labelCodigo.Size = new Size(64, 20);
+            labelCodigo.TabIndex = 11;
+            labelCodigo.Text = "Código:";
+            // 
+            // panelInstrucoes
+            // 
+            panelInstrucoes.BackColor = SystemColors.ButtonHighlight;
+            panelInstrucoes.Controls.Add(groupBoxInstru);
+            panelInstrucoes.Location = new Point(92, 331);
+            panelInstrucoes.Name = "panelInstrucoes";
+            panelInstrucoes.Size = new Size(598, 229);
+            panelInstrucoes.TabIndex = 11;
+            // 
+            // groupBoxInstru
+            // 
+            groupBoxInstru.Controls.Add(label7);
+            groupBoxInstru.Controls.Add(label6);
+            groupBoxInstru.Controls.Add(label5);
+            groupBoxInstru.Controls.Add(label4);
+            groupBoxInstru.Controls.Add(label3);
+            groupBoxInstru.Controls.Add(label2);
+            groupBoxInstru.Location = new Point(12, 3);
+            groupBoxInstru.Name = "groupBoxInstru";
+            groupBoxInstru.Size = new Size(572, 212);
+            groupBoxInstru.TabIndex = 0;
+            groupBoxInstru.TabStop = false;
+            groupBoxInstru.Text = "Instruções";
+            // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label7.Location = new Point(17, 161);
+            label7.Name = "label7";
+            label7.Size = new Size(364, 20);
+            label7.TabIndex = 5;
+            label7.Text = "* Após colar o código aqui, Clique no botão \"Autorizar\".";
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label6.Location = new Point(17, 141);
+            label6.Name = "label6";
+            label6.Size = new Size(393, 20);
+            label6.TabIndex = 4;
+            label6.Text = "* Copie o código gerado pelo ifood e cole aqui no aplicativo.";
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label5.Location = new Point(17, 121);
+            label5.Name = "label5";
+            label5.Size = new Size(149, 20);
+            label5.TabIndex = 3;
+            label5.Text = "* Clique em autorizar.";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label4.Location = new Point(17, 101);
+            label4.Name = "label4";
+            label4.Size = new Size(305, 20);
+            label4.TabIndex = 2;
+            label4.Text = "* Ele vai abrir direto na pagina de autorização.";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label3.Location = new Point(17, 81);
+            label3.Name = "label3";
+            label3.Size = new Size(242, 20);
+            label3.TabIndex = 1;
+            label3.Text = "* Faça o login na sua conta do ifood.";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI", 9F, FontStyle.Italic, GraphicsUnit.Point, 0);
+            label2.Location = new Point(17, 61);
+            label2.Name = "label2";
+            label2.Size = new Size(469, 20);
+            label2.TabIndex = 0;
+            label2.Text = "* Clique no cadeado e você será redirecionado para o portal do parceiro.";
+            // 
+            // pictureBoxInfo
+            // 
+            pictureBoxInfo.Cursor = Cursors.Hand;
+            pictureBoxInfo.Image = (Image)resources.GetObject("pictureBoxInfo.Image");
+            pictureBoxInfo.Location = new Point(10, 6);
+            pictureBoxInfo.Name = "pictureBoxInfo";
+            pictureBoxInfo.Size = new Size(36, 32);
+            pictureBoxInfo.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxInfo.TabIndex = 12;
+            pictureBoxInfo.TabStop = false;
+            pictureBoxInfo.Click += pictureBoxInfo_Click;
             // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(800, 450);
-            Controls.Add(AvisoParaPegarCod);
-            Controls.Add(CodeLabel1);
+            BackColor = SystemColors.ButtonHighlight;
+            ClientSize = new Size(782, 572);
+            Controls.Add(pictureBoxInfo);
+            Controls.Add(panelInstrucoes);
+            Controls.Add(majorPanel);
+            Controls.Add(pictureBoxSysLogica);
             Controls.Add(CodeFromUser);
-            Controls.Add(LabelCodeToUser);
-            Controls.Add(LabelInfoToUser);
-            Controls.Add(BrnAutorizar);
-            Controls.Add(BtnCancelar);
-            Controls.Add(PedirCod);
-            Controls.Add(pictureBox1);
+            Controls.Add(groupBoxAut);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
-            Text = "Autorização Ifood";
+            Text = "Autorização Do Aplicativo";
             Load += Form1_Load;
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).EndInit();
+            majorPanel.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).EndInit();
+            groupBoxAut.ResumeLayout(false);
+            groupBoxAut.PerformLayout();
+            panelInstrucoes.ResumeLayout(false);
+            groupBoxInstru.ResumeLayout(false);
+            groupBoxInstru.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
 
         #endregion
-
-        private PictureBox pictureBox1;
-        private Button PedirCod;
-        private Button BtnCancelar;
         private Button BrnAutorizar;
-        private Label LabelInfoToUser;
-        private Label LabelCodeToUser;
         private TextBox CodeFromUser;
-        private Label CodeLabel1;
-        private Label AvisoParaPegarCod;
+        private PictureBox pictureBoxSysLogica;
+        private Panel majorPanel;
+        private Label label1;
+        private PictureBox pictureBoxCadeado;
+        private Label labelCodigo;
+        public GroupBox groupBoxAut;
+        private Panel panelInstrucoes;
+        private GroupBox groupBoxInstru;
+        private Label label2;
+        private Label label4;
+        private Label label3;
+        private Label label7;
+        private Label label6;
+        private Label label5;
+        private PictureBox pictureBoxInfo;
     }
 }
