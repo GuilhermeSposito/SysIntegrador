@@ -33,6 +33,8 @@ internal class Ifood
             int statusCode = (int)reponse.StatusCode;
             if (statusCode == 200)
             {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
                 List<Polling>? pollings = JsonSerializer.Deserialize<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
@@ -42,9 +44,12 @@ internal class Ifood
                     switch (P.code)
                     {
                         case "PLC": //caso entre aqui é porque é um novo pedido
-                            await SetPedido(P.orderId, P);
-                            await AvisarAcknowledge(P);
-                            ConfirmarPedido(P);
+                            if (opcSistema.AceitaPedidoAut)
+                            {
+                                await SetPedido(P.orderId, P);
+                                await AvisarAcknowledge(P);
+                                ConfirmarPedido(P);
+                            }
                             break;
                         case "CFM":
                             await AtualizarStatusPedido(P);
@@ -73,7 +78,7 @@ internal class Ifood
         }
         catch (Exception ex)
         {
-           MessageBox.Show(ex.ToString(), "ERRO NO PULLING");
+            MessageBox.Show(ex.ToString(), "ERRO NO PULLING");
         }
 
     }
@@ -151,25 +156,79 @@ internal class Ifood
 
                 string? mesa = pedidoCompletoDeserialiado.takeout.takeoutDateTime == null ? "WEB" : "WEBB";
 
-                int insertNoSysMenuConta = await IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoDeserialiado.total.benefits,
-                     taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee,
-                     taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoDeserialiado.payments.methods[0].method,
-                     valorPagamento: pedidoCompletoDeserialiado.payments.methods[0].value,
-                     dtInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10),
-                     hrInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5),
-                     contatoNome: pedidoCompletoDeserialiado.customer.name,
-                     usuario: "CAIXA",
-                     dataSaida: pedidoCompletoDeserialiado.createdAt.Substring(0, 10),
-                     hrSaida: pedidoCompletoDeserialiado.createdAt.Substring(11, 5),
-                     obsConta1: "teste1",
-                     obsConta2: "Teste2",
-                     endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress,
-                     bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood,
-                     entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy
-                     ); //fim dos parâmetros do método de integração
+                int insertNoSysMenuConta = await IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoDeserialiado.total.benefits, taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee, taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoDeserialiado.payments.methods[0].method, valorPagamento: pedidoCompletoDeserialiado.payments.methods[0].value, dtInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), contatoNome: pedidoCompletoDeserialiado.customer.name, usuario: "CAIXA", dataSaida: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrSaida: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), obsConta1: "teste1", obsConta2: "Teste2", endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress, bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood, entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy); //fim dos parâmetros do método de integração
 
                 db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta });
                 db.SaveChanges();
+
+
+
+                foreach (Items item in pedidoCompletoDeserialiado.items)
+                {
+                    string externalCode = item.externalCode == null || item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? "0000" : item.externalCode;
+
+                    string? ePizza1 = null;
+                    string? ePizza2 = null;
+                    string? ePizza3 = null;
+
+                    foreach (var option in item.options)
+                    {
+                        if (!option.externalCode.Contains("m") && ePizza1 == null)
+                        {
+                            ePizza1 = option.externalCode;
+                            continue;
+                        }
+
+                        if (!option.externalCode.Contains("m") && ePizza2 == null)
+                        {
+                            ePizza2 = option.externalCode;
+                            continue;
+                        }
+
+                        if (!option.externalCode.Contains("m") && ePizza3 == null)
+                        {
+                            ePizza3 = option.externalCode;
+                            continue;
+                        }
+
+                    }
+
+
+                    IntegracaoContas(
+                        conta: insertNoSysMenuConta, //numero
+                        mesa: mesa, //texto curto 
+                        qtdade: item.quantity, //numero
+                        codCarda1: externalCode == "0000" && ePizza1 != null ? ePizza1 : externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                        codCarda2: externalCode == "0000" && ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
+                        codCarda3: externalCode == "0000" && ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
+                        tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
+                        descarda: item.name, // texto curto 31 letras
+                        valorUnit: item.price, //moeda
+                        valorTotal: item.totalPrice, //moeda
+                        dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
+                        horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
+                        obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs9: item.options != null && item.options.Count() > 8 ? $"{item.options[8].quantity} - {item.options[8].name} {item.options[8].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
+                        telefone: "992366175", // texto curto 14 letras
+                        impComanda: "Não",
+                        ImpComanda2: "Não",
+                        qtdComanda: 00f  //numero duplo 
+                   );//fim dos parâmetros
+                }
+
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+                if (opSistema.ImpressaoAut)
+                {
+                    Impressao.ChamaImpressoes(insertNoSysMenuConta, impressora1: opSistema.Impressora1);
+                }
             }
 
         }
@@ -353,6 +412,91 @@ internal class Ifood
         }
 
         return ultimoNumeroConta;
+    }
+
+    public static void IntegracaoContas(int conta, //numero
+        string? mesa, //texto curto 
+        float qtdade, //numero
+        string? codCarda1, //texto curto 4 letras
+        string? codCarda2, // texto curto 4 letras
+        string? codCarda3, //texto curto 4 letras
+        string? tamanho,  //texto curto 1 letra
+        string? descarda, // texto curto 31 letras
+        float valorUnit, //moeda
+        float valorTotal, // moeda
+        string dataInicio, //data/hora
+        string horaInicio,  //data/hora
+        string? obs1,  //texto curto 80 letras
+        string? obs2,  //texto curto 80 letras
+        string? obs3,  //texto curto 80 letras
+        string? obs4,    //  ||
+        string? obs5,    //  ||
+        string? obs6,    //  ||
+        string? obs7,    //  ||
+        string? obs8,    //  ||
+        string? obs9,    //  ||
+        string? cliente, // texto curto 40 letras
+        string? telefone, // texto curto 14 letras
+        string? impComanda, // texto curto 3 letras
+        string? ImpComanda2, // texto curto 3 letras
+        float qtdComanda, //numero duplo 
+        string? usuario = "CAIXA"
+        )
+    { //aqui começa o código para inserção na tabela CONTAS
+        try
+        {
+            string banco = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+                connection.Open();
+
+                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,CLIENTE,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+
+                using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.ForegroundColor = ConsoleColor.White;
+                    // Parâmetros para a consulta SQL
+                    command.Parameters.AddWithValue("@CONTA", conta);
+                    command.Parameters.AddWithValue("@MESA", mesa);
+                    command.Parameters.AddWithValue("@QTDADE", qtdade);
+                    command.Parameters.AddWithValue("@CODCARDA1", codCarda1);
+                    command.Parameters.AddWithValue("@CODCARDA2", codCarda2);
+                    command.Parameters.AddWithValue("@CODCARDA3", codCarda3);
+                    command.Parameters.AddWithValue("@TAMANHO", tamanho);
+                    command.Parameters.AddWithValue("@DESCARDA", descarda);
+                    command.Parameters.AddWithValue("@VALORUNIT", valorUnit); //se vier WEBB aqui vai ser null
+                    command.Parameters.AddWithValue("@VALORTOTAL", valorTotal);//se vier WEBB aqui vai ser null
+                    command.Parameters.AddWithValue("@DATAINICIO", dataInicio);
+                    command.Parameters.AddWithValue("@HORAINICIO", horaInicio); //se vier WEBB aqui vai ser null
+                    command.Parameters.AddWithValue("@OBS1", obs1);
+                    command.Parameters.AddWithValue("@OBS2", obs2);
+                    command.Parameters.AddWithValue("@OBS3", obs3);
+                    command.Parameters.AddWithValue("@OBS4", obs4);
+                    command.Parameters.AddWithValue("@OBS5", obs5);
+                    command.Parameters.AddWithValue("@OBS6", obs6);
+                    command.Parameters.AddWithValue("@OBS7", obs7);
+                    command.Parameters.AddWithValue("@OBS8", obs8);
+                    command.Parameters.AddWithValue("@OBS9", obs9);
+                    command.Parameters.AddWithValue("@CLIENTE", cliente);
+                    command.Parameters.AddWithValue("@TELEFONE", telefone);
+                    command.Parameters.AddWithValue("@IMPCOMANDA", impComanda);
+                    command.Parameters.AddWithValue("@IMPCOMANDA2", ImpComanda2);
+                    command.Parameters.AddWithValue("@QTDCOMANDA", qtdComanda);
+                    command.Parameters.AddWithValue("@USUARIO", usuario);
+
+
+                    // Executa o comando SQL
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                }//fechamento chave segundo using 
+            }//fechamento chave primeiro using
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
     }
 
     public static async void ConfirmarPedido(Polling P)

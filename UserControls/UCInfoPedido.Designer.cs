@@ -59,10 +59,12 @@
             labelCPF = new Label();
             label16 = new Label();
             panel9 = new Panel();
+            btnCancelar = new Button();
+            btnDespacharDelMacth = new Button();
             btnDespacharIfood = new Button();
             btnImprimir = new Button();
             labelPedidoNM = new Label();
-            label4 = new Label();
+            labelDisplayId = new Label();
             labelFeitoAsNM = new Label();
             dateFeitoAs = new Label();
             labelLocalizadorNM = new Label();
@@ -70,8 +72,6 @@
             pictureBox1 = new PictureBox();
             panelDeItens = new FlowLayoutPanel();
             groupBoxDeItens = new GroupBox();
-            btnDespacharDelMacth = new Button();
-            btnCancelar = new Button();
             panel1.SuspendLayout();
             panel3.SuspendLayout();
             panel2.SuspendLayout();
@@ -395,6 +395,42 @@
             panel9.Size = new Size(984, 70);
             panel9.TabIndex = 10;
             // 
+            // btnCancelar
+            // 
+            btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnCancelar.BackColor = SystemColors.ButtonHighlight;
+            btnCancelar.FlatAppearance.BorderColor = Color.Red;
+            btnCancelar.FlatAppearance.BorderSize = 2;
+            btnCancelar.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnCancelar.FlatAppearance.MouseOverBackColor = Color.White;
+            btnCancelar.FlatStyle = FlatStyle.Flat;
+            btnCancelar.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancelar.ForeColor = Color.Red;
+            btnCancelar.Location = new Point(846, 13);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(107, 39);
+            btnCancelar.TabIndex = 3;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = false;
+            // 
+            // btnDespacharDelMacth
+            // 
+            btnDespacharDelMacth.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnDespacharDelMacth.BackColor = SystemColors.ButtonHighlight;
+            btnDespacharDelMacth.FlatAppearance.BorderColor = Color.DarkOrange;
+            btnDespacharDelMacth.FlatAppearance.BorderSize = 2;
+            btnDespacharDelMacth.FlatAppearance.MouseDownBackColor = Color.DarkOrange;
+            btnDespacharDelMacth.FlatAppearance.MouseOverBackColor = Color.White;
+            btnDespacharDelMacth.FlatStyle = FlatStyle.Flat;
+            btnDespacharDelMacth.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDespacharDelMacth.ForeColor = Color.DarkOrange;
+            btnDespacharDelMacth.Location = new Point(313, 13);
+            btnDespacharDelMacth.Name = "btnDespacharDelMacth";
+            btnDespacharDelMacth.Size = new Size(107, 39);
+            btnDespacharDelMacth.TabIndex = 2;
+            btnDespacharDelMacth.Text = "Despachar";
+            btnDespacharDelMacth.UseVisualStyleBackColor = false;
+            // 
             // btnDespacharIfood
             // 
             btnDespacharIfood.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
@@ -430,6 +466,7 @@
             btnImprimir.TabIndex = 0;
             btnImprimir.Text = "Imprimir";
             btnImprimir.UseVisualStyleBackColor = false;
+            btnImprimir.Click += btnImprimir_Click;
             // 
             // labelPedidoNM
             // 
@@ -442,15 +479,15 @@
             labelPedidoNM.Text = "Pedido: ";
             labelPedidoNM.Click += labelPedidoNM_Click;
             // 
-            // label4
+            // labelDisplayId
             // 
-            label4.AutoSize = true;
-            label4.Location = new Point(176, 44);
-            label4.Name = "label4";
-            label4.Size = new Size(50, 20);
-            label4.TabIndex = 14;
-            label4.Text = "#8484";
-            label4.Click += label4_Click;
+            labelDisplayId.AutoSize = true;
+            labelDisplayId.Location = new Point(176, 44);
+            labelDisplayId.Name = "labelDisplayId";
+            labelDisplayId.Size = new Size(50, 20);
+            labelDisplayId.TabIndex = 14;
+            labelDisplayId.Text = "#8484";
+            labelDisplayId.Click += label4_Click;
             // 
             // labelFeitoAsNM
             // 
@@ -524,42 +561,6 @@
             groupBoxDeItens.TabStop = false;
             groupBoxDeItens.Text = "Itens:";
             // 
-            // btnDespacharDelMacth
-            // 
-            btnDespacharDelMacth.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            btnDespacharDelMacth.BackColor = SystemColors.ButtonHighlight;
-            btnDespacharDelMacth.FlatAppearance.BorderColor = Color.DarkOrange;
-            btnDespacharDelMacth.FlatAppearance.BorderSize = 2;
-            btnDespacharDelMacth.FlatAppearance.MouseDownBackColor = Color.DarkOrange;
-            btnDespacharDelMacth.FlatAppearance.MouseOverBackColor = Color.White;
-            btnDespacharDelMacth.FlatStyle = FlatStyle.Flat;
-            btnDespacharDelMacth.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnDespacharDelMacth.ForeColor = Color.DarkOrange;
-            btnDespacharDelMacth.Location = new Point(313, 13);
-            btnDespacharDelMacth.Name = "btnDespacharDelMacth";
-            btnDespacharDelMacth.Size = new Size(107, 39);
-            btnDespacharDelMacth.TabIndex = 2;
-            btnDespacharDelMacth.Text = "Despachar";
-            btnDespacharDelMacth.UseVisualStyleBackColor = false;
-            // 
-            // btnCancelar
-            // 
-            btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            btnCancelar.BackColor = SystemColors.ButtonHighlight;
-            btnCancelar.FlatAppearance.BorderColor = Color.Red;
-            btnCancelar.FlatAppearance.BorderSize = 2;
-            btnCancelar.FlatAppearance.MouseDownBackColor = Color.Red;
-            btnCancelar.FlatAppearance.MouseOverBackColor = Color.White;
-            btnCancelar.FlatStyle = FlatStyle.Flat;
-            btnCancelar.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnCancelar.ForeColor = Color.Red;
-            btnCancelar.Location = new Point(846, 13);
-            btnCancelar.Name = "btnCancelar";
-            btnCancelar.Size = new Size(107, 39);
-            btnCancelar.TabIndex = 3;
-            btnCancelar.Text = "Cancelar";
-            btnCancelar.UseVisualStyleBackColor = false;
-            // 
             // UCInfoPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -572,7 +573,7 @@
             Controls.Add(labelLocalizadorNM);
             Controls.Add(dateFeitoAs);
             Controls.Add(labelFeitoAsNM);
-            Controls.Add(label4);
+            Controls.Add(labelDisplayId);
             Controls.Add(labelPedidoNM);
             Controls.Add(panel9);
             Controls.Add(panel8);
@@ -616,7 +617,7 @@
         private Panel panel9;
         private Button btnImprimir;
         private Label labelPedidoNM;
-        private Label label4;
+        private Label labelDisplayId;
         private Label labelFeitoAsNM;
         private Label dateFeitoAs;
         private Label labelLocalizadorNM;

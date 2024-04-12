@@ -37,11 +37,11 @@ public partial class FormMenuInicial : Form
             SetRoundedRegion(panel1, 20);
         };
 
-       // Ifood.SetTimer();
         SetarPanelPedidos();
+        panelDetalhePedido.Controls.Clear();
     }
 
-    private void panelPedidos_Paint(object sender, PaintEventArgs e){ }
+    private void panelPedidos_Paint(object sender, PaintEventArgs e) { }
 
     private void FormMenuInicial_Load(object sender, EventArgs e)
     {
@@ -54,7 +54,7 @@ public partial class FormMenuInicial : Form
         Application.Exit();
     }
 
-    private void FormMenuInicial_Shown(object sender, EventArgs e){ }
+    private void FormMenuInicial_Shown(object sender, EventArgs e) { }
 
 
 
@@ -95,8 +95,10 @@ public partial class FormMenuInicial : Form
                 {
                     UCPedido UserControlPedido = new UCPedido()
                     {
-                        Id_pedido = item.id, //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                        Id_pedido = item.id,
+                        Display_id = item.displayId,                        //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                         NomePedido = item.customer.name,
+                        DeliveryBy = item.delivery.deliveredBy,
                         FeitoAs = item.createdAt,
                         HorarioEntrega = item.orderTiming,
                         LocalizadorPedido = item.delivery.pickupCode,
@@ -109,7 +111,7 @@ public partial class FormMenuInicial : Form
                         Descontos = item.total.benefits,
                         TotalDoPedido = item.total.orderAmount,
                         Observations = item.delivery.observations,
-                        items = item.items
+                        items = item.items,
                     };
 
 
@@ -122,7 +124,8 @@ public partial class FormMenuInicial : Form
                 {
                     UCPedido UserControlPedido = new UCPedido()
                     {
-                        Id_pedido = item.id, //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                        Id_pedido = item.id,
+                        Display_id = item.displayId,    //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                         NomePedido = item.customer.name,
                         FeitoAs = item.createdAt,
                         HorarioEntrega = item.takeout.takeoutDateTime,
@@ -193,5 +196,9 @@ public partial class FormMenuInicial : Form
         await Ifood.Polling();
     }
 
-
+    private void pictureBoxDelivery_Click(object sender, EventArgs e)
+    {
+        DeliveryForm deliveryForm = new DeliveryForm();
+        deliveryForm.ShowDialog();
+    }
 }

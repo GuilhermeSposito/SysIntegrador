@@ -33,6 +33,7 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            pictureBoxDelivery = new PictureBox();
             pollingManual = new Button();
             pictureBoxConfig = new PictureBox();
             pictureBoxChat = new PictureBox();
@@ -43,6 +44,7 @@
             labelStatusLojaNM = new Label();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxChat).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxHome).BeginInit();
@@ -96,13 +98,13 @@
             labelDeAvisoPedidoDetalhe.TabIndex = 0;
             labelDeAvisoPedidoDetalhe.Text = "Nenhum pedido Selecionado para mostrar seus detalhes, Clique em um pedido para obter seus detalhes.";
             labelDeAvisoPedidoDetalhe.TextAlign = ContentAlignment.TopCenter;
-            labelDeAvisoPedidoDetalhe.Visible = false;
             // 
             // panel1
             // 
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(pictureBoxDelivery);
             panel1.Controls.Add(pollingManual);
             panel1.Controls.Add(pictureBoxConfig);
             panel1.Controls.Add(pictureBoxChat);
@@ -114,18 +116,32 @@
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // pictureBoxDelivery
+            // 
+            pictureBoxDelivery.Cursor = Cursors.Hand;
+            pictureBoxDelivery.ErrorImage = (Image)resources.GetObject("pictureBoxDelivery.ErrorImage");
+            pictureBoxDelivery.Image = (Image)resources.GetObject("pictureBoxDelivery.Image");
+            pictureBoxDelivery.Location = new Point(448, 13);
+            pictureBoxDelivery.Name = "pictureBoxDelivery";
+            pictureBoxDelivery.Size = new Size(51, 45);
+            pictureBoxDelivery.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDelivery.TabIndex = 9;
+            pictureBoxDelivery.TabStop = false;
+            pictureBoxDelivery.Click += pictureBoxDelivery_Click;
+            // 
             // pollingManual
             // 
             pollingManual.FlatAppearance.BorderColor = Color.Red;
             pollingManual.FlatAppearance.BorderSize = 3;
             pollingManual.FlatStyle = FlatStyle.Flat;
             pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(740, 13);
+            pollingManual.Location = new Point(849, 13);
             pollingManual.Name = "pollingManual";
             pollingManual.Size = new Size(123, 39);
             pollingManual.TabIndex = 8;
             pollingManual.Text = "Polling";
             pollingManual.UseVisualStyleBackColor = true;
+            pollingManual.Visible = false;
             pollingManual.Click += pollingManual_Click;
             // 
             // pictureBoxConfig
@@ -133,7 +149,7 @@
             pictureBoxConfig.Cursor = Cursors.Hand;
             pictureBoxConfig.ErrorImage = (Image)resources.GetObject("pictureBoxConfig.ErrorImage");
             pictureBoxConfig.Image = (Image)resources.GetObject("pictureBoxConfig.Image");
-            pictureBoxConfig.Location = new Point(564, 13);
+            pictureBoxConfig.Location = new Point(523, 13);
             pictureBoxConfig.Name = "pictureBoxConfig";
             pictureBoxConfig.Size = new Size(51, 45);
             pictureBoxConfig.SizeMode = PictureBoxSizeMode.Zoom;
@@ -144,7 +160,7 @@
             // 
             pictureBoxChat.Cursor = Cursors.Hand;
             pictureBoxChat.Image = (Image)resources.GetObject("pictureBoxChat.Image");
-            pictureBoxChat.Location = new Point(469, 13);
+            pictureBoxChat.Location = new Point(597, 13);
             pictureBoxChat.Name = "pictureBoxChat";
             pictureBoxChat.Size = new Size(51, 45);
             pictureBoxChat.SizeMode = PictureBoxSizeMode.Zoom;
@@ -215,6 +231,7 @@
             Controls.Add(panelDetalhePedido);
             Name = "FormMenuInicial";
             Padding = new Padding(10);
+            StartPosition = FormStartPosition.CenterParent;
             Text = "FormMenuInicial";
             FormClosed += FormMenuInicial_FormClosed;
             Load += FormMenuInicial_Load;
@@ -222,6 +239,7 @@
             panelDetalhePedido.ResumeLayout(false);
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxChat).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxHome).EndInit();
@@ -243,6 +261,7 @@
         private PictureBox pictureBoxOnline;
         private Panel panelStatusLoja;
         private Button pollingManual;
+        private PictureBox pictureBoxDelivery;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
         public static FlowLayoutPanel panelPedidos;

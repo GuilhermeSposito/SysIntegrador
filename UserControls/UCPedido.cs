@@ -14,7 +14,9 @@ namespace SysIntegradorApp;
 public partial class UCPedido : UserControl
 {
     public string? Id_pedido { get; set; }
+    public string? Display_id { get; set; }
     public string? NomePedido { get; set; }
+    public string? DeliveryBy { get; set; }
     public string? FeitoAs { get; set; }
     public string? HorarioEntrega { get; set; }
     public string? LocalizadorPedido { get; set; }
@@ -27,14 +29,12 @@ public partial class UCPedido : UserControl
     public float Descontos { get; set; }
     public float TotalDoPedido { get; set; }
     public string? Observations { get; set; }
-    public List<Items> items { get; set; }
+    public List<Items> items { get; set; } = new List<Items>();
 
     public UCPedido()
     {
         InitializeComponent();
     }
-
-
 
     public void SetLabels(string id_pedido, string numPedido, string nomePedido, string horarioPedido, string statusPedido)
     {
@@ -53,8 +53,12 @@ public partial class UCPedido : UserControl
     {
         FormMenuInicial.panelDetalhePedido.Controls.Clear();
         FormMenuInicial.panelDetalhePedido.PerformLayout();
-        UCInfoPedido infoPedido = new UCInfoPedido();
+        UCInfoPedido infoPedido = new UCInfoPedido() {Id_pedido = Id_pedido, Display_id = Display_id, items = items, DeliveryBy = DeliveryBy };
+
+
+
         infoPedido.SetLabels(id_Pedido: Id_pedido,
+                               display_id: Display_id,
                                nomePedido: NomePedido,
                                feitoAs: FeitoAs,
                                horarioEntrega: HorarioEntrega,
@@ -78,25 +82,6 @@ public partial class UCPedido : UserControl
     private void UCPedido_Enter(object sender, EventArgs e)
     {
         this.BackColor = Color.DarkGray;
-        UCInfoPedido infoPedido = new UCInfoPedido();
-        infoPedido.SetLabels(id_Pedido: Id_pedido,
-                              nomePedido: NomePedido,
-                              feitoAs: FeitoAs,
-                              horarioEntrega: HorarioEntrega,
-                              localizadorPedido: LocalizadorPedido,
-                              enderecoFormatado: EnderecoFormatado,
-                              bairro: Bairro,
-                              TipoEntrega: TipoDaEntrega,
-                              valorTotalItens: ValorTotalItens,
-                              valorTaxaDeentrega: ValorTaxaDeentrega,
-                              valortaxaadicional: Valortaxaadicional,
-                              descontos: Descontos,
-                              total: TotalDoPedido,
-                              observations: Observations);
-
-        infoPedido.InsereItemNoPedido(items);
-        FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
-
     }
 
     private void UCPedido_Leave(object sender, EventArgs e)

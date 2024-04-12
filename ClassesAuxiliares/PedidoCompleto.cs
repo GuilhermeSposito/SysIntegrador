@@ -172,6 +172,7 @@ public class Items
     [Column("uniqueid")]
     public string? uniqueId { get; set; }
     public string? name { get; set; }
+    public string? externalCode {  get; set; }   
     public int quantity { get; set; }
     public string? unit { get; set; }
     [Column("unitprice")]
@@ -183,6 +184,7 @@ public class Items
 
     public float totalPrice { get; set; }
     public float price { get; set; }
+    public string? observations { get; set; }
     public List<Options> options { get; set; } = new List<Options>();
 
     public Items() { }
@@ -192,8 +194,9 @@ public class Options
 {
     public int index { set; get; }
     public string? id { set; get; } 
-    public string? name { set; get; }   
+    public string? name { set; get; } 
     public int quantity { set; get; }
+    public string externalCode { set; get; }
     public string? unit { set; get; }
     public float unitPrice { set; get; }
     public float addition { set; get; }
