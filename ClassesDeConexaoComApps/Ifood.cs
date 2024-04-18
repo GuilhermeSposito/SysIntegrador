@@ -17,10 +17,9 @@ using SysIntegradorApp.data;
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
-internal class Ifood
+public class Ifood
 {
-
-
+    public static string? CaminhoBaseSysMenu { get; set; } = ApplicationDbContext.RetornaCaminhoBaseSysMenu();
     public static async Task Polling() //pulling feito de 30 em 30 Segundos, Caso seja encontrado algum novo pedido ele chama o GetPedidos
     {
         string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
@@ -46,12 +45,14 @@ internal class Ifood
                         case "PLC": //caso entre aqui é porque é um novo pedido
                             if (opcSistema.AceitaPedidoAut)
                             {
+                                ClsSons.PlaySom();
                                 await SetPedido(P.orderId, P);
                                 await AvisarAcknowledge(P);
                                 ConfirmarPedido(P);
                             }
                             break;
                         case "CFM":
+                            ClsSons.StopSom();
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
@@ -150,13 +151,12 @@ internal class Ifood
 
             if (verificaSeExistePedido == false)
             {
-                Console.ForegroundColor = ConsoleColor.Green;
-                await Console.Out.WriteLineAsync("\nPedido Adicionado no banco de dados\n");
-                Console.ForegroundColor = ConsoleColor.White;
 
                 string? mesa = pedidoCompletoDeserialiado.takeout.takeoutDateTime == null ? "WEB" : "WEBB";
 
                 int insertNoSysMenuConta = await IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoDeserialiado.total.benefits, taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee, taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoDeserialiado.payments.methods[0].method, valorPagamento: pedidoCompletoDeserialiado.payments.methods[0].value, dtInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), contatoNome: pedidoCompletoDeserialiado.customer.name, usuario: "CAIXA", dataSaida: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrSaida: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), obsConta1: "teste1", obsConta2: "Teste2", endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress, bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood, entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy); //fim dos parâmetros do método de integração
+
+                IntegracaoPagCartao(pedidoCompletoDeserialiado, insertNoSysMenuConta);
 
                 db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta });
                 db.SaveChanges();
@@ -207,22 +207,24 @@ internal class Ifood
                         valorTotal: item.totalPrice, //moeda
                         dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
                         horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
-                        obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : "Vazio", //texto curto 80 letras
-                        obs9: item.options != null && item.options.Count() > 8 ? $"{item.options[8].quantity} - {item.options[8].name} {item.options[8].price.ToString("c")}" : "Vazio", //texto curto 80 letras
+                        obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
+                        obs9: item.options != null && item.options.Count() > 8 ? $"{item.options[8].quantity} - {item.options[8].name} {item.options[8].price.ToString("c")}" : " ", //texto curto 80 letras
                         cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
-                        telefone: "992366175", // texto curto 14 letras
+                        telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
                         impComanda: "Não",
                         ImpComanda2: "Não",
                         qtdComanda: 00f  //numero duplo 
                    );//fim dos parâmetros
                 }
+
+
 
                 ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
                 if (opSistema.ImpressaoAut)
@@ -244,7 +246,7 @@ internal class Ifood
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
-        string path = @"C:\Users\gui-c\OneDrive\Área de Trabalho\primeiro\testeSeriliazeJson.json";
+        string path = CaminhoBaseSysMenu; //@"C:\Users\gui-c\OneDrive\Área de Trabalho\primeiro\testeSeriliazeJson.json";
         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
@@ -328,7 +330,7 @@ internal class Ifood
         int ultimoNumeroConta = 0;
         try
         {
-            string banco = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            string banco = CaminhoBaseSysMenu; //@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
             List<int> numerosSequencia = new List<int>();
             numerosSequencia.Clear();
 
@@ -445,13 +447,13 @@ internal class Ifood
     { //aqui começa o código para inserção na tabela CONTAS
         try
         {
-            string banco = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
 
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,CLIENTE,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,CLIENTE,STATUS,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -480,6 +482,7 @@ internal class Ifood
                     command.Parameters.AddWithValue("@OBS8", obs8);
                     command.Parameters.AddWithValue("@OBS9", obs9);
                     command.Parameters.AddWithValue("@CLIENTE", cliente);
+                    command.Parameters.AddWithValue("@STATUS", "P");
                     command.Parameters.AddWithValue("@TELEFONE", telefone);
                     command.Parameters.AddWithValue("@IMPCOMANDA", impComanda);
                     command.Parameters.AddWithValue("@IMPCOMANDA2", ImpComanda2);
@@ -499,6 +502,107 @@ internal class Ifood
         }
     }
 
+    public static void IntegracaoPagCartao(PedidoCompleto pedidoCompleto, int NumContas)
+    {
+        string? cartao = "";
+        string? tipo = "";
+        try
+        {
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string? tipoPagamento = DefinePagamento(pedidoCompleto.payments.methods[0].method);
+
+
+                string SqlSelectIntoCadastros = $"SELECT * FROM CARTAO WHERE NOME = {tipoPagamento}";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                {
+                    selectCommand.Parameters.AddWithValue("@NOME", tipoPagamento);
+
+                    // Executar a consulta SELECT
+                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cartao = reader["NOME"].ToString();
+                            tipo = reader["TIPO"].ToString();
+                        }
+                    }
+                }
+            }
+
+
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+                connection.Open();
+
+                float valorPagamento = pedidoCompleto.payments.methods[0].value;
+
+                string sqlInsert = $"INSERT INTO PagCartao (CONTA, CARTAO, TIPO, VALOR) VALUES (?,?,?,?)";
+
+                using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
+                {
+                    // Parâmetros para a consulta SQL
+                    command.Parameters.AddWithValue("@CONTA", NumContas);
+                    command.Parameters.AddWithValue("@CARTAO", cartao);
+                    command.Parameters.AddWithValue("@TIPO", tipo);
+                    command.Parameters.AddWithValue("@VALOr", valorPagamento);
+
+
+                    // Executa o comando SQL
+                    int rowsAffected = command.ExecuteNonQuery();
+
+                }//fechamento chave segundo using 
+            }//fechamento chave primeiro using
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+    public static string DefinePagamento(string? tipoPagamento) //define o nome do pagamento para inserir no pagCartão
+    {
+        string pagamento = "";
+
+        switch (tipoPagamento)
+        {
+            case "CREDIT":
+                pagamento = "Crédito";
+                break;
+            case "MEAL_VOUCHER":
+                pagamento = "Débito";
+                break;
+            case "DEBIT":
+                pagamento = "Débito";
+                break;
+            case "PIX":
+                pagamento = "PIX";
+                break;
+            case "BANK_PAY ":
+                pagamento = "Débito";
+                break;
+            case "FOOD_VOUCHER ":
+                pagamento = "Débito";
+                break;
+            default:
+                pagamento = "Débito";
+                break;
+        }
+
+        return pagamento;
+    }
+
     public static async void ConfirmarPedido(Polling P)
     {
         string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{P.orderId}/confirm";
@@ -516,5 +620,141 @@ internal class Ifood
         }
     }
 
+    public static async void DespacharPedido(string? orderId)
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/dispatch"; ///orders/{id}/dispatch
+        try
+        {
+            HttpResponseMessage resp = await EnviaReqParaOIfood(url, "POST", "");
 
+            int statusCode = (int)resp.StatusCode;
+
+            if (statusCode == 202)
+            {
+                MessageBox.Show("Pedido Despachado com sucesso!", "Despachado", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                string? message = await resp.Content.ReadAsStringAsync();
+
+                MessageBox.Show(message, "Ops");
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+    public static async void AvisoReadyToPickUp(string? orderId)
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/readyToPickup"; ///orders/{id}/dispatch
+        try
+        {
+            HttpResponseMessage resp = await EnviaReqParaOIfood(url, "POST", "");
+
+            int statusCode = (int)resp.StatusCode;
+
+            if (statusCode == 202)
+            {
+                MessageBox.Show("Pedido Pronto Para Retirada avisado com sucesso!", "Pedido Pronto", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            }
+            else
+            {
+                string? message = await resp.Content.ReadAsStringAsync();
+
+                MessageBox.Show(message, "Ops");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+    public static async Task<List<ClsMotivosDeCancelamento>> CancelaPedidoOpcoes(string orderId)
+    {
+        List<ClsMotivosDeCancelamento>? motivosDeCancelamento = new();
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/cancellationReasons";
+        try
+        {
+            HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
+            int statusCode = (int)response.StatusCode;  
+
+            if (statusCode == 200)
+            {
+                string? jsonResponse = await response.Content.ReadAsStringAsync();
+                motivosDeCancelamento = JsonSerializer.Deserialize<List<ClsMotivosDeCancelamento>>(jsonResponse);
+
+                return motivosDeCancelamento;
+            }
+         
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return motivosDeCancelamento;
+    }
+
+    public static async Task<int> CancelaPedido(string? orderId, string reason, string cancellationCode) //retorna o statuscode
+    {
+        int statusCode = 500;
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/requestCancellation";
+        try
+        {
+            ClsParaEnvioDeCancelamento codesParaCancelar = new ClsParaEnvioDeCancelamento() { reason = reason, cancellationCode = cancellationCode };
+            string? content = JsonSerializer.Serialize(codesParaCancelar);
+
+            HttpResponseMessage response = await EnviaReqParaOIfood(url, "POST", content);
+            statusCode = (int)response.StatusCode;
+
+            if (statusCode == 202)
+            {
+                MessageBox.Show("Cancelamento Enviado com sucesso", "Tudo Certo!");
+            }
+
+            return statusCode;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return statusCode;  
+    }
+
+    public static async Task<HttpResponseMessage> EnviaReqParaOIfood(string? url, string? metodo, string? content = "")
+    {
+        HttpResponseMessage response = new HttpResponseMessage();
+        try
+        {
+            if (metodo == "POST")
+            {
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
+                StringContent contentToReq = new StringContent(content, Encoding.UTF8, "application/json");
+
+                response = await client.PostAsync(url, contentToReq);
+
+                return response;
+            }
+
+            if (metodo == "GET")
+            {
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
+
+
+                response = await client.GetAsync(url);
+
+                return response;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+        return response;
+    }
 }

@@ -88,13 +88,11 @@
             // labelStatus
             // 
             labelStatus.AutoSize = true;
-            labelStatus.Enabled = false;
-            labelStatus.Location = new Point(132, 92);
+            labelStatus.Location = new Point(133, 92);
             labelStatus.Name = "labelStatus";
             labelStatus.Size = new Size(53, 20);
             labelStatus.TabIndex = 5;
             labelStatus.Text = "Placed";
-            labelStatus.Click += labelStatus_Click;
             // 
             // UCPedido
             // 

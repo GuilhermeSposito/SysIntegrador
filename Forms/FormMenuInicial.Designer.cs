@@ -232,7 +232,8 @@
             Name = "FormMenuInicial";
             Padding = new Padding(10);
             StartPosition = FormStartPosition.CenterParent;
-            Text = "FormMenuInicial";
+            Text = "Integrador De Apps SysLogica";
+            WindowState = FormWindowState.Maximized;
             FormClosed += FormMenuInicial_FormClosed;
             Load += FormMenuInicial_Load;
             Shown += FormMenuInicial_Shown;

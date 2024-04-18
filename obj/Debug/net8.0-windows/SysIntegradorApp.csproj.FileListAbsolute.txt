@@ -49,3 +49,10 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Deb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Diagnostics.PerformanceCounter.dll
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UCComplementoDoItem.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.DeliveryForm.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormDeCancelamento.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCMotivoCancelamento.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormDeConfirmacaoDeCancelamento.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormDePedidosAbertos.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCPedidoAbertoSys.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormPedidosEnviados.resources

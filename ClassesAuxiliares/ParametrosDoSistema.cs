@@ -38,6 +38,11 @@ public class ParametrosDoSistema
     public string? Impressora5 { get; set; }
     [Column("telefone")]
     public string? Telefone { get; set; }
+    [Column("clientid")]
+    public string? ClientId { get; set; }
+    [Column("clientsecret")]
+
+    public string? ClientSecret { get; set; }
 
     public ParametrosDoSistema() {}
 }

@@ -22,6 +22,23 @@ public class ApplicationDbContext : DbContext
             optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=ifood;Username=postgres;Password=69063360");
         }
     }
+
+    public static string RetornaCaminhoBaseSysMenu()
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+
+            var opcSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+
+            return opcSistema.CaminhodoBanco;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao procurar base", "Ops");
+        }
+        return "";
+    }
 }
 
 

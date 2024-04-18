@@ -8,7 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.Forms;
 
 namespace SysIntegradorApp;
 
@@ -17,27 +19,142 @@ public partial class DeliveryForm : Form
     public DeliveryForm()
     {
         InitializeComponent();
-        SetRoundedRegion(panelDeIniciarEntrega, 24);
-        SetRoundedRegion(panelDeListarPedidos, 24);
-        SetRoundedRegion(pictureBoxEmpresaDelivery, 50);
+        ClsEstiloComponentes.SetRoundedRegion(panelDeIniciarEntrega, 24);
+        ClsEstiloComponentes.SetRoundedRegion(panelDeListarPedidos, 24);
+        ClsEstiloComponentes.SetRoundedRegion(pictureBoxEmpresaDelivery, 50);
     }
 
-    private void SetRoundedRegion(Control control, int radius) //Método para arredondar os cantos dos paineis
+
+
+    private void DeliveryForm_Paint(object sender, PaintEventArgs e)
     {
-        GraphicsPath path = new GraphicsPath();
-        int width = control.Width;
-        int height = control.Height;
-        path.AddArc(0, 0, radius, radius, 180, 90);
-        path.AddArc(width - radius, 0, radius, radius, 270, 90);
-        path.AddArc(width - radius, height - radius, radius, radius, 0, 90);
-        path.AddArc(0, height - radius, radius, radius, 90, 90);
-        path.CloseFigure();
-
-        control.Region = new Region(path);
+        FormMenuInicial.panelDetalhePedido.Controls.Clear();
+        FormMenuInicial.panelPedidos.Controls.Clear();
     }
 
-    private void pictureBoxDeInciarPedido_Click(object sender, EventArgs e)
+    private void DeliveryForm_FormClosed(object sender, FormClosedEventArgs e)
     {
-        DelMatch.GerarPedido();
+        FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+        FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true;
+        FormMenuInicial.SetarPanelPedidos();
+
     }
+
+    private void label2_Click(object sender, EventArgs e)
+    {
+
+        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+        int contagemdepedidos = pedidosAbertos.Count;
+
+
+        if (contagemdepedidos > 0)
+        {
+            FormDePedidosAbertos modalPedidosAbertos = new FormDePedidosAbertos();
+
+            foreach (var item in pedidosAbertos)
+            {
+                modalPedidosAbertos.AdicionaNoPanel(new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item });
+            }
+
+            modalPedidosAbertos.ShowDialog();
+        }
+        else
+        {
+            MessageBox.Show("Não Tem nenhum pedido em aberto");
+        }
+
+
+    }
+
+    private void panelDeIniciarEntrega_Paint(object sender, PaintEventArgs e)
+    { }
+
+    private void panelDeIniciarEntrega_Click(object sender, EventArgs e)
+    {
+
+        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+        int contagemdepedidos = pedidosAbertos.Count;
+
+
+        if (contagemdepedidos > 0)
+        {
+            FormDePedidosAbertos modalPedidosAbertos = new FormDePedidosAbertos();
+
+            foreach (var item in pedidosAbertos)
+            {
+                modalPedidosAbertos.AdicionaNoPanel(new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item });
+            }
+
+            modalPedidosAbertos.ShowDialog();
+        }
+        else
+        {
+            MessageBox.Show("Não Tem nenhum pedido em aberto");
+        }
+
+    }
+
+    private void panelDeListarPedidos_Click(object sender, EventArgs e)
+    {
+        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosJaEnviados();
+        int contagemdepedidos = pedidosAbertos.Count;
+
+        if (contagemdepedidos > 0)
+        {
+            FormPedidosEnviados modalPedidosEnviados = new FormPedidosEnviados();
+
+            foreach (var item in pedidosAbertos)
+            {
+                var userControlPedido = new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item };
+                userControlPedido.MudaVisibilidadeDaPictureBox();
+                modalPedidosEnviados.AdicionaNoPanel(userControlPedido);
+            }
+
+            modalPedidosEnviados.ShowDialog();
+        }
+        else
+        {
+            MessageBox.Show("Não Tem nenhum pedido em aberto");
+        }
+
+       
+    }
+
+    private void panelDeIniciarEntrega_MouseEnter(object sender, EventArgs e)
+    {
+        panelDeIniciarEntrega.BackColor = Color.FromArgb(197, 85, 6);
+    }
+
+    private void panelDeIniciarEntrega_MouseLeave(object sender, EventArgs e)
+    {
+        panelDeIniciarEntrega.BackColor = Color.FromArgb(219, 95, 7);
+    }
+
+    private void label2_MouseEnter(object sender, EventArgs e)
+    {
+        panelDeIniciarEntrega.BackColor = Color.FromArgb(197, 85, 6);
+    }
+
+    private void label2_MouseLeave(object sender, EventArgs e)
+    {
+        panelDeIniciarEntrega.BackColor = Color.FromArgb(197, 85, 6);
+    }
+
+    private void panelDeListarPedidos_MouseEnter(object sender, EventArgs e)
+    {
+        panelDeListarPedidos.BackColor = Color.FromArgb(197, 85, 6);
+    }
+
+    private void panelDeListarPedidos_MouseLeave(object sender, EventArgs e)
+    {
+        panelDeListarPedidos.BackColor = Color.FromArgb(219, 95, 7);
+    }
+
+    private void label1_MouseEnter(object sender, EventArgs e)
+    {
+        panelDeListarPedidos.BackColor = Color.FromArgb(197, 85, 6);
+    }
+
+
 }
+

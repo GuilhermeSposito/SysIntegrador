@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -9,6 +11,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -17,7 +20,8 @@ namespace SysIntegradorApp;
 public partial class UCInfoPedido : UserControl
 {
     public string? Id_pedido { get; set; }
-    public string? Display_id {  get; set; }
+    public string? orderType { get; set; }
+    public string? Display_id { get; set; }
     public string? NomePedido { get; set; }
     public string? DeliveryBy { get; set; }
     public string? FeitoAs { get; set; }
@@ -37,9 +41,7 @@ public partial class UCInfoPedido : UserControl
     public UCInfoPedido()
     {
         InitializeComponent();
-        SetRoundedRegion(this, 24); //da uma arredondada na borda do user control
-        this.btnDespacharDelMacth.FlatAppearance.BorderColor = Color.FromArgb(237, 121, 12, 93);
-        this.btnDespacharDelMacth.ForeColor = Color.FromArgb(237, 121, 12, 93);
+        ClsEstiloComponentes.SetRoundedRegion(this, 24); //da uma arredondada na borda do user control
     }
 
     private void labelPedidoNM_Click(object sender, EventArgs e) { }
@@ -94,20 +96,6 @@ public partial class UCInfoPedido : UserControl
 
     }
 
-    private void SetRoundedRegion(Control control, int radius) //Método para arredondar os cantos dos UserCntrol
-    {
-        GraphicsPath path = new GraphicsPath();
-        int width = control.Width;
-        int height = control.Height;
-        path.AddArc(0, 0, radius, radius, 180, 90);
-        path.AddArc(width - radius, 0, radius, radius, 270, 90);
-        path.AddArc(width - radius, height - radius, radius, radius, 0, 90);
-        path.AddArc(0, height - radius, radius, radius, 90, 90);
-        path.CloseFigure();
-
-        control.Region = new Region(path);
-    }
-
     //Método chamado no clique da impressão, dentro dele setamos a propriedade estatica dentro da classe de impressão, para que la dentro possamos fazer um select no accsses
     private void btnImprimir_Click(object sender, EventArgs e)
     {
@@ -116,5 +104,31 @@ public partial class UCInfoPedido : UserControl
         ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
 
         Impressao.ChamaImpressoes(pedido.Conta, opSistema.Impressora1);
+    }
+
+    private void btnDespacharIfood_Click(object sender, EventArgs e)
+    {
+        Ifood.DespacharPedido(orderId: Id_pedido);
+    }
+
+    private void buttonReadyToPickUp_Click(object sender, EventArgs e)
+    { 
+        Ifood.AvisoReadyToPickUp(orderId: Id_pedido);
+    }
+
+    private void UCInfoPedido_Paint(object sender, PaintEventArgs e)
+    {
+        if (orderType == "TAKEOUT")
+        {
+            btnDespacharIfood.Visible = false;
+            buttonReadyToPickUp.Location = new Point(166, 13);
+        }
+    }
+
+    private void btnCancelar_Click(object sender, EventArgs e)
+    {
+        FormDeCancelamento modalCancelamento = new FormDeCancelamento() {id_Pedido = Id_pedido};
+        modalCancelamento.display_Id = Display_id;
+        modalCancelamento.ShowDialog();
     }
 }

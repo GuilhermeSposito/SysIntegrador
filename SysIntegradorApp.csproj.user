@@ -7,7 +7,19 @@
     <Compile Update="Forms\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormDeCancelamento.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormDeConfirmacaoDeCancelamento.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormDePedidosAbertos.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormMenuInicial.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\FormPedidosEnviados.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UserControls\UCComplementoDoItem.cs">
@@ -19,7 +31,13 @@
     <Compile Update="UserControls\UCItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="UserControls\UCMotivoCancelamento.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\UCPedido.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCPedidoAbertoSys.cs">
       <SubType>UserControl</SubType>
     </Compile>
   </ItemGroup>

@@ -13,6 +13,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
+using System.Windows.Forms.VisualStyles;
 
 namespace SysIntegradorApp;
 
@@ -39,6 +40,7 @@ public partial class FormMenuInicial : Form
 
         SetarPanelPedidos();
         panelDetalhePedido.Controls.Clear();
+        panelDetalhePedido.Controls.Add(labelDeAvisoPedidoDetalhe);
     }
 
     private void panelPedidos_Paint(object sender, PaintEventArgs e) { }
@@ -96,11 +98,12 @@ public partial class FormMenuInicial : Form
                     UCPedido UserControlPedido = new UCPedido()
                     {
                         Id_pedido = item.id,
-                        Display_id = item.displayId,                        //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                        OrderType = item.orderType,
+                        Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                         NomePedido = item.customer.name,
                         DeliveryBy = item.delivery.deliveredBy,
                         FeitoAs = item.createdAt,
-                        HorarioEntrega = item.orderTiming,
+                        HorarioEntrega = item.delivery.deliveryDateTime,
                         LocalizadorPedido = item.delivery.pickupCode,
                         EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
                         Bairro = item.delivery.deliveryAddress.neighborhood,
@@ -125,7 +128,8 @@ public partial class FormMenuInicial : Form
                     UCPedido UserControlPedido = new UCPedido()
                     {
                         Id_pedido = item.id,
-                        Display_id = item.displayId,    //aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                        Display_id = item.displayId,
+                        OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                         NomePedido = item.customer.name,
                         FeitoAs = item.createdAt,
                         HorarioEntrega = item.takeout.takeoutDateTime,

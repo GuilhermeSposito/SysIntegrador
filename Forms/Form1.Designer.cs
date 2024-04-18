@@ -36,6 +36,9 @@
             label1 = new Label();
             pictureBoxCadeado = new PictureBox();
             groupBoxAut = new GroupBox();
+            panelDeColar = new Panel();
+            linkLabel1 = new LinkLabel();
+            pictureBoxDeColar = new PictureBox();
             labelCodigo = new Label();
             panelInstrucoes = new Panel();
             groupBoxInstru = new GroupBox();
@@ -50,6 +53,8 @@
             majorPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).BeginInit();
             groupBoxAut.SuspendLayout();
+            panelDeColar.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDeColar).BeginInit();
             panelInstrucoes.SuspendLayout();
             groupBoxInstru.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).BeginInit();
@@ -63,7 +68,7 @@
             BrnAutorizar.FlatStyle = FlatStyle.Flat;
             BrnAutorizar.Font = new Font("Segoe UI", 13.8F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
             BrnAutorizar.ForeColor = SystemColors.ButtonHighlight;
-            BrnAutorizar.Location = new Point(121, 106);
+            BrnAutorizar.Location = new Point(180, 107);
             BrnAutorizar.Name = "BrnAutorizar";
             BrnAutorizar.Size = new Size(180, 74);
             BrnAutorizar.TabIndex = 3;
@@ -73,14 +78,16 @@
             // 
             // CodeFromUser
             // 
-            CodeFromUser.BackColor = SystemColors.Menu;
+            CodeFromUser.BackColor = Color.DarkGray;
             CodeFromUser.BorderStyle = BorderStyle.None;
+            CodeFromUser.Cursor = Cursors.Hand;
             CodeFromUser.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
-            CodeFromUser.Location = new Point(203, 399);
+            CodeFromUser.ForeColor = SystemColors.Control;
+            CodeFromUser.Location = new Point(66, 57);
             CodeFromUser.Multiline = true;
             CodeFromUser.Name = "CodeFromUser";
             CodeFromUser.PlaceholderText = "Insira o código Fornecido pelo ifood";
-            CodeFromUser.Size = new Size(379, 44);
+            CodeFromUser.Size = new Size(345, 44);
             CodeFromUser.TabIndex = 6;
             CodeFromUser.TextAlign = HorizontalAlignment.Center;
             CodeFromUser.KeyDown += CodeFromUser_KeyDown;
@@ -130,21 +137,61 @@
             // 
             // groupBoxAut
             // 
+            groupBoxAut.Controls.Add(panelDeColar);
             groupBoxAut.Controls.Add(labelCodigo);
             groupBoxAut.Controls.Add(BrnAutorizar);
-            groupBoxAut.Location = new Point(175, 343);
+            groupBoxAut.Controls.Add(CodeFromUser);
+            groupBoxAut.Location = new Point(92, 343);
             groupBoxAut.Name = "groupBoxAut";
-            groupBoxAut.Size = new Size(441, 192);
+            groupBoxAut.Size = new Size(598, 192);
             groupBoxAut.TabIndex = 10;
             groupBoxAut.TabStop = false;
             groupBoxAut.Text = "Autorização";
             groupBoxAut.Visible = false;
             // 
+            // panelDeColar
+            // 
+            panelDeColar.Controls.Add(linkLabel1);
+            panelDeColar.Controls.Add(pictureBoxDeColar);
+            panelDeColar.ImeMode = ImeMode.Hiragana;
+            panelDeColar.Location = new Point(425, 57);
+            panelDeColar.Name = "panelDeColar";
+            panelDeColar.Size = new Size(130, 44);
+            panelDeColar.TabIndex = 12;
+            panelDeColar.Click += panelDeColar_Click;
+            panelDeColar.Paint += panelDeColar_Paint;
+            // 
+            // linkLabel1
+            // 
+            linkLabel1.AutoSize = true;
+            linkLabel1.Cursor = Cursors.Hand;
+            linkLabel1.Font = new Font("Segoe UI Semibold", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            linkLabel1.LinkColor = Color.Red;
+            linkLabel1.Location = new Point(42, 3);
+            linkLabel1.Name = "linkLabel1";
+            linkLabel1.Size = new Size(75, 35);
+            linkLabel1.TabIndex = 1;
+            linkLabel1.TabStop = true;
+            linkLabel1.Text = "Colar";
+            linkLabel1.LinkClicked += linkLabel1_LinkClicked;
+            // 
+            // pictureBoxDeColar
+            // 
+            pictureBoxDeColar.Cursor = Cursors.Hand;
+            pictureBoxDeColar.Image = (Image)resources.GetObject("pictureBoxDeColar.Image");
+            pictureBoxDeColar.Location = new Point(0, 0);
+            pictureBoxDeColar.Name = "pictureBoxDeColar";
+            pictureBoxDeColar.Size = new Size(36, 44);
+            pictureBoxDeColar.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDeColar.TabIndex = 0;
+            pictureBoxDeColar.TabStop = false;
+            pictureBoxDeColar.Click += pictureBoxDeColar_Click;
+            // 
             // labelCodigo
             // 
             labelCodigo.AutoSize = true;
             labelCodigo.Font = new Font("Segoe UI", 9F, FontStyle.Bold | FontStyle.Italic, GraphicsUnit.Point, 0);
-            labelCodigo.Location = new Point(28, 33);
+            labelCodigo.Location = new Point(66, 34);
             labelCodigo.Name = "labelCodigo";
             labelCodigo.Size = new Size(64, 20);
             labelCodigo.TabIndex = 11;
@@ -154,6 +201,7 @@
             // 
             panelInstrucoes.BackColor = SystemColors.ButtonHighlight;
             panelInstrucoes.Controls.Add(groupBoxInstru);
+            panelInstrucoes.Cursor = Cursors.Help;
             panelInstrucoes.Location = new Point(92, 331);
             panelInstrucoes.Name = "panelInstrucoes";
             panelInstrucoes.Size = new Size(598, 229);
@@ -167,7 +215,7 @@
             groupBoxInstru.Controls.Add(label4);
             groupBoxInstru.Controls.Add(label3);
             groupBoxInstru.Controls.Add(label2);
-            groupBoxInstru.Location = new Point(12, 3);
+            groupBoxInstru.Location = new Point(12, 12);
             groupBoxInstru.Name = "groupBoxInstru";
             groupBoxInstru.Size = new Size(572, 212);
             groupBoxInstru.TabIndex = 0;
@@ -256,7 +304,6 @@
             Controls.Add(panelInstrucoes);
             Controls.Add(majorPanel);
             Controls.Add(pictureBoxSysLogica);
-            Controls.Add(CodeFromUser);
             Controls.Add(groupBoxAut);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
             Name = "Form1";
@@ -268,12 +315,14 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).EndInit();
             groupBoxAut.ResumeLayout(false);
             groupBoxAut.PerformLayout();
+            panelDeColar.ResumeLayout(false);
+            panelDeColar.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDeColar).EndInit();
             panelInstrucoes.ResumeLayout(false);
             groupBoxInstru.ResumeLayout(false);
             groupBoxInstru.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).EndInit();
             ResumeLayout(false);
-            PerformLayout();
         }
 
         #endregion
@@ -294,5 +343,8 @@
         private Label label6;
         private Label label5;
         private PictureBox pictureBoxInfo;
+        private Panel panelDeColar;
+        private PictureBox pictureBoxDeColar;
+        private LinkLabel linkLabel1;
     }
 }

@@ -311,8 +311,9 @@ public class Impressao
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
-            string banco = @"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            string banco = opcSistema.CaminhodoBanco ;
             string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
 
             using (OleDbConnection connection = new OleDbConnection(banco))
@@ -345,6 +346,11 @@ public class Impressao
                                 AdicionaConteudo($"{option.quantity}X {option.name}", FonteDetalhesDoPedido);
                             }
 
+                            if (item.observations != null)
+                            {
+                                AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                            }
+
                         }
                         contagemItemAtual++;
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -372,11 +378,11 @@ public class Impressao
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao imprimir comanda!", "Ops");
+            MessageBox.Show(ex.Message, "Ops");
         }
     }
 
-    public static void ChamaImpressoes(int numConta, string impressora1)
+    public static void ChamaImpressoes(int numConta, string? impressora1)
     {
         ImprimeComanda(numConta, impressora1);
         DefineImpressao(numConta, impressora1);

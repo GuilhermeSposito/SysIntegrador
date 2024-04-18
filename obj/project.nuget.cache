@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "ACqX2Dqy0SMlip3qz7j2hg3z9XwAZDaT0sqK7RCyhOE5U/yu28ZyJO6NLmQPGKwgxseYnpudX71npOk0o0r6Yg==",
+  "dgSpecHash": "nuo65wXyPO7dSshH5mke8aVLv1pUlziQADBgbaR2XUdkYksJgNS8uK6UUQSiiRTGENuRRDznQpogso/xCNIBhg==",
   "success": true,
   "projectFilePath": "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj",
   "expectedPackageFiles": [
@@ -21,6 +21,7 @@
     "C:\\Users\\gui-c\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\microsoft.netcore.platforms\\5.0.0\\microsoft.netcore.platforms.5.0.0.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
+    "C:\\Users\\gui-c\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\npgsql\\8.0.2\\npgsql.8.0.2.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.2\\npgsql.entityframeworkcore.postgresql.8.0.2.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\svg\\3.4.7\\svg.3.4.7.nupkg.sha512",

@@ -4,7 +4,6 @@ using System.Text.Json;
 using ExCSS;
 using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
-using SysIntegradorApp.ClassesAuxiliares;
 using System.Diagnostics;
 using System.Windows.Forms;
 using SysIntegradorApp.data;
@@ -18,9 +17,9 @@ namespace SysIntegradorApp
         public Form1()
         {
             InitializeComponent();
-            SetRoundedRegion(majorPanel, 24);
-            SetRoundedRegion(pictureBoxSysLogica, 24);
-            SetRoundedRegion(CodeFromUser, 24);
+            ClsEstiloComponentes.SetRoundedRegion(majorPanel, 24);
+            ClsEstiloComponentes.SetRoundedRegion(pictureBoxSysLogica, 24);
+            ClsEstiloComponentes.SetRoundedRegion(CodeFromUser, 24);
 
             CodeFromUser.Height = 500;
             groupBoxAut.Visible = false;
@@ -32,13 +31,16 @@ namespace SysIntegradorApp
             string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
             try
             {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
                 string? codeFromMenu = CodeFromUser.Text;
 
                 FormUrlEncodedContent formDataToGetTheToken = new FormUrlEncodedContent(new[]
                      {
                         new KeyValuePair<string, string>("grantType", "authorization_code"),
-                        new KeyValuePair<string, string>("clientId", UserCodes.clientId),
-                        new KeyValuePair<string, string>("clientSecret", UserCodes.clientSecret),
+                        new KeyValuePair<string, string>("clientId", opcSistema.ClientId),
+                        new KeyValuePair<string, string>("clientSecret", opcSistema.ClientSecret),
                         new KeyValuePair<string, string>("authorizationCode", codeFromMenu),
                         new KeyValuePair<string, string>("authorizationCodeVerifier", UserCodeReturnFromAPI.CodeVerifier)
                 });
@@ -54,11 +56,7 @@ namespace SysIntegradorApp
                 string? jsonObjTokenFromAPI = await responseWithToken.Content.ReadAsStringAsync();
                 Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(jsonObjTokenFromAPI);
 
-                using ApplicationDbContext db = new ApplicationDbContext();
-
-                //var order = dbContex.parametrosdopedido.Where(p => p.Id == pullingAtual.orderId).FirstOrDefault();
-
-                var tokenDB = db.parametrosdeautenticacao.Where(p => p.id == 1).FirstOrDefault();
+                var tokenDB = db.parametrosdeautenticacao.ToList().FirstOrDefault();
 
                 if (tokenDB == null)
                 { // se entrar aqui é porque não existe nenhum token no banco de dados
@@ -137,6 +135,9 @@ namespace SysIntegradorApp
             {
                 panelInstrucoes.Visible = false;
 
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault(); 
+
                 CodeFromUser.Visible = true;
                 labelCodigo.Visible = true;
                 groupBoxAut.Visible = true;
@@ -147,7 +148,7 @@ namespace SysIntegradorApp
                 {
                     FormUrlEncodedContent formData = new FormUrlEncodedContent(new[]
                         {
-                        new KeyValuePair<string, string>("clientId", UserCodes.clientId)
+                        new KeyValuePair<string, string>("clientId", opcSistema.ClientId)
                          });
 
                     HttpResponseMessage response = await client.PostAsync($"{url}userCode", formData);
@@ -183,23 +184,47 @@ namespace SysIntegradorApp
 
         }
 
-        private void SetRoundedRegion(Control control, int radius) //Método para arredondar os cantos dos paineis
-        {
-            GraphicsPath path = new GraphicsPath();
-            int width = control.Width;
-            int height = control.Height;
-            path.AddArc(0, 0, radius, radius, 180, 90);
-            path.AddArc(width - radius, 0, radius, radius, 270, 90);
-            path.AddArc(width - radius, height - radius, radius, radius, 0, 90);
-            path.AddArc(0, height - radius, radius, radius, 90, 90);
-            path.CloseFigure();
-
-            control.Region = new Region(path);
-        }
-
         private void pictureBoxInfo_Click(object sender, EventArgs e)
         {
             MessageBox.Show("Caso nescessite de mais ajuda contatar a SysLogica", "Informações", MessageBoxButtons.OK);
+        }
+
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            if (Clipboard.ContainsText())
+            {
+                CodeFromUser.Text = Clipboard.GetText();
+            }
+            else
+            {
+                MessageBox.Show("Area de transferencia Vazia", "Ops");
+            }
+        }
+
+        private void pictureBoxDeColar_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.ContainsText())
+            {
+                CodeFromUser.Text = Clipboard.GetText();
+            }
+            else
+            {
+                MessageBox.Show("Area de transferencia Vazia", "Ops");
+            }
+        }
+
+        private void panelDeColar_Paint(object sender, PaintEventArgs e) {  }
+
+        private void panelDeColar_Click(object sender, EventArgs e)
+        {
+            if (Clipboard.ContainsText())
+            {
+                CodeFromUser.Text = Clipboard.GetText();
+            }
+            else
+            {
+                MessageBox.Show("Area de transferencia Vazia", "Ops");
+            }
         }
     }
 

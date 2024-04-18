@@ -59,8 +59,8 @@
             labelCPF = new Label();
             label16 = new Label();
             panel9 = new Panel();
+            buttonReadyToPickUp = new Button();
             btnCancelar = new Button();
-            btnDespacharDelMacth = new Button();
             btnDespacharIfood = new Button();
             btnImprimir = new Button();
             labelPedidoNM = new Label();
@@ -385,8 +385,8 @@
             panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonHighlight;
             panel9.BorderStyle = BorderStyle.FixedSingle;
+            panel9.Controls.Add(buttonReadyToPickUp);
             panel9.Controls.Add(btnCancelar);
-            panel9.Controls.Add(btnDespacharDelMacth);
             panel9.Controls.Add(btnDespacharIfood);
             panel9.Controls.Add(btnImprimir);
             panel9.Location = new Point(105, 1390);
@@ -394,6 +394,27 @@
             panel9.Padding = new Padding(0, 10, 0, 0);
             panel9.Size = new Size(984, 70);
             panel9.TabIndex = 10;
+            // 
+            // buttonReadyToPickUp
+            // 
+            buttonReadyToPickUp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonReadyToPickUp.AutoSize = true;
+            buttonReadyToPickUp.BackColor = SystemColors.ButtonHighlight;
+            buttonReadyToPickUp.Cursor = Cursors.Hand;
+            buttonReadyToPickUp.FlatAppearance.BorderColor = Color.Blue;
+            buttonReadyToPickUp.FlatAppearance.BorderSize = 2;
+            buttonReadyToPickUp.FlatAppearance.MouseDownBackColor = Color.Red;
+            buttonReadyToPickUp.FlatAppearance.MouseOverBackColor = Color.White;
+            buttonReadyToPickUp.FlatStyle = FlatStyle.Flat;
+            buttonReadyToPickUp.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonReadyToPickUp.ForeColor = Color.Blue;
+            buttonReadyToPickUp.Location = new Point(313, 13);
+            buttonReadyToPickUp.Name = "buttonReadyToPickUp";
+            buttonReadyToPickUp.Size = new Size(188, 39);
+            buttonReadyToPickUp.TabIndex = 4;
+            buttonReadyToPickUp.Text = "Pronto para retirada";
+            buttonReadyToPickUp.UseVisualStyleBackColor = false;
+            buttonReadyToPickUp.Click += buttonReadyToPickUp_Click;
             // 
             // btnCancelar
             // 
@@ -412,29 +433,13 @@
             btnCancelar.TabIndex = 3;
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = false;
-            // 
-            // btnDespacharDelMacth
-            // 
-            btnDespacharDelMacth.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            btnDespacharDelMacth.BackColor = SystemColors.ButtonHighlight;
-            btnDespacharDelMacth.FlatAppearance.BorderColor = Color.DarkOrange;
-            btnDespacharDelMacth.FlatAppearance.BorderSize = 2;
-            btnDespacharDelMacth.FlatAppearance.MouseDownBackColor = Color.DarkOrange;
-            btnDespacharDelMacth.FlatAppearance.MouseOverBackColor = Color.White;
-            btnDespacharDelMacth.FlatStyle = FlatStyle.Flat;
-            btnDespacharDelMacth.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            btnDespacharDelMacth.ForeColor = Color.DarkOrange;
-            btnDespacharDelMacth.Location = new Point(313, 13);
-            btnDespacharDelMacth.Name = "btnDespacharDelMacth";
-            btnDespacharDelMacth.Size = new Size(107, 39);
-            btnDespacharDelMacth.TabIndex = 2;
-            btnDespacharDelMacth.Text = "Despachar";
-            btnDespacharDelMacth.UseVisualStyleBackColor = false;
+            btnCancelar.Click += btnCancelar_Click;
             // 
             // btnDespacharIfood
             // 
             btnDespacharIfood.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             btnDespacharIfood.BackColor = SystemColors.ButtonHighlight;
+            btnDespacharIfood.Cursor = Cursors.Hand;
             btnDespacharIfood.FlatAppearance.BorderColor = Color.Blue;
             btnDespacharIfood.FlatAppearance.BorderSize = 2;
             btnDespacharIfood.FlatAppearance.MouseDownBackColor = Color.Red;
@@ -448,6 +453,7 @@
             btnDespacharIfood.TabIndex = 1;
             btnDespacharIfood.Text = "Despachar";
             btnDespacharIfood.UseVisualStyleBackColor = false;
+            btnDespacharIfood.Click += btnDespacharIfood_Click;
             // 
             // btnImprimir
             // 
@@ -587,6 +593,7 @@
             Margin = new Padding(0);
             Name = "UCInfoPedido";
             Size = new Size(1330, 1521);
+            Paint += UCInfoPedido_Paint;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
             panel3.ResumeLayout(false);
@@ -600,6 +607,7 @@
             panel8.ResumeLayout(false);
             panel8.PerformLayout();
             panel9.ResumeLayout(false);
+            panel9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
@@ -649,6 +657,6 @@
         private GroupBox groupBoxDeItens;
         private Button btnDespacharIfood;
         private Button btnCancelar;
-        private Button btnDespacharDelMacth;
+        private Button buttonReadyToPickUp;
     }
 }

@@ -14,6 +14,7 @@ namespace SysIntegradorApp;
 public partial class UCPedido : UserControl
 {
     public string? Id_pedido { get; set; }
+    public string? OrderType { get; set; }
     public string? Display_id { get; set; }
     public string? NomePedido { get; set; }
     public string? DeliveryBy { get; set; }
@@ -41,8 +42,19 @@ public partial class UCPedido : UserControl
         Id_pedido = id_pedido;
         labelNumPedido.Text = $"#{numPedido}";
         labelNomePedido.Text = nomePedido;
-        labelHorarioDeEntrega.Text = horarioPedido.Substring(11, 5);
-        labelStatus.Text = statusPedido;
+        labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
+        string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
+
+        if(status == "Cancelado")
+        {
+            labelStatus.ForeColor = Color.Red;
+        }
+        else
+        {
+            labelStatus.ForeColor = Color.Green;
+        }
+
+        labelStatus.Text = status;
     }
 
     private void labelStatus_Click(object sender, EventArgs e) { }
@@ -53,9 +65,7 @@ public partial class UCPedido : UserControl
     {
         FormMenuInicial.panelDetalhePedido.Controls.Clear();
         FormMenuInicial.panelDetalhePedido.PerformLayout();
-        UCInfoPedido infoPedido = new UCInfoPedido() {Id_pedido = Id_pedido, Display_id = Display_id, items = items, DeliveryBy = DeliveryBy };
-
-
+        UCInfoPedido infoPedido = new UCInfoPedido() { Id_pedido = Id_pedido, orderType = OrderType, Display_id = Display_id };
 
         infoPedido.SetLabels(id_Pedido: Id_pedido,
                                display_id: Display_id,
