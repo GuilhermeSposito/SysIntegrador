@@ -13,6 +13,7 @@ using System.Data;
 using System.Data.OleDb;
 using System.Net.Http.Json;
 using SysIntegradorApp.data;
+using System.Security.Cryptography.X509Certificates;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -154,9 +155,26 @@ public class Ifood
 
                 string? mesa = pedidoCompletoDeserialiado.takeout.takeoutDateTime == null ? "WEB" : "WEBB";
 
-                int insertNoSysMenuConta = await IntegracaoSequencia(mesa: mesa, cortesia: pedidoCompletoDeserialiado.total.benefits, taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee, taxaMotoboy: 0.00f, tipoPagamento: pedidoCompletoDeserialiado.payments.methods[0].method, valorPagamento: pedidoCompletoDeserialiado.payments.methods[0].value, dtInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), contatoNome: pedidoCompletoDeserialiado.customer.name, usuario: "CAIXA", dataSaida: pedidoCompletoDeserialiado.createdAt.Substring(0, 10), hrSaida: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), obsConta1: "teste1", obsConta2: "Teste2", endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress, bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood, entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy); //fim dos parâmetros do método de integração
+
+                int insertNoSysMenuConta = await IntegracaoSequencia(
+                    mesa: mesa,
+                    cortesia: pedidoCompletoDeserialiado.total.benefits,
+                    taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee,
+                    taxaMotoboy: 0.00f,
+                    dtInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10),
+                    hrInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5),
+                    contatoNome: pedidoCompletoDeserialiado.customer.name,
+                    usuario: "CAIXA",
+                    dataSaida: pedidoCompletoDeserialiado.createdAt.Substring(0, 10),
+                    hrSaida: pedidoCompletoDeserialiado.createdAt.Substring(11, 5),
+                    obsConta1: "teste1", obsConta2: "Teste2",
+                    endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress,
+                    bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood,
+                    entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy); //fim dos parâmetros do método de integração
 
                 IntegracaoPagCartao(pedidoCompletoDeserialiado, insertNoSysMenuConta);
+
+                UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
 
                 db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta });
                 db.SaveChanges();
@@ -165,74 +183,115 @@ public class Ifood
 
                 foreach (Items item in pedidoCompletoDeserialiado.items)
                 {
-                    string externalCode = item.externalCode == null || item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? "0000" : item.externalCode;
+                    bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? true : false;
 
-                    string? ePizza1 = null;
-                    string? ePizza2 = null;
-                    string? ePizza3 = null;
-
-                    foreach (var option in item.options)
+                    if (ePizza)
                     {
-                        if (!option.externalCode.Contains("m") && ePizza1 == null)
+                        string obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
+                        string externalCode = " ";
+
+                        string? ePizza1 = null;
+                        string? ePizza2 = null;
+                        string? ePizza3 = null;
+
+                        foreach (var option in item.options)
                         {
-                            ePizza1 = option.externalCode;
-                            continue;
+                            if (!option.externalCode.Contains("m") && ePizza1 == null)
+                            {
+                                ePizza1 = option.externalCode;
+                                continue;
+                            }
+
+                            if (!option.externalCode.Contains("m") && ePizza2 == null)
+                            {
+                                ePizza2 = option.externalCode;
+                                continue;
+                            }
+
+                            if (!option.externalCode.Contains("m") && ePizza3 == null)
+                            {
+                                ePizza3 = option.externalCode;
+                                continue;
+                            }
+
                         }
 
-                        if (!option.externalCode.Contains("m") && ePizza2 == null)
-                        {
-                            ePizza2 = option.externalCode;
-                            continue;
-                        }
+                        IntegracaoContas(
+                                   conta: insertNoSysMenuConta, //numero
+                                   mesa: mesa, //texto curto 
+                                   qtdade: item.quantity, //numero
+                                   codCarda1: ePizza1 != null ? ePizza1 : externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                   codCarda2: ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
+                                   codCarda3: ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
+                                   tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
+                                   descarda: item.name, // texto curto 31 letras
+                                   valorUnit: item.price, //moeda
+                                   valorTotal: item.totalPrice, //moeda
+                                   dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
+                                   horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
+                                   obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs9: obs,
+                                   cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
+                                   telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
+                                   impComanda: "Não",
+                                   ImpComanda2: "Não",
+                                   qtdComanda: 00f  //numero duplo 
+                              );//fim dos parâmetros
+                    }
+                    else
+                    {
 
-                        if (!option.externalCode.Contains("m") && ePizza3 == null)
-                        {
-                            ePizza3 = option.externalCode;
-                            continue;
-                        }
+                        string externalCode = item.externalCode == null ? " " : item.externalCode;
+                        string obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
+
+                        IntegracaoContas(
+                                   conta: insertNoSysMenuConta, //numero
+                                   mesa: mesa, //texto curto 
+                                   qtdade: item.quantity, //numero
+                                   codCarda1: externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                   codCarda2: " ", //texto curto 4 letras
+                                   codCarda3: " ",//texto curto 4 letras
+                                   tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
+                                   descarda: item.name, // texto curto 31 letras
+                                   valorUnit: item.price, //moeda
+                                   valorTotal: item.totalPrice, //moeda
+                                   dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
+                                   horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
+                                   obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
+                                   obs9: obs, //texto curto 80 letras
+                                   cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
+                                   telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
+                                   impComanda: "Não",
+                                   ImpComanda2: "Não",
+                                   qtdComanda: 00f  //numero duplo 
+                              );//fim dos parâmetros
+
 
                     }
 
 
-                    IntegracaoContas(
-                        conta: insertNoSysMenuConta, //numero
-                        mesa: mesa, //texto curto 
-                        qtdade: item.quantity, //numero
-                        codCarda1: externalCode == "0000" && ePizza1 != null ? ePizza1 : externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
-                        codCarda2: externalCode == "0000" && ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
-                        codCarda3: externalCode == "0000" && ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
-                        tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
-                        descarda: item.name, // texto curto 31 letras
-                        valorUnit: item.price, //moeda
-                        valorTotal: item.totalPrice, //moeda
-                        dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
-                        horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
-                        obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
-                        obs9: item.options != null && item.options.Count() > 8 ? $"{item.options[8].quantity} - {item.options[8].name} {item.options[8].price.ToString("c")}" : " ", //texto curto 80 letras
-                        cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
-                        telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
-                        impComanda: "Não",
-                        ImpComanda2: "Não",
-                        qtdComanda: 00f  //numero duplo 
-                   );//fim dos parâmetros
+                    ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+                    if (opSistema.ImpressaoAut)
+                    {
+                        Impressao.ChamaImpressoes(insertNoSysMenuConta, impressora1: opSistema.Impressora1);
+                    }
                 }
 
-
-
-                ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
-                if (opSistema.ImpressaoAut)
-                {
-                    Impressao.ChamaImpressoes(insertNoSysMenuConta, impressora1: opSistema.Impressora1);
-                }
             }
-
         }
         catch (Exception ex)
         {
@@ -280,8 +339,6 @@ public class Ifood
       float cortesia,
       float taxaEntrega,
       float taxaMotoboy,
-      string? tipoPagamento,
-      float valorPagamento,
       string? dtInicio,
       string? hrInicio,
       string? contatoNome,
@@ -296,37 +353,6 @@ public class Ifood
       ) //método que está sendo usado para integrar a tabela contas do banco de dados com a tabela de pedido do SysIntegrador
     {
 
-        string? pagamento = "PAGCRT";
-
-
-        switch (tipoPagamento)
-        {
-            case "CREDIT":
-                pagamento = "PAGCRT";
-                break;
-            case "MEAL_VOUCHER":
-                pagamento = "VOUCHER";
-                break;
-            case "DEBIT":
-                pagamento = "PAGCRT";
-                break;
-            case "PIX":
-                pagamento = "PAGCRT";
-                break;
-            case "CASH":
-                pagamento = "PAGDNH";
-                break;
-            case "BANK_PAY ":
-                pagamento = "PAGCRT";
-                break;
-            case "FOOD_VOUCHER ":
-                pagamento = "PAGCRT";
-                break;
-            default:
-                pagamento = "PAGCRT";
-                break;
-        }
-
         int ultimoNumeroConta = 0;
         try
         {
@@ -338,7 +364,7 @@ public class Ifood
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, {pagamento}, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -351,7 +377,6 @@ public class Ifood
                     command.Parameters.AddWithValue("@CORTESIA", cortesia);
                     command.Parameters.AddWithValue("@TAXAENTREGA", taxaEntrega);
                     command.Parameters.AddWithValue("@TAXAMOTOBOY", taxaMotoboy);
-                    command.Parameters.AddWithValue($"@{pagamento}", valorPagamento);
                     command.Parameters.AddWithValue("@DTINICIO", dtInicio.Replace("-", "/"));
                     command.Parameters.AddWithValue("@HRINICIO", hrInicio);
                     command.Parameters.AddWithValue("@ENDENTREGA", endEntrega); //se vier WEBB aqui vai ser null
@@ -414,6 +439,130 @@ public class Ifood
         }
 
         return ultimoNumeroConta;
+    }
+
+    public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta)
+    {
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+
+            foreach (Methods pagamentoAtual in pagamento.methods)
+            {
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    // Abrindo a conexão
+                    connection.Open();
+                    string? tipoPagamento = "PAGCRT";
+
+
+                    switch (pagamentoAtual.method)
+                    {
+                        case "CREDIT":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "MEAL_VOUCHER":
+                            tipoPagamento = "VOUCHER";
+                            break;
+                        case "DEBIT":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "PIX":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "CASH":
+                            tipoPagamento = "PAGDNH";
+                            break;
+                        case "BANK_PAY ":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "FOOD_VOUCHER ":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        default:
+                            tipoPagamento = "PAGCRT";
+                            break;
+                    }
+
+
+                    if (tipoPagamento == "PAGCRT")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET PAGCRT = @NovoValor WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@NovoValor", valor);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+                        continue;
+                    }
+
+                    if (tipoPagamento == "PAGDNH")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.cash.changeFor;
+                            troco = pagamentoAtual.cash.changeFor - pagamentoAtual.value;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+                        continue;
+                    }
+
+                    if (tipoPagamento == "VOUCHER")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@NovoValor", valor);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+                        continue;
+                    }
+
+
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro dentro do insere valores");
+        }
     }
 
     public static void IntegracaoContas(int conta, //numero
@@ -680,7 +829,7 @@ public class Ifood
         try
         {
             HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
-            int statusCode = (int)response.StatusCode;  
+            int statusCode = (int)response.StatusCode;
 
             if (statusCode == 200)
             {
@@ -689,7 +838,7 @@ public class Ifood
 
                 return motivosDeCancelamento;
             }
-         
+
         }
         catch (Exception ex)
         {
@@ -721,7 +870,7 @@ public class Ifood
         {
             Console.WriteLine(ex.Message);
         }
-        return statusCode;  
+        return statusCode;
     }
 
     public static async Task<HttpResponseMessage> EnviaReqParaOIfood(string? url, string? metodo, string? content = "")

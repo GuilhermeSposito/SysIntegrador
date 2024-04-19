@@ -229,7 +229,7 @@ public class Payments
     public int id { get; set; }
     public string? id_pedido { get; set; }
     public float prepaid { get; set; }
-    public int pending { get; set; }
+    public float pending { get; set; }
     [NotMapped]
     public List<Methods> methods { get; set; } = new List<Methods>();
 }
@@ -245,10 +245,17 @@ public class Methods
     public string? method { get; set; }
     public bool prepaid { get; set; }
     public string type { get; set; }
-    [NotMapped]
+    public Cash cash { get; set; } = new Cash();
     public Card card { get; set; } = new Card();
 
     public Methods() { }
+}
+
+public class Cash
+{
+    public float changeFor { get; set; }
+
+    public Cash() {}
 }
 
 public class Card

@@ -266,11 +266,11 @@ public class Impressao
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
-                    AdicionaConteudo($"Valor dos itens: \t  {valorDosItens.ToString("c")} ", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Taxa De Entrega: \t  {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Taxa Adicional: \t ", FonteTotaisDoPedido);
+                    AdicionaConteudo($"Valor dos itens: \t   {valorDosItens.ToString("c")} ", FonteTotaisDoPedido);
+                    AdicionaConteudo($"Taxa De Entrega: \t   {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteTotaisDoPedido);
+                    AdicionaConteudo($"Taxa Adicional:  \t ", FonteTotaisDoPedido);
                     AdicionaConteudo($"Descontos:      \t   {pedidoCompleto.total.benefits.ToString("c")}", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Valor Total: \t {pedidoCompleto.total.orderAmount.ToString("c")}", FonteTotaisDoPedido);
+                    AdicionaConteudo($"Valor Total:   \t   {pedidoCompleto.total.orderAmount.ToString("c")}", FonteTotaisDoPedido);
                     valorDosItens = 0f;
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -280,8 +280,10 @@ public class Impressao
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
-                    AdicionaConteudo(DefineTipoDePagamento(pedidoCompleto.payments.methods), FonteGeral);
-                    AdicionaConteudo($"Valor: \t {pedidoCompleto.payments.prepaid.ToString("c")}", FonteGeral);
+                    ClsInfosDePagamentosParaImpressao infosDePagamento = DefineTipoDePagamento(pedidoCompleto.payments.methods);
+
+                    AdicionaConteudo(infosDePagamento.FormaPagamento,  FonteGeral);
+                    AdicionaConteudo($"Valor: \t {infosDePagamento.valor.ToString("c")}", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("Impresso por:", FonteGeral);
@@ -313,7 +315,7 @@ public class Impressao
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
-            string banco = opcSistema.CaminhodoBanco ;
+            string banco = opcSistema.CaminhodoBanco;
             string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
 
             using (OleDbConnection connection = new OleDbConnection(banco))
@@ -384,7 +386,7 @@ public class Impressao
 
     public static void ChamaImpressoes(int numConta, string? impressora1)
     {
-        ImprimeComanda(numConta, impressora1);
+       // ImprimeComanda(numConta, impressora1);
         DefineImpressao(numConta, impressora1);
     }
 
@@ -394,52 +396,64 @@ public class Impressao
         return "───────────────────────────";
     }
 
-    public static string DefineTipoDePagamento(List<Methods> metodos)
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(List<Methods> metodos)
     {
-        string formaDePagamento = "";
-        string tipoDePagamento = "";
+        ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
         foreach (Methods metodo in metodos)
         {
             switch (metodo.type)
             {
                 case "ONLINE":
-                    tipoDePagamento = "Pago Online";
+                    infos.TipoPagamento = "Pago Online";
+                    break;
+                case "OFFLINE":
+                    infos.TipoPagamento = "VAI SER PAGO NA ENTREGA";
                     break;
             }
 
-           
-               switch (metodo.method)
+
+            switch (metodo.method)
             {
                 case "CREDIT":
-                    formaDePagamento = "(Crédito)";
+                    infos.FormaPagamento = "(Crédito)";
                     break;
                 case "MEAL_VOUCHER":
-                    formaDePagamento = "(VOUCHER)";
+                    infos.FormaPagamento = "(VOUCHER)";
                     break;
                 case "DEBIT":
-                    formaDePagamento = "(Débito)";
+                    infos.FormaPagamento = "(Débito)";
                     break;
                 case "PIX":
-                    formaDePagamento = "(PIX)";
+                    infos.FormaPagamento = "(PIX)";
                     break;
                 case "CASH":
-                    formaDePagamento = "(Dinheiro)";
+                    if (metodo.cash.changeFor > 0)
+                    {
+                        double totalTroco = metodo.cash.changeFor - metodo.value ;
+                        infos.FormaPagamento = $"(Dinheiro) Levar troco para {metodo.cash.changeFor.ToString("c")} Total Troco: {totalTroco.ToString("c")}";
+                    }
+                    else
+                    {
+                        infos.FormaPagamento = "(Dinheiro) Não precisa de troco";
+                    }
                     break;
                 case "BANK_PAY ":
-                    formaDePagamento = "(Bank Pay)";
+                    infos.FormaPagamento = "(Bank Pay)";
                     break;
                 case "FOOD_VOUCHER ":
-                    formaDePagamento = "(Vale Refeição)";
+                    infos.FormaPagamento = "(Vale Refeição)";
                     break;
                 default:
-                    formaDePagamento = "(Online)";
+                    infos.FormaPagamento = "(Online)";
                     break;
-            
-        }
+
+            }
+
+            infos.valor = metodo.value;
 
         }
 
-        return tipoDePagamento += " " + formaDePagamento;
+        return infos;
     }
 
     public static void AdicionaConteudo(string conteudo, Font fonte, Alinhamentos alinhamento = Alinhamentos.Esquerda)
