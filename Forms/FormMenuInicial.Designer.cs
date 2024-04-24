@@ -40,6 +40,7 @@
             pictureBoxHome = new PictureBox();
             pictureBox1 = new PictureBox();
             panelStatusLoja = new Panel();
+            pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
             panelDetalhePedido.SuspendLayout();
@@ -50,6 +51,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxHome).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelStatusLoja.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOfline).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnline).BeginInit();
             SuspendLayout();
             // 
@@ -155,6 +157,7 @@
             pictureBoxConfig.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxConfig.TabIndex = 4;
             pictureBoxConfig.TabStop = false;
+            pictureBoxConfig.Click += pictureBoxConfig_Click;
             // 
             // pictureBoxChat
             // 
@@ -192,12 +195,23 @@
             // panelStatusLoja
             // 
             panelStatusLoja.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            panelStatusLoja.Controls.Add(pictureBoxOfline);
             panelStatusLoja.Controls.Add(pictureBoxOnline);
             panelStatusLoja.Controls.Add(labelStatusLojaNM);
             panelStatusLoja.Location = new Point(1200, 11);
             panelStatusLoja.Name = "panelStatusLoja";
             panelStatusLoja.Size = new Size(169, 47);
             panelStatusLoja.TabIndex = 7;
+            // 
+            // pictureBoxOfline
+            // 
+            pictureBoxOfline.Image = (Image)resources.GetObject("pictureBoxOfline.Image");
+            pictureBoxOfline.Location = new Point(106, 12);
+            pictureBoxOfline.Name = "pictureBoxOfline";
+            pictureBoxOfline.Size = new Size(35, 23);
+            pictureBoxOfline.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOfline.TabIndex = 10;
+            pictureBoxOfline.TabStop = false;
             // 
             // pictureBoxOnline
             // 
@@ -208,6 +222,7 @@
             pictureBoxOnline.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOnline.TabIndex = 6;
             pictureBoxOnline.TabStop = false;
+            pictureBoxOnline.Visible = false;
             // 
             // labelStatusLojaNM
             // 
@@ -247,6 +262,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             panelStatusLoja.ResumeLayout(false);
             panelStatusLoja.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOfline).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnline).EndInit();
             ResumeLayout(false);
         }
@@ -259,10 +275,11 @@
         private PictureBox pictureBoxConfig;
         private PictureBox pictureBoxChat;
         private Label labelStatusLojaNM;
-        private PictureBox pictureBoxOnline;
         private Panel panelStatusLoja;
         private Button pollingManual;
         private PictureBox pictureBoxDelivery;
+        private static PictureBox pictureBoxOnline;
+        private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
         public static FlowLayoutPanel panelPedidos;

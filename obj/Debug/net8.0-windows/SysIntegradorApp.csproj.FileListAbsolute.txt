@@ -56,3 +56,5 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Deb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormDePedidosAbertos.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCPedidoAbertoSys.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormPedidosEnviados.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormDeParametrosDoSistema.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.FormLoginConfigs.resources

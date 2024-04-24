@@ -14,6 +14,8 @@ using System.Data.OleDb;
 using System.Net.Http.Json;
 using SysIntegradorApp.data;
 using System.Security.Cryptography.X509Certificates;
+using Newtonsoft.Json;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -37,7 +39,9 @@ public class Ifood
                 ParametrosDoSistema? opcSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
-                List<Polling>? pollings = JsonSerializer.Deserialize<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
+                List<Polling>? pollings = JsonConvert.DeserializeObject<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
+
+
 
                 foreach (var P in pollings)
                 {
@@ -77,6 +81,14 @@ public class Ifood
 
             }
 
+            string statusMerchat = await GetStatusMerchant();
+
+
+            if (statusMerchat == "OK")
+            {
+                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.MudaStatusMerchant()));
+            }
+
         }
         catch (Exception ex)
         {
@@ -98,7 +110,9 @@ public class Ifood
             pollingList.Add(polling);
 
 
-            var polingToJson = JsonSerializer.Serialize(pollingList);
+            var polingToJson = JsonConvert.SerializeObject(pollingList);
+
+
             StringContent content = new StringContent(polingToJson, Encoding.UTF8, "application/json");
 
             await client.PostAsync($"{url}/acknowledgment", content);
@@ -148,7 +162,8 @@ public class Ifood
             HttpResponseMessage response = await client.GetAsync(url);
 
             string? jsonContent = await response.Content.ReadAsStringAsync();
-            PedidoCompleto? pedidoCompletoDeserialiado = JsonSerializer.Deserialize<PedidoCompleto>(jsonContent);
+            PedidoCompleto? pedidoCompletoDeserialiado = JsonConvert.DeserializeObject<PedidoCompleto>(jsonContent);
+
 
             if (verificaSeExistePedido == false)
             {
@@ -179,7 +194,12 @@ public class Ifood
                 db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta });
                 db.SaveChanges();
 
+                bool existeCliente = ProcuraCliente(pedidoCompletoDeserialiado.customer.phone.localizer);
 
+                if (!existeCliente && pedidoCompletoDeserialiado.orderType == "DELIVERY")
+                {
+                    CadastraCliente(pedidoCompletoDeserialiado.customer, pedidoCompletoDeserialiado.delivery);
+                }
 
                 foreach (Items item in pedidoCompletoDeserialiado.items)
                 {
@@ -189,28 +209,290 @@ public class Ifood
                     {
                         string obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
                         string externalCode = " ";
+                        string? NomeProduto = "";
 
                         string? ePizza1 = null;
                         string? ePizza2 = null;
                         string? ePizza3 = null;
+
+                        string? obs1 = " ";
+                        string? obs2 = " ";
+                        string? obs3 = " ";
+                        string? obs4 = " ";
+                        string? obs5 = " ";
+                        string? obs6 = " ";
+                        string? obs7 = " ";
+                        string? obs8 = " ";
+                        string? obs9 = " ";
+                        string? obs10 = " ";
+                        string? obs11 = " ";
+                        string? obs12 = " ";
+                        string? obs13 = " ";
+                        string? obs14 = " ";
 
                         foreach (var option in item.options)
                         {
                             if (!option.externalCode.Contains("m") && ePizza1 == null)
                             {
                                 ePizza1 = option.externalCode;
+                                bool pesquisaProduto = PesquisaCodCardapio(option.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    NomeProduto += NomeProdutoCardapio(option.externalCode);
+                                }
                                 continue;
                             }
 
                             if (!option.externalCode.Contains("m") && ePizza2 == null)
                             {
                                 ePizza2 = option.externalCode;
+                                bool pesquisaProduto = PesquisaCodCardapio(option.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    NomeProduto += " / " + NomeProdutoCardapio(option.externalCode);
+                                }
                                 continue;
                             }
 
                             if (!option.externalCode.Contains("m") && ePizza3 == null)
                             {
                                 ePizza3 = option.externalCode;
+                                bool pesquisaProduto = PesquisaCodCardapio(option.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    NomeProduto += " / " + NomeProdutoCardapio(option.externalCode);
+                                }
+                                continue;
+                            }
+
+                        }
+
+                        foreach (var opcao in item.options)
+                        {
+                            if (obs1 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs1 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs1 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs2 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs2 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs2 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs3 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs3 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs3 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs4 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs4 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs4 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs5 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs5 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs5 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs6 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs6 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs6 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs7 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs7 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs7 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs8 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs8 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs8 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs9 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs9 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs9 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs10 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs10 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs10 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs11 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs11 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs11 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs12 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs12 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs12 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs13 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs13 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs13 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs14 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto && opcao.externalCode.Contains("m"))
+                                {
+                                    obs14 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs14 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
                                 continue;
                             }
 
@@ -224,20 +506,26 @@ public class Ifood
                                    codCarda2: ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
                                    codCarda3: ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
                                    tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
-                                   descarda: item.name, // texto curto 31 letras
+                                   descarda: NomeProduto == "" ? item.name : NomeProduto, // texto curto 31 letras
                                    valorUnit: item.price, //moeda
                                    valorTotal: item.totalPrice, //moeda
                                    dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
                                    horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
-                                   obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs9: obs,
+                                   obs1: obs1,
+                                   obs2: obs2,
+                                   obs3: obs3,
+                                   obs4: obs4,
+                                   obs5: obs5,
+                                   obs6: obs6,
+                                   obs7: obs7,
+                                   obs8: obs8,
+                                   obs9: obs9,
+                                   obs10: obs10,
+                                   obs11: obs11,
+                                   obs12: obs12,
+                                   obs13: obs13,
+                                   obs14: obs14,
+                                   obs15: obs,
                                    cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
                                    telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
                                    impComanda: "Não",
@@ -247,9 +535,261 @@ public class Ifood
                     }
                     else
                     {
+                        string? externalCode = item.externalCode == null || item.externalCode == "" ? " " : item.externalCode;
+                        string? obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
+                        string? nomeProduto = null;
 
-                        string externalCode = item.externalCode == null ? " " : item.externalCode;
-                        string obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
+                        bool existeProduto = PesquisaCodCardapio(externalCode);
+
+                        if (existeProduto)
+                        {
+                            nomeProduto = NomeProdutoCardapio(externalCode);
+                        }
+
+                        string? obs1 = " ";
+                        string? obs2 = " ";
+                        string? obs3 = " ";
+                        string? obs4 = " ";
+                        string? obs5 = " ";
+                        string? obs6 = " ";
+                        string? obs7 = " ";
+                        string? obs8 = " ";
+                        string? obs9 = " ";
+                        string? obs10 = " ";
+                        string? obs11 = " ";
+                        string? obs12 = " ";
+                        string? obs13 = " ";
+                        string? obs14 = " ";
+
+
+                        foreach (var opcao in item.options)
+                        {
+                            if (obs1 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs1 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs1 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs2 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs2 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs2 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs3 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs3 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs3 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs4 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs4 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs4 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs5 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs5 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs5 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs6 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs6 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs6 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs7 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs7 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs7 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs8 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs8 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs8 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs9 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs9 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs9 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs10 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs10 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs10 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs11 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs11 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs11 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs12 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs12 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs12 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs13 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs13 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs13 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                            if (obs14 == " ")
+                            {
+                                bool pesquisaProduto = PesquisaCodCardapio(opcao.externalCode);
+
+                                if (pesquisaProduto)
+                                {
+                                    obs14 = NomeProdutoCardapio(opcao.externalCode);
+                                }
+                                else
+                                {
+                                    obs14 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                                }
+
+                                continue;
+                            }
+
+                        }
+
 
                         IntegracaoContas(
                                    conta: insertNoSysMenuConta, //numero
@@ -259,20 +799,26 @@ public class Ifood
                                    codCarda2: " ", //texto curto 4 letras
                                    codCarda3: " ",//texto curto 4 letras
                                    tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
-                                   descarda: item.name, // texto curto 31 letras
+                                   descarda: nomeProduto != null ? nomeProduto : item.name, // texto curto 31 letras
                                    valorUnit: item.price, //moeda
                                    valorTotal: item.totalPrice, //moeda
                                    dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
                                    horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
-                                   obs1: item.options != null && item.options.Count() > 0 ? $"{item.options[0].quantity} - {item.options[0].name} {item.options[0].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs2: item.options != null && item.options.Count() > 1 ? $"{item.options[1].quantity} - {item.options[1].name} {item.options[1].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs3: item.options != null && item.options.Count() > 2 ? $"{item.options[2].quantity} - {item.options[2].name} {item.options[2].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs4: item.options != null && item.options.Count() > 3 ? $"{item.options[3].quantity} - {item.options[3].name} {item.options[3].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs5: item.options != null && item.options.Count() > 4 ? $"{item.options[4].quantity} - {item.options[4].name} {item.options[4].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs6: item.options != null && item.options.Count() > 5 ? $"{item.options[5].quantity} - {item.options[5].name} {item.options[5].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs7: item.options != null && item.options.Count() > 6 ? $"{item.options[6].quantity} - {item.options[6].name} {item.options[6].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs8: item.options != null && item.options.Count() > 7 ? $"{item.options[7].quantity} - {item.options[7].name} {item.options[7].price.ToString("c")}" : " ", //texto curto 80 letras
-                                   obs9: obs, //texto curto 80 letras
+                                   obs1: obs1,
+                                   obs2: obs2,
+                                   obs3: obs3,
+                                   obs4: obs4,
+                                   obs5: obs5,
+                                   obs6: obs6,
+                                   obs7: obs7,
+                                   obs8: obs8,
+                                   obs9: obs9,
+                                   obs10: obs10,
+                                   obs11: obs11,
+                                   obs12: obs12,
+                                   obs13: obs13,
+                                   obs14: obs14,
+                                   obs15: obs,
                                    cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
                                    telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
                                    impComanda: "Não",
@@ -586,6 +1132,12 @@ public class Ifood
         string? obs7,    //  ||
         string? obs8,    //  ||
         string? obs9,    //  ||
+        string? obs10,    //  ||
+        string? obs11,    //  ||
+        string? obs12,    //  ||
+        string? obs13,    //  ||
+        string? obs14,    //  ||
+        string? obs15,    //  ||
         string? cliente, // texto curto 40 letras
         string? telefone, // texto curto 14 letras
         string? impComanda, // texto curto 3 letras
@@ -602,7 +1154,7 @@ public class Ifood
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,CLIENTE,STATUS,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,OBS10,OBS11,OBS12,OBS13,OBS14,OBS15,CLIENTE,STATUS,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -630,6 +1182,12 @@ public class Ifood
                     command.Parameters.AddWithValue("@OBS7", obs7);
                     command.Parameters.AddWithValue("@OBS8", obs8);
                     command.Parameters.AddWithValue("@OBS9", obs9);
+                    command.Parameters.AddWithValue("@OBS10", obs10);
+                    command.Parameters.AddWithValue("@OBS11", obs11);
+                    command.Parameters.AddWithValue("@OBS12", obs12);
+                    command.Parameters.AddWithValue("@OBS13", obs13);
+                    command.Parameters.AddWithValue("@OBS14", obs14);
+                    command.Parameters.AddWithValue("@OBS15", obs15);
                     command.Parameters.AddWithValue("@CLIENTE", cliente);
                     command.Parameters.AddWithValue("@STATUS", "P");
                     command.Parameters.AddWithValue("@TELEFONE", telefone);
@@ -689,8 +1247,6 @@ public class Ifood
                 }
             }
 
-
-
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
                 connection.Open();
@@ -718,6 +1274,161 @@ public class Ifood
         {
             MessageBox.Show(ex.Message, "Ops");
         }
+    }
+
+    public static bool ProcuraCliente(string? telefone)
+    {
+        bool existeCliente = false;
+        try
+        {
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string sqlSelect = "SELECT COUNT(*) FROM Clientes WHERE TELEFONE = @TELEFONE";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                {
+                    selectCommand.Parameters.AddWithValue("@TELEFONE", telefone);
+
+                    // Executar a consulta SELECT
+                    int count = (int)selectCommand.ExecuteScalar();
+                    existeCliente = count > 0;
+                }
+                return existeCliente;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Problema em procurar cliente");
+        }
+        return existeCliente;
+    }
+
+    public static void CadastraCliente(Customer cliente, Delivery entrega)
+    {
+        try
+        {
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string SqlSelectIntoCadastros = "INSERT INTO Clientes (TELEFONE, NOME, ENDERECO, BAIRRO, CIDADE, ESTADO, CEP, REFERE) VALUES (?,?,?,?,?,?,?,?) ";
+
+
+                using (OleDbCommand command = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                {
+                    command.Parameters.AddWithValue("@TELEFONE", cliente.phone.localizer);
+                    command.Parameters.AddWithValue("@NOME", cliente.name);
+                    command.Parameters.AddWithValue("@ENDERECO", entrega.deliveryAddress.formattedAddress);
+                    command.Parameters.AddWithValue("@BAIRRO", entrega.deliveryAddress.neighborhood);
+                    command.Parameters.AddWithValue("@CIDADE", entrega.deliveryAddress.city);
+                    command.Parameters.AddWithValue("@ESTADO", "SP");
+                    command.Parameters.AddWithValue("@CEP", entrega.deliveryAddress.postalCode != null ? entrega.deliveryAddress.postalCode : " ");
+                    command.Parameters.AddWithValue("@REFERE", entrega.deliveryAddress.reference != null ? entrega.deliveryAddress.reference : " ");
+
+
+                    // Executa o comando SQL
+                    int rowsAffected = command.ExecuteNonQuery();
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Problema em procurar cliente");
+        }
+    }
+
+    public static bool PesquisaCodCardapio(string? codPdv)
+    {
+        bool existeProduto = false;
+        try
+        {
+
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string sqlSelect = "SELECT COUNT(*) FROM Cardapio WHERE CODIGO = @CODIGO";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                {
+                    selectCommand.Parameters.AddWithValue("@CODIGO", codPdv);
+
+                    // Executar a consulta SELECT
+                    int count = (int)selectCommand.ExecuteScalar();
+                    existeProduto = count > 0;
+                }
+                return existeProduto;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Erro ao pesquisar pelo codigo do cardapio");
+        }
+        return existeProduto;
+    }
+
+    public static string NomeProdutoCardapio(string codCardapio)
+    {
+        string? NomeProduto = null;
+        try
+        {
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string SqlSelectIntoCadastros = "SELECT * FROM Cardapio WHERE CODIGO = @CODIGO";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                {
+                    selectCommand.Parameters.AddWithValue("@CODIGO", codCardapio);
+
+                    // Executar a consulta SELECT
+                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            NomeProduto = reader["DESCRICAO"].ToString();
+                        }
+                    }
+                    return NomeProduto;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Erro ao definir nome do produto");
+        }
+        return NomeProduto;
     }
 
     public static string DefinePagamento(string? tipoPagamento) //define o nome do pagamento para inserir no pagCartão
@@ -834,7 +1545,8 @@ public class Ifood
             if (statusCode == 200)
             {
                 string? jsonResponse = await response.Content.ReadAsStringAsync();
-                motivosDeCancelamento = JsonSerializer.Deserialize<List<ClsMotivosDeCancelamento>>(jsonResponse);
+                motivosDeCancelamento = JsonConvert.DeserializeObject<List<ClsMotivosDeCancelamento>>(jsonResponse);
+
 
                 return motivosDeCancelamento;
             }
@@ -854,7 +1566,9 @@ public class Ifood
         try
         {
             ClsParaEnvioDeCancelamento codesParaCancelar = new ClsParaEnvioDeCancelamento() { reason = reason, cancellationCode = cancellationCode };
-            string? content = JsonSerializer.Serialize(codesParaCancelar);
+            string? content = JsonConvert.SerializeObject(codesParaCancelar);
+
+
 
             HttpResponseMessage response = await EnviaReqParaOIfood(url, "POST", content);
             statusCode = (int)response.StatusCode;
@@ -873,6 +1587,32 @@ public class Ifood
         return statusCode;
     }
 
+    public static async Task<string> GetStatusMerchant()
+    {
+        string validationState = "ERROR";
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            string? merchantId = opSistema.MerchantId;
+
+            string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{merchantId}/status";
+
+            HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
+            string? jsonContent = await response.Content.ReadAsStringAsync();
+
+            DeliveryStatus deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent).FirstOrDefault();
+            Validation validations = deliveryStatus.Validations.FirstOrDefault();
+
+            return validations.State;
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+        return validationState;
+    }
     public static async Task<HttpResponseMessage> EnviaReqParaOIfood(string? url, string? metodo, string? content = "")
     {
         HttpResponseMessage response = new HttpResponseMessage();

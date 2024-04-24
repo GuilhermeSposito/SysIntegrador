@@ -19,6 +19,7 @@ public class PedidoCompleto
     public string? createdAt { get; set; }
     public string? orderTiming { get; set; }
     public string? orderType { get; set; }
+    public Schedule schedule { get; set; } = new Schedule();
     public TakeOut takeout { get; set; } = new TakeOut();
     public Delivery delivery { get; set; } = new Delivery(); //tabela nova //não inserir no banco inicialmente
     public string? preparationStartDateTime { get; set; }
@@ -58,10 +59,18 @@ public class pedidocompleto //Classe para inserir na tabela pedido completo no b
 }
 
 
+public class Schedule
+{
+    public string? deliveryDateTimeStart { get; set; }
+    public string? deliveryDateTimeEnd { get; set; }
+    public Schedule(){}
+}
+
 public class TakeOut
 {
     public string? mode { get; set; }
-    public string? takeoutDateTime {  get; set; } 
+    public string? takeoutDateTime {  get; set; }
+    public TakeOut() { }
 }
 
 public class Delivery
@@ -139,9 +148,7 @@ public class Customer
     public string? id { get; set; }
     public string? id_pedido { get; set; }
     public string? name { get; set; }
-    [Column("documentnumber")]
     public string? documentNumber { get; set; }
-    [NotMapped]
     public Phone? phone { get; set; }
     public string? segmentation { get; set; }
 

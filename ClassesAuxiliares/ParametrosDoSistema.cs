@@ -1,6 +1,8 @@
-﻿using System;
+﻿using SysIntegradorApp.data;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -43,6 +45,91 @@ public class ParametrosDoSistema
     [Column("clientsecret")]
 
     public string? ClientSecret { get; set; }
+    [Column("merchantid")]
+
+    public string? MerchantId { get; set; }
 
     public ParametrosDoSistema() {}
+
+
+    public static List<string> ListaImpressoras()
+    {
+        var impressoras = PrinterSettings.InstalledPrinters;
+        List<string> listaImpressoras = new List<string>();
+
+        foreach (var item in impressoras)
+        {
+            listaImpressoras.Add(item.ToString());
+        }
+
+        return listaImpressoras;    
+    }
+
+    public static ParametrosDoSistema GetInfosSistema()
+    {
+        ParametrosDoSistema Configuracoes = new ParametrosDoSistema();  
+        try
+        {
+            ApplicationDbContext dbContext = new ApplicationDbContext();
+
+            Configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            return Configuracoes;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao listar informações do sistema");
+        }
+        return Configuracoes;
+
+    }
+
+    public static void SetInfosSistema(
+     string? nomeFantasia,
+     string? endereco,
+     bool impressaoAut,
+     bool aceitaPedidoAut,
+     string? caminhoDoBanco,
+     bool integracaoSysMenu,
+     string? impressora1,
+     string? impressora2,
+     string? impressora3,
+     string? impressora4,
+     string? impressora5,
+     string? telefone,
+     string? clientId,
+     string? clientSecret,
+     string? merchantId)
+    {
+        try
+        {
+            ApplicationDbContext dbContext = new ApplicationDbContext();
+
+            var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            configuracoes.NomeFantasia = nomeFantasia;
+            configuracoes.Endereco = endereco;
+            configuracoes.ImpressaoAut = impressaoAut;
+            configuracoes.AceitaPedidoAut = aceitaPedidoAut;
+            configuracoes.CaminhodoBanco = caminhoDoBanco;
+            configuracoes.IntegracaoSysMenu = integracaoSysMenu;
+            configuracoes.Impressora1 = impressora1;
+            configuracoes.Impressora2 = impressora2;
+            configuracoes.Impressora3 = impressora3;
+            configuracoes.Impressora4 = impressora4;
+            configuracoes.Impressora5 = impressora5;
+            configuracoes.Telefone = telefone;
+            configuracoes.ClientId = clientId;
+            configuracoes.ClientSecret = clientSecret;
+            configuracoes.MerchantId = merchantId;
+
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+        }
+    }
+
+
 }

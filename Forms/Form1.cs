@@ -8,6 +8,7 @@ using System.Diagnostics;
 using System.Windows.Forms;
 using SysIntegradorApp.data;
 using System.Drawing.Drawing2D;
+using SysIntegradorApp.Forms;
 
 
 namespace SysIntegradorApp
@@ -119,6 +120,9 @@ namespace SysIntegradorApp
                         this.Hide();
                     }
                 }
+
+             //   FormDeParametrosDoSistema Config = new FormDeParametrosDoSistema();
+             //   Config.Show();
 
             }
             catch (Exception ex)

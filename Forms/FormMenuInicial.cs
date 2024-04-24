@@ -1,6 +1,7 @@
 ﻿using Svg;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -95,61 +96,133 @@ public partial class FormMenuInicial : Form
 
                 if (item.takeout.mode == null) //caso Entre nesse if, é porque o pedido vai ser para delivery
                 {
-                    UCPedido UserControlPedido = new UCPedido()
+                    if (item.orderTiming != "SCHEDULED")
                     {
-                        Id_pedido = item.id,
-                        OrderType = item.orderType,
-                        Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
-                        NomePedido = item.customer.name,
-                        DeliveryBy = item.delivery.deliveredBy,
-                        FeitoAs = item.createdAt,
-                        HorarioEntrega = item.delivery.deliveryDateTime,
-                        LocalizadorPedido = item.delivery.pickupCode,
-                        EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
-                        Bairro = item.delivery.deliveryAddress.neighborhood,
-                        TipoDaEntrega = item.delivery.deliveredBy,
-                        ValorTotalItens = item.total.subTotal,
-                        ValorTaxaDeentrega = item.total.deliveryFee,
-                        Valortaxaadicional = item.total.additionalFees,
-                        Descontos = item.total.benefits,
-                        TotalDoPedido = item.total.orderAmount,
-                        Observations = item.delivery.observations,
-                        items = item.items,
-                    };
+                        UCPedido UserControlPedido = new UCPedido()
+                        {
+                            Pedido = item,
+                            Id_pedido = item.id,
+                            OrderType = item.orderType,
+                            Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            DeliveryBy = item.delivery.deliveredBy,
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = item.delivery.deliveryDateTime,
+                            LocalizadorPedido = item.delivery.pickupCode,
+                            EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
+                            Bairro = item.delivery.deliveryAddress.neighborhood,
+                            TipoDaEntrega = item.delivery.deliveredBy,
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            Observations = item.delivery.observations,
+                            items = item.items,
+                        };
 
 
-                    UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.delivery.deliveryDateTime, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
-                    panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+
+                    }
+                    else
+                    {
+                        UCPedido UserControlPedido = new UCPedido()
+                        {
+                            Pedido = item,
+                            Id_pedido = item.id,
+                            OrderType = item.orderType,
+                            Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            DeliveryBy = item.delivery.deliveredBy,
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = item.delivery.deliveryDateTime,
+                            LocalizadorPedido = item.delivery.pickupCode,
+                            EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
+                            Bairro = item.delivery.deliveryAddress.neighborhood,
+                            TipoDaEntrega = item.delivery.deliveredBy,
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            Observations = item.delivery.observations,
+                            items = item.items,
+                        };
+
+
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.schedule.deliveryDateTimeEnd, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                        UserControlPedido.MudarLabelQuandoAgendada("Pedido Agendato até:");
+
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                    }
                 }
 
                 if (item.delivery.pickupCode == null) // se entrar nesse if é porque  vai ser para retirada
                 {
-                    UCPedido UserControlPedido = new UCPedido()
+                    if (item.orderTiming != "SCHEDULED")
                     {
-                        Id_pedido = item.id,
-                        Display_id = item.displayId,
-                        OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
-                        NomePedido = item.customer.name,
-                        FeitoAs = item.createdAt,
-                        HorarioEntrega = item.takeout.takeoutDateTime,
-                        LocalizadorPedido = item.delivery.pickupCode,
-                        EnderecoFormatado = "Retirada No local",
-                        Bairro = item.delivery.deliveryAddress.neighborhood,
-                        TipoDaEntrega = "Retirada",
-                        ValorTotalItens = item.total.subTotal,
-                        ValorTaxaDeentrega = item.total.deliveryFee,
-                        Valortaxaadicional = item.total.additionalFees,
-                        Descontos = item.total.benefits,
-                        TotalDoPedido = item.total.orderAmount,
-                        Observations = item.delivery.observations,
-                        items = item.items
-                    };
+                        UCPedido UserControlPedido = new UCPedido()
+                        {
+                            Pedido = item,
+                            Id_pedido = item.id,
+                            Display_id = item.displayId,
+                            OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = item.takeout.takeoutDateTime,
+                            LocalizadorPedido = item.delivery.pickupCode,
+                            EnderecoFormatado = "Retirada No local",
+                            Bairro = item.delivery.deliveryAddress.neighborhood,
+                            TipoDaEntrega = "Retirada",
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            Observations = item.delivery.observations,
+                            items = item.items
+                        };
 
 
-                    UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
-                    panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                    }
+                    else
+                    {
+                        UCPedido UserControlPedido = new UCPedido()
+                        {
+                            Pedido = item,
+                            Id_pedido = item.id,
+                            Display_id = item.displayId,
+                            OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = item.takeout.takeoutDateTime,
+                            LocalizadorPedido = item.delivery.pickupCode,
+                            EnderecoFormatado = "Pedido Agendado Para Retirada",
+                            Bairro = item.delivery.deliveryAddress.neighborhood,
+                            TipoDaEntrega = "Retirada",
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            Observations = item.delivery.observations,
+                            items = item.items
+                        };
+
+
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                    }
+
+
+
 
                 }
 
@@ -164,6 +237,13 @@ public partial class FormMenuInicial : Form
         {
             MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK);
         }
+    }
+
+    public static void MudaStatusMerchant()
+    {
+        pictureBoxOnline.Visible = true;
+        pictureBoxOfline.Visible = false;
+
     }
 
     private void SetRoundedRegion(Control control, int radius) //Método para arredondar os cantos dos paineis
@@ -204,5 +284,11 @@ public partial class FormMenuInicial : Form
     {
         DeliveryForm deliveryForm = new DeliveryForm();
         deliveryForm.ShowDialog();
+    }
+
+    private void pictureBoxConfig_Click(object sender, EventArgs e)
+    {
+        FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();    
+        configs.ShowDialog();   
     }
 }

@@ -255,7 +255,7 @@ public class Impressao
                                 AdicionaConteudo($"{option.quantity}X {option.name} {option.price.ToString("c")}", FonteDetalhesDoPedido);
                             }
 
-                            if (item.observations != null)
+                            if (item.observations != null || item.observations != "")
                             {
                                 AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
                             }
@@ -274,7 +274,7 @@ public class Impressao
                     valorDosItens = 0f;
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    if (pedidoCompleto.delivery.observations != null)
+                    if (pedidoCompleto.delivery.observations != null || pedidoCompleto.delivery.observations != "")
                     {
                         AdicionaConteudo($"{pedidoCompleto.delivery.observations}", FonteObservaçõesItem);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

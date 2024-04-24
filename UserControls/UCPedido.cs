@@ -13,6 +13,7 @@ namespace SysIntegradorApp;
 
 public partial class UCPedido : UserControl
 {
+    public PedidoCompleto Pedido { get; set; }
     public string? Id_pedido { get; set; }
     public string? OrderType { get; set; }
     public string? Display_id { get; set; }
@@ -32,6 +33,7 @@ public partial class UCPedido : UserControl
     public string? Observations { get; set; }
     public List<Items> items { get; set; } = new List<Items>();
 
+
     public UCPedido()
     {
         InitializeComponent();
@@ -45,7 +47,7 @@ public partial class UCPedido : UserControl
         labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
         string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
 
-        if(status == "Cancelado")
+        if (status == "Cancelado")
         {
             labelStatus.ForeColor = Color.Red;
         }
@@ -57,6 +59,14 @@ public partial class UCPedido : UserControl
         labelStatus.Text = status;
     }
 
+    public void MudarLabelQuandoAgendada(string texto)
+    {
+        labelEntregarAte.Text = texto;
+        labelEntregarAte.ForeColor = Color.Red;
+
+        labelHorarioDeEntrega.Location = new Point(283, 72);
+    }
+
     private void labelStatus_Click(object sender, EventArgs e) { }
 
     private void UCPedido_Load(object sender, EventArgs e) { }
@@ -65,12 +75,9 @@ public partial class UCPedido : UserControl
     {
         FormMenuInicial.panelDetalhePedido.Controls.Clear();
         FormMenuInicial.panelDetalhePedido.PerformLayout();
-        UCInfoPedido infoPedido = new UCInfoPedido() { Id_pedido = Id_pedido, orderType = OrderType, Display_id = Display_id };
+        UCInfoPedido infoPedido = new UCInfoPedido() { Pedido = Pedido, Id_pedido = Id_pedido, orderType = OrderType, Display_id = Display_id };
 
-        infoPedido.SetLabels(id_Pedido: Id_pedido,
-                               display_id: Display_id,
-                               nomePedido: NomePedido,
-                               feitoAs: FeitoAs,
+        infoPedido.SetLabels(
                                horarioEntrega: HorarioEntrega,
                                localizadorPedido: LocalizadorPedido,
                                enderecoFormatado: EnderecoFormatado,
@@ -80,8 +87,8 @@ public partial class UCPedido : UserControl
                                valorTaxaDeentrega: ValorTaxaDeentrega,
                                valortaxaadicional: Valortaxaadicional,
                                descontos: Descontos,
-                               total: TotalDoPedido,
-                               observations: Observations);
+                               total: TotalDoPedido
+                          );
 
         infoPedido.InsereItemNoPedido(items);
         FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;

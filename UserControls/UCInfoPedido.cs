@@ -19,6 +19,7 @@ namespace SysIntegradorApp;
 
 public partial class UCInfoPedido : UserControl
 {
+    public PedidoCompleto Pedido { get; set; }
     public string? Id_pedido { get; set; }
     public string? orderType { get; set; }
     public string? Display_id { get; set; }
@@ -48,10 +49,7 @@ public partial class UCInfoPedido : UserControl
 
     private void label4_Click(object sender, EventArgs e) { }
 
-    public void SetLabels(string id_Pedido,
-                          string display_id,
-                          string nomePedido,
-                          string feitoAs,
+    public void SetLabels(
                           string horarioEntrega,
                           string localizadorPedido,
                           string enderecoFormatado,
@@ -61,16 +59,15 @@ public partial class UCInfoPedido : UserControl
                           float valorTaxaDeentrega,
                           float valortaxaadicional,
                           float descontos,
-                          float total,
-                          string observations)
+                          float total)
     {
-        labelLocalizadorPedido.Text = "Localizador teste do pedido";
-        labelDisplayId.Text = display_id;
-        numId.Text = id_Pedido;
-        label1.Text = nomePedido;
-        dateFeitoAs.Text = feitoAs.Substring(11, 5);
-        tipoEntrega.Text = TipoEntrega;
-        horarioEntregaPrevista.Text = horarioEntrega;
+        labelLocalizadorPedido.Text = Pedido.delivery.pickupCode; 
+        labelDisplayId.Text = $"#{Pedido.displayId}";
+        numId.Text = Pedido.customer.phone.localizer;
+        label1.Text = Pedido.customer.name;
+        dateFeitoAs.Text = Pedido.createdAt.Substring(11, 5);
+        tipoEntrega.Text = TipoEntrega == "MERCHANT" ? "Própria" : "Diferente por enquanto"; ;
+        horarioEntregaPrevista.Text = horarioEntrega.Substring(11,5);
         labelLocalizadorPedido.Text = localizadorPedido;
         labelEndereco.Text = $"{enderecoFormatado} - {bairro}";
         ValorTotalDosItens.Text = valorTotalItens.ToString("c");
@@ -78,8 +75,20 @@ public partial class UCInfoPedido : UserControl
         valorTaxaAdicional.Text = valortaxaadicional.ToString("c");
         valorDescontos.Text = descontos.ToString("c");
         valorTotal.Text = total.ToString("c");
-        infoPagPedido.Text = observations;
 
+        var InfoPag = ClsInfosDePagamentosParaImpressao.DefineTipoDePagamento(metodos: Pedido.payments.methods);
+
+        infoPagPedido.Text = $"{InfoPag.FormaPagamento} {InfoPag.TipoPagamento}";
+        obsPagamentoPedido.Text = InfoPag.TipoPagamento == "Pago Online" ? "Não é nescessario receber do cliente" : "Deverá ser cobrado no local do cliente";
+
+        if (Pedido.customer.documentNumber == null)
+        {
+            labelCPF.Text = "NÃO";
+        }
+        else
+        {
+            labelCPF.Text = Pedido.customer.documentNumber;
+        }
     }
 
     public void InsereItemNoPedido(List<Items> items)
@@ -131,4 +140,6 @@ public partial class UCInfoPedido : UserControl
         modalCancelamento.display_Id = Display_id;
         modalCancelamento.ShowDialog();
     }
+
+
 }
