@@ -121,8 +121,8 @@ namespace SysIntegradorApp
                     }
                 }
 
-             //   FormDeParametrosDoSistema Config = new FormDeParametrosDoSistema();
-             //   Config.Show();
+                //FormDeParametrosDoSistema Config = new FormDeParametrosDoSistema();
+                //Config.Show();
 
             }
             catch (Exception ex)

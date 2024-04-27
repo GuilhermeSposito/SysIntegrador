@@ -40,12 +40,26 @@ namespace SysIntegradorApp.Forms
 
         private void FormDeParametrosDoSistema_Load(object sender, EventArgs e)
         {
-            FormLoginConfigs login = new FormLoginConfigs();    
+            FormLoginConfigs login = new FormLoginConfigs();
             login.ShowDialog();
 
             FormDeParametrosDoSistema instAtual = new FormDeParametrosDoSistema();
             instAtual.AlimentaComboBoxDeImpressoras(this);
             instAtual.DefineValoresDasConfigVindaDoBanco(this);
+
+            ParametrosDoSistema Configuracoes = ParametrosDoSistema.GetInfosSistema();
+
+            if (Configuracoes.AgruparComandas)
+            {
+                pictureBoxON.Visible = true;
+                pictureBoxOFF.Visible = false;
+            }
+            else
+            {
+                pictureBoxOFF.Visible = true;
+                pictureBoxON.Visible = false;
+
+            }
         }
 
         public void AlimentaComboBoxDeImpressoras(FormDeParametrosDoSistema instancia)
@@ -59,6 +73,7 @@ namespace SysIntegradorApp.Forms
                 instancia.comboBoxImpressora3.Items.Add(imp);
                 instancia.comboBoxImpressora4.Items.Add(imp);
                 instancia.comboBoxImpressora5.Items.Add(imp);
+                instancia.comboBoxImpressoraAuxiliar.Items.Add(imp);    
             }
         }
 
@@ -81,6 +96,7 @@ namespace SysIntegradorApp.Forms
             instancia.comboBoxImpressora3.Text = Configuracoes.Impressora3;
             instancia.comboBoxImpressora4.Text = Configuracoes.Impressora4;
             instancia.comboBoxImpressora5.Text = Configuracoes.Impressora5;
+
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -93,13 +109,13 @@ namespace SysIntegradorApp.Forms
 
             try
             {
-               
+
 
                 DialogResult opUser = MessageBox.Show("Você confirma as alterações nas configurações?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
 
                 if (opUser == DialogResult.Yes)
-                { 
+                {
 
                     // Obtendo os valores dos ComboBoxes e TextBoxes
                     string caminhoBanco = textBoxCaminhoBanco.Text;
@@ -117,6 +133,18 @@ namespace SysIntegradorApp.Forms
                     string impressora3 = comboBoxImpressora3.SelectedItem.ToString();
                     string impressora4 = comboBoxImpressora4.SelectedItem.ToString();
                     string impressora5 = comboBoxImpressora5.SelectedItem.ToString();
+                    bool agrupaComandas = false;
+
+                    if(pictureBoxOFF.Visible == false)
+                    {
+                        agrupaComandas = false;
+                    }
+                    
+                    if(pictureBoxON.Visible == true)
+                    {
+                        agrupaComandas = true;
+                    }
+
 
                     // Chamando o método SetInfosSistema com os valores obtidos
                     ParametrosDoSistema.SetInfosSistema(
@@ -134,7 +162,8 @@ namespace SysIntegradorApp.Forms
                          telefone,
                          clientId,
                          clientSecret,
-                         merchantId
+                         merchantId,
+                         agrupaComandas
                      );
 
                     this.Close();
@@ -144,8 +173,20 @@ namespace SysIntegradorApp.Forms
             {
                 MessageBox.Show(ex.Message, "Ops");
             }
-            
-          
+
+
+        }
+
+        private void pictureBoxOFF_Click(object sender, EventArgs e)
+        {
+            pictureBoxON.Visible = true;
+            pictureBoxOFF.Visible = false;  
+        }
+
+        private void pictureBoxON_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFF.Visible = true;
+            pictureBoxON.Visible = false;
         }
     }
 }

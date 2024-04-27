@@ -48,7 +48,10 @@ public class ParametrosDoSistema
     [Column("merchantid")]
 
     public string? MerchantId { get; set; }
-
+    [Column("delmatchid")]
+    public string? DelMatchId { get; set; }
+    [Column("agruparcomandas")]
+    public bool AgruparComandas { get; set; }
     public ParametrosDoSistema() {}
 
 
@@ -99,7 +102,8 @@ public class ParametrosDoSistema
      string? telefone,
      string? clientId,
      string? clientSecret,
-     string? merchantId)
+     string? merchantId,
+     bool agrupaComandas)
     {
         try
         {
@@ -122,6 +126,7 @@ public class ParametrosDoSistema
             configuracoes.ClientId = clientId;
             configuracoes.ClientSecret = clientSecret;
             configuracoes.MerchantId = merchantId;
+            configuracoes.AgruparComandas = agrupaComandas;
 
             dbContext.SaveChanges();
         }

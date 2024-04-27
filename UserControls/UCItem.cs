@@ -23,7 +23,7 @@ namespace SysIntegradorApp
         }
 
         //método que define todas as labels e panel dentro do UCITEM
-        public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<Options> options)
+        public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<Options> options, UCItem instancia)
         {
             quantidadeItem.Text = $"{quantity.ToString()}X";
             nomeDoItem.Text = nome;
@@ -31,7 +31,11 @@ namespace SysIntegradorApp
             valorDasOpcoes.Text = optionsPrice.ToString("c");
             valorTotalDoItem.Text = totalPrice.ToString("c");
 
-            if(options.Count() == 0)
+            int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
+            int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados
+
+
+            if (options.Count() == 0)
             {
                 panelDeComplementos.Visible = false;
                 groupBoxComplementos.Visible = false;
@@ -45,11 +49,21 @@ namespace SysIntegradorApp
                 UCComplementoDoItem ucComplemento = new UCComplementoDoItem();
                 ucComplemento.SetLabels(item.name, item.price);
                 ucComplemento.Size = new Size(600,60);
+
+
                 Panel panelParaLeyout = new Panel();  
                 panelParaLeyout.Controls.Add(ucComplemento);
                 panelParaLeyout.Size = new Size(640, 64);
+
+
                 ClsEstiloComponentes.CustomizePanelBorder(panelParaLeyout);
                 panelDeComplementos.Controls.Add(panelParaLeyout);
+
+                panelDeComplementos.Height += 30;
+                groupBoxComplementos.Height += 30;
+
+                panelValorDasOpcoes.Location = new Point(panelValorDasOpcoes.Location.X, panelValorDasOpcoes.Location.Y + 30);
+                panelValorTotal.Location = new Point(panelValorTotal.Location.X, panelValorTotal.Location.Y + 30);
             }
 
         }

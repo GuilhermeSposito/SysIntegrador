@@ -33,6 +33,7 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            label1 = new Label();
             pictureBoxDelivery = new PictureBox();
             pollingManual = new Button();
             pictureBoxConfig = new PictureBox();
@@ -43,6 +44,9 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
+            label2 = new Label();
+            label3 = new Label();
+            label4 = new Label();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
@@ -106,6 +110,10 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(label4);
+            panel1.Controls.Add(label3);
+            panel1.Controls.Add(label2);
+            panel1.Controls.Add(label1);
             panel1.Controls.Add(pictureBoxDelivery);
             panel1.Controls.Add(pollingManual);
             panel1.Controls.Add(pictureBoxConfig);
@@ -118,12 +126,22 @@
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(385, 49);
+            label1.Name = "label1";
+            label1.Size = new Size(45, 17);
+            label1.TabIndex = 10;
+            label1.Text = "Home";
+            // 
             // pictureBoxDelivery
             // 
             pictureBoxDelivery.Cursor = Cursors.Hand;
             pictureBoxDelivery.ErrorImage = (Image)resources.GetObject("pictureBoxDelivery.ErrorImage");
             pictureBoxDelivery.Image = (Image)resources.GetObject("pictureBoxDelivery.Image");
-            pictureBoxDelivery.Location = new Point(448, 13);
+            pictureBoxDelivery.Location = new Point(449, 3);
             pictureBoxDelivery.Name = "pictureBoxDelivery";
             pictureBoxDelivery.Size = new Size(51, 45);
             pictureBoxDelivery.SizeMode = PictureBoxSizeMode.Zoom;
@@ -151,7 +169,7 @@
             pictureBoxConfig.Cursor = Cursors.Hand;
             pictureBoxConfig.ErrorImage = (Image)resources.GetObject("pictureBoxConfig.ErrorImage");
             pictureBoxConfig.Image = (Image)resources.GetObject("pictureBoxConfig.Image");
-            pictureBoxConfig.Location = new Point(523, 13);
+            pictureBoxConfig.Location = new Point(518, 3);
             pictureBoxConfig.Name = "pictureBoxConfig";
             pictureBoxConfig.Size = new Size(51, 45);
             pictureBoxConfig.SizeMode = PictureBoxSizeMode.Zoom;
@@ -163,18 +181,19 @@
             // 
             pictureBoxChat.Cursor = Cursors.Hand;
             pictureBoxChat.Image = (Image)resources.GetObject("pictureBoxChat.Image");
-            pictureBoxChat.Location = new Point(597, 13);
+            pictureBoxChat.Location = new Point(586, 3);
             pictureBoxChat.Name = "pictureBoxChat";
             pictureBoxChat.Size = new Size(51, 45);
             pictureBoxChat.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxChat.TabIndex = 3;
             pictureBoxChat.TabStop = false;
+            pictureBoxChat.Click += pictureBoxChat_Click;
             // 
             // pictureBoxHome
             // 
             pictureBoxHome.Cursor = Cursors.Hand;
             pictureBoxHome.Image = (Image)resources.GetObject("pictureBoxHome.Image");
-            pictureBoxHome.Location = new Point(376, 13);
+            pictureBoxHome.Location = new Point(381, 3);
             pictureBoxHome.Name = "pictureBoxHome";
             pictureBoxHome.Size = new Size(51, 45);
             pictureBoxHome.SizeMode = PictureBoxSizeMode.Zoom;
@@ -234,6 +253,36 @@
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
             // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Location = new Point(445, 49);
+            label2.Name = "label2";
+            label2.Size = new Size(61, 17);
+            label2.TabIndex = 11;
+            label2.Text = "Entregas";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Location = new Point(519, 49);
+            label3.Name = "label3";
+            label3.Size = new Size(50, 17);
+            label3.TabIndex = 12;
+            label3.Text = "Config.";
+            // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.Location = new Point(590, 49);
+            label4.Name = "label4";
+            label4.Size = new Size(44, 17);
+            label4.TabIndex = 13;
+            label4.Text = "Portal";
+            // 
             // FormMenuInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -255,6 +304,7 @@
             panelDetalhePedido.ResumeLayout(false);
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
+            panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxChat).EndInit();
@@ -278,10 +328,14 @@
         private Panel panelStatusLoja;
         private Button pollingManual;
         private PictureBox pictureBoxDelivery;
+        private Label label1;
+        private Label label3;
+        private Label label2;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
         public static FlowLayoutPanel panelPedidos;
+        private Label label4;
     }
 }

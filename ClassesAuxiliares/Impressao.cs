@@ -18,6 +18,7 @@ public class Impressao
 {
     public static int NumContas { get; set; }
     public static List<ClsImpressaoDefinicoes>? Conteudo { get; set; } = new List<ClsImpressaoDefinicoes>();
+    public static List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> ConteudoParaImpSeparada { get; set; } = new List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas>();
 
 
     public static Font FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
@@ -102,7 +103,7 @@ public class Impressao
 
                     tamanhoFrase = e.Graphics.MeasureString(frase, item.Fonte).Width;
 
-                    if (tamanhoFrase > e.PageBounds.Width - 65 && frase != "")
+                    if (tamanhoFrase > e.PageBounds.Width - 70 && frase != "")
                     {
                         if (item.Alinhamento == Alinhamentos.Centro)
                         {
@@ -169,7 +170,7 @@ public class Impressao
     }
 
 
-    public static void DefineImpressao(int numConta, string impressora1)
+    public static void DefineImpressao(int numConta, string impressora1) //impressão caixa
     {
         try
         {
@@ -247,15 +248,17 @@ public class Impressao
 
                     foreach (var item in pedidoCompleto.items)
                     {
-                        AdicionaConteudo($"{item.quantity}X {item.name} {item.totalPrice.ToString("c")}\n\n", FonteItens);
+                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item);
+
+                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.totalPrice.ToString("c")}\n\n", FonteItens);
                         if (item.options != null)
                         {
-                            foreach (var option in item.options)
+                            foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option.quantity}X {option.name} {option.price.ToString("c")}", FonteDetalhesDoPedido);
+                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
                             }
 
-                            if (item.observations != null || item.observations != "")
+                            if (item.observations.Length > 0 && item.observations != null)
                             {
                                 AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
                             }
@@ -282,7 +285,7 @@ public class Impressao
 
                     ClsInfosDePagamentosParaImpressao infosDePagamento = DefineTipoDePagamento(pedidoCompleto.payments.methods);
 
-                    AdicionaConteudo(infosDePagamento.FormaPagamento,  FonteGeral);
+                    AdicionaConteudo(infosDePagamento.FormaPagamento, FonteGeral);
                     AdicionaConteudo($"Valor: \t {infosDePagamento.valor.ToString("c")}", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -305,7 +308,7 @@ public class Impressao
     }
 
 
-    public static void ImprimeComanda(int numConta, string impressora1)
+    public static void ImprimeComanda(int numConta, string impressora1) //comanda
     {
         try
         {
@@ -323,7 +326,6 @@ public class Impressao
                 connection.Open();
                 string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
 
-
                 using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
@@ -337,18 +339,21 @@ public class Impressao
 
                     int qtdItens = pedidoCompleto.items.Count();
                     int contagemItemAtual = 1;
+
                     foreach (var item in pedidoCompleto.items)
                     {
                         AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
-                        AdicionaConteudo($"{item.quantity}X {item.name}", FonteItens);
+                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item);
+
+                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.totalPrice.ToString("c")}\n\n", FonteItens);
                         if (item.options != null)
                         {
-                            foreach (var option in item.options)
+                            foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option.quantity}X {option.name}", FonteDetalhesDoPedido);
+                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
                             }
 
-                            if (item.observations != null)
+                            if (item.observations != null && item.observations.Length > 0)
                             {
                                 AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
                             }
@@ -356,17 +361,9 @@ public class Impressao
                         }
                         contagemItemAtual++;
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
                     }
                     contagemItemAtual = 0;
-
-                    if (pedidoCompleto.delivery.observations != null)
-                    {
-                        AdicionaConteudo($"{pedidoCompleto.delivery.observations}", FonteObservaçõesItem);
-                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-                    }
-
-                    AdicionaConteudo($"{pedidoCompleto.delivery.observations}", FonteObservaçõesItem);
-
 
                     AdicionaConteudo("Impresso por:", FonteGeral);
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
@@ -384,10 +381,207 @@ public class Impressao
         }
     }
 
-    public static void ChamaImpressoes(int numConta, string? impressora1)
+    public static void SeparaItensParaImpressaoSeparada(int numConta)
     {
-       // ImprimeComanda(numConta, impressora1);
-        DefineImpressao(numConta, impressora1);
+        try
+        {
+            List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> ListaDeItems = new List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas>() { new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Cz1" }, new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Cz2" }, new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Cz3" }, new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Cz4" }, new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Sem Impressora" }, new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora1 = "Bar" } };
+
+
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+
+            foreach (var item in pedidoCompleto.items)
+            {
+                bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? true : false;
+                string externalCode = item.externalCode;
+
+                if (ePizza)
+                {
+                    foreach (var option in item.options)
+                    {
+                        if (!option.externalCode.Contains("m"))
+                        {
+                            List<string> LocalDeImpressaoDasPizza = ClsDeIntegracaoSys.DefineNomeImpressoraPorProduto(option.externalCode);
+
+                            var GruposDoItemPizza = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).ToList();
+
+                            if (LocalDeImpressaoDasPizza.Count() > 1)
+                            {
+                                foreach (var grupo in GruposDoItemPizza)
+                                {
+                                    var verifSejaExisteAPizzaDEntroDosItens = grupo.Itens.Any(x => x == item);
+
+                                    if (!verifSejaExisteAPizzaDEntroDosItens)
+                                    {
+                                        grupo.Itens.Add(item);
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                var GrupoDoItem = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).FirstOrDefault();
+
+                                if (GrupoDoItem != null)
+                                {
+                                    var verifSejaExisteAPizzaDEntroDosItens = GrupoDoItem.Itens.Any(x => x == item);
+
+                                    if (!verifSejaExisteAPizzaDEntroDosItens)
+                                    {
+                                        GrupoDoItem.Itens.Add(item);
+                                    }
+                                   
+                                }
+                            }
+                        }
+                    }
+
+                    continue;
+                }
+
+                //-------------------------------------------------------------------------------------------------------------------------------//
+                List<string> LocalDeImpressao = ClsDeIntegracaoSys.DefineNomeImpressoraPorProduto(externalCode);
+
+                var GruposDoItem = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressao[0] || x.Impressora1 == LocalDeImpressao[1]).ToList();
+
+                if (GruposDoItem.Count() > 1)
+                {
+                    foreach (var grupo in GruposDoItem)
+                    {
+                        grupo.Itens.Add(item);
+                    }
+                }
+                else
+                {
+                    var GrupoDoItem = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressao[0] || x.Impressora1 == LocalDeImpressao[1]).FirstOrDefault();
+
+                    if (GrupoDoItem != null)
+                    {
+                        GrupoDoItem.Itens.Add(item);
+                    }
+                }
+
+
+            }
+
+            List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> ListaLimpa = ListaDeItems.Where(x => x.Itens.Count > 0).ToList();
+
+            foreach (var item in ListaLimpa)
+            {
+                item.Impressora1 = DefineNomeDeImpressoraCasoEstejaSelecionadoImpSeparada(item.Impressora1);
+
+                ImprimeComandaSeparada(item.Impressora1, item.Itens, numConta);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+        }
+    }
+
+
+    public static void ImprimeComandaSeparada(string impressora, List<Items> itens, int numConta)
+    {
+        try
+        {
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+
+            //List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> itemsSeparadosPorImpressao = SeparaItensParaImpressaoSeparada();
+            //string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+
+            //nome do restaurante estatico por enquanto
+
+            AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            AdicionaConteudo($"Entrega: \t  Nº000\n", FonteNomeDoCliente);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            int qtdItens = pedidoCompleto.items.Count();
+            int contagemItemAtual = 1;
+
+
+            foreach (var item in itens)
+            {
+
+                if (impressora == "Sem Impressora" || impressora == "" || impressora == null)
+                {
+                    throw new Exception("Uma das impressora não foi encontrada adicione ela nas configurações ou retire a impressão separada!");
+                }
+
+
+                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item);
+
+                AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+                AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.totalPrice.ToString("c")}\n\n", FonteItens);
+                if (item.options != null)
+                {
+                    foreach (var option in CaracteristicasPedido.Observações)
+                    {
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                    }
+
+                    if (item.observations != null && item.observations.Length > 0)
+                    {
+                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                    }
+
+                }
+
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+            }
+            contagemItemAtual = 0;
+
+            AdicionaConteudo("Impresso por:", FonteGeral);
+            AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+
+            if (impressora != "Nao")
+            {
+                Imprimir(Conteudo, impressora);
+            }
+
+            //Imprimir(Conteudo, impressora);
+            Conteudo.Clear();
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+        }
+    }
+
+    public static void ChamaImpressoesCasoSejaComandaSeparada(int numConta, List<string> impressoras)
+    {
+        ApplicationDbContext db = new ApplicationDbContext();
+        ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+        DefineImpressao(numConta, opcSistema.Impressora1);
+        SeparaItensParaImpressaoSeparada(numConta);
+    }
+
+    public static void ChamaImpressoes(int numConta, string? impressora)
+    {
+        ApplicationDbContext db = new ApplicationDbContext();
+        ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+
+        if (impressora == opcSistema.Impressora1)
+        {
+            DefineImpressao(numConta, impressora);
+        }
+        ImprimeComanda(numConta, impressora);
+
+
     }
 
 
@@ -429,7 +623,7 @@ public class Impressao
                 case "CASH":
                     if (metodo.cash.changeFor > 0)
                     {
-                        double totalTroco = metodo.cash.changeFor - metodo.value ;
+                        double totalTroco = metodo.cash.changeFor - metodo.value;
                         infos.FormaPagamento = $"(Dinheiro) Levar troco para {metodo.cash.changeFor.ToString("c")} Total Troco: {totalTroco.ToString("c")}";
                     }
                     else
@@ -461,5 +655,50 @@ public class Impressao
         Conteudo.Add(new ClsImpressaoDefinicoes() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento });
     }
 
+    public static void AdicionaConteudoParaImpSeparada(string impressora, string conteudo, Font fonte, Alinhamentos alinhamento = Alinhamentos.Esquerda)
+    {
+        //ConteudoParaImpSeparada.Add(new ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas() { Impressora = impressora, conteudo = new ClsImpressaoDefinicoes() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento } });
+    }
+
+    public static string DefineNomeDeImpressoraCasoEstejaSelecionadoImpSeparada(string LocalImpressao)
+    {
+        string NomeImpressora = "";
+        try
+        {
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            switch (LocalImpressao)
+            {
+                case "Cz1":
+                    NomeImpressora = opcSistema.Impressora2;
+                    break;
+                case "Cz2":
+                    NomeImpressora = opcSistema.Impressora3;
+                    break;
+                case "Cz3":
+                    NomeImpressora = opcSistema.Impressora4;
+                    break;
+                case "Bar":
+                    NomeImpressora = opcSistema.Impressora5;
+                    break;
+                case "Nao":
+                    NomeImpressora = "Nao";
+                    break;
+                default:
+                    NomeImpressora = "Sem Impressora";
+                    break;
+            }
+
+        }
+        catch (Exception ex)
+        {
+
+            MessageBox.Show("Erro ao Definir nome da impresora para impressão");
+        }
+
+
+        return NomeImpressora;
+    }
 
 }

@@ -30,8 +30,14 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDeParametrosDoSistema));
             panel1 = new Panel();
+            label1 = new Label();
             pictureBox1 = new PictureBox();
             panelmpressoras = new Panel();
+            label19 = new Label();
+            comboBoxImpressoraAuxiliar = new ComboBox();
+            label18 = new Label();
+            pictureBoxOFF = new PictureBox();
+            pictureBoxON = new PictureBox();
             label6 = new Label();
             comboBoxImpressora5 = new ComboBox();
             label5 = new Label();
@@ -77,10 +83,11 @@
             btnNao = new Button();
             btnSim = new Button();
             label17 = new Label();
-            label1 = new Label();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelmpressoras.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFF).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxON).BeginInit();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
             panel4.SuspendLayout();
@@ -106,6 +113,16 @@
             panel1.Size = new Size(1267, 68);
             panel1.TabIndex = 0;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label1.Location = new Point(411, 14);
+            label1.Name = "label1";
+            label1.Size = new Size(632, 38);
+            label1.TabIndex = 1;
+            label1.Text = "Bem-Vindo as configurações do SysIntegrador!";
+            // 
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
@@ -120,6 +137,11 @@
             // panelmpressoras
             // 
             panelmpressoras.BackColor = SystemColors.ButtonFace;
+            panelmpressoras.Controls.Add(label19);
+            panelmpressoras.Controls.Add(comboBoxImpressoraAuxiliar);
+            panelmpressoras.Controls.Add(label18);
+            panelmpressoras.Controls.Add(pictureBoxOFF);
+            panelmpressoras.Controls.Add(pictureBoxON);
             panelmpressoras.Controls.Add(label6);
             panelmpressoras.Controls.Add(comboBoxImpressora5);
             panelmpressoras.Controls.Add(label5);
@@ -136,22 +158,78 @@
             panelmpressoras.Size = new Size(319, 485);
             panelmpressoras.TabIndex = 1;
             // 
+            // label19
+            // 
+            label19.AutoSize = true;
+            label19.Font = new Font("Segoe UI", 12F);
+            label19.Location = new Point(3, 83);
+            label19.Name = "label19";
+            label19.Size = new Size(81, 28);
+            label19.TabIndex = 15;
+            label19.Text = "Auxiliar:";
+            // 
+            // comboBoxImpressoraAuxiliar
+            // 
+            comboBoxImpressoraAuxiliar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraAuxiliar.FormattingEnabled = true;
+            comboBoxImpressoraAuxiliar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraAuxiliar.Location = new Point(3, 114);
+            comboBoxImpressoraAuxiliar.Name = "comboBoxImpressoraAuxiliar";
+            comboBoxImpressoraAuxiliar.Size = new Size(299, 36);
+            comboBoxImpressoraAuxiliar.TabIndex = 14;
+            comboBoxImpressoraAuxiliar.Text = "Sem Impressora";
+            // 
+            // label18
+            // 
+            label18.AutoSize = true;
+            label18.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label18.Location = new Point(26, 442);
+            label18.Name = "label18";
+            label18.Size = new Size(186, 28);
+            label18.TabIndex = 13;
+            label18.Text = "Agrupar Comandas";
+            // 
+            // pictureBoxOFF
+            // 
+            pictureBoxOFF.Cursor = Cursors.Hand;
+            pictureBoxOFF.Image = (Image)resources.GetObject("pictureBoxOFF.Image");
+            pictureBoxOFF.Location = new Point(218, 437);
+            pictureBoxOFF.Name = "pictureBoxOFF";
+            pictureBoxOFF.Size = new Size(84, 43);
+            pictureBoxOFF.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFF.TabIndex = 11;
+            pictureBoxOFF.TabStop = false;
+            pictureBoxOFF.Click += pictureBoxOFF_Click;
+            // 
+            // pictureBoxON
+            // 
+            pictureBoxON.Cursor = Cursors.Hand;
+            pictureBoxON.Image = (Image)resources.GetObject("pictureBoxON.Image");
+            pictureBoxON.Location = new Point(218, 437);
+            pictureBoxON.Name = "pictureBoxON";
+            pictureBoxON.Size = new Size(84, 45);
+            pictureBoxON.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxON.TabIndex = 12;
+            pictureBoxON.TabStop = false;
+            pictureBoxON.Visible = false;
+            pictureBoxON.Click += pictureBoxON_Click;
+            // 
             // label6
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Segoe UI", 12F);
-            label6.Location = new Point(3, 334);
+            label6.Location = new Point(3, 364);
             label6.Name = "label6";
-            label6.Size = new Size(123, 28);
+            label6.Size = new Size(44, 28);
             label6.TabIndex = 10;
-            label6.Text = "Impressora5:";
+            label6.Text = "Bar:";
             // 
             // comboBoxImpressora5
             // 
             comboBoxImpressora5.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora5.FormattingEnabled = true;
             comboBoxImpressora5.Items.AddRange(new object[] { "Sem Impressora" });
-            comboBoxImpressora5.Location = new Point(3, 364);
+            comboBoxImpressora5.Location = new Point(3, 395);
             comboBoxImpressora5.Name = "comboBoxImpressora5";
             comboBoxImpressora5.Size = new Size(299, 36);
             comboBoxImpressora5.TabIndex = 9;
@@ -161,18 +239,18 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI", 12F);
-            label5.Location = new Point(3, 264);
+            label5.Location = new Point(3, 293);
             label5.Name = "label5";
-            label5.Size = new Size(123, 28);
+            label5.Size = new Size(102, 28);
             label5.TabIndex = 8;
-            label5.Text = "Impressora4:";
+            label5.Text = "Cozinha 3:";
             // 
             // comboBoxImpressora4
             // 
             comboBoxImpressora4.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora4.FormattingEnabled = true;
             comboBoxImpressora4.Items.AddRange(new object[] { "Sem Impressora" });
-            comboBoxImpressora4.Location = new Point(3, 295);
+            comboBoxImpressora4.Location = new Point(3, 325);
             comboBoxImpressora4.Name = "comboBoxImpressora4";
             comboBoxImpressora4.Size = new Size(299, 36);
             comboBoxImpressora4.TabIndex = 7;
@@ -182,18 +260,18 @@
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI", 12F);
-            label4.Location = new Point(3, 194);
+            label4.Location = new Point(3, 223);
             label4.Name = "label4";
-            label4.Size = new Size(123, 28);
+            label4.Size = new Size(102, 28);
             label4.TabIndex = 6;
-            label4.Text = "Impressora3:";
+            label4.Text = "Cozinha 2:";
             // 
             // comboBoxImpressora3
             // 
             comboBoxImpressora3.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora3.FormattingEnabled = true;
             comboBoxImpressora3.Items.AddRange(new object[] { "Sem Impressora" });
-            comboBoxImpressora3.Location = new Point(3, 225);
+            comboBoxImpressora3.Location = new Point(3, 254);
             comboBoxImpressora3.Name = "comboBoxImpressora3";
             comboBoxImpressora3.Size = new Size(299, 36);
             comboBoxImpressora3.TabIndex = 5;
@@ -203,18 +281,18 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI", 12F);
-            label3.Location = new Point(3, 124);
+            label3.Location = new Point(3, 153);
             label3.Name = "label3";
-            label3.Size = new Size(123, 28);
+            label3.Size = new Size(102, 28);
             label3.TabIndex = 4;
-            label3.Text = "Impressora2:";
+            label3.Text = "Cozinha 1:";
             // 
             // comboBoxImpressora2
             // 
             comboBoxImpressora2.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora2.FormattingEnabled = true;
             comboBoxImpressora2.Items.AddRange(new object[] { "Sem Impressora" });
-            comboBoxImpressora2.Location = new Point(3, 155);
+            comboBoxImpressora2.Location = new Point(0, 184);
             comboBoxImpressora2.Name = "comboBoxImpressora2";
             comboBoxImpressora2.Size = new Size(299, 36);
             comboBoxImpressora2.TabIndex = 3;
@@ -224,18 +302,18 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI", 12F);
-            label2.Location = new Point(3, 55);
+            label2.Location = new Point(3, 15);
             label2.Name = "label2";
-            label2.Size = new Size(123, 28);
+            label2.Size = new Size(62, 28);
             label2.TabIndex = 2;
-            label2.Text = "Impressora1:";
+            label2.Text = "Caixa:";
             // 
             // comboBoxImpressora1
             // 
             comboBoxImpressora1.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora1.FormattingEnabled = true;
             comboBoxImpressora1.Items.AddRange(new object[] { "Sem Impressora" });
-            comboBoxImpressora1.Location = new Point(3, 85);
+            comboBoxImpressora1.Location = new Point(3, 44);
             comboBoxImpressora1.Name = "comboBoxImpressora1";
             comboBoxImpressora1.Size = new Size(299, 36);
             comboBoxImpressora1.TabIndex = 1;
@@ -245,7 +323,7 @@
             // 
             labelImpressorasNM.AutoSize = true;
             labelImpressorasNM.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelImpressorasNM.Location = new Point(95, 15);
+            labelImpressorasNM.Location = new Point(94, 0);
             labelImpressorasNM.Name = "labelImpressorasNM";
             labelImpressorasNM.Size = new Size(105, 23);
             labelImpressorasNM.TabIndex = 0;
@@ -615,16 +693,6 @@
             label17.TabIndex = 1;
             label17.Text = "Salvar";
             // 
-            // label1
-            // 
-            label1.AutoSize = true;
-            label1.Font = new Font("Segoe UI", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(411, 14);
-            label1.Name = "label1";
-            label1.Size = new Size(632, 38);
-            label1.TabIndex = 1;
-            label1.Text = "Bem-Vindo as configurações do SysIntegrador!";
-            // 
             // FormDeParametrosDoSistema
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -656,6 +724,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             panelmpressoras.ResumeLayout(false);
             panelmpressoras.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFF).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxON).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
             panel3.ResumeLayout(false);
@@ -732,5 +802,10 @@
         private Button btnNao;
         private Button btnSim;
         private Label label1;
+        private PictureBox pictureBoxON;
+        private PictureBox pictureBoxOFF;
+        private Label label18;
+        private Label label19;
+        private ComboBox comboBoxImpressoraAuxiliar;
     }
 }

@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -288,7 +289,21 @@ public partial class FormMenuInicial : Form
 
     private void pictureBoxConfig_Click(object sender, EventArgs e)
     {
-        FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();    
-        configs.ShowDialog();   
+        FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();
+        configs.ShowDialog();
+    }
+
+    private void pictureBoxChat_Click(object sender, EventArgs e)
+    {
+        string? urlVerificacao = "https://gestordepedidos.ifood.com.br/#/home/orders/now";
+
+        if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = urlVerificacao,
+                UseShellExecute = true
+            });
+        }
     }
 }

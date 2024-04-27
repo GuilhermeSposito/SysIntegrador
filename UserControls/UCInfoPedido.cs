@@ -10,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,32 +50,59 @@ public partial class UCInfoPedido : UserControl
 
     private void label4_Click(object sender, EventArgs e) { }
 
-    public void SetLabels(
-                          string horarioEntrega,
-                          string localizadorPedido,
-                          string enderecoFormatado,
-                          string bairro,
-                          string TipoEntrega,
-                          float valorTotalItens,
-                          float valorTaxaDeentrega,
-                          float valortaxaadicional,
-                          float descontos,
-                          float total)
+    public void SetLabels(string horarioEntrega, string localizadorPedido, string enderecoFormatado, string bairro, string TipoEntrega, float valorTotalItens, float valorTaxaDeentrega, float valortaxaadicional, float descontos, float total)
     {
-        labelLocalizadorPedido.Text = Pedido.delivery.pickupCode; 
+        string DefineEntrega = "";
+        string DefineLocalEntrega = "";
+
+        if (TipoEntrega == "MERCHANT")
+        {
+            DefineEntrega = "Propria";
+        }
+
+        if (TipoEntrega == "Retirada")
+        {
+            DefineEntrega = "Retirada";
+        }
+
+        if (enderecoFormatado.Contains("Retirada"))
+        {
+            DefineLocalEntrega = "Retirada";
+        }
+        else
+        {
+            DefineLocalEntrega = $"{enderecoFormatado} - {bairro}";
+        }
+
+        labelLocalizadorPedido.Text = Pedido.delivery.pickupCode;
+
         labelDisplayId.Text = $"#{Pedido.displayId}";
+
         numId.Text = Pedido.customer.phone.localizer;
+
         label1.Text = Pedido.customer.name;
+
         dateFeitoAs.Text = Pedido.createdAt.Substring(11, 5);
-        tipoEntrega.Text = TipoEntrega == "MERCHANT" ? "Própria" : "Diferente por enquanto"; ;
-        horarioEntregaPrevista.Text = horarioEntrega.Substring(11,5);
+
+        tipoEntrega.Text = DefineEntrega;
+
+        horarioEntregaPrevista.Text = horarioEntrega.Substring(11, 5);
+
         labelLocalizadorPedido.Text = localizadorPedido;
-        labelEndereco.Text = $"{enderecoFormatado} - {bairro}";
+
+        labelEndereco.Text = DefineLocalEntrega;
+
         ValorTotalDosItens.Text = valorTotalItens.ToString("c");
+
         valorTaxaDeEntrega.Text = valorTaxaDeentrega.ToString("c");
+
         valorTaxaAdicional.Text = valortaxaadicional.ToString("c");
+
         valorDescontos.Text = descontos.ToString("c");
+
         valorTotal.Text = total.ToString("c");
+
+
 
         var InfoPag = ClsInfosDePagamentosParaImpressao.DefineTipoDePagamento(metodos: Pedido.payments.methods);
 
@@ -99,7 +127,7 @@ public partial class UCInfoPedido : UserControl
         foreach (Items item in items)
         {
             UCItem uCItem = new UCItem();
-            uCItem.SetLabels(item.name, item.quantity, item.unitPrice, item.optionsPrice, item.totalPrice, item.options);
+            uCItem.SetLabels(item.name, item.quantity, item.unitPrice, item.optionsPrice, item.totalPrice, item.options, uCItem);
             panelDeItens.Controls.Add(uCItem);
         }
 
@@ -110,9 +138,29 @@ public partial class UCInfoPedido : UserControl
     {
         using ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
-        ParametrosDoSistema? opSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+        ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-        Impressao.ChamaImpressoes(pedido.Conta, opSistema.Impressora1);
+        List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5 };
+
+        if (!opSistema.AgruparComandas)
+        {
+            foreach (string imp in impressoras)
+            {
+
+                if (imp != "Sem Impressora" && imp != null)
+                {
+                    Impressao.ChamaImpressoes(pedido.Conta, imp);
+                }
+            }
+        }
+        else
+        {
+            Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, impressoras);
+        }
+
+
+
+        impressoras.Clear();
     }
 
     private void btnDespacharIfood_Click(object sender, EventArgs e)
@@ -121,7 +169,7 @@ public partial class UCInfoPedido : UserControl
     }
 
     private void buttonReadyToPickUp_Click(object sender, EventArgs e)
-    { 
+    {
         Ifood.AvisoReadyToPickUp(orderId: Id_pedido);
     }
 
@@ -136,7 +184,7 @@ public partial class UCInfoPedido : UserControl
 
     private void btnCancelar_Click(object sender, EventArgs e)
     {
-        FormDeCancelamento modalCancelamento = new FormDeCancelamento() {id_Pedido = Id_pedido};
+        FormDeCancelamento modalCancelamento = new FormDeCancelamento() { id_Pedido = Id_pedido };
         modalCancelamento.display_Id = Display_id;
         modalCancelamento.ShowDialog();
     }

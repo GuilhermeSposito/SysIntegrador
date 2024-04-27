@@ -1,5 +1,5 @@
 create table parametrosdosistema (
-	id serial primary key,
+  id serial primary key,
   nomefantasia text not null,
   endereco text,
   impressaoaut bool not null,
@@ -11,6 +11,12 @@ create table parametrosdosistema (
   impressora2 text,
   impressora3 text, 
   impressora4 text, 
-  impressora5 text
+  impressora5 text,
+  telefone text,
+  clientid text,
+  clientsecret text,
+  merchantid text,
+  delmatchid text,
+  agruparcomandas bool,
 );
 

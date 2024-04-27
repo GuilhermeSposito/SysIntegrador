@@ -163,7 +163,7 @@
             Controls.Add(groupBoxComplementos);
             Margin = new Padding(3, 8, 3, 3);
             Name = "UCItem";
-            Size = new Size(792, 661);
+            Size = new Size(792, 800);
             panelValorDasOpcoes.ResumeLayout(false);
             panelValorDasOpcoes.PerformLayout();
             panelValorTotal.ResumeLayout(false);
