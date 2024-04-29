@@ -104,6 +104,8 @@ public class Ifood
                 FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.MudaStatusMerchant()));
             }
 
+            PostgresConfigs.LimpaPedidosACada8horas();
+
         }
         catch (Exception ex)
         {
@@ -210,7 +212,7 @@ public class Ifood
                     ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
                 }
 
-                db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta });
+                db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString() });
                 db.SaveChanges();
 
                 if (Configs.IntegracaoSysMenu)
@@ -864,7 +866,7 @@ public class Ifood
 
                     ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5 };
+                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux};
 
                     if (!opSistema.AgruparComandas)
                     {

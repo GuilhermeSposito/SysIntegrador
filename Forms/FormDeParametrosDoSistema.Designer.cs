@@ -83,6 +83,7 @@
             btnNao = new Button();
             btnSim = new Button();
             label17 = new Label();
+            button1 = new Button();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelmpressoras.SuspendLayout();
@@ -106,6 +107,7 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonFace;
+            panel1.Controls.Add(button1);
             panel1.Controls.Add(label1);
             panel1.Controls.Add(pictureBox1);
             panel1.Location = new Point(12, 12);
@@ -117,7 +119,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(411, 14);
+            label1.Location = new Point(221, 13);
             label1.Name = "label1";
             label1.Size = new Size(632, 38);
             label1.TabIndex = 1;
@@ -693,6 +695,20 @@
             label17.TabIndex = 1;
             label17.Text = "Salvar";
             // 
+            // button1
+            // 
+            button1.BackColor = Color.Red;
+            button1.Cursor = Cursors.Hand;
+            button1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            button1.ForeColor = SystemColors.ButtonFace;
+            button1.Location = new Point(1064, 8);
+            button1.Name = "button1";
+            button1.Size = new Size(148, 52);
+            button1.TabIndex = 2;
+            button1.Text = "Limpar Pedidos";
+            button1.UseVisualStyleBackColor = false;
+            button1.Click += button1_Click;
+            // 
             // FormDeParametrosDoSistema
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -807,5 +823,6 @@
         private Label label18;
         private Label label19;
         private ComboBox comboBoxImpressoraAuxiliar;
+        private Button button1;
     }
 }

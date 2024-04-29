@@ -1,4 +1,5 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -73,7 +74,7 @@ namespace SysIntegradorApp.Forms
                 instancia.comboBoxImpressora3.Items.Add(imp);
                 instancia.comboBoxImpressora4.Items.Add(imp);
                 instancia.comboBoxImpressora5.Items.Add(imp);
-                instancia.comboBoxImpressoraAuxiliar.Items.Add(imp);    
+                instancia.comboBoxImpressoraAuxiliar.Items.Add(imp);
             }
         }
 
@@ -96,6 +97,7 @@ namespace SysIntegradorApp.Forms
             instancia.comboBoxImpressora3.Text = Configuracoes.Impressora3;
             instancia.comboBoxImpressora4.Text = Configuracoes.Impressora4;
             instancia.comboBoxImpressora5.Text = Configuracoes.Impressora5;
+            instancia.comboBoxImpressoraAuxiliar.Text = Configuracoes.ImpressoraAux;
 
         }
 
@@ -133,14 +135,15 @@ namespace SysIntegradorApp.Forms
                     string impressora3 = comboBoxImpressora3.SelectedItem.ToString();
                     string impressora4 = comboBoxImpressora4.SelectedItem.ToString();
                     string impressora5 = comboBoxImpressora5.SelectedItem.ToString();
+                    string impressoraAux = comboBoxImpressoraAuxiliar.SelectedItem.ToString();
                     bool agrupaComandas = false;
 
-                    if(pictureBoxOFF.Visible == false)
+                    if (pictureBoxOFF.Visible == false)
                     {
                         agrupaComandas = false;
                     }
-                    
-                    if(pictureBoxON.Visible == true)
+
+                    if (pictureBoxON.Visible == true)
                     {
                         agrupaComandas = true;
                     }
@@ -159,6 +162,7 @@ namespace SysIntegradorApp.Forms
                          impressora3,
                          impressora4,
                          impressora5,
+                         impressoraAux,
                          telefone,
                          clientId,
                          clientSecret,
@@ -180,13 +184,25 @@ namespace SysIntegradorApp.Forms
         private void pictureBoxOFF_Click(object sender, EventArgs e)
         {
             pictureBoxON.Visible = true;
-            pictureBoxOFF.Visible = false;  
+            pictureBoxOFF.Visible = false;
         }
 
         private void pictureBoxON_Click(object sender, EventArgs e)
         {
             pictureBoxOFF.Visible = true;
             pictureBoxON.Visible = false;
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            DialogResult opcUser = MessageBox.Show("Você deseja apagar todos os pedidos do Banco De dados? Esses pedidos não serão apagados do caixa do SysMenu, mas não será possivel mais interagir com eles e imprimi-los.", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+
+            if (opcUser == DialogResult.Yes)
+            {
+                PostgresConfigs.LimparPedidos();
+                FormMenuInicial.panelPedidos.Controls.Clear();
+            }
+
         }
     }
 }

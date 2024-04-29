@@ -1303,6 +1303,45 @@ public class ClsDeIntegracaoSys
         return locaisImp;
     }
 
+    public static bool VerificaCaixaAberto()
+    {
+        bool CaixaAberto = false;   
+        try
+        {
+
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string sqlSelect = "SELECT COUNT(*) FROM Caixa ";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                {
+                    // Executar a consulta SELECT
+                    int count = (int)selectCommand.ExecuteScalar();
+                    CaixaAberto = count > 0;
+                }
+
+                return CaixaAberto;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+        return CaixaAberto; 
+    }
+    
+
+
+
 }
 
 //Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\SAAB\BASE\CONTAS.mdb

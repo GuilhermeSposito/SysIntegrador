@@ -12,6 +12,7 @@ create table parametrosdosistema (
   impressora3 text, 
   impressora4 text, 
   impressora5 text,
+  impressoraaux text,
   telefone text,
   clientid text,
   clientsecret text,
@@ -20,3 +21,18 @@ create table parametrosdosistema (
   agruparcomandas bool,
 );
 
+create table parametrosdopedido(
+  id serial primary key,
+  json text not null,
+  situacao text,
+  conta int,
+  criadoem text
+);
+
+create table parametrosdeautenticacao(
+	id serial primary key,
+	accesstoken text not null, 
+	refreshtoken text,
+	type text,
+	expiresin int
+);

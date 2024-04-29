@@ -13,7 +13,7 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 public class DelMatch : Ifood
 {
 
-    public static List<Sequencia> ListarPedidosAbertos()
+    public static List<Sequencia> ListarPedidosAbertos() //método que serve para enviarmos um pedido
     {
         List<Sequencia> sequencias = new List<Sequencia>();
         try
@@ -70,7 +70,7 @@ public class DelMatch : Ifood
                                 sequencia.Type = "DELIVERY";
                                 sequencia.TimeMax = "";
 
-                                sequencia.Merchant.RestaurantId = "ca04c7d795a171571f4e5e301cea118a3ef282d0";
+                                sequencia.Merchant.RestaurantId = opcSistema.DelMatchId;
                                 sequencia.Merchant.Name = "Pastéis e Panquecas";
                                 sequencia.Merchant.Id = "62e91b20e390370012f98023";
                                 sequencia.Merchant.Unit = "62e91b20e390370012f9802e";
@@ -253,7 +253,7 @@ public class DelMatch : Ifood
                         {
                             sequencia.Customer.Name = reader["NOME"].ToString();
                             sequencia.Customer.Phone = reader["TELEFONE"].ToString();
-                            sequencia.Customer.TaxPayerIdentificationNumber = "52518691855"; //falta terminar
+                            sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
 
                             sequencia.DeliveryAddress.FormattedAddress = reader["ENDERECO"].ToString();
                             sequencia.DeliveryAddress.Country = "BR";

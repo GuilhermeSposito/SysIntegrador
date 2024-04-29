@@ -575,7 +575,7 @@ public class Impressao
         ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
 
-        if (impressora == opcSistema.Impressora1)
+        if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
         {
             DefineImpressao(numConta, impressora);
         }

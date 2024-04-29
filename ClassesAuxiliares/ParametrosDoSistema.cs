@@ -38,6 +38,8 @@ public class ParametrosDoSistema
     public string? Impressora4 { get; set; }
     [Column("impressora5")]
     public string? Impressora5 { get; set; }
+    [Column("impressoraaux")]
+    public string? ImpressoraAux { get; set; }
     [Column("telefone")]
     public string? Telefone { get; set; }
     [Column("clientid")]
@@ -99,6 +101,7 @@ public class ParametrosDoSistema
      string? impressora3,
      string? impressora4,
      string? impressora5,
+     string? impressoraAux,
      string? telefone,
      string? clientId,
      string? clientSecret,
@@ -122,6 +125,7 @@ public class ParametrosDoSistema
             configuracoes.Impressora3 = impressora3;
             configuracoes.Impressora4 = impressora4;
             configuracoes.Impressora5 = impressora5;
+            configuracoes.ImpressoraAux = impressoraAux;
             configuracoes.Telefone = telefone;
             configuracoes.ClientId = clientId;
             configuracoes.ClientSecret = clientSecret;

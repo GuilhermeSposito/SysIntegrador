@@ -140,7 +140,7 @@ public partial class UCInfoPedido : UserControl
         ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
         ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-        List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5 };
+        List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
 
         if (!opSistema.AgruparComandas)
         {

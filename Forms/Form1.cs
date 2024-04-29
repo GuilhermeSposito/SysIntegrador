@@ -101,25 +101,36 @@ namespace SysIntegradorApp
                 string idMerchant = "9362018a-6ae2-439c-968b-a40177a085ea";
                 string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
 
-                using (ApplicationDbContext db = new ApplicationDbContext())
+                using ApplicationDbContext db = new ApplicationDbContext();
+                Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+                ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
+
+                if (Config.IntegracaoSysMenu)
                 {
+                    bool CaixaAberto = ClsDeIntegracaoSys.VerificaCaixaAberto();
 
-                    Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-
-
-                    using HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
-                    HttpResponseMessage response = await client.GetAsync(url);
-
-                    if (response.IsSuccessStatusCode)
+                    if (!CaixaAberto)
                     {
-                        Token.TokenDaSessao = tokenNoDb.accessToken;
-
-                        FormMenuInicial menu = new FormMenuInicial();
-                        menu.Show();
-                        this.Hide();
+                        MessageBox.Show("Seu app está integrado com o SysMenu, Por favor abra o caixa antes de continuar", "Caixa Fechado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        this.Dispose();
                     }
+
                 }
+
+
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
+                HttpResponseMessage response = await client.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    Token.TokenDaSessao = tokenNoDb.accessToken;
+
+                    FormMenuInicial menu = new FormMenuInicial();
+                    menu.Show();
+                    this.Hide();
+                }
+
 
                 //FormDeParametrosDoSistema Config = new FormDeParametrosDoSistema();
                 //Config.Show();
@@ -140,7 +151,7 @@ namespace SysIntegradorApp
                 panelInstrucoes.Visible = false;
 
                 using ApplicationDbContext db = new ApplicationDbContext();
-                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault(); 
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
                 CodeFromUser.Visible = true;
                 labelCodigo.Visible = true;
@@ -217,7 +228,7 @@ namespace SysIntegradorApp
             }
         }
 
-        private void panelDeColar_Paint(object sender, PaintEventArgs e) {  }
+        private void panelDeColar_Paint(object sender, PaintEventArgs e) { }
 
         private void panelDeColar_Click(object sender, EventArgs e)
         {
