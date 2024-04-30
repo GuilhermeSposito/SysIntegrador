@@ -41,11 +41,13 @@
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(-10, -15);
+            pictureBox1.Location = new Point(0, -9);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(136, 142);
+            pictureBox1.Size = new Size(126, 137);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
             // 
             // labelNumPedido
             // 
@@ -66,6 +68,7 @@
             labelNomePedido.Size = new Size(176, 25);
             labelNomePedido.TabIndex = 2;
             labelNomePedido.Text = "Guilherme Sposito";
+            labelNomePedido.Click += labelNomePedido_Click;
             // 
             // labelEntregarAte
             // 

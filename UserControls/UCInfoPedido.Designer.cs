@@ -80,7 +80,6 @@
             dateFeitoAs = new Label();
             labelLocalizadorNM = new Label();
             labelLocalizadorPedido = new Label();
-            pictureBox1 = new PictureBox();
             panelDeItens = new FlowLayoutPanel();
             groupBoxDeItens = new GroupBox();
             pictureBox3 = new PictureBox();
@@ -103,7 +102,6 @@
             panel8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).BeginInit();
             panel9.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
             SuspendLayout();
@@ -691,15 +689,6 @@
             labelLocalizadorPedido.TabIndex = 18;
             labelLocalizadorPedido.Text = "15556486";
             // 
-            // pictureBox1
-            // 
-            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(1198, -11);
-            pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(144, 115);
-            pictureBox1.TabIndex = 19;
-            pictureBox1.TabStop = false;
-            // 
             // panelDeItens
             // 
             panelDeItens.AutoScroll = true;
@@ -746,12 +735,12 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoSize = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = SystemColors.ControlLight;
             Controls.Add(pictureBox7);
             Controls.Add(pictureBox3);
             Controls.Add(panelDeItens);
-            Controls.Add(pictureBox1);
             Controls.Add(labelLocalizadorPedido);
             Controls.Add(labelLocalizadorNM);
             Controls.Add(dateFeitoAs);
@@ -769,7 +758,7 @@
             Controls.Add(groupBoxDeItens);
             Margin = new Padding(0);
             Name = "UCInfoPedido";
-            Size = new Size(1330, 1521);
+            Size = new Size(1107, 1463);
             Paint += UCInfoPedido_Paint;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -796,7 +785,6 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox9).EndInit();
             panel9.ResumeLayout(false);
             panel9.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
             ResumeLayout(false);
@@ -826,7 +814,6 @@
         private Label labelIdPedidoNM;
         private Label labelNumIfood;
         private Label labelTipoEntregaNM;
-        private PictureBox pictureBox1;
         private Label labelEndereco;
         private Label labelTotalNM;
         private Label valorDescontos;

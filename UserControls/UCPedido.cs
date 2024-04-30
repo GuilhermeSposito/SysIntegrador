@@ -37,6 +37,7 @@ public partial class UCPedido : UserControl
     public UCPedido()
     {
         InitializeComponent();
+        ClsEstiloComponentes.SetRoundedRegion(this, 10);
     }
 
     public void SetLabels(string id_pedido, string numPedido, string nomePedido, string horarioPedido, string statusPedido)
@@ -89,6 +90,10 @@ public partial class UCPedido : UserControl
                                descontos: Descontos,
                                total: TotalDoPedido
                           );
+       
+        infoPedido.Width = 1108;
+        infoPedido.Height = 1521;
+
 
         infoPedido.InsereItemNoPedido(items);
         FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
@@ -99,10 +104,22 @@ public partial class UCPedido : UserControl
     private void UCPedido_Enter(object sender, EventArgs e)
     {
         this.BackColor = Color.DarkGray;
+        pictureBox1.BackColor = Color.DarkGray;
     }
 
     private void UCPedido_Leave(object sender, EventArgs e)
     {
         this.BackColor = Color.White;
+    }
+
+    private void labelNomePedido_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+    }
+
+    private void pictureBox1_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
     }
 }

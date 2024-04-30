@@ -33,6 +33,9 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            label4 = new Label();
+            label3 = new Label();
+            label2 = new Label();
             label1 = new Label();
             pictureBoxDelivery = new PictureBox();
             pollingManual = new Button();
@@ -44,9 +47,6 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
-            label2 = new Label();
-            label3 = new Label();
-            label4 = new Label();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
@@ -87,7 +87,7 @@
             panelDetalhePedido.Location = new Point(419, 101);
             panelDetalhePedido.Margin = new Padding(0);
             panelDetalhePedido.Name = "panelDetalhePedido";
-            panelDetalhePedido.Padding = new Padding(85, 3, 0, 3);
+            panelDetalhePedido.Padding = new Padding(85, 0, 0, 0);
             panelDetalhePedido.Size = new Size(974, 541);
             panelDetalhePedido.TabIndex = 1;
             panelDetalhePedido.WrapContents = false;
@@ -97,7 +97,7 @@
             labelDeAvisoPedidoDetalhe.AutoSize = true;
             labelDeAvisoPedidoDetalhe.Font = new Font("Segoe UI Semibold", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
             labelDeAvisoPedidoDetalhe.ForeColor = Color.Red;
-            labelDeAvisoPedidoDetalhe.Location = new Point(135, 303);
+            labelDeAvisoPedidoDetalhe.Location = new Point(135, 300);
             labelDeAvisoPedidoDetalhe.Margin = new Padding(50, 300, 0, 0);
             labelDeAvisoPedidoDetalhe.Name = "labelDeAvisoPedidoDetalhe";
             labelDeAvisoPedidoDetalhe.Size = new Size(831, 70);
@@ -126,11 +126,41 @@
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // label4
+            // 
+            label4.AutoSize = true;
+            label4.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label4.Location = new Point(461, 49);
+            label4.Name = "label4";
+            label4.Size = new Size(44, 17);
+            label4.TabIndex = 13;
+            label4.Text = "Portal";
+            // 
+            // label3
+            // 
+            label3.AutoSize = true;
+            label3.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label3.Location = new Point(378, 49);
+            label3.Name = "label3";
+            label3.Size = new Size(50, 17);
+            label3.TabIndex = 12;
+            label3.Text = "Config.";
+            // 
+            // label2
+            // 
+            label2.AutoSize = true;
+            label2.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label2.Location = new Point(308, 49);
+            label2.Name = "label2";
+            label2.Size = new Size(61, 17);
+            label2.TabIndex = 11;
+            label2.Text = "Entregas";
+            // 
             // label1
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(385, 49);
+            label1.Location = new Point(257, 49);
             label1.Name = "label1";
             label1.Size = new Size(45, 17);
             label1.TabIndex = 10;
@@ -141,7 +171,7 @@
             pictureBoxDelivery.Cursor = Cursors.Hand;
             pictureBoxDelivery.ErrorImage = (Image)resources.GetObject("pictureBoxDelivery.ErrorImage");
             pictureBoxDelivery.Image = (Image)resources.GetObject("pictureBoxDelivery.Image");
-            pictureBoxDelivery.Location = new Point(449, 3);
+            pictureBoxDelivery.Location = new Point(308, 3);
             pictureBoxDelivery.Name = "pictureBoxDelivery";
             pictureBoxDelivery.Size = new Size(51, 45);
             pictureBoxDelivery.SizeMode = PictureBoxSizeMode.Zoom;
@@ -169,7 +199,7 @@
             pictureBoxConfig.Cursor = Cursors.Hand;
             pictureBoxConfig.ErrorImage = (Image)resources.GetObject("pictureBoxConfig.ErrorImage");
             pictureBoxConfig.Image = (Image)resources.GetObject("pictureBoxConfig.Image");
-            pictureBoxConfig.Location = new Point(518, 3);
+            pictureBoxConfig.Location = new Point(378, 3);
             pictureBoxConfig.Name = "pictureBoxConfig";
             pictureBoxConfig.Size = new Size(51, 45);
             pictureBoxConfig.SizeMode = PictureBoxSizeMode.Zoom;
@@ -181,7 +211,7 @@
             // 
             pictureBoxChat.Cursor = Cursors.Hand;
             pictureBoxChat.Image = (Image)resources.GetObject("pictureBoxChat.Image");
-            pictureBoxChat.Location = new Point(586, 3);
+            pictureBoxChat.Location = new Point(454, 3);
             pictureBoxChat.Name = "pictureBoxChat";
             pictureBoxChat.Size = new Size(51, 45);
             pictureBoxChat.SizeMode = PictureBoxSizeMode.Zoom;
@@ -193,7 +223,7 @@
             // 
             pictureBoxHome.Cursor = Cursors.Hand;
             pictureBoxHome.Image = (Image)resources.GetObject("pictureBoxHome.Image");
-            pictureBoxHome.Location = new Point(381, 3);
+            pictureBoxHome.Location = new Point(251, 3);
             pictureBoxHome.Name = "pictureBoxHome";
             pictureBoxHome.Size = new Size(51, 45);
             pictureBoxHome.SizeMode = PictureBoxSizeMode.Zoom;
@@ -204,9 +234,9 @@
             // pictureBox1
             // 
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(-17, -84);
+            pictureBox1.Location = new Point(0, -27);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(352, 240);
+            pictureBox1.Size = new Size(237, 128);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -252,36 +282,6 @@
             labelStatusLojaNM.Size = new Size(86, 23);
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
-            // 
-            // label2
-            // 
-            label2.AutoSize = true;
-            label2.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(445, 49);
-            label2.Name = "label2";
-            label2.Size = new Size(61, 17);
-            label2.TabIndex = 11;
-            label2.Text = "Entregas";
-            // 
-            // label3
-            // 
-            label3.AutoSize = true;
-            label3.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label3.Location = new Point(519, 49);
-            label3.Name = "label3";
-            label3.Size = new Size(50, 17);
-            label3.TabIndex = 12;
-            label3.Text = "Config.";
-            // 
-            // label4
-            // 
-            label4.AutoSize = true;
-            label4.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(590, 49);
-            label4.Name = "label4";
-            label4.Size = new Size(44, 17);
-            label4.TabIndex = 13;
-            label4.Text = "Portal";
             // 
             // FormMenuInicial
             // 
@@ -331,11 +331,11 @@
         private Label label1;
         private Label label3;
         private Label label2;
+        private Label label4;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
         public static FlowLayoutPanel panelPedidos;
-        private Label label4;
     }
 }

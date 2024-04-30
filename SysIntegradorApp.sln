@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SysIntegradorApp", "SysIntegradorApp.csproj", "{97605A53-12AF-4D46-87A4-0D615F976A87}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SysIntegradorSetup", "SysIntegradorSetup\SysIntegradorSetup.vdproj", "{16843FFF-89D2-49BE-8CC3-BC90D8440F09}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SysIntegradorSetup", "SysIntegradorSetup\SysIntegradorSetup\SysIntegradorSetup.vdproj", "{2B805CDE-77FF-4C9A-9C53-DE6FAA58BC8C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +17,8 @@ Global
 		{97605A53-12AF-4D46-87A4-0D615F976A87}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{97605A53-12AF-4D46-87A4-0D615F976A87}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{97605A53-12AF-4D46-87A4-0D615F976A87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{16843FFF-89D2-49BE-8CC3-BC90D8440F09}.Debug|Any CPU.ActiveCfg = Debug
-		{16843FFF-89D2-49BE-8CC3-BC90D8440F09}.Release|Any CPU.ActiveCfg = Release
+		{2B805CDE-77FF-4C9A-9C53-DE6FAA58BC8C}.Debug|Any CPU.ActiveCfg = Debug
+		{2B805CDE-77FF-4C9A-9C53-DE6FAA58BC8C}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

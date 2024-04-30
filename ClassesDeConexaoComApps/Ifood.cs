@@ -48,7 +48,7 @@ public class Ifood
                     switch (P.code)
                     {
                         case "PLC": //caso entre aqui é porque é um novo pedido
-                            ClsSons.PlaySom();
+                                    //ClsSons.PlaySom();
                             if (opcSistema.AceitaPedidoAut)
                             {
                                 await SetPedido(P.orderId, P);
@@ -67,12 +67,12 @@ public class Ifood
                                 }
                                 else
                                 {
-                                    ClsSons.StopSom();
+                                    //ClsSons.StopSom();
                                 }
                             }
                             break;
                         case "CFM":
-                            ClsSons.StopSom();
+                            // ClsSons.StopSom();
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
@@ -214,6 +214,7 @@ public class Ifood
 
                 db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString() });
                 db.SaveChanges();
+
 
                 if (Configs.IntegracaoSysMenu)
                 {
@@ -866,7 +867,7 @@ public class Ifood
 
                     ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux};
+                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
 
                     if (!opSistema.AgruparComandas)
                     {
@@ -1062,20 +1063,23 @@ public class Ifood
         string validationState = "ERROR";
         try
         {
+            Validation validations = new Validation();
             using ApplicationDbContext db = new ApplicationDbContext();
             ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
             string? merchantId = opSistema.MerchantId;
 
-            string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{merchantId}/status";
+            if (merchantId != null)
+            {
+                string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{merchantId}/status";
 
-            HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
-            string? jsonContent = await response.Content.ReadAsStringAsync();
+                HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
+                string? jsonContent = await response.Content.ReadAsStringAsync();
 
-            DeliveryStatus deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent).FirstOrDefault();
-            Validation validations = deliveryStatus.Validations.FirstOrDefault();
+                var deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent).FirstOrDefault();
+                validations = deliveryStatus.Validations.FirstOrDefault();
 
+            }
             return validations.State;
-
         }
         catch (Exception ex)
         {
