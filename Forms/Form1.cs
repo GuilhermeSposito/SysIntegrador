@@ -98,10 +98,13 @@ namespace SysIntegradorApp
         {
             try
             {
-                string idMerchant = "9362018a-6ae2-439c-968b-a40177a085ea";
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                string idMerchant = ConfigSistem.MerchantId;
                 string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
 
-                using ApplicationDbContext db = new ApplicationDbContext();
+              
                 Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
                 ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
 
