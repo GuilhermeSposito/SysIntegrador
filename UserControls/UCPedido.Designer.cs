@@ -58,6 +58,7 @@
             labelNumPedido.Size = new Size(98, 38);
             labelNumPedido.TabIndex = 1;
             labelNumPedido.Text = "#8686\r\n";
+            labelNumPedido.Click += labelNumPedido_Click;
             // 
             // labelNomePedido
             // 
@@ -78,6 +79,7 @@
             labelEntregarAte.Size = new Size(99, 20);
             labelEntregarAte.TabIndex = 3;
             labelEntregarAte.Text = "Entregar Até: ";
+            labelEntregarAte.Click += labelEntregarAte_Click;
             // 
             // labelHorarioDeEntrega
             // 
@@ -87,6 +89,7 @@
             labelHorarioDeEntrega.Size = new Size(44, 20);
             labelHorarioDeEntrega.TabIndex = 4;
             labelHorarioDeEntrega.Text = "10:40";
+            labelHorarioDeEntrega.Click += labelHorarioDeEntrega_Click;
             // 
             // labelStatus
             // 
@@ -96,6 +99,7 @@
             labelStatus.Size = new Size(53, 20);
             labelStatus.TabIndex = 5;
             labelStatus.Text = "Placed";
+            labelStatus.Click += labelStatus_Click_1;
             // 
             // UCPedido
             // 

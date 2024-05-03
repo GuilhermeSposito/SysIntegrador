@@ -111,7 +111,7 @@
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 14F, FontStyle.Bold);
             label1.ForeColor = Color.Red;
-            label1.Location = new Point(157, 6);
+            label1.Location = new Point(80, 9);
             label1.Name = "label1";
             label1.Size = new Size(341, 32);
             label1.TabIndex = 0;
@@ -124,7 +124,8 @@
             panel1.Controls.Add(pictureBox4);
             panel1.Controls.Add(horarioEntregaPrevista);
             panel1.Controls.Add(labelEntregaPrevistaNM);
-            panel1.Location = new Point(106, 84);
+            panel1.Location = new Point(29, 90);
+            panel1.Margin = new Padding(3, 3, 10, 3);
             panel1.Name = "panel1";
             panel1.Size = new Size(251, 40);
             panel1.TabIndex = 1;
@@ -161,15 +162,17 @@
             // 
             // panel3
             // 
+            panel3.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             panel3.BackColor = SystemColors.ButtonHighlight;
             panel3.BorderStyle = BorderStyle.FixedSingle;
             panel3.Controls.Add(pictureBox2);
             panel3.Controls.Add(numId);
             panel3.Controls.Add(labelIdPedidoNM);
             panel3.Controls.Add(labelNumIfood);
-            panel3.Location = new Point(484, 83);
+            panel3.Location = new Point(309, 90);
+            panel3.Margin = new Padding(10, 3, 3, 3);
             panel3.Name = "panel3";
-            panel3.Size = new Size(605, 40);
+            panel3.Size = new Size(727, 40);
             panel3.TabIndex = 3;
             // 
             // pictureBox2
@@ -214,6 +217,7 @@
             // 
             // panel2
             // 
+            panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.BorderStyle = BorderStyle.FixedSingle;
             panel2.Controls.Add(pictureBox6);
@@ -221,9 +225,9 @@
             panel2.Controls.Add(tipoEntrega);
             panel2.Controls.Add(labelEndereco);
             panel2.Controls.Add(labelTipoEntregaNM);
-            panel2.Location = new Point(106, 144);
+            panel2.Location = new Point(30, 143);
             panel2.Name = "panel2";
-            panel2.Size = new Size(984, 68);
+            panel2.Size = new Size(1006, 68);
             panel2.TabIndex = 4;
             // 
             // pictureBox6
@@ -278,6 +282,7 @@
             // 
             // panel6
             // 
+            panel6.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel6.BackColor = SystemColors.ButtonHighlight;
             panel6.BorderStyle = BorderStyle.FixedSingle;
             panel6.Controls.Add(pictureBox14);
@@ -295,9 +300,9 @@
             panel6.Controls.Add(labelTaxaDeEntregaNM);
             panel6.Controls.Add(ValorTotalDosItens);
             panel6.Controls.Add(labelValorTotalNM);
-            panel6.Location = new Point(105, 802);
+            panel6.Location = new Point(30, 793);
             panel6.Name = "panel6";
-            panel6.Size = new Size(984, 220);
+            panel6.Size = new Size(1006, 220);
             panel6.TabIndex = 7;
             // 
             // pictureBox14
@@ -452,14 +457,15 @@
             // 
             // panel7
             // 
+            panel7.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel7.BackColor = SystemColors.ButtonHighlight;
             panel7.BorderStyle = BorderStyle.FixedSingle;
             panel7.Controls.Add(pictureBox8);
             panel7.Controls.Add(obsPagamentoPedido);
             panel7.Controls.Add(infoPagPedido);
-            panel7.Location = new Point(105, 1092);
+            panel7.Location = new Point(30, 1080);
             panel7.Name = "panel7";
-            panel7.Size = new Size(984, 62);
+            panel7.Size = new Size(1006, 62);
             panel7.TabIndex = 8;
             // 
             // pictureBox8
@@ -493,14 +499,15 @@
             // 
             // panel8
             // 
+            panel8.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel8.BackColor = SystemColors.ButtonHighlight;
             panel8.BorderStyle = BorderStyle.FixedSingle;
             panel8.Controls.Add(pictureBox9);
             panel8.Controls.Add(labelCPF);
             panel8.Controls.Add(label16);
-            panel8.Location = new Point(105, 1202);
+            panel8.Location = new Point(30, 1202);
             panel8.Name = "panel8";
-            panel8.Size = new Size(984, 46);
+            panel8.Size = new Size(1006, 46);
             panel8.TabIndex = 9;
             // 
             // pictureBox9
@@ -535,6 +542,7 @@
             // 
             // panel9
             // 
+            panel9.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonHighlight;
             panel9.BorderStyle = BorderStyle.FixedSingle;
@@ -542,10 +550,10 @@
             panel9.Controls.Add(btnCancelar);
             panel9.Controls.Add(btnDespacharIfood);
             panel9.Controls.Add(btnImprimir);
-            panel9.Location = new Point(105, 1390);
+            panel9.Location = new Point(31, 1333);
             panel9.Name = "panel9";
             panel9.Padding = new Padding(0, 10, 0, 0);
-            panel9.Size = new Size(984, 70);
+            panel9.Size = new Size(1006, 70);
             panel9.TabIndex = 10;
             // 
             // buttonReadyToPickUp
@@ -631,7 +639,7 @@
             // 
             labelPedidoNM.AutoSize = true;
             labelPedidoNM.Font = new Font("Segoe UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelPedidoNM.Location = new Point(105, 41);
+            labelPedidoNM.Location = new Point(29, 41);
             labelPedidoNM.Name = "labelPedidoNM";
             labelPedidoNM.Size = new Size(71, 23);
             labelPedidoNM.TabIndex = 11;
@@ -642,7 +650,7 @@
             // 
             labelDisplayId.AutoSize = true;
             labelDisplayId.Font = new Font("Segoe UI", 10F);
-            labelDisplayId.Location = new Point(168, 41);
+            labelDisplayId.Location = new Point(95, 41);
             labelDisplayId.Name = "labelDisplayId";
             labelDisplayId.Size = new Size(56, 23);
             labelDisplayId.TabIndex = 14;
@@ -653,7 +661,7 @@
             // 
             labelFeitoAsNM.AutoSize = true;
             labelFeitoAsNM.Font = new Font("Segoe UI", 10F);
-            labelFeitoAsNM.Location = new Point(259, 41);
+            labelFeitoAsNM.Location = new Point(157, 41);
             labelFeitoAsNM.Name = "labelFeitoAsNM";
             labelFeitoAsNM.Size = new Size(77, 23);
             labelFeitoAsNM.TabIndex = 15;
@@ -663,7 +671,7 @@
             // 
             dateFeitoAs.AutoSize = true;
             dateFeitoAs.Font = new Font("Segoe UI", 10F);
-            dateFeitoAs.Location = new Point(325, 41);
+            dateFeitoAs.Location = new Point(230, 41);
             dateFeitoAs.Name = "dateFeitoAs";
             dateFeitoAs.Size = new Size(50, 23);
             dateFeitoAs.TabIndex = 16;
@@ -673,7 +681,7 @@
             // 
             labelLocalizadorNM.AutoSize = true;
             labelLocalizadorNM.Font = new Font("Segoe UI", 10F);
-            labelLocalizadorNM.Location = new Point(419, 41);
+            labelLocalizadorNM.Location = new Point(286, 41);
             labelLocalizadorNM.Name = "labelLocalizadorNM";
             labelLocalizadorNM.Size = new Size(183, 23);
             labelLocalizadorNM.TabIndex = 17;
@@ -683,7 +691,7 @@
             // 
             labelLocalizadorPedido.AutoSize = true;
             labelLocalizadorPedido.Font = new Font("Segoe UI", 10F);
-            labelLocalizadorPedido.Location = new Point(598, 41);
+            labelLocalizadorPedido.Location = new Point(462, 41);
             labelLocalizadorPedido.Name = "labelLocalizadorPedido";
             labelLocalizadorPedido.Size = new Size(82, 23);
             labelLocalizadorPedido.TabIndex = 18;
@@ -691,22 +699,24 @@
             // 
             // panelDeItens
             // 
+            panelDeItens.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panelDeItens.AutoScroll = true;
             panelDeItens.BackColor = SystemColors.ControlLightLight;
             panelDeItens.BorderStyle = BorderStyle.FixedSingle;
             panelDeItens.FlowDirection = FlowDirection.TopDown;
-            panelDeItens.Location = new Point(106, 265);
+            panelDeItens.Location = new Point(47, 265);
             panelDeItens.Name = "panelDeItens";
-            panelDeItens.Padding = new Padding(85, 0, 0, 0);
-            panelDeItens.Size = new Size(983, 498);
+            panelDeItens.Padding = new Padding(55, 0, 0, 0);
+            panelDeItens.Size = new Size(967, 487);
             panelDeItens.TabIndex = 20;
             panelDeItens.WrapContents = false;
             // 
             // groupBoxDeItens
             // 
+            groupBoxDeItens.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             groupBoxDeItens.FlatStyle = FlatStyle.Popup;
             groupBoxDeItens.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            groupBoxDeItens.Location = new Point(98, 231);
+            groupBoxDeItens.Location = new Point(30, 227);
             groupBoxDeItens.Name = "groupBoxDeItens";
             groupBoxDeItens.Size = new Size(1006, 546);
             groupBoxDeItens.TabIndex = 21;
@@ -724,7 +734,7 @@
             // pictureBox7
             // 
             pictureBox7.Image = (Image)resources.GetObject("pictureBox7.Image");
-            pictureBox7.Location = new Point(106, 7);
+            pictureBox7.Location = new Point(29, 7);
             pictureBox7.Name = "pictureBox7";
             pictureBox7.Size = new Size(45, 31);
             pictureBox7.SizeMode = PictureBoxSizeMode.Zoom;
@@ -735,9 +745,8 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            AutoSize = true;
-            AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            BackColor = SystemColors.ControlLight;
+            AutoScroll = true;
+            BackColor = Color.DarkGray;
             Controls.Add(pictureBox7);
             Controls.Add(pictureBox3);
             Controls.Add(panelDeItens);
@@ -756,9 +765,9 @@
             Controls.Add(panel1);
             Controls.Add(label1);
             Controls.Add(groupBoxDeItens);
-            Margin = new Padding(0);
+            Margin = new Padding(20, 0, 0, 0);
             Name = "UCInfoPedido";
-            Size = new Size(1107, 1463);
+            Size = new Size(1052, 1426);
             Paint += UCInfoPedido_Paint;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();

@@ -48,7 +48,7 @@ public class Ifood
                     switch (P.code)
                     {
                         case "PLC": //caso entre aqui é porque é um novo pedido
-                                    //ClsSons.PlaySom();
+                            ClsSons.PlaySom();
                             if (opcSistema.AceitaPedidoAut)
                             {
                                 await SetPedido(P.orderId, P);
@@ -67,7 +67,7 @@ public class Ifood
                                 }
                                 else
                                 {
-                                    //ClsSons.StopSom();
+                                    ClsSons.StopSom();
                                 }
                             }
                             break;
@@ -109,7 +109,7 @@ public class Ifood
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString(), "ERRO NO PULLING");
+            MessageBox.Show(ex.Message, "Ops");
         }
 
     }
@@ -212,7 +212,7 @@ public class Ifood
                     ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
                 }
 
-                db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString() });
+                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString(), DisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId) });
                 db.SaveChanges();
 
 
@@ -856,7 +856,7 @@ public class Ifood
                                        obs14: obs14,
                                        obs15: obs,
                                        cliente: pedidoCompletoDeserialiado.customer.name, // texto curto 80 letras
-                                       telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : pedidoCompletoDeserialiado.customer.name, // texto curto 14 letras
+                                       telefone: mesa == "WEB" ? pedidoCompletoDeserialiado.customer.phone.localizer : " ", // texto curto 14 letras
                                        impComanda: "Não",
                                        ImpComanda2: "Não",
                                        qtdComanda: 00f  //numero duplo 
@@ -865,23 +865,27 @@ public class Ifood
                         }
                     }
 
-                    ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                }
 
-                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (opSistema.ImpressaoAut)
+                {
                     if (!opSistema.AgruparComandas)
                     {
                         foreach (string imp in impressoras)
                         {
                             if (imp != "Sem Impressora" && imp != null)
                             {
-                                Impressao.ChamaImpressoes(insertNoSysMenuConta, imp);
+                                Impressao.ChamaImpressoes(insertNoSysMenuConta, Convert.ToInt32(pedidoCompletoDeserialiado.displayId), imp);
                             }
                         }
                     }
                     else
                     {
-                        Impressao.ChamaImpressoesCasoSejaComandaSeparada(insertNoSysMenuConta, impressoras);
+                        Impressao.ChamaImpressoesCasoSejaComandaSeparada(insertNoSysMenuConta, Convert.ToInt32(pedidoCompletoDeserialiado.displayId), impressoras);
                     }
 
                     impressoras.Clear();
@@ -1087,6 +1091,8 @@ public class Ifood
         }
         return validationState;
     }
+
+
     public static async Task<HttpResponseMessage> EnviaReqParaOIfood(string? url, string? metodo, string? content = "")
     {
         HttpResponseMessage response = new HttpResponseMessage();
@@ -1110,6 +1116,29 @@ public class Ifood
 
 
                 response = await client.GetAsync(url);
+
+                return response;
+            }
+
+            if (metodo == "REFRESHTOKEN")
+            {
+                using HttpClient client = new HttpClient();
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                Token AutSist = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+
+                FormUrlEncodedContent formDataToGetTheToken = new FormUrlEncodedContent(new[]
+                     {
+                        new KeyValuePair<string, string>("grantType", "refresh_token"),
+                        new KeyValuePair<string, string>("clientId", opcSistema.ClientId),
+                        new KeyValuePair<string, string>("clientSecret", opcSistema.ClientSecret),
+                        new KeyValuePair<string, string>("refreshToken", AutSist.refreshToken),
+
+                });
+
+                url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
+
+                response = await client.PostAsync($"{url}/token", formDataToGetTheToken);
 
                 return response;
             }

@@ -306,6 +306,7 @@
             Controls.Add(pictureBoxSysLogica);
             Controls.Add(groupBoxAut);
             FormBorderStyle = FormBorderStyle.FixedToolWindow;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "Form1";
             StartPosition = FormStartPosition.CenterScreen;
             Text = "Autorização Do Aplicativo";

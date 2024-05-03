@@ -44,6 +44,10 @@ public partial class UCInfoPedido : UserControl
     {
         InitializeComponent();
         ClsEstiloComponentes.SetRoundedRegion(this, 24); //da uma arredondada na borda do user control
+        this.Resize += (sender, e) =>
+        {
+            ClsEstiloComponentes.SetRoundedRegion(this, 24);
+        };
     }
 
     private void labelPedidoNM_Click(object sender, EventArgs e) { }
@@ -146,16 +150,15 @@ public partial class UCInfoPedido : UserControl
         {
             foreach (string imp in impressoras)
             {
-
                 if (imp != "Sem Impressora" && imp != null)
                 {
-                    Impressao.ChamaImpressoes(pedido.Conta, imp);
+                    Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
                 }
             }
         }
         else
         {
-            Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, impressoras);
+            Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta,pedido.DisplayId ,impressoras);
         }
 
 

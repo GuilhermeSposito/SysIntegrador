@@ -14,7 +14,7 @@ namespace SysIntegradorApp.UserControls
 {
     public partial class UCMotivoCancelamento : UserControl
     {
-        
+
         public string? IdPedido { get; set; }
         public string? cancelCodeId { get; set; }
         public string? description { get; set; }
@@ -27,8 +27,7 @@ namespace SysIntegradorApp.UserControls
         }
         private void labelDeMotivo_Click(object sender, EventArgs e)
         {
-            FormDeConfirmacaoDeCancelamento formCancelamento = new FormDeConfirmacaoDeCancelamento();
-            formCancelamento.ShowDialog();
+            UCMotivoCancelamento_Click(sender, e);
         }
 
         private void UCMotivoCancelamento_Load(object sender, EventArgs e)
@@ -40,6 +39,11 @@ namespace SysIntegradorApp.UserControls
         {
             FormDeConfirmacaoDeCancelamento formCancelamento = new FormDeConfirmacaoDeCancelamento() { IdPedido = IdPedido, cancelCodeId = cancelCodeId, description = description, display_Id = display_Id };
             formCancelamento.ShowDialog();
+        }
+
+        private void labelDeMotivo_Click_1(object sender, EventArgs e)
+        {
+            UCMotivoCancelamento_Click(sender, e);
         }
     }
 }

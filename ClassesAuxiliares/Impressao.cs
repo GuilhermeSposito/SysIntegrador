@@ -170,13 +170,13 @@ public class Impressao
     }
 
 
-    public static void DefineImpressao(int numConta, string impressora1) //impressão caixa
+    public static void DefineImpressao(int numConta, int displayId, string impressora1) //impressão caixa
     {
         try
         {
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
-            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcDoSistema = dbContext.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
 
@@ -258,7 +258,7 @@ public class Impressao
                                 AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
                             }
 
-                            if (item.observations.Length > 0 && item.observations != null)
+                            if (item.observations != null && item.observations.Length > 0)
                             {
                                 AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
                             }
@@ -277,7 +277,7 @@ public class Impressao
                     valorDosItens = 0f;
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    if (pedidoCompleto.delivery.observations != null || pedidoCompleto.delivery.observations != "")
+                    if (pedidoCompleto.delivery.observations != null && pedidoCompleto.delivery.observations.Length > 0)
                     {
                         AdicionaConteudo($"{pedidoCompleto.delivery.observations}", FonteObservaçõesItem);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -308,13 +308,13 @@ public class Impressao
     }
 
 
-    public static void ImprimeComanda(int numConta, string impressora1) //comanda
+    public static void ImprimeComanda(int numConta, int displayId, string impressora1) //comanda
     {
         try
         {
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
-            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
@@ -381,7 +381,7 @@ public class Impressao
         }
     }
 
-    public static void SeparaItensParaImpressaoSeparada(int numConta)
+    public static void SeparaItensParaImpressaoSeparada(int numConta, int displayId)
     {
         try
         {
@@ -389,7 +389,7 @@ public class Impressao
 
 
             using ApplicationDbContext dbContext = new ApplicationDbContext();
-            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
@@ -433,7 +433,7 @@ public class Impressao
                                     {
                                         GrupoDoItem.Itens.Add(item);
                                     }
-                                   
+
                                 }
                             }
                         }
@@ -473,7 +473,7 @@ public class Impressao
             {
                 item.Impressora1 = DefineNomeDeImpressoraCasoEstejaSelecionadoImpSeparada(item.Impressora1);
 
-                ImprimeComandaSeparada(item.Impressora1, item.Itens, numConta);
+                ImprimeComandaSeparada(item.Impressora1, displayId, item.Itens, numConta);
             }
 
         }
@@ -484,12 +484,12 @@ public class Impressao
     }
 
 
-    public static void ImprimeComandaSeparada(string impressora, List<Items> itens, int numConta)
+    public static void ImprimeComandaSeparada(string impressora, int displayId, List<Items> itens, int numConta)
     {
         try
         {
             using ApplicationDbContext dbContext = new ApplicationDbContext();
-            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.Conta == numConta).FirstOrDefault();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
@@ -560,28 +560,36 @@ public class Impressao
         }
     }
 
-    public static void ChamaImpressoesCasoSejaComandaSeparada(int numConta, List<string> impressoras)
+    public static void ChamaImpressoesCasoSejaComandaSeparada(int numConta, int displayId, List<string> impressoras)
     {
         ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-        DefineImpressao(numConta, opcSistema.Impressora1);
-        SeparaItensParaImpressaoSeparada(numConta);
+        DefineImpressao(numConta, displayId, opcSistema.Impressora1);
+        SeparaItensParaImpressaoSeparada(numConta, displayId);
     }
 
-    public static void ChamaImpressoes(int numConta, string? impressora)
+    public static void ChamaImpressoes(int numConta, int displayId, string? impressora)
     {
         ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
+        int ContagemDeImpressoes = 0;
 
         if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
         {
-            DefineImpressao(numConta, impressora);
+            DefineImpressao(numConta, displayId, impressora);
+            ContagemDeImpressoes++;
+            if (opcSistema.ImprimirComandaNoCaixa)
+            {
+                ImprimeComanda(numConta, displayId, impressora);
+            }
         }
-        ImprimeComanda(numConta, impressora);
+        if (ContagemDeImpressoes == 0)
+        {
+            ImprimeComanda(numConta, displayId, impressora);
+        }
 
-
+        ContagemDeImpressoes = 0;
     }
 
 

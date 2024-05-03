@@ -133,6 +133,7 @@
             ClientSize = new Size(484, 381);
             Controls.Add(groupBox1);
             Controls.Add(pictureBox1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FormLoginConfigs";

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormPedidosEnviados));
             labelDePEdidosAbertos = new Label();
             panelDePedidosJaEnviados = new FlowLayoutPanel();
             btnFechar = new Button();
@@ -76,6 +77,7 @@
             Controls.Add(btnFechar);
             Controls.Add(panelDePedidosJaEnviados);
             Controls.Add(labelDePEdidosAbertos);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FormPedidosEnviados";

@@ -87,7 +87,6 @@
             panelDetalhePedido.Location = new Point(419, 101);
             panelDetalhePedido.Margin = new Padding(0);
             panelDetalhePedido.Name = "panelDetalhePedido";
-            panelDetalhePedido.Padding = new Padding(85, 0, 0, 0);
             panelDetalhePedido.Size = new Size(974, 541);
             panelDetalhePedido.TabIndex = 1;
             panelDetalhePedido.WrapContents = false;
@@ -97,10 +96,10 @@
             labelDeAvisoPedidoDetalhe.AutoSize = true;
             labelDeAvisoPedidoDetalhe.Font = new Font("Segoe UI Semibold", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
             labelDeAvisoPedidoDetalhe.ForeColor = Color.Red;
-            labelDeAvisoPedidoDetalhe.Location = new Point(135, 300);
+            labelDeAvisoPedidoDetalhe.Location = new Point(50, 300);
             labelDeAvisoPedidoDetalhe.Margin = new Padding(50, 300, 0, 0);
             labelDeAvisoPedidoDetalhe.Name = "labelDeAvisoPedidoDetalhe";
-            labelDeAvisoPedidoDetalhe.Size = new Size(831, 70);
+            labelDeAvisoPedidoDetalhe.Size = new Size(918, 70);
             labelDeAvisoPedidoDetalhe.TabIndex = 0;
             labelDeAvisoPedidoDetalhe.Text = "Nenhum pedido Selecionado para mostrar seus detalhes, Clique em um pedido para obter seus detalhes.";
             labelDeAvisoPedidoDetalhe.TextAlign = ContentAlignment.TopCenter;
@@ -293,6 +292,7 @@
             Controls.Add(panel1);
             Controls.Add(panelPedidos);
             Controls.Add(panelDetalhePedido);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "FormMenuInicial";
             Padding = new Padding(10);
             StartPosition = FormStartPosition.CenterParent;

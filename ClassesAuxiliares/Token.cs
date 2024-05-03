@@ -15,6 +15,7 @@ public class Token
     [Column("refreshtoken")]public string? refreshToken { get; set; }
     public string? type { get; set; }
     [Column("expiresin")] public int expiresIn { get; set; }
+    [Column("venceem")] public string? VenceEm { get; set; }
 
     public static string? TokenDaSessao { get; set; }
     public Token(){}

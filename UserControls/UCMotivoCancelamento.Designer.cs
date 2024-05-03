@@ -41,6 +41,7 @@
             labelDeMotivo.Size = new Size(534, 28);
             labelDeMotivo.TabIndex = 0;
             labelDeMotivo.Text = "O pedido foi feito fora do horário de funcionamento da loja";
+            labelDeMotivo.Click += labelDeMotivo_Click_1;
             // 
             // UCMotivoCancelamento
             // 

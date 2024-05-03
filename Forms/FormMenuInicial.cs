@@ -155,7 +155,7 @@ public partial class FormMenuInicial : Form
 
 
                         UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.schedule.deliveryDateTimeEnd, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
-                        UserControlPedido.MudarLabelQuandoAgendada("Pedido Agendato até:");
+                        UserControlPedido.MudarLabelQuandoAgendada("Agendato até:");
 
                         panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
                     }

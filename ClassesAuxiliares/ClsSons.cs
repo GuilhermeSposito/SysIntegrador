@@ -12,8 +12,16 @@ internal class ClsSons
 
     public static void PlaySom()
     {
-        player = new SoundPlayer("C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SOM\\UCT-24Horas.wav");
-        player.Play();
+        //C:\Program Files\SysLogica\SysIntegradorSetup\
+
+        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\UCT-24Horas.wav";
+
+        if (File.Exists(caminhoDoArquivo))
+        {
+            player = new SoundPlayer(caminhoDoArquivo);
+            player.Play();
+        }
+
     }
 
     public static void StopSom()

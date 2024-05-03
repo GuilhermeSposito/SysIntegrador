@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDeCancelamento));
             labelAvisoCancelamento = new Label();
             btnCancelar = new Button();
             labelMotivoNM = new Label();
@@ -92,6 +93,7 @@
             Controls.Add(labelMotivoNM);
             Controls.Add(btnCancelar);
             Controls.Add(labelAvisoCancelamento);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             Name = "FormDeCancelamento";
             StartPosition = FormStartPosition.CenterParent;

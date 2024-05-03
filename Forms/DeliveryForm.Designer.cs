@@ -151,6 +151,7 @@ partial class DeliveryForm
         Controls.Add(panelDeIniciarEntrega);
         Controls.Add(panelDeListarPedidos);
         FormBorderStyle = FormBorderStyle.FixedToolWindow;
+        Icon = (Icon)resources.GetObject("$this.Icon");
         Name = "DeliveryForm";
         StartPosition = FormStartPosition.CenterParent;
         Text = "Delivery";

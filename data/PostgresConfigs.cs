@@ -43,7 +43,6 @@ public class PostgresConfigs
 
             var pedidosQuery = db.parametrosdopedido.AsQueryable();
 
-            // Projetar para o lado do cliente para permitir o uso de DateTime.Parse()
             List<ParametrosDoPedido> pedidos = pedidosQuery
                 .AsEnumerable() // Projetar para o lado do cliente
                 .Where(p => DateTime.Now - DateTime.Parse(p.CriadoEm) > intervalo)

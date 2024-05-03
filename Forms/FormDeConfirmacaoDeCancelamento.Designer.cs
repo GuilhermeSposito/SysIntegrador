@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDeConfirmacaoDeCancelamento));
             label1 = new Label();
             labelDisplayId = new Label();
             labelPeloMotivo = new Label();
@@ -126,6 +127,7 @@
             Controls.Add(labelPeloMotivo);
             Controls.Add(labelDisplayId);
             Controls.Add(label1);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "FormDeConfirmacaoDeCancelamento";

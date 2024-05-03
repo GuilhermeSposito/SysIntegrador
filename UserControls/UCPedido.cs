@@ -5,6 +5,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -65,7 +66,7 @@ public partial class UCPedido : UserControl
         labelEntregarAte.Text = texto;
         labelEntregarAte.ForeColor = Color.Red;
 
-        labelHorarioDeEntrega.Location = new Point(283, 72);
+        labelHorarioDeEntrega.Location = new Point(230, 72);
     }
 
     private void labelStatus_Click(object sender, EventArgs e) { }
@@ -90,10 +91,11 @@ public partial class UCPedido : UserControl
                                descontos: Descontos,
                                total: TotalDoPedido
                           );
-       
-        infoPedido.Width = 1108;
-        infoPedido.Height = 1521;
 
+        int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+
+        infoPedido.Width = tamanhoPanel - 50;//1707;
+        infoPedido.Height = 1200;
 
         infoPedido.InsereItemNoPedido(items);
         FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
@@ -115,11 +117,42 @@ public partial class UCPedido : UserControl
     private void labelNomePedido_Click(object sender, EventArgs e)
     {
         UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
     }
 
     private void pictureBox1_Click(object sender, EventArgs e)
     {
         UCPedido_Click(sender, e);
         UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+    private void labelNumPedido_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e); 
+        this.Focus();
+    }
+
+    private void labelEntregarAte_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e); 
+        this.Focus();
+    }
+
+    private void labelHorarioDeEntrega_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+    private void labelStatus_Click_1(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e); 
+        this.Focus();
     }
 }

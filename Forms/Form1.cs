@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using SysIntegradorApp.data;
 using System.Drawing.Drawing2D;
 using SysIntegradorApp.Forms;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 
 
 namespace SysIntegradorApp
@@ -57,6 +58,13 @@ namespace SysIntegradorApp
                 string? jsonObjTokenFromAPI = await responseWithToken.Content.ReadAsStringAsync();
                 Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(jsonObjTokenFromAPI);
 
+                DateTime horaAtual = DateTime.Now;
+                double milissegundosAdicionais = 21600;
+                DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
+                string HoraFormatada = horaFutura.ToString();
+
+                propriedadesAPIWithToken.VenceEm = HoraFormatada;
+
                 var tokenDB = db.parametrosdeautenticacao.ToList().FirstOrDefault();
 
                 if (tokenDB == null)
@@ -69,6 +77,7 @@ namespace SysIntegradorApp
                     tokenDB.accessToken = propriedadesAPIWithToken.accessToken;
                     tokenDB.refreshToken = propriedadesAPIWithToken.refreshToken;
                     tokenDB.expiresIn = propriedadesAPIWithToken.expiresIn;
+                    tokenDB.VenceEm = HoraFormatada;
                     db.SaveChanges();
                 }
 
@@ -99,12 +108,42 @@ namespace SysIntegradorApp
             try
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
+                var AutenticacaoNaBase = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+
+                if (AutenticacaoNaBase != null)
+                {
+                    DateTime dataHoraAtual = DateTime.Now;
+                    string DataDeVencimentoString = AutenticacaoNaBase.VenceEm;
+                    DateTime DataDeVencimento = DateTime.ParseExact(DataDeVencimentoString, "dd/MM/yyyy HH:mm:ss", null);
+
+                    if (dataHoraAtual >= DataDeVencimento)
+                    {
+                        var RespostaDoRefreshTokenEndPoint = await Ifood.EnviaReqParaOIfood(" ", "REFRESHTOKEN", " ");
+
+                        if (RespostaDoRefreshTokenEndPoint.IsSuccessStatusCode)
+                        {
+                            var repsonseWithToken = await RespostaDoRefreshTokenEndPoint.Content.ReadAsStringAsync();
+                            Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(repsonseWithToken);
+
+                            DateTime horaAtual = DateTime.Now;
+                            double milissegundosAdicionais = 21600;
+                            DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
+                            string HoraFormatada = horaFutura.ToString();
+
+                            propriedadesAPIWithToken.VenceEm = HoraFormatada;
+                            AutenticacaoNaBase.accessToken = propriedadesAPIWithToken.accessToken;
+                            AutenticacaoNaBase.VenceEm = HoraFormatada;
+                            db.SaveChanges();
+                        }
+                    }
+                }
+
                 ParametrosDoSistema ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
 
                 string idMerchant = ConfigSistem.MerchantId;
                 string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
 
-              
+
                 Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
                 ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
 
@@ -120,7 +159,6 @@ namespace SysIntegradorApp
 
                 }
 
-
                 using HttpClient client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
                 HttpResponseMessage response = await client.GetAsync(url);
@@ -133,10 +171,6 @@ namespace SysIntegradorApp
                     menu.Show();
                     this.Hide();
                 }
-
-
-                //FormDeParametrosDoSistema Config = new FormDeParametrosDoSistema();
-                //Config.Show();
 
             }
             catch (Exception ex)
