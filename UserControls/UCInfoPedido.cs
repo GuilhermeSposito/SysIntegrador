@@ -228,7 +228,7 @@ public partial class UCInfoPedido : UserControl
                 }
             }
 
-            if(Pedido.Situacao == "CANCELLED")
+            if(Pedido.Situacao == "CANCELLED" || Pedido.Situacao == "CONCLUDED")
             {
                 btnDespacharIfood.Visible = false;
                 buttonReadyToPickUp.Visible = false;
