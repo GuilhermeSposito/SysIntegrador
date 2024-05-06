@@ -24,7 +24,7 @@ internal class TraduzStatus
                 StatusTraduzido = "Confirmado";
                 break;
             case "PLACED":
-                StatusTraduzido = "Novo";
+                StatusTraduzido = "Pendente";
                 break;
             case "READY_TO_PICKUP":
                 StatusTraduzido = "Pronto Para Retirar";

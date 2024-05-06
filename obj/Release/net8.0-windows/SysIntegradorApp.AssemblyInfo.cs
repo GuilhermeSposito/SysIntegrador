@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SysIntegradorApp")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+858ab80c46d6746f13888b77d08cff9bc4977a5d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a42a1ef02bc1da5e8875d185486766a66deef152")]
 [assembly: System.Reflection.AssemblyProductAttribute("SysIntegradorApp")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SysIntegradorApp")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

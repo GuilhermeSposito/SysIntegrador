@@ -49,7 +49,7 @@ public partial class FormMenuInicial : Form
 
     private void FormMenuInicial_Load(object sender, EventArgs e)
     {
-        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Função que chama o pulling a cada 30 segundos 
+        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
     }
 
@@ -78,6 +78,7 @@ public partial class FormMenuInicial : Form
             foreach (ParametrosDoPedido item in pedidoOrdenado)
             {
                 PedidoCompleto? pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
+                pedido.JsonPolling = item.JsonPolling;
                 pedido.Situacao = item.Situacao;
                 pedidos.Add(pedido);
             }
@@ -89,14 +90,21 @@ public partial class FormMenuInicial : Form
                 return result;
             });
 
-
-
             //Faz um loop para adicionar os UserControls De pedido no panel
             foreach (var item in pedidosOrdenado)
             {
+                DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(item.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                              System.Globalization.CultureInfo.InvariantCulture,
+                                              System.Globalization.DateTimeStyles.AssumeUniversal);
+                DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
 
                 if (item.takeout.mode == null) //caso Entre nesse if, é porque o pedido vai ser para delivery
                 {
+                    DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(item.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                 System.Globalization.CultureInfo.InvariantCulture,
+                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
+                    DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
+
                     if (item.orderTiming != "SCHEDULED")
                     {
                         UCPedido UserControlPedido = new UCPedido()
@@ -107,8 +115,8 @@ public partial class FormMenuInicial : Form
                             Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                             NomePedido = item.customer.name,
                             DeliveryBy = item.delivery.deliveredBy,
-                            FeitoAs = item.createdAt,
-                            HorarioEntrega = item.delivery.deliveryDateTime,
+                            FeitoAs = DataCertaDaFeitoEm.ToString(),
+                            HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
                             LocalizadorPedido = item.delivery.pickupCode,
                             EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
                             Bairro = item.delivery.deliveryAddress.neighborhood,
@@ -138,8 +146,8 @@ public partial class FormMenuInicial : Form
                             Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                             NomePedido = item.customer.name,
                             DeliveryBy = item.delivery.deliveredBy,
-                            FeitoAs = item.createdAt,
-                            HorarioEntrega = item.delivery.deliveryDateTime,
+                            FeitoAs = DataCertaDaFeitoEm.ToString(),//item.createdAt,
+                            HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
                             LocalizadorPedido = item.delivery.pickupCode,
                             EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
                             Bairro = item.delivery.deliveryAddress.neighborhood,
@@ -163,6 +171,11 @@ public partial class FormMenuInicial : Form
 
                 if (item.delivery.pickupCode == null) // se entrar nesse if é porque  vai ser para retirada
                 {
+                    DateTime DataCertaDaRetiradaEmTimeStamp = DateTime.ParseExact(item.takeout.takeoutDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                 System.Globalization.CultureInfo.InvariantCulture,
+                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
+                    DateTime DataCertaDaRetirada = DataCertaDaRetiradaEmTimeStamp.ToLocalTime();
+
                     if (item.orderTiming != "SCHEDULED")
                     {
                         UCPedido UserControlPedido = new UCPedido()
@@ -172,8 +185,8 @@ public partial class FormMenuInicial : Form
                             Display_id = item.displayId,
                             OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                             NomePedido = item.customer.name,
-                            FeitoAs = item.createdAt,
-                            HorarioEntrega = item.takeout.takeoutDateTime,
+                            FeitoAs = DataCertaDaFeitoEm.ToString(),
+                            HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
                             LocalizadorPedido = item.delivery.pickupCode,
                             EnderecoFormatado = "Retirada No local",
                             Bairro = item.delivery.deliveryAddress.neighborhood,
@@ -201,8 +214,8 @@ public partial class FormMenuInicial : Form
                             Display_id = item.displayId,
                             OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                             NomePedido = item.customer.name,
-                            FeitoAs = item.createdAt,
-                            HorarioEntrega = item.takeout.takeoutDateTime,
+                            FeitoAs = DataCertaDaFeitoEm.ToString(),
+                            HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
                             LocalizadorPedido = item.delivery.pickupCode,
                             EnderecoFormatado = "Pedido Agendado Para Retirada",
                             Bairro = item.delivery.deliveryAddress.neighborhood,
@@ -221,9 +234,6 @@ public partial class FormMenuInicial : Form
 
                         panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
                     }
-
-
-
 
                 }
 

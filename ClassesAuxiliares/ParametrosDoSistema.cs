@@ -56,6 +56,8 @@ public class ParametrosDoSistema
     public bool AgruparComandas { get; set; }
     [Column("imprimircomandacaixa")]
     public bool ImprimirComandaNoCaixa { get; set; }
+    [Column("tipocomanda")]
+    public int TipoComanda { get; set; }
     public ParametrosDoSistema() {}
 
 
@@ -109,7 +111,8 @@ public class ParametrosDoSistema
      string? clientSecret,
      string? merchantId,
      bool agrupaComandas,
-     bool imprimirComandaNoCaixa)
+     bool imprimirComandaNoCaixa,
+     int tipoComanda   )
     {
         try
         {
@@ -135,6 +138,7 @@ public class ParametrosDoSistema
             configuracoes.MerchantId = merchantId;
             configuracoes.AgruparComandas = agrupaComandas;
             configuracoes.ImprimirComandaNoCaixa = imprimirComandaNoCaixa;
+            configuracoes.TipoComanda = tipoComanda;
 
             dbContext.SaveChanges();
         }

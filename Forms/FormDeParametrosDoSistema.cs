@@ -74,6 +74,16 @@ namespace SysIntegradorApp.Forms
 
             }
 
+            if (Configuracoes.TipoComanda == 1)
+            {
+                pictureBoxON3.Visible = false;
+                pictureBoxOFF3.Visible = true;
+            }
+            else
+            {
+                pictureBoxON3.Visible = true;
+                pictureBoxOFF3.Visible = false;
+            }
 
         }
 
@@ -125,8 +135,6 @@ namespace SysIntegradorApp.Forms
 
             try
             {
-
-
                 DialogResult opUser = MessageBox.Show("Você confirma as alterações nas configurações?", "Confirmação", MessageBoxButtons.YesNo, MessageBoxIcon.Exclamation);
 
 
@@ -152,6 +160,7 @@ namespace SysIntegradorApp.Forms
                     string impressoraAux = comboBoxImpressoraAuxiliar.SelectedItem.ToString();
                     bool agrupaComandas = false;
                     bool imprimirComandaNoCaixa = false;
+                    int tipoComanda = 1;
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -173,6 +182,15 @@ namespace SysIntegradorApp.Forms
                         imprimirComandaNoCaixa = true;
                     }
 
+                    if (pictureBoxOFF3.Visible == false)
+                    {
+                        tipoComanda = 1;
+                    }
+
+                    if (pictureBoxON3.Visible == true)
+                    {
+                        tipoComanda = 2;
+                    }
 
 
                     // Chamando o método SetInfosSistema com os valores obtidos
@@ -194,7 +212,8 @@ namespace SysIntegradorApp.Forms
                          clientSecret,
                          merchantId,
                          agrupaComandas,
-                         imprimirComandaNoCaixa
+                         imprimirComandaNoCaixa,
+                         tipoComanda
                      );
 
                     this.Close();
@@ -242,6 +261,18 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxOn2.Visible = true;
             pictureBoxOFF2.Visible = false;
+        }
+
+        private void pictureBoxOFF3_Click(object sender, EventArgs e)
+        {
+            pictureBoxON3.Visible = true;
+            pictureBoxOFF3.Visible = false;
+        }
+
+        private void pictureBoxON3_Click(object sender, EventArgs e)
+        {
+            pictureBoxON3.Visible = false;
+            pictureBoxOFF3.Visible = true;
         }
     }
 }

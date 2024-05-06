@@ -49,13 +49,15 @@ public partial class UCPedido : UserControl
         labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
         string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
 
-        if (status == "Cancelado")
+        if (status == "Cancelado" || status == "Pendente")
         {
             labelStatus.ForeColor = Color.Red;
+            labelStatus.Font = new Font(labelStatus.Font.FontFamily, 9, FontStyle.Bold);
         }
         else
         {
             labelStatus.ForeColor = Color.Green;
+            labelStatus.Font = new Font(labelStatus.Font.FontFamily, 9, FontStyle.Bold);
         }
 
         labelStatus.Text = status;

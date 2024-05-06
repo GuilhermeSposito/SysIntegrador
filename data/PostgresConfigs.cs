@@ -52,6 +52,9 @@ public class PostgresConfigs
             if (pedidos.Count() > 0)
             {
                 LimparPedidos(pedidos);
+                FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+                FormMenuInicial.panelPedidos.Controls.Clear();
             }
 
         }

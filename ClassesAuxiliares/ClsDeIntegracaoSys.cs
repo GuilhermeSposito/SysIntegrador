@@ -387,13 +387,16 @@ public class ClsDeIntegracaoSys
 
                 string sqlInsert = $"INSERT INTO PagCartao (CONTA, CARTAO, TIPO, VALOR) VALUES (?,?,?,?)";
 
+                var CartaoFinal = cartao == null || cartao == "" ? " " : cartao;
+                var TipoFinal = tipo == null || tipo == "" ? " " : tipo;
+
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
                     // Parâmetros para a consulta SQL
                     command.Parameters.AddWithValue("@CONTA", NumContas);
-                    command.Parameters.AddWithValue("@CARTAO", cartao);
-                    command.Parameters.AddWithValue("@TIPO", tipo);
-                    command.Parameters.AddWithValue("@VALOr", valorPagamento);
+                    command.Parameters.AddWithValue("@CARTAO", CartaoFinal);
+                    command.Parameters.AddWithValue("@TIPO", TipoFinal);
+                    command.Parameters.AddWithValue("@VALOR", valorPagamento);
 
 
                     // Executa o comando SQL
@@ -460,6 +463,8 @@ public class ClsDeIntegracaoSys
 
                 string SqlSelectIntoCadastros = "INSERT INTO Clientes (TELEFONE, NOME, ENDERECO, BAIRRO, CIDADE, ESTADO, CEP, REFERE) VALUES (?,?,?,?,?,?,?,?) ";
 
+                string referenciaDoEndereco = entrega.deliveryAddress.reference == null || entrega.deliveryAddress.reference == "" ? " " : entrega.deliveryAddress.reference;   
+
 
                 using (OleDbCommand command = new OleDbCommand(SqlSelectIntoCadastros, connection))
                 {
@@ -469,8 +474,8 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@BAIRRO", entrega.deliveryAddress.neighborhood);
                     command.Parameters.AddWithValue("@CIDADE", entrega.deliveryAddress.city);
                     command.Parameters.AddWithValue("@ESTADO", "SP");
-                    command.Parameters.AddWithValue("@CEP", entrega.deliveryAddress.postalCode != null ? entrega.deliveryAddress.postalCode : " ");
-                    command.Parameters.AddWithValue("@REFERE", entrega.deliveryAddress.reference != null ? entrega.deliveryAddress.reference : " ");
+                    command.Parameters.AddWithValue("@CEP", entrega.deliveryAddress.postalCode != null ||  entrega.deliveryAddress.postalCode != "" ? entrega.deliveryAddress.postalCode : " ");
+                    command.Parameters.AddWithValue("@REFERE", referenciaDoEndereco);
 
 
                     // Executa o comando SQL
@@ -508,6 +513,9 @@ public class ClsDeIntegracaoSys
                 break;
             case "FOOD_VOUCHER ":
                 pagamento = "Débito";
+                break;
+            case "OTHER":
+                pagamento = "Crédito";
                 break;
             default:
                 pagamento = "Débito";
@@ -596,7 +604,7 @@ public class ClsDeIntegracaoSys
         return NomeProduto;
     }
 
-    public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItem(Items item)
+    public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItem(Items item, bool comanda = false)
     {
         string? NomeProduto = "";
         ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
@@ -688,12 +696,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs1 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs1 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs1 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs1 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
 
@@ -706,12 +721,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs2 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs2 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs2);
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs2 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs2 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs2);
 
                     }
@@ -725,13 +747,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs3 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs3 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs3);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs3 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs3 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs3);
 
                     }
@@ -745,13 +774,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs4 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs4 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs4);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs4 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs4 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs4);
 
                     }
@@ -765,13 +801,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs5 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs5 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs5);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs5 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs5 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs5);
 
                     }
@@ -785,13 +828,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs6 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs6 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs6);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs6 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs6 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs6);
 
                     }
@@ -805,13 +855,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs7 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs7 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs7);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs7 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs7 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs7);
 
                     }
@@ -825,13 +882,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs8 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs8 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs8);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs8 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs8 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs8);
 
                     }
@@ -845,13 +909,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs9 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs9 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs9);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs9 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs9 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs9);
 
                     }
@@ -865,13 +936,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs10 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs10 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs10);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs10 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs10 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs10);
 
                     }
@@ -885,13 +963,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs11 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs11 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs11);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs11 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs11 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs11);
                     }
 
@@ -904,13 +989,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs12 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs12 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs12);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs12 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs12 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs12);
 
                     }
@@ -924,13 +1016,20 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs13 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs13 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs13);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs13 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs13 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs13);
 
                     }
@@ -944,15 +1043,21 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto && opcao.externalCode.Contains("m"))
                     {
-                        obs14 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs14 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs14);
 
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        obs14 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
-                        ClasseDeSuporte.Observações.Add(obs14);
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
 
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs14 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs14);
                     }
 
                     continue;
@@ -1007,12 +1112,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs1 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs1 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
                     else
                     {
-                        obs1 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs1 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
 
@@ -1025,12 +1137,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs2 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs2 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs2);
                     }
                     else
                     {
-                        obs2 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs2 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs2);
                     }
 
@@ -1043,12 +1162,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs3 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs3 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs3);
                     }
                     else
                     {
-                        obs3 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs3 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs3);
                     }
 
@@ -1061,12 +1187,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs4 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs4 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs4);
                     }
                     else
                     {
-                        obs4 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs4 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs4);
                     }
 
@@ -1079,12 +1212,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs5 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs5 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs5);
                     }
                     else
                     {
-                        obs5 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs5 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs5);
                     }
 
@@ -1097,12 +1237,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs6 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs6 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs6);
                     }
                     else
                     {
-                        obs6 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs6 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs6);
                     }
 
@@ -1115,12 +1262,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs7 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs7 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs7);
                     }
                     else
                     {
-                        obs7 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs7 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs7);
                     }
 
@@ -1133,12 +1287,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs8 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs8 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs8);
                     }
                     else
                     {
-                        obs8 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs8 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs8);
                     }
 
@@ -1151,12 +1312,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs9 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs9 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs9);
                     }
                     else
                     {
-                        obs9 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs9 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs9);
                     }
 
@@ -1169,12 +1337,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs10 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs10 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs10);
                     }
                     else
                     {
-                        obs10 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs10 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs10);
                     }
 
@@ -1187,12 +1362,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs11 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs11 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs11);
                     }
                     else
                     {
-                        obs11 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs11 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs11);
                     }
 
@@ -1205,12 +1387,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs12 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs12 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs12);
                     }
                     else
                     {
-                        obs12 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs12 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs12);
                     }
 
@@ -1223,12 +1412,19 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs13 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs13 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs13);
                     }
                     else
                     {
-                        obs13 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs13 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs13);
                     }
 
@@ -1241,19 +1437,26 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        obs14 = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode);
+                        obs14 = $"{opcao.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                         ClasseDeSuporte.Observações.Add(obs14);
                     }
                     else
                     {
-                        obs14 = $"{opcao.index} - {opcao.name} - {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {opcao.price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs14 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs14);
                     }
 
                     continue;
                 }
 
-               
+
             }
 
             return ClasseDeSuporte;
@@ -1305,7 +1508,7 @@ public class ClsDeIntegracaoSys
 
     public static bool VerificaCaixaAberto()
     {
-        bool CaixaAberto = false;   
+        bool CaixaAberto = false;
         try
         {
 
@@ -1336,10 +1539,67 @@ public class ClsDeIntegracaoSys
         {
             MessageBox.Show(ex.Message, "Ops");
         }
-        return CaixaAberto; 
+        return CaixaAberto;
     }
-    
 
+
+    public static void ExcluiPedidoCasoCancelado(string orderId)
+    {
+        try
+        {
+            ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            var pedido = dbPostgres.parametrosdopedido.Where(x => x.Id == orderId).ToList().FirstOrDefault();
+            int NumConta = pedido.Conta;
+            string banco = CaminhoBaseSysMenu;
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+
+                connection.Open();
+
+                string deleteCommandText = "DELETE FROM Sequencia WHERE CONTA = @NUMCONTA";
+                OleDbCommand deleteCommand = new OleDbCommand(deleteCommandText, connection);
+
+                deleteCommand.Parameters.AddWithValue("@NUMCONTA", NumConta);
+
+                deleteCommand.ExecuteNonQuery();
+
+            }///faz o delete da sequencia
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+
+                connection.Open();
+
+                string deleteCommandText = "DELETE FROM Contas WHERE CONTA = @NUMCONTA";
+                OleDbCommand deleteCommand = new OleDbCommand(deleteCommandText, connection);
+
+                deleteCommand.Parameters.AddWithValue("@NUMCONTA", NumConta);
+
+                deleteCommand.ExecuteNonQuery();
+
+            }//faz o delete da contas
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+
+                connection.Open();
+
+                string deleteCommandText = "DELETE FROM PagCartao WHERE CONTA = @NUMCONTA";
+                OleDbCommand deleteCommand = new OleDbCommand(deleteCommandText, connection);
+
+                deleteCommand.Parameters.AddWithValue("@NUMCONTA", NumConta);
+
+                deleteCommand.ExecuteNonQuery();
+
+            }//faz o delete da pagCartao
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
 
 
 }

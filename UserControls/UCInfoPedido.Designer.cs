@@ -70,6 +70,8 @@
             labelCPF = new Label();
             label16 = new Label();
             panel9 = new Panel();
+            BtnAceitar = new Button();
+            BtnRejeitar = new Button();
             buttonReadyToPickUp = new Button();
             btnCancelar = new Button();
             btnDespacharIfood = new Button();
@@ -546,6 +548,8 @@
             panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonHighlight;
             panel9.BorderStyle = BorderStyle.FixedSingle;
+            panel9.Controls.Add(BtnAceitar);
+            panel9.Controls.Add(BtnRejeitar);
             panel9.Controls.Add(buttonReadyToPickUp);
             panel9.Controls.Add(btnCancelar);
             panel9.Controls.Add(btnDespacharIfood);
@@ -556,6 +560,49 @@
             panel9.Size = new Size(1006, 70);
             panel9.TabIndex = 10;
             // 
+            // BtnAceitar
+            // 
+            BtnAceitar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnAceitar.BackColor = Color.LimeGreen;
+            BtnAceitar.Cursor = Cursors.Hand;
+            BtnAceitar.FlatAppearance.BorderColor = Color.White;
+            BtnAceitar.FlatAppearance.BorderSize = 2;
+            BtnAceitar.FlatAppearance.MouseDownBackColor = Color.Green;
+            BtnAceitar.FlatAppearance.MouseOverBackColor = Color.Green;
+            BtnAceitar.FlatStyle = FlatStyle.Flat;
+            BtnAceitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
+            BtnAceitar.ForeColor = Color.White;
+            BtnAceitar.Location = new Point(539, 6);
+            BtnAceitar.Name = "BtnAceitar";
+            BtnAceitar.Size = new Size(125, 51);
+            BtnAceitar.TabIndex = 6;
+            BtnAceitar.TabStop = false;
+            BtnAceitar.Text = "Aceitar";
+            BtnAceitar.UseVisualStyleBackColor = false;
+            BtnAceitar.Visible = false;
+            BtnAceitar.Click += BtnAceitar_Click;
+            // 
+            // BtnRejeitar
+            // 
+            BtnRejeitar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnRejeitar.BackColor = Color.Red;
+            BtnRejeitar.Cursor = Cursors.Hand;
+            BtnRejeitar.FlatAppearance.BorderColor = Color.White;
+            BtnRejeitar.FlatAppearance.BorderSize = 2;
+            BtnRejeitar.FlatAppearance.MouseDownBackColor = Color.Red;
+            BtnRejeitar.FlatAppearance.MouseOverBackColor = Color.Firebrick;
+            BtnRejeitar.FlatStyle = FlatStyle.Flat;
+            BtnRejeitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
+            BtnRejeitar.ForeColor = Color.White;
+            BtnRejeitar.Location = new Point(682, 5);
+            BtnRejeitar.Name = "BtnRejeitar";
+            BtnRejeitar.Size = new Size(125, 51);
+            BtnRejeitar.TabIndex = 5;
+            BtnRejeitar.TabStop = false;
+            BtnRejeitar.Text = "Rejeitar";
+            BtnRejeitar.UseVisualStyleBackColor = false;
+            BtnRejeitar.Visible = false;
+            // 
             // buttonReadyToPickUp
             // 
             buttonReadyToPickUp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
@@ -565,13 +612,13 @@
             buttonReadyToPickUp.FlatAppearance.BorderColor = Color.Blue;
             buttonReadyToPickUp.FlatAppearance.BorderSize = 2;
             buttonReadyToPickUp.FlatAppearance.MouseDownBackColor = Color.Red;
-            buttonReadyToPickUp.FlatAppearance.MouseOverBackColor = Color.White;
+            buttonReadyToPickUp.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
             buttonReadyToPickUp.FlatStyle = FlatStyle.Flat;
             buttonReadyToPickUp.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             buttonReadyToPickUp.ForeColor = Color.Blue;
             buttonReadyToPickUp.Location = new Point(313, 13);
             buttonReadyToPickUp.Name = "buttonReadyToPickUp";
-            buttonReadyToPickUp.Size = new Size(188, 39);
+            buttonReadyToPickUp.Size = new Size(188, 40);
             buttonReadyToPickUp.TabIndex = 4;
             buttonReadyToPickUp.Text = "Pronto para retirada";
             buttonReadyToPickUp.UseVisualStyleBackColor = false;
@@ -581,10 +628,10 @@
             // 
             btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             btnCancelar.BackColor = SystemColors.ButtonHighlight;
+            btnCancelar.Cursor = Cursors.Hand;
             btnCancelar.FlatAppearance.BorderColor = Color.Red;
             btnCancelar.FlatAppearance.BorderSize = 2;
             btnCancelar.FlatAppearance.MouseDownBackColor = Color.Red;
-            btnCancelar.FlatAppearance.MouseOverBackColor = Color.White;
             btnCancelar.FlatStyle = FlatStyle.Flat;
             btnCancelar.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCancelar.ForeColor = Color.Red;
@@ -592,6 +639,7 @@
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(107, 39);
             btnCancelar.TabIndex = 3;
+            btnCancelar.TabStop = false;
             btnCancelar.Text = "Cancelar";
             btnCancelar.UseVisualStyleBackColor = false;
             btnCancelar.Click += btnCancelar_Click;
@@ -604,7 +652,7 @@
             btnDespacharIfood.FlatAppearance.BorderColor = Color.Blue;
             btnDespacharIfood.FlatAppearance.BorderSize = 2;
             btnDespacharIfood.FlatAppearance.MouseDownBackColor = Color.Red;
-            btnDespacharIfood.FlatAppearance.MouseOverBackColor = Color.White;
+            btnDespacharIfood.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
             btnDespacharIfood.FlatStyle = FlatStyle.Flat;
             btnDespacharIfood.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnDespacharIfood.ForeColor = Color.Blue;
@@ -620,10 +668,11 @@
             // 
             btnImprimir.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             btnImprimir.BackColor = SystemColors.ButtonHighlight;
+            btnImprimir.Cursor = Cursors.Hand;
             btnImprimir.FlatAppearance.BorderColor = Color.Red;
             btnImprimir.FlatAppearance.BorderSize = 2;
             btnImprimir.FlatAppearance.MouseDownBackColor = Color.Red;
-            btnImprimir.FlatAppearance.MouseOverBackColor = Color.White;
+            btnImprimir.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
             btnImprimir.FlatStyle = FlatStyle.Flat;
             btnImprimir.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnImprimir.ForeColor = Color.Red;
@@ -768,6 +817,7 @@
             Margin = new Padding(20, 0, 0, 0);
             Name = "UCInfoPedido";
             Size = new Size(1052, 1426);
+            Load += UCInfoPedido_Load;
             Paint += UCInfoPedido_Paint;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -857,5 +907,7 @@
         private PictureBox pictureBox11;
         private PictureBox pictureBox10;
         private PictureBox pictureBox14;
+        private Button BtnAceitar;
+        private Button BtnRejeitar;
     }
 }

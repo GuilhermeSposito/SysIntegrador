@@ -28,6 +28,8 @@ public class Ifood
         string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
         try
         {
+            RefreshTokenIfood();
+
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
             var reponse = await client.GetAsync($"{url}:polling");
@@ -36,7 +38,7 @@ public class Ifood
             if (statusCode == 200)
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
-                ParametrosDoSistema? opcSistema = db.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
                 List<Polling>? pollings = JsonConvert.DeserializeObject<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
@@ -57,27 +59,16 @@ public class Ifood
                             }
                             else
                             {
-                                DialogResult opUser = MessageBox.Show("Pedido Novo Deseja aceitar?", "Novo Pedido", MessageBoxButtons.YesNo);
-
-                                if (opUser == DialogResult.Yes)
-                                {
-                                    await SetPedido(P.orderId, P);
-                                    await AvisarAcknowledge(P);
-                                    ConfirmarPedido(P);
-                                }
-                                else
-                                {
-                                    ClsSons.StopSom();
-                                }
+                                await SetPedido(P.orderId, P);
                             }
                             break;
                         case "CFM":
-                            // ClsSons.StopSom();
+                            ClsSons.StopSom();
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
                         case "CAN":
-                            //mandaria um pedido pro ifood cancelando 
+                            ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId);
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
@@ -212,7 +203,10 @@ public class Ifood
                     ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
                 }
 
-                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString(), DisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId) });
+                //serializar o polling para inserir no banco
+                string jsonDoPolling = JsonConvert.SerializeObject(P);
+
+                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString(), DisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId), JsonPolling = jsonDoPolling });
                 db.SaveChanges();
 
 
@@ -871,7 +865,7 @@ public class Ifood
 
                 List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
 
-                if (opSistema.ImpressaoAut)
+                if (opSistema.ImpressaoAut && opSistema.AceitaPedidoAut)
                 {
                     if (!opSistema.AgruparComandas)
                     {
@@ -1149,4 +1143,49 @@ public class Ifood
         }
         return response;
     }
+
+    public static async void RefreshTokenIfood()
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var AutenticacaoNaBase = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+
+            if (AutenticacaoNaBase != null)
+            {
+                DateTime dataHoraAtual = DateTime.Now;
+                string DataDeVencimentoString = AutenticacaoNaBase.VenceEm;
+                DateTime DataDeVencimento = DateTime.ParseExact(DataDeVencimentoString, "dd/MM/yyyy HH:mm:ss", null);
+
+                if (dataHoraAtual >= DataDeVencimento)
+                {
+                    var RespostaDoRefreshTokenEndPoint = await Ifood.EnviaReqParaOIfood(" ", "REFRESHTOKEN", " ");
+
+                    if (RespostaDoRefreshTokenEndPoint.IsSuccessStatusCode)
+                    {
+                        var repsonseWithToken = await RespostaDoRefreshTokenEndPoint.Content.ReadAsStringAsync();
+                        Token propriedadesAPIWithToken = JsonConvert.DeserializeObject<Token>(repsonseWithToken);//JsonSerializer.Deserialize<Token>(repsonseWithToken);
+
+                        DateTime horaAtual = DateTime.Now;
+                        double milissegundosAdicionais = 21600;
+                        DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
+                        string HoraFormatada = horaFutura.ToString();
+
+                        propriedadesAPIWithToken.VenceEm = HoraFormatada;
+                        AutenticacaoNaBase.accessToken = propriedadesAPIWithToken.accessToken;
+                        AutenticacaoNaBase.VenceEm = HoraFormatada;
+                        db.SaveChanges();
+                        Token.TokenDaSessao = AutenticacaoNaBase.accessToken;
+                    }
+
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
 }

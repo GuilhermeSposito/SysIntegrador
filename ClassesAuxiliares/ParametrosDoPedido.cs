@@ -18,6 +18,7 @@ public class ParametrosDoPedido
     [Column("conta")] public int Conta { get; set; }
     [Column("criadoem")] public string CriadoEm { get; set; }
     [Column("displayid")] public int DisplayId {  get; set; }  
+    [Column("jsonpolling")] public string JsonPolling {  get; set; }  
     
     public ParametrosDoPedido() { }
 

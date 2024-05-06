@@ -1,5 +1,7 @@
-﻿using SysIntegradorApp.ClassesAuxiliares;
+﻿using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data;
 using SysIntegradorApp.UserControls;
 using System;
 using System.Collections.Generic;
@@ -33,28 +35,50 @@ public partial class FormDeConfirmacaoDeCancelamento : Form
 
     private async void simBtn_Click(object sender, EventArgs e)
     {
-        int statusCode = await Ifood.CancelaPedido(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId); //retorna o status code
-
-        if (statusCode == 202)
+        try
         {
-            if (Application.OpenForms["FormDeCancelamento"] != null)
+            int statusCode = await Ifood.CancelaPedido(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId); //retorna o status code
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var ConfigSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+        
+            if (statusCode == 202)
             {
-                Application.OpenForms["FormDeCancelamento"].Close();
-                this.Close();
+                if (Application.OpenForms["FormDeCancelamento"] != null)
+                {
+                    Application.OpenForms["FormDeCancelamento"].Close();
+                    this.Close();
+                }
+
+                if (!ConfigSistema.AceitaPedidoAut)
+                {
+                    var pedido = db.parametrosdopedido.Where(x => x.Id == IdPedido).ToList().FirstOrDefault();
+                    Polling? polling = JsonConvert.DeserializeObject<Polling>(pedido.JsonPolling);
+
+                    Ifood.AvisarAcknowledge(polling);
+                }
+
+                FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+                FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true;
             }
+            else
+            {
+                MessageBox.Show("Não foi possivel cancelar o pedido", "Ops");
+            }
+
         }
-        else
+        catch (Exception ex)
         {
-            MessageBox.Show("Não foi possivel cancelar o pedido", "Ops");
+            MessageBox.Show(ex.Message, "Ops");
         }
     }
 
     private void FormDeConfirmacaoDeCancelamento_Load(object sender, EventArgs e)
     {
-        
+
         UCMotivoCancelamento motivoCancelamento = new UCMotivoCancelamento() { cancelCodeId = cancelCodeId, description = description };
         motivoCancelamento.Size = new Size(530, 34);
-        ClsEstiloComponentes.SetRoundedRegion(motivoCancelamento , 24);
+        ClsEstiloComponentes.SetRoundedRegion(motivoCancelamento, 24);
         panelConfirmaCaneclamento.Controls.Add(motivoCancelamento);
     }
 

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
@@ -86,7 +87,12 @@ public partial class UCInfoPedido : UserControl
 
         label1.Text = Pedido.customer.name;
 
-        dateFeitoAs.Text = Pedido.createdAt.Substring(11, 5);
+        DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(Pedido.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                              System.Globalization.CultureInfo.InvariantCulture,
+                                              System.Globalization.DateTimeStyles.AssumeUniversal);
+        DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
+
+        dateFeitoAs.Text = DataCertaDaFeitoEm.ToString().Substring(11, 5);
 
         tipoEntrega.Text = DefineEntrega;
 
@@ -158,7 +164,7 @@ public partial class UCInfoPedido : UserControl
         }
         else
         {
-            Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta,pedido.DisplayId ,impressoras);
+            Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
         }
 
 
@@ -192,5 +198,86 @@ public partial class UCInfoPedido : UserControl
         modalCancelamento.ShowDialog();
     }
 
+    private void UCInfoPedido_Load(object sender, EventArgs e)
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
+            if (!ConfigsSistema.AceitaPedidoAut)
+            {
+                if (Pedido.Situacao == "PLACED")
+                {
+                    BtnAceitar.Visible = true;
+                    BtnRejeitar.Visible = false;
+                    btnImprimir.Visible = false;
+                    btnDespacharIfood.Visible = false;
+                    buttonReadyToPickUp.Visible = false;
+
+
+                    btnCancelar.Visible = true;
+                    btnCancelar.Size = new Size(125, 51);
+                    btnCancelar.Location = new Point(682, 5);
+                    btnCancelar.ForeColor = Color.White;
+                    btnCancelar.BackColor = Color.Red;
+                    btnCancelar.ForeColor = Color.White;
+                    btnCancelar.FlatAppearance.BorderColor = Color.White;
+                    btnCancelar.Text = "Rejeitar";
+                    btnCancelar.Font = btnCancelar.Font = new Font(btnCancelar.Font.FontFamily, 12, FontStyle.Bold);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+
+
+    }
+
+    private async void BtnAceitar_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            Polling NovoPolling = JsonConvert.DeserializeObject<Polling>(Pedido.JsonPolling);
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            Ifood.ConfirmarPedido(NovoPolling);
+            await Ifood.AvisarAcknowledge(NovoPolling);
+            ClsSons.StopSom();
+
+            MessageBox.Show("Pedido Aceito", "Aceito", MessageBoxButtons.OK);
+
+
+            List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+            ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+
+            if (!opSistema.AgruparComandas)
+            {
+                foreach (string imp in impressoras)
+                {
+                    if (imp != "Sem Impressora" && imp != null)
+                    {
+                        Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                    }
+                }
+            }
+            else
+            {
+                Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+            }
+
+            impressoras.Clear();
+
+            FormMenuInicial.panelDetalhePedido.Controls.Clear();
+            FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+            FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro ao Aceitar o pedido manualmente");
+        }
+    }
 }

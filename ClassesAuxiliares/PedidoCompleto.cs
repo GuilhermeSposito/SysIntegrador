@@ -13,7 +13,8 @@ namespace SysIntegradorApp.ClassesAuxiliares;
 
 public class PedidoCompleto
 {
-    public string? Situacao {  get; set; }
+    public string? Situacao { get; set; }
+    public string JsonPolling { get; set; }
     public string? id { get; set; }
     public string? displayId { get; set; }
     public string? createdAt { get; set; }
@@ -63,13 +64,13 @@ public class Schedule
 {
     public string? deliveryDateTimeStart { get; set; }
     public string? deliveryDateTimeEnd { get; set; }
-    public Schedule(){}
+    public Schedule() { }
 }
 
 public class TakeOut
 {
     public string? mode { get; set; }
-    public string? takeoutDateTime {  get; set; }
+    public string? takeoutDateTime { get; set; }
     public TakeOut() { }
 }
 
@@ -179,7 +180,7 @@ public class Items
     [Column("uniqueid")]
     public string? uniqueId { get; set; }
     public string? name { get; set; }
-    public string? externalCode {  get; set; }   
+    public string? externalCode { get; set; }
     public int quantity { get; set; }
     public string? unit { get; set; }
     [Column("unitprice")]
@@ -200,8 +201,8 @@ public class Items
 public class Options
 {
     public int index { set; get; }
-    public string? id { set; get; } 
-    public string? name { set; get; } 
+    public string? id { set; get; }
+    public string? name { set; get; }
     public int quantity { set; get; }
     public string externalCode { set; get; }
     public string? unit { set; get; }
@@ -209,7 +210,7 @@ public class Options
     public float addition { set; get; }
     public float price { set; get; }
 
-    public Options(){}
+    public Options() { }
 }
 
 [Table("total")]
@@ -223,7 +224,7 @@ public class Total
     public float subTotal { get; set; }
     [Column("deliveryfee")]
     public float deliveryFee { get; set; }
-    public int benefits { get; set; }
+    public float benefits { get; set; }
     [Column("orderamount")]
     public float orderAmount { get; set; }
 
@@ -262,7 +263,7 @@ public class Cash
 {
     public float changeFor { get; set; }
 
-    public Cash() {}
+    public Cash() { }
 }
 
 public class Card
