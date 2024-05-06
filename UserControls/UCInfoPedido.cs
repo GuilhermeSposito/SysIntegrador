@@ -227,6 +227,13 @@ public partial class UCInfoPedido : UserControl
                     btnCancelar.Font = btnCancelar.Font = new Font(btnCancelar.Font.FontFamily, 12, FontStyle.Bold);
                 }
             }
+
+            if(Pedido.Situacao == "CANCELLED")
+            {
+                btnDespacharIfood.Visible = false;
+                buttonReadyToPickUp.Visible = false;
+                btnCancelar.Visible = false;    
+            }
         }
         catch (Exception ex)
         {
