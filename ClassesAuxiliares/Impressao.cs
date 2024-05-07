@@ -300,6 +300,12 @@ public class Impressao
                     ClsInfosDePagamentosParaImpressao infosDePagamento = DefineTipoDePagamento(pedidoCompleto.payments.methods);
 
                     AdicionaConteudo(infosDePagamento.FormaPagamento, FonteGeral);
+                    AdicionaConteudo(infosDePagamento.TipoPagamento, FonteGeral);
+                    if (infosDePagamento.TipoPagamento == "Pago Online")
+                    {
+                        AdicionaConteudo("Pedido pago online, não é nescessario receber do cliente na entrega", FonteOpcionais);
+                    }
+                  
                     AdicionaConteudo($"Valor: \t {infosDePagamento.valor.ToString("c")}", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
