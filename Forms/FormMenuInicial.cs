@@ -1,6 +1,7 @@
 ﻿using Svg;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data;
 using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
@@ -61,14 +62,19 @@ public partial class FormMenuInicial : Form
     private void FormMenuInicial_Shown(object sender, EventArgs e) { }
 
 
-
-    public static async void SetarPanelPedidos()
+    public static async void SetarPanelPedidos(int? pesquisaDisplayId = null)
     {
         try
         {
-            List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
 
+            List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
             List<ParametrosDoPedido> pedidosFromDb = await Ifood.GetPedido();
+
+            if (pesquisaDisplayId != null)
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == pesquisaDisplayId).ToList();
+            }
 
             var pedidoOrdenado = pedidosFromDb.ToList();
 
@@ -314,6 +320,64 @@ public partial class FormMenuInicial : Form
                 FileName = urlVerificacao,
                 UseShellExecute = true
             });
+        }
+    }
+
+    private void pictureBoxLupa_Click(object sender, EventArgs e)
+    {
+        textBoxBuscarPedido.Visible = true;
+        textBoxBuscarPedido.Text = "";
+        textBoxBuscarPedido.Focus();
+        BtnBuscar.Visible = true;
+    }
+
+    private void BtnBuscar_Click(object sender, EventArgs e)
+    {
+        textBoxBuscarPedido.Visible = false;
+        BtnBuscar.Visible = false;
+        panelDetalhePedido.Controls.Clear();
+        panelDetalhePedido.Controls.Add(labelDeAvisoPedidoDetalhe);
+        labelDeAvisoPedidoDetalhe.Visible = true;
+
+        try
+        {
+            int numPesquisadoDisplayId = Convert.ToInt32(textBoxBuscarPedido.Text);
+            SetarPanelPedidos(numPesquisadoDisplayId);
+
+        }
+        catch (Exception ex) when (ex.Message.Contains("format"))
+        {
+            MessageBox.Show("Formato de pesquisa errado, pode ser pesquisado apenas números!", "Ops");
+        }
+        catch (Exception exm)
+        {
+            MessageBox.Show(exm.Message, "Ops");
+        }
+    }
+
+    private void textBoxBuscarPedido_KeyPress(object sender, KeyPressEventArgs e)
+    {
+        if (e.KeyChar == (char)Keys.Enter)
+        {
+            BtnBuscar_Click(sender, e);
+        }
+
+        if (e.KeyChar == (char)Keys.Escape)
+        {
+            textBoxBuscarPedido.Visible = false;
+            BtnBuscar.Visible = false;
+        }
+    }
+
+    private void textBoxBuscarPedido_Leave(object sender, EventArgs e) { }
+
+    private void FormMenuInicial_KeyPress(object sender, KeyPressEventArgs e){}
+
+    private void FormMenuInicial_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.KeyCode == Keys.F2)
+        {
+            pictureBoxLupa_Click(sender, e);
         }
     }
 }

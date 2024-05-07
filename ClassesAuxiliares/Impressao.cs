@@ -312,8 +312,6 @@ public class Impressao
                     AdicionaConteudo("Impresso por:", FonteGeral);
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-
                 }
 
                 Imprimir(Conteudo, impressora1);

@@ -33,6 +33,10 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            BtnBuscar = new Button();
+            textBoxBuscarPedido = new TextBox();
+            label5 = new Label();
+            pictureBoxLupa = new PictureBox();
             label4 = new Label();
             label3 = new Label();
             label2 = new Label();
@@ -47,8 +51,10 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
+            label6 = new Label();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxChat).BeginInit();
@@ -109,6 +115,11 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(label6);
+            panel1.Controls.Add(BtnBuscar);
+            panel1.Controls.Add(textBoxBuscarPedido);
+            panel1.Controls.Add(label5);
+            panel1.Controls.Add(pictureBoxLupa);
             panel1.Controls.Add(label4);
             panel1.Controls.Add(label3);
             panel1.Controls.Add(label2);
@@ -125,11 +136,59 @@
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // BtnBuscar
+            // 
+            BtnBuscar.Cursor = Cursors.Hand;
+            BtnBuscar.FlatAppearance.MouseOverBackColor = Color.FromArgb(224, 224, 224);
+            BtnBuscar.Font = new Font("Segoe UI", 12F);
+            BtnBuscar.Location = new Point(786, 11);
+            BtnBuscar.Name = "BtnBuscar";
+            BtnBuscar.Size = new Size(104, 37);
+            BtnBuscar.TabIndex = 17;
+            BtnBuscar.Text = "Pesquisar";
+            BtnBuscar.UseVisualStyleBackColor = true;
+            BtnBuscar.Visible = false;
+            BtnBuscar.Click += BtnBuscar_Click;
+            // 
+            // textBoxBuscarPedido
+            // 
+            textBoxBuscarPedido.Font = new Font("Segoe UI", 12F);
+            textBoxBuscarPedido.Location = new Point(536, 11);
+            textBoxBuscarPedido.Name = "textBoxBuscarPedido";
+            textBoxBuscarPedido.PlaceholderText = "Digite o número do pedido";
+            textBoxBuscarPedido.Size = new Size(244, 34);
+            textBoxBuscarPedido.TabIndex = 16;
+            textBoxBuscarPedido.Visible = false;
+            textBoxBuscarPedido.KeyPress += textBoxBuscarPedido_KeyPress;
+            textBoxBuscarPedido.Leave += textBoxBuscarPedido_Leave;
+            // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label5.Location = new Point(482, 49);
+            label5.Name = "label5";
+            label5.Size = new Size(48, 17);
+            label5.TabIndex = 15;
+            label5.Text = "Buscar";
+            // 
+            // pictureBoxLupa
+            // 
+            pictureBoxLupa.Cursor = Cursors.Hand;
+            pictureBoxLupa.Image = (Image)resources.GetObject("pictureBoxLupa.Image");
+            pictureBoxLupa.Location = new Point(479, 3);
+            pictureBoxLupa.Name = "pictureBoxLupa";
+            pictureBoxLupa.Size = new Size(51, 45);
+            pictureBoxLupa.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxLupa.TabIndex = 14;
+            pictureBoxLupa.TabStop = false;
+            pictureBoxLupa.Click += pictureBoxLupa_Click;
+            // 
             // label4
             // 
             label4.AutoSize = true;
             label4.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label4.Location = new Point(461, 49);
+            label4.Location = new Point(425, 49);
             label4.Name = "label4";
             label4.Size = new Size(44, 17);
             label4.TabIndex = 13;
@@ -139,7 +198,7 @@
             // 
             label3.AutoSize = true;
             label3.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label3.Location = new Point(378, 49);
+            label3.Location = new Point(369, 49);
             label3.Name = "label3";
             label3.Size = new Size(50, 17);
             label3.TabIndex = 12;
@@ -149,7 +208,7 @@
             // 
             label2.AutoSize = true;
             label2.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label2.Location = new Point(308, 49);
+            label2.Location = new Point(305, 49);
             label2.Name = "label2";
             label2.Size = new Size(61, 17);
             label2.TabIndex = 11;
@@ -159,7 +218,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(257, 49);
+            label1.Location = new Point(255, 49);
             label1.Name = "label1";
             label1.Size = new Size(45, 17);
             label1.TabIndex = 10;
@@ -184,7 +243,7 @@
             pollingManual.FlatAppearance.BorderSize = 3;
             pollingManual.FlatStyle = FlatStyle.Flat;
             pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(849, 13);
+            pollingManual.Location = new Point(1034, 16);
             pollingManual.Name = "pollingManual";
             pollingManual.Size = new Size(123, 39);
             pollingManual.TabIndex = 8;
@@ -198,7 +257,7 @@
             pictureBoxConfig.Cursor = Cursors.Hand;
             pictureBoxConfig.ErrorImage = (Image)resources.GetObject("pictureBoxConfig.ErrorImage");
             pictureBoxConfig.Image = (Image)resources.GetObject("pictureBoxConfig.Image");
-            pictureBoxConfig.Location = new Point(378, 3);
+            pictureBoxConfig.Location = new Point(365, 3);
             pictureBoxConfig.Name = "pictureBoxConfig";
             pictureBoxConfig.Size = new Size(51, 45);
             pictureBoxConfig.SizeMode = PictureBoxSizeMode.Zoom;
@@ -210,7 +269,7 @@
             // 
             pictureBoxChat.Cursor = Cursors.Hand;
             pictureBoxChat.Image = (Image)resources.GetObject("pictureBoxChat.Image");
-            pictureBoxChat.Location = new Point(454, 3);
+            pictureBoxChat.Location = new Point(422, 3);
             pictureBoxChat.Name = "pictureBoxChat";
             pictureBoxChat.Size = new Size(51, 45);
             pictureBoxChat.SizeMode = PictureBoxSizeMode.Zoom;
@@ -282,6 +341,16 @@
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
             // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Segoe UI", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label6.Location = new Point(526, 3);
+            label6.Name = "label6";
+            label6.Size = new Size(16, 12);
+            label6.TabIndex = 18;
+            label6.Text = "F2";
+            // 
             // FormMenuInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -293,6 +362,7 @@
             Controls.Add(panelPedidos);
             Controls.Add(panelDetalhePedido);
             Icon = (Icon)resources.GetObject("$this.Icon");
+            KeyPreview = true;
             Name = "FormMenuInicial";
             Padding = new Padding(10);
             StartPosition = FormStartPosition.CenterParent;
@@ -301,10 +371,13 @@
             FormClosed += FormMenuInicial_FormClosed;
             Load += FormMenuInicial_Load;
             Shown += FormMenuInicial_Shown;
+            KeyDown += FormMenuInicial_KeyDown;
+            KeyPress += FormMenuInicial_KeyPress;
             panelDetalhePedido.ResumeLayout(false);
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxChat).EndInit();
@@ -332,6 +405,11 @@
         private Label label3;
         private Label label2;
         private Label label4;
+        private Label label5;
+        private PictureBox pictureBoxLupa;
+        private Button BtnBuscar;
+        private TextBox textBoxBuscarPedido;
+        private Label label6;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;
