@@ -15,6 +15,7 @@ public class PedidoCompleto
 {
     public string? Situacao { get; set; }
     public string JsonPolling { get; set; }
+    public int? NumConta { get; set; }
     public string? id { get; set; }
     public string? displayId { get; set; }
     public string? createdAt { get; set; }

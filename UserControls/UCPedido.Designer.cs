@@ -35,7 +35,11 @@
             labelEntregarAte = new Label();
             labelHorarioDeEntrega = new Label();
             labelStatus = new Label();
+            label1 = new Label();
+            labelNumConta = new Label();
+            pictureBoxImp = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -53,7 +57,7 @@
             // 
             labelNumPedido.AutoSize = true;
             labelNumPedido.Font = new Font("Segoe UI Semibold", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelNumPedido.Location = new Point(133, 0);
+            labelNumPedido.Location = new Point(132, -6);
             labelNumPedido.Name = "labelNumPedido";
             labelNumPedido.Size = new Size(98, 38);
             labelNumPedido.TabIndex = 1;
@@ -64,7 +68,7 @@
             // 
             labelNomePedido.AutoSize = true;
             labelNomePedido.Font = new Font("Segoe UI", 11F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelNomePedido.Location = new Point(133, 47);
+            labelNomePedido.Location = new Point(132, 32);
             labelNomePedido.Name = "labelNomePedido";
             labelNomePedido.Size = new Size(176, 25);
             labelNomePedido.TabIndex = 2;
@@ -101,11 +105,46 @@
             labelStatus.Text = "Placed";
             labelStatus.Click += labelStatus_Click_1;
             // 
+            // label1
+            // 
+            label1.AutoSize = true;
+            label1.Font = new Font("Segoe UI", 8F);
+            label1.Location = new Point(133, 55);
+            label1.Name = "label1";
+            label1.Size = new Size(72, 19);
+            label1.TabIndex = 6;
+            label1.Text = "SysMenu: ";
+            // 
+            // labelNumConta
+            // 
+            labelNumConta.AutoSize = true;
+            labelNumConta.Font = new Font("Segoe UI", 8F);
+            labelNumConta.Location = new Point(197, 55);
+            labelNumConta.Name = "labelNumConta";
+            labelNumConta.Size = new Size(17, 19);
+            labelNumConta.TabIndex = 7;
+            labelNumConta.Text = "0";
+            // 
+            // pictureBoxImp
+            // 
+            pictureBoxImp.BackColor = Color.Transparent;
+            pictureBoxImp.Image = (Image)resources.GetObject("pictureBoxImp.Image");
+            pictureBoxImp.Location = new Point(323, 3);
+            pictureBoxImp.Name = "pictureBoxImp";
+            pictureBoxImp.Size = new Size(24, 24);
+            pictureBoxImp.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxImp.TabIndex = 8;
+            pictureBoxImp.TabStop = false;
+            pictureBoxImp.Click += pictureBoxImp_Click;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxImp);
+            Controls.Add(labelNumConta);
+            Controls.Add(label1);
             Controls.Add(labelStatus);
             Controls.Add(labelHorarioDeEntrega);
             Controls.Add(labelEntregarAte);
@@ -118,8 +157,11 @@
             Load += UCPedido_Load;
             Click += UCPedido_Click;
             Enter += UCPedido_Enter;
+            KeyDown += UCPedido_KeyDown;
+            KeyPress += UCPedido_KeyPress;
             Leave += UCPedido_Leave;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxImp).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -132,5 +174,8 @@
         private Label labelEntregarAte;
         private Label labelHorarioDeEntrega;
         private Label labelStatus;
+        private Label label1;
+        private Label labelNumConta;
+        private PictureBox pictureBoxImp;
     }
 }

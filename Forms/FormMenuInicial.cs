@@ -86,6 +86,7 @@ public partial class FormMenuInicial : Form
                 PedidoCompleto? pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
                 pedido.JsonPolling = item.JsonPolling;
                 pedido.Situacao = item.Situacao;
+                pedido.NumConta = item.Conta;
                 pedidos.Add(pedido);
             }
 
@@ -371,13 +372,18 @@ public partial class FormMenuInicial : Form
 
     private void textBoxBuscarPedido_Leave(object sender, EventArgs e) { }
 
-    private void FormMenuInicial_KeyPress(object sender, KeyPressEventArgs e){}
+    private void FormMenuInicial_KeyPress(object sender, KeyPressEventArgs e) { }
 
     private void FormMenuInicial_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.F2)
         {
             pictureBoxLupa_Click(sender, e);
+        }
+
+        if (e.KeyCode == Keys.Home)
+        {
+            pictureBoxHome_Click(sender, e);
         }
     }
 }

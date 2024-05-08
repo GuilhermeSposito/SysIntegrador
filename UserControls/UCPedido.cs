@@ -1,4 +1,5 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -45,6 +46,7 @@ public partial class UCPedido : UserControl
     {
         Id_pedido = id_pedido;
         labelNumPedido.Text = $"#{numPedido}";
+        labelNumConta.Text = Pedido.NumConta.ToString().PadLeft(3, '0');
         labelNomePedido.Text = nomePedido;
         labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
         string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
@@ -133,14 +135,14 @@ public partial class UCPedido : UserControl
     private void labelNumPedido_Click(object sender, EventArgs e)
     {
         UCPedido_Click(sender, e);
-        UCPedido_Enter(sender, e); 
+        UCPedido_Enter(sender, e);
         this.Focus();
     }
 
     private void labelEntregarAte_Click(object sender, EventArgs e)
     {
         UCPedido_Click(sender, e);
-        UCPedido_Enter(sender, e); 
+        UCPedido_Enter(sender, e);
         this.Focus();
     }
 
@@ -154,7 +156,64 @@ public partial class UCPedido : UserControl
     private void labelStatus_Click_1(object sender, EventArgs e)
     {
         UCPedido_Click(sender, e);
-        UCPedido_Enter(sender, e); 
+        UCPedido_Enter(sender, e);
         this.Focus();
+    }
+
+    private void UCPedido_KeyPress(object sender, KeyPressEventArgs e)
+    {
+        if (e.KeyChar == (char)Keys.Enter)
+        {
+            UCPedido_Click(sender, e);
+        }
+
+        if (e.KeyChar == (char)Keys.F4)
+        {
+            pictureBoxImp_Click(sender, e);
+        }
+
+    }
+
+    private void pictureBoxImp_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+            if (!opSistema.AgruparComandas)
+            {
+                foreach (string imp in impressoras)
+                {
+                    if (imp != "Sem Impressora" && imp != null)
+                    {
+                        Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                    }
+                }
+            }
+            else
+            {
+                Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+            }
+
+
+
+            impressoras.Clear();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro Ao imprimir pelo UCPEDIDO");
+        }
+    }
+
+    private void UCPedido_KeyDown(object sender, KeyEventArgs e)
+    {
+        if (e.Control && e.KeyCode == Keys.I)
+        {
+            pictureBoxImp_Click(sender, e);
+        }
     }
 }

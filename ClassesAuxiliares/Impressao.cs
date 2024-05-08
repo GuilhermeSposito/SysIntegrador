@@ -43,6 +43,13 @@ public class Impressao
         Direita,
         Centro
     }
+    public enum TamanhoPizza
+    {
+       PEQUENA,
+       MÉDIA,
+       GRANDE,
+       BROTINHO
+    }
 
     public static void Imprimir(List<ClsImpressaoDefinicoes> conteudo, string impressora1)
     {
@@ -265,6 +272,31 @@ public class Impressao
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item);
 
                         AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.totalPrice.ToString("c")}\n\n", FonteItens);
+
+                        if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                        {
+                            if (item.externalCode == "G")
+                            {
+                                AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "M")
+                            {
+                                AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "P")
+                            {
+                                AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "B")
+                            {
+                                AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                            }
+
+                        }
+
                         if (item.options != null)
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
@@ -364,6 +396,31 @@ public class Impressao
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
 
                         AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+
+                        if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                        {
+                            if (item.externalCode == "G")
+                            {
+                                AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "M")
+                            {
+                                AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "P")
+                            {
+                                AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "B")
+                            {
+                                AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                            }
+
+                        }
+
                         if (item.options != null)
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
@@ -433,6 +490,31 @@ public class Impressao
                 ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
 
                 AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+
+                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                {
+                    if (item.externalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
                 if (item.options != null)
                 {
                     foreach (var option in CaracteristicasPedido.Observações)
@@ -613,6 +695,31 @@ public class Impressao
                 ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
 
                 AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+
+                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                {
+                    if (item.externalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
                 AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 if (item.options != null)
                 {
@@ -689,6 +796,31 @@ public class Impressao
                 ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
 
                 AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+
+                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                {
+                    if (item.externalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
                 AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 if (item.options != null)
                 {

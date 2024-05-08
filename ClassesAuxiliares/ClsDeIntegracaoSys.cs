@@ -5,6 +5,7 @@ using System.Data.OleDb;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -23,6 +24,7 @@ public class ClsDeIntegracaoSys
      string? dataSaida,
      string? hrSaida,
      string? obsConta1,
+     string? iFoodPedidoID,
      string? obsConta2 = null,
      string? endEntrega = "RETIRADA",
      string? bairEntrega = "RETIRADA",
@@ -41,12 +43,11 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2, iFoodPedidoID) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    await Console.Out.WriteLineAsync("\nPedido Inserido no banco de dados do access Também\n");
                     Console.ForegroundColor = ConsoleColor.White;
                     // Parâmetros para a consulta SQL
                     command.Parameters.AddWithValue("@MESA", mesa);
@@ -65,6 +66,7 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@HRSAIDA", hrSaida);
                     command.Parameters.AddWithValue("@OBSCONTA1", obsConta1);
                     command.Parameters.AddWithValue("@OBSCONTA2", obsConta2);
+                    command.Parameters.AddWithValue("@iFoodPedidoID", iFoodPedidoID);
 
 
                     // Executa o comando SQL
@@ -73,39 +75,26 @@ public class ClsDeIntegracaoSys
 
                     if (rowsAffected > 0)
                     {
-                        Console.WriteLine("Inserção realizada com sucesso!");
-
                         //Se a inserção foi feita com sucesso, nós vamos pegar o número da sequencia
-                        string sqlQuery = "SELECT * FROM Sequencia";
+                        string sqlQuery = "SELECT * FROM Sequencia WHERE iFoodPedidoID = @IFOODPEDIDOID";
 
                         using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
-                        using (OleDbDataReader reader = comando.ExecuteReader())
                         {
-                            if (reader.HasRows)
+                            comando.Parameters.AddWithValue("@IFOODPEDIDOID", iFoodPedidoID);
+
+                            using (OleDbDataReader reader = comando.ExecuteReader())
                             {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("Pedidos:\n");
-                                while (reader.Read())
+                                if (reader.HasRows)
                                 {
-                                    // Exibe o conteúdo de cada coluna na linha
-                                    for (int i = 0; i < reader.FieldCount; i++)
+                                    while (reader.Read())
                                     {
-                                        if (reader.GetName(i) == "CONTA")
-                                        {
-                                            //se entrar aqui vai adicionar nos número da sequencia em um array 
-                                            int valorConvertido = Convert.ToInt32(reader.GetValue(i));
-                                            numerosSequencia.Add(valorConvertido);
-                                        }
+                                        ultimoNumeroConta = Convert.ToInt32(reader["CONTA"].ToString());
                                     }
-                                }
 
-                                //aqui retorna o ultimo número inserido
-                                ultimoNumeroConta = numerosSequencia[numerosSequencia.Count() - 1];
-
-                                return ultimoNumeroConta;
-                            } // fechamento if hasRows
-                        }   //fechamento terceiro using
-
+                                    return ultimoNumeroConta;
+                                } // fechamento if hasRows
+                            }   //fechamento terceiro using
+                        }
                     } //fechamento de chave do if RowsAfected
                 }//fechamento chave segundo using 
             }//fechamento chave primeiro using
@@ -463,7 +452,7 @@ public class ClsDeIntegracaoSys
 
                 string SqlSelectIntoCadastros = "INSERT INTO Clientes (TELEFONE, NOME, ENDERECO, BAIRRO, CIDADE, ESTADO, CEP, REFERE) VALUES (?,?,?,?,?,?,?,?) ";
 
-                string referenciaDoEndereco = entrega.deliveryAddress.reference == null || entrega.deliveryAddress.reference == "" ? " " : entrega.deliveryAddress.reference;   
+                string referenciaDoEndereco = entrega.deliveryAddress.reference == null || entrega.deliveryAddress.reference == "" ? " " : entrega.deliveryAddress.reference;
 
 
                 using (OleDbCommand command = new OleDbCommand(SqlSelectIntoCadastros, connection))
@@ -474,7 +463,7 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@BAIRRO", entrega.deliveryAddress.neighborhood);
                     command.Parameters.AddWithValue("@CIDADE", entrega.deliveryAddress.city);
                     command.Parameters.AddWithValue("@ESTADO", "SP");
-                    command.Parameters.AddWithValue("@CEP", entrega.deliveryAddress.postalCode != null ||  entrega.deliveryAddress.postalCode != "" ? entrega.deliveryAddress.postalCode : " ");
+                    command.Parameters.AddWithValue("@CEP", entrega.deliveryAddress.postalCode != null || entrega.deliveryAddress.postalCode != "" ? entrega.deliveryAddress.postalCode : " ");
                     command.Parameters.AddWithValue("@REFERE", referenciaDoEndereco);
 
 
@@ -530,29 +519,34 @@ public class ClsDeIntegracaoSys
         bool existeProduto = false;
         try
         {
-
-            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
-
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            if (codPdv != null)
             {
-                connection.Open();
+                string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+                using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
 
-                string sqlSelect = "SELECT COUNT(*) FROM Cardapio WHERE CODIGO = @CODIGO";
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
 
-
-                using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {
-                    selectCommand.Parameters.AddWithValue("@CODIGO", codPdv);
+                    connection.Open();
 
-                    // Executar a consulta SELECT
-                    int count = (int)selectCommand.ExecuteScalar();
-                    existeProduto = count > 0;
+                    string sqlSelect = "SELECT COUNT(*) FROM Cardapio WHERE CODIGO = @CODIGO";
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@CODIGO", codPdv);
+
+                        // Executar a consulta SELECT
+                        int count = (int)selectCommand.ExecuteScalar();
+                        existeProduto = count > 0;
+                    }
+                    return existeProduto;
                 }
-                return existeProduto;
+            }
+            else
+            {
+                return existeProduto = false;
             }
         }
         catch (Exception ex)
