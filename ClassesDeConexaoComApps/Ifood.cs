@@ -232,7 +232,7 @@ public class Ifood
 
                     foreach (Items item in pedidoCompletoDeserialiado.items)
                     {
-                        bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? true : false;
+                        bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" ? true : false;
 
                         if (ePizza)
                         {
@@ -272,7 +272,7 @@ public class Ifood
                                     }
                                     else
                                     {
-                                        NomeProduto += option.name;
+                                        NomeProduto += $"{item.quantity}X - {option.name}";
                                     }
                                     continue;
                                 }

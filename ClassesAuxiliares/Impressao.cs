@@ -45,10 +45,10 @@ public class Impressao
     }
     public enum TamanhoPizza
     {
-       PEQUENA,
-       MÉDIA,
-       GRANDE,
-       BROTINHO
+        PEQUENA,
+        MÉDIA,
+        GRANDE,
+        BROTINHO
     }
 
     public static void Imprimir(List<ClsImpressaoDefinicoes> conteudo, string impressora1)
@@ -337,7 +337,7 @@ public class Impressao
                     {
                         AdicionaConteudo("Pedido pago online, não é nescessario receber do cliente na entrega", FonteOpcionais);
                     }
-                  
+
                     AdicionaConteudo($"Valor: \t {infosDePagamento.valor.ToString("c")}", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -478,70 +478,83 @@ public class Impressao
             //nome do restaurante estatico por enquanto
             foreach (var item in pedidoCompleto.items)
             {
-                AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                int qtdItens = pedidoCompleto.items.Count();
-
-                AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
-                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
-
-                AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
-
-                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                for (var i = 0; i < item.quantity; i++)
                 {
-                    if (item.externalCode == "G")
+                    AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    int qtdItens = pedidoCompleto.items.Count();
+
+                    AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+                    ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
+
+                    if (item.quantity > 1)
                     {
-                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                        AdicionaConteudo($"1X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                    }
+                    else
+                    {
+                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                     }
 
-                    if (item.externalCode == "M")
+                    if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
                     {
-                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                        if (item.externalCode == "G")
+                        {
+                            AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "M")
+                        {
+                            AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "P")
+                        {
+                            AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "B")
+                        {
+                            AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                        }
+
                     }
 
-                    if (item.externalCode == "P")
+                    if (item.options != null)
                     {
-                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
-                    }
+                        foreach (var option in CaracteristicasPedido.Observações)
+                        {
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                        }
 
-                    if (item.externalCode == "B")
-                    {
-                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
-                    }
+                        if (item.observations != null && item.observations.Length > 0)
+                        {
+                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                        }
 
+                    }
+                    contagemItemAtual++;
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("Impresso por:", FonteGeral);
+                    AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+
+
+                    Imprimir(Conteudo, impressora1);
+                    Conteudo.Clear();
+
+                    
                 }
-
-                if (item.options != null)
-                {
-                    foreach (var option in CaracteristicasPedido.Observações)
-                    {
-                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
-                    }
-
-                    if (item.observations != null && item.observations.Length > 0)
-                    {
-                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
-                    }
-
-                }
-                contagemItemAtual++;
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                AdicionaConteudo("Impresso por:", FonteGeral);
-                AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-
-
-                Imprimir(Conteudo, impressora1);
-                Conteudo.Clear();
+                contagemItemAtual = 1;
             }
 
-            contagemItemAtual = 0;
+            contagemItemAtual = 1;
         }
         catch (Exception ex)
         {
@@ -763,6 +776,7 @@ public class Impressao
     {
         try
         {
+
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
             PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
@@ -775,78 +789,82 @@ public class Impressao
 
             //nome do restaurante estatico por enquanto
             foreach (var item in itens)
+
             {
+                int quantidadeDoItem = Convert.ToInt32(item.quantity);
 
-                AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                int qtdItens = pedidoCompleto.items.Count();
-
-
-
-                if (impressora == "Sem Impressora" || impressora == "" || impressora == null)
+                for (int i = 0; i < quantidadeDoItem; i++)
                 {
-                    throw new Exception("Uma das impressora não foi encontrada adicione ela nas configurações ou retire a impressão separada!");
+                    AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    int qtdItens = pedidoCompleto.items.Count();
+
+                    if (impressora == "Sem Impressora" || impressora == "" || impressora == null)
+                    {
+                        throw new Exception("Uma das impressora não foi encontrada adicione ela nas configurações ou retire a impressão separada!");
+                    }
+
+
+                    ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
+
+                    AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+
+                    if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                    {
+                        if (item.externalCode == "G")
+                        {
+                            AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "M")
+                        {
+                            AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "P")
+                        {
+                            AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                        }
+
+                        if (item.externalCode == "B")
+                        {
+                            AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                        }
+
+                    }
+
+                    AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                    if (item.options != null)
+                    {
+                        foreach (var option in CaracteristicasPedido.Observações)
+                        {
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                        }
+
+                        if (item.observations != null && item.observations.Length > 0)
+                        {
+                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                        }
+
+                    }
+
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("Impresso por:", FonteGeral);
+                    AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    if (impressora != "Nao")
+                    {
+                        Imprimir(Conteudo, impressora);
+                    }
+                    contagemItemAtual++;
                 }
 
-
-                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
-
-                AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
-
-                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
-                {
-                    if (item.externalCode == "G")
-                    {
-                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
-                    }
-
-                    if (item.externalCode == "M")
-                    {
-                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
-                    }
-
-                    if (item.externalCode == "P")
-                    {
-                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
-                    }
-
-                    if (item.externalCode == "B")
-                    {
-                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
-                    }
-
-                }
-
-                AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
-                if (item.options != null)
-                {
-                    foreach (var option in CaracteristicasPedido.Observações)
-                    {
-                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
-                    }
-
-                    if (item.observations != null && item.observations.Length > 0)
-                    {
-                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
-                    }
-
-                }
-
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                AdicionaConteudo("Impresso por:", FonteGeral);
-                AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
-                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                if (impressora != "Nao")
-                {
-                    Imprimir(Conteudo, impressora);
-                }
-                contagemItemAtual++;
             }
             //Imprimir(Conteudo, impressora);
             Conteudo.Clear();
@@ -878,13 +896,16 @@ public class Impressao
         {
             DefineImpressao(numConta, displayId, impressora);
             ContagemDeImpressoes++;
-            if (opcSistema.TipoComanda == 2)
+            if (opcSistema.ImprimirComandaNoCaixa)
             {
-                ImprimeComandaTipo2(numConta, displayId, impressora);
-            }
-            else
-            {
-                ImprimeComanda(numConta, displayId, impressora);
+                if (opcSistema.TipoComanda == 2)
+                {
+                    ImprimeComandaTipo2(numConta, displayId, impressora);
+                }
+                else
+                {
+                    ImprimeComanda(numConta, displayId, impressora);
+                }
             }
         }
         if (ContagemDeImpressoes == 0)
