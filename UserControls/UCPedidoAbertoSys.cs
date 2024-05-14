@@ -1,4 +1,5 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
@@ -16,45 +17,68 @@ public partial class UCPedidoAbertoSys : UserControl
 {
 
     public Sequencia PedidoParaDeliveyAtual { get; set; }
+    public bool ListandoPedidoAbertos { get; set; }
 
     public UCPedidoAbertoSys()
     {
         InitializeComponent();
-        ClsEstiloComponentes.SetRoundedRegion(this, 24);
+        ClsEstiloComponentes.SetRoundedRegion(this, 18);
     }
 
-    private void UCPedidoAbertoSys_Paint(object sender, PaintEventArgs e)
+    private async void UCPedidoAbertoSys_Paint(object sender, PaintEventArgs e)
     {
-        labelNomeCliente.Text = PedidoParaDeliveyAtual.Customer.Name;
-        labelNumConta.Text = PedidoParaDeliveyAtual.ShortReference;  //.numConta.ToString();
-        labelEndereco.Text = PedidoParaDeliveyAtual.DeliveryAddress.StreetName.ToString();
-        labelValorPedido.Text = PedidoParaDeliveyAtual.ValorConta.ToString("c");
-       // panel1.BackColor = SystemColors.ControlDark;
+        try
+        {
+            ClsDeserializacaoDelMatchEntrega pedido = new ClsDeserializacaoDelMatchEntrega();
+
+            if (ListandoPedidoAbertos)
+            {
+                pedido = await DelMatch.GetPedido(PedidoParaDeliveyAtual.DelMatchId);
+                labelStatus.Text = ClsDeTraducaoDelMatchStatus.TraduzStatus(pedido.Status);
+
+                picBoxCheck.Visible = false;
+                picBoxCheck.Enabled = false;
+            }
+
+            labelNomeCliente.Text = PedidoParaDeliveyAtual.Customer.Name;
+            labelNumConta.Text = PedidoParaDeliveyAtual.numConta.ToString().PadLeft(4, '0');
+            labelEndereco.Text = PedidoParaDeliveyAtual.DeliveryAddress.StreetName.ToString();
+
+            labelValorPedido.Text = PedidoParaDeliveyAtual.ValorConta.ToString("c");
+            // panel1.BackColor = SystemColors.ControlDark;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+
     }
 
     private void UCPedidoAbertoSys_Load(object sender, EventArgs e) { }
 
     private void UCPedidoAbertoSys_Click(object sender, EventArgs e)
     {
-        if (picBoxCheck.Visible == true)
+        if (!ListandoPedidoAbertos)
         {
-            picBoxCheck.Visible = false;
-            if (FormDePedidosAbertos.ItensAEnviarDelMach.Count > 0)
+            if (picBoxCheck.Visible == true)
             {
-                int indexARemover = FormDePedidosAbertos.ItensAEnviarDelMach.FindIndex(x => x.numConta == PedidoParaDeliveyAtual.numConta);
-                if (indexARemover != -1)
+                picBoxCheck.Visible = false;
+                if (FormDePedidosAbertos.ItensAEnviarDelMach.Count > 0)
                 {
-                    FormDePedidosAbertos.ItensAEnviarDelMach.RemoveAt(indexARemover);
+                    int indexARemover = FormDePedidosAbertos.ItensAEnviarDelMach.FindIndex(x => x.numConta == PedidoParaDeliveyAtual.numConta);
+                    if (indexARemover != -1)
+                    {
+                        FormDePedidosAbertos.ItensAEnviarDelMach.RemoveAt(indexARemover);
+                    }
                 }
             }
+            else
+            {
+                //this.BackColor = SystemColors.ControlDarkDark;
+                picBoxCheck.Visible = true;
+                FormDePedidosAbertos.ItensAEnviarDelMach.Add(PedidoParaDeliveyAtual);
+            }
         }
-        else
-        {
-            //this.BackColor = SystemColors.ControlDarkDark;
-            picBoxCheck.Visible = true;
-            FormDePedidosAbertos.ItensAEnviarDelMach.Add(PedidoParaDeliveyAtual);
-        }
-
     }
 
     private void UCPedidoAbertoSys_Enter(object sender, EventArgs e) { }

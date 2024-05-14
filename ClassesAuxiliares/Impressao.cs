@@ -475,6 +475,13 @@ public class Impressao
             string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
             int contagemItemAtual = 1;
 
+            int qtdItens = 0;
+
+            foreach (var item in pedidoCompleto.items)
+            {
+                qtdItens += 1 * item.quantity;
+            }
+
             //nome do restaurante estatico por enquanto
             foreach (var item in pedidoCompleto.items)
             {
@@ -485,8 +492,6 @@ public class Impressao
 
                     AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                    int qtdItens = pedidoCompleto.items.Count();
 
                     AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
                     ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
@@ -549,12 +554,12 @@ public class Impressao
                     Imprimir(Conteudo, impressora1);
                     Conteudo.Clear();
 
-                    
+
                 }
-                contagemItemAtual = 1;
             }
 
             contagemItemAtual = 1;
+            qtdItens = 0;
         }
         catch (Exception ex)
         {

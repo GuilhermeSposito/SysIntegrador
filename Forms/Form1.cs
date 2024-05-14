@@ -102,41 +102,15 @@ namespace SysIntegradorApp
         }
 
 
-
         private async void Form1_Load(object sender, EventArgs e)
         {
+   
             try
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
                 var AutenticacaoNaBase = db.parametrosdeautenticacao.ToList().FirstOrDefault();
 
-                if (AutenticacaoNaBase != null)
-                {
-                    DateTime dataHoraAtual = DateTime.Now;
-                    string DataDeVencimentoString = AutenticacaoNaBase.VenceEm;
-                    DateTime DataDeVencimento = DateTime.ParseExact(DataDeVencimentoString, "dd/MM/yyyy HH:mm:ss", null);
-
-                    if (dataHoraAtual >= DataDeVencimento)
-                    {
-                        var RespostaDoRefreshTokenEndPoint = await Ifood.EnviaReqParaOIfood(" ", "REFRESHTOKEN", " ");
-
-                        if (RespostaDoRefreshTokenEndPoint.IsSuccessStatusCode)
-                        {
-                            var repsonseWithToken = await RespostaDoRefreshTokenEndPoint.Content.ReadAsStringAsync();
-                            Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(repsonseWithToken);
-
-                            DateTime horaAtual = DateTime.Now;
-                            double milissegundosAdicionais = 21600;
-                            DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
-                            string HoraFormatada = horaFutura.ToString();
-
-                            propriedadesAPIWithToken.VenceEm = HoraFormatada;
-                            AutenticacaoNaBase.accessToken = propriedadesAPIWithToken.accessToken;
-                            AutenticacaoNaBase.VenceEm = HoraFormatada;
-                            db.SaveChanges();
-                        }
-                    }
-                }
+                await Ifood.RefreshTokenIfood();
 
                 ParametrosDoSistema ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
 

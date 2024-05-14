@@ -62,14 +62,12 @@
             label7 = new Label();
             textBoxCaminhoBanco = new TextBox();
             panel3 = new Panel();
-            comboBoxIntegraSys = new ComboBox();
-            label8 = new Label();
-            panel4 = new Panel();
-            comboBoxImpAut = new ComboBox();
-            label9 = new Label();
-            panel5 = new Panel();
             comboBoxAceitaPedidoAut = new ComboBox();
+            comboBoxImpAut = new ComboBox();
             label10 = new Label();
+            comboBoxIntegraSys = new ComboBox();
+            label9 = new Label();
+            label8 = new Label();
             panel6 = new Panel();
             label11 = new Label();
             textBoxClientId = new TextBox();
@@ -92,6 +90,12 @@
             btnNao = new Button();
             btnSim = new Button();
             label17 = new Label();
+            textBoxDelMatchId = new TextBox();
+            label25 = new Label();
+            pictureBoxOFFDELMATCH = new PictureBox();
+            panel4 = new Panel();
+            label24 = new Label();
+            pictureBoxONDELMATCH = new PictureBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelmpressoras.SuspendLayout();
@@ -103,8 +107,6 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxON).BeginInit();
             panel2.SuspendLayout();
             panel3.SuspendLayout();
-            panel4.SuspendLayout();
-            panel5.SuspendLayout();
             panel6.SuspendLayout();
             panel7.SuspendLayout();
             panel8.SuspendLayout();
@@ -112,6 +114,9 @@
             panel10.SuspendLayout();
             panel11.SuspendLayout();
             panel12.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFDELMATCH).BeginInit();
+            panel4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONDELMATCH).BeginInit();
             SuspendLayout();
             // 
             // panel1
@@ -462,7 +467,7 @@
             panel2.Controls.Add(textBoxCaminhoBanco);
             panel2.Location = new Point(343, 101);
             panel2.Name = "panel2";
-            panel2.Size = new Size(446, 112);
+            panel2.Size = new Size(462, 112);
             panel2.TabIndex = 2;
             // 
             // label7
@@ -489,104 +494,88 @@
             // panel3
             // 
             panel3.BackColor = SystemColors.ButtonFace;
+            panel3.Controls.Add(comboBoxAceitaPedidoAut);
+            panel3.Controls.Add(comboBoxImpAut);
+            panel3.Controls.Add(label10);
             panel3.Controls.Add(comboBoxIntegraSys);
+            panel3.Controls.Add(label9);
             panel3.Controls.Add(label8);
             panel3.Location = new Point(343, 229);
             panel3.Name = "panel3";
-            panel3.Size = new Size(446, 159);
+            panel3.Size = new Size(462, 339);
             panel3.TabIndex = 3;
-            // 
-            // comboBoxIntegraSys
-            // 
-            comboBoxIntegraSys.Font = new Font("Segoe UI", 12F);
-            comboBoxIntegraSys.FormattingEnabled = true;
-            comboBoxIntegraSys.Items.AddRange(new object[] { "true", "false" });
-            comboBoxIntegraSys.Location = new Point(13, 76);
-            comboBoxIntegraSys.Name = "comboBoxIntegraSys";
-            comboBoxIntegraSys.Size = new Size(408, 36);
-            comboBoxIntegraSys.TabIndex = 2;
-            comboBoxIntegraSys.Text = "Sim ou Não";
-            // 
-            // label8
-            // 
-            label8.AutoSize = true;
-            label8.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label8.Location = new Point(13, 45);
-            label8.Name = "label8";
-            label8.Size = new Size(209, 28);
-            label8.TabIndex = 1;
-            label8.Text = "Integração SysMenu:";
-            // 
-            // panel4
-            // 
-            panel4.BackColor = SystemColors.ButtonFace;
-            panel4.Controls.Add(comboBoxImpAut);
-            panel4.Controls.Add(label9);
-            panel4.Location = new Point(346, 394);
-            panel4.Name = "panel4";
-            panel4.Size = new Size(446, 169);
-            panel4.TabIndex = 4;
-            // 
-            // comboBoxImpAut
-            // 
-            comboBoxImpAut.Font = new Font("Segoe UI", 12F);
-            comboBoxImpAut.FormattingEnabled = true;
-            comboBoxImpAut.Items.AddRange(new object[] { "true", "false" });
-            comboBoxImpAut.Location = new Point(16, 71);
-            comboBoxImpAut.Name = "comboBoxImpAut";
-            comboBoxImpAut.Size = new Size(408, 36);
-            comboBoxImpAut.TabIndex = 2;
-            comboBoxImpAut.Text = "Sim ou Não";
-            // 
-            // label9
-            // 
-            label9.AutoSize = true;
-            label9.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label9.Location = new Point(13, 32);
-            label9.Name = "label9";
-            label9.Size = new Size(229, 28);
-            label9.TabIndex = 1;
-            label9.Text = "Impressão Automatica:";
-            // 
-            // panel5
-            // 
-            panel5.BackColor = SystemColors.ButtonFace;
-            panel5.Controls.Add(comboBoxAceitaPedidoAut);
-            panel5.Controls.Add(label10);
-            panel5.Location = new Point(343, 574);
-            panel5.Name = "panel5";
-            panel5.Size = new Size(446, 149);
-            panel5.TabIndex = 5;
             // 
             // comboBoxAceitaPedidoAut
             // 
             comboBoxAceitaPedidoAut.Font = new Font("Segoe UI", 12F);
             comboBoxAceitaPedidoAut.FormattingEnabled = true;
             comboBoxAceitaPedidoAut.Items.AddRange(new object[] { "true", "false" });
-            comboBoxAceitaPedidoAut.Location = new Point(16, 63);
+            comboBoxAceitaPedidoAut.Location = new Point(13, 267);
             comboBoxAceitaPedidoAut.Name = "comboBoxAceitaPedidoAut";
             comboBoxAceitaPedidoAut.Size = new Size(405, 36);
             comboBoxAceitaPedidoAut.TabIndex = 2;
             comboBoxAceitaPedidoAut.Text = "Sim ou Não";
             // 
+            // comboBoxImpAut
+            // 
+            comboBoxImpAut.Font = new Font("Segoe UI", 12F);
+            comboBoxImpAut.FormattingEnabled = true;
+            comboBoxImpAut.Items.AddRange(new object[] { "true", "false" });
+            comboBoxImpAut.Location = new Point(10, 157);
+            comboBoxImpAut.Name = "comboBoxImpAut";
+            comboBoxImpAut.Size = new Size(408, 36);
+            comboBoxImpAut.TabIndex = 2;
+            comboBoxImpAut.Text = "Sim ou Não";
+            // 
             // label10
             // 
             label10.AutoSize = true;
             label10.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label10.Location = new Point(16, 32);
+            label10.Location = new Point(13, 233);
             label10.Name = "label10";
             label10.Size = new Size(264, 28);
             label10.TabIndex = 1;
             label10.Text = "Aceita Pedido Automatico:";
+            // 
+            // comboBoxIntegraSys
+            // 
+            comboBoxIntegraSys.Font = new Font("Segoe UI", 12F);
+            comboBoxIntegraSys.FormattingEnabled = true;
+            comboBoxIntegraSys.Items.AddRange(new object[] { "true", "false" });
+            comboBoxIntegraSys.Location = new Point(10, 56);
+            comboBoxIntegraSys.Name = "comboBoxIntegraSys";
+            comboBoxIntegraSys.Size = new Size(408, 36);
+            comboBoxIntegraSys.TabIndex = 2;
+            comboBoxIntegraSys.Text = "Sim ou Não";
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label9.Location = new Point(10, 126);
+            label9.Name = "label9";
+            label9.Size = new Size(229, 28);
+            label9.TabIndex = 1;
+            label9.Text = "Impressão Automatica:";
+            // 
+            // label8
+            // 
+            label8.AutoSize = true;
+            label8.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label8.Location = new Point(10, 25);
+            label8.Name = "label8";
+            label8.Size = new Size(209, 28);
+            label8.TabIndex = 1;
+            label8.Text = "Integração SysMenu:";
             // 
             // panel6
             // 
             panel6.BackColor = SystemColors.ButtonFace;
             panel6.Controls.Add(label11);
             panel6.Controls.Add(textBoxClientId);
-            panel6.Location = new Point(798, 101);
+            panel6.Location = new Point(811, 101);
             panel6.Name = "panel6";
-            panel6.Size = new Size(481, 112);
+            panel6.Size = new Size(468, 112);
             panel6.TabIndex = 6;
             // 
             // label11
@@ -615,9 +604,9 @@
             panel7.BackColor = SystemColors.ButtonFace;
             panel7.Controls.Add(label12);
             panel7.Controls.Add(textBoxClientSecret);
-            panel7.Location = new Point(798, 229);
+            panel7.Location = new Point(811, 229);
             panel7.Name = "panel7";
-            panel7.Size = new Size(481, 159);
+            panel7.Size = new Size(468, 159);
             panel7.TabIndex = 7;
             // 
             // label12
@@ -646,9 +635,9 @@
             panel8.BackColor = SystemColors.ButtonFace;
             panel8.Controls.Add(label13);
             panel8.Controls.Add(textBoxMarchantId);
-            panel8.Location = new Point(798, 394);
+            panel8.Location = new Point(811, 394);
             panel8.Name = "panel8";
-            panel8.Size = new Size(481, 174);
+            panel8.Size = new Size(468, 174);
             panel8.TabIndex = 8;
             // 
             // label13
@@ -677,9 +666,9 @@
             panel9.BackColor = SystemColors.ButtonFace;
             panel9.Controls.Add(label14);
             panel9.Controls.Add(textBoxNomeFantasia);
-            panel9.Location = new Point(795, 574);
+            panel9.Location = new Point(811, 574);
             panel9.Name = "panel9";
-            panel9.Size = new Size(481, 149);
+            panel9.Size = new Size(465, 149);
             panel9.TabIndex = 9;
             // 
             // label14
@@ -697,7 +686,7 @@
             textBoxNomeFantasia.BackColor = SystemColors.ButtonShadow;
             textBoxNomeFantasia.Font = new Font("Segoe UI", 12F);
             textBoxNomeFantasia.ForeColor = SystemColors.ButtonFace;
-            textBoxNomeFantasia.Location = new Point(16, 65);
+            textBoxNomeFantasia.Location = new Point(19, 65);
             textBoxNomeFantasia.Name = "textBoxNomeFantasia";
             textBoxNomeFantasia.PlaceholderText = "Caminho Banco De Dados";
             textBoxNomeFantasia.Size = new Size(443, 34);
@@ -740,7 +729,7 @@
             panel11.Controls.Add(textBoxEndLoja);
             panel11.Location = new Point(346, 729);
             panel11.Name = "panel11";
-            panel11.Size = new Size(446, 112);
+            panel11.Size = new Size(459, 112);
             panel11.TabIndex = 11;
             // 
             // label16
@@ -769,9 +758,9 @@
             panel12.Controls.Add(btnNao);
             panel12.Controls.Add(btnSim);
             panel12.Controls.Add(label17);
-            panel12.Location = new Point(798, 729);
+            panel12.Location = new Point(811, 729);
             panel12.Name = "panel12";
-            panel12.Size = new Size(481, 112);
+            panel12.Size = new Size(468, 112);
             panel12.TabIndex = 12;
             // 
             // btnNao
@@ -812,6 +801,75 @@
             label17.TabIndex = 1;
             label17.Text = "Salvar";
             // 
+            // textBoxDelMatchId
+            // 
+            textBoxDelMatchId.BackColor = SystemColors.ButtonShadow;
+            textBoxDelMatchId.Font = new Font("Segoe UI", 12F);
+            textBoxDelMatchId.ForeColor = SystemColors.ButtonFace;
+            textBoxDelMatchId.Location = new Point(10, 37);
+            textBoxDelMatchId.Name = "textBoxDelMatchId";
+            textBoxDelMatchId.PlaceholderText = "Del Match Id ";
+            textBoxDelMatchId.Size = new Size(443, 34);
+            textBoxDelMatchId.TabIndex = 0;
+            // 
+            // label25
+            // 
+            label25.AutoSize = true;
+            label25.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label25.Location = new Point(10, 6);
+            label25.Name = "label25";
+            label25.Size = new Size(128, 28);
+            label25.TabIndex = 1;
+            label25.Text = "DelMatch Id";
+            // 
+            // pictureBoxOFFDELMATCH
+            // 
+            pictureBoxOFFDELMATCH.Cursor = Cursors.Hand;
+            pictureBoxOFFDELMATCH.Image = (Image)resources.GetObject("pictureBoxOFFDELMATCH.Image");
+            pictureBoxOFFDELMATCH.Location = new Point(264, 88);
+            pictureBoxOFFDELMATCH.Name = "pictureBoxOFFDELMATCH";
+            pictureBoxOFFDELMATCH.Size = new Size(84, 43);
+            pictureBoxOFFDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFDELMATCH.TabIndex = 12;
+            pictureBoxOFFDELMATCH.TabStop = false;
+            pictureBoxOFFDELMATCH.Click += pictureBoxOFFDELMATCH_Click;
+            // 
+            // panel4
+            // 
+            panel4.BackColor = SystemColors.ButtonFace;
+            panel4.Controls.Add(label24);
+            panel4.Controls.Add(pictureBoxONDELMATCH);
+            panel4.Controls.Add(pictureBoxOFFDELMATCH);
+            panel4.Controls.Add(label25);
+            panel4.Controls.Add(textBoxDelMatchId);
+            panel4.Location = new Point(346, 574);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(459, 149);
+            panel4.TabIndex = 13;
+            // 
+            // label24
+            // 
+            label24.AutoSize = true;
+            label24.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label24.Location = new Point(112, 77);
+            label24.Name = "label24";
+            label24.Size = new Size(135, 56);
+            label24.TabIndex = 19;
+            label24.Text = "Enviar Pedido\r\nAutomatico";
+            // 
+            // pictureBoxONDELMATCH
+            // 
+            pictureBoxONDELMATCH.Cursor = Cursors.Hand;
+            pictureBoxONDELMATCH.Image = (Image)resources.GetObject("pictureBoxONDELMATCH.Image");
+            pictureBoxONDELMATCH.Location = new Point(264, 86);
+            pictureBoxONDELMATCH.Name = "pictureBoxONDELMATCH";
+            pictureBoxONDELMATCH.Size = new Size(84, 45);
+            pictureBoxONDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxONDELMATCH.TabIndex = 18;
+            pictureBoxONDELMATCH.TabStop = false;
+            pictureBoxONDELMATCH.Visible = false;
+            pictureBoxONDELMATCH.Click += pictureBoxONDELMATCH_Click;
+            // 
             // FormDeParametrosDoSistema
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -819,6 +877,7 @@
             AutoScroll = true;
             BackColor = SystemColors.ButtonShadow;
             ClientSize = new Size(1291, 853);
+            Controls.Add(panel4);
             Controls.Add(panel12);
             Controls.Add(panel11);
             Controls.Add(panel10);
@@ -826,8 +885,6 @@
             Controls.Add(panel8);
             Controls.Add(panel7);
             Controls.Add(panel6);
-            Controls.Add(panel5);
-            Controls.Add(panel4);
             Controls.Add(panel3);
             Controls.Add(panel2);
             Controls.Add(panelmpressoras);
@@ -854,10 +911,6 @@
             panel2.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
-            panel4.ResumeLayout(false);
-            panel4.PerformLayout();
-            panel5.ResumeLayout(false);
-            panel5.PerformLayout();
             panel6.ResumeLayout(false);
             panel6.PerformLayout();
             panel7.ResumeLayout(false);
@@ -872,6 +925,10 @@
             panel11.PerformLayout();
             panel12.ResumeLayout(false);
             panel12.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFDELMATCH).EndInit();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONDELMATCH).EndInit();
             ResumeLayout(false);
         }
 
@@ -897,10 +954,8 @@
         private Panel panel3;
         private ComboBox comboBoxIntegraSys;
         private Label label8;
-        private Panel panel4;
         private ComboBox comboBoxImpAut;
         private Label label9;
-        private Panel panel5;
         private ComboBox comboBoxAceitaPedidoAut;
         private Label label10;
         private Panel panel6;
@@ -914,7 +969,6 @@
         private TextBox textBoxMarchantId;
         private Panel panel9;
         private Label label14;
-        private TextBox textBoxNomeFantasia;
         private Panel panel10;
         private Label label15;
         private TextBox textBoxNumeroTelefone;
@@ -940,5 +994,12 @@
         private PictureBox pictureBoxON3;
         private Label label23;
         private Label label22;
+        private TextBox textBoxNomeFantasia;
+        private TextBox textBoxDelMatchId;
+        private Label label25;
+        private PictureBox pictureBoxOFFDELMATCH;
+        private Panel panel4;
+        private Label label24;
+        private PictureBox pictureBoxONDELMATCH;
     }
 }

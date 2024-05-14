@@ -15,6 +15,7 @@ public class Sequencia
 {
     [JsonIgnore]public int numConta {  get; set; } 
     [JsonIgnore]public decimal ValorConta {  get; set; }
+    [JsonIgnore] public string? DelMatchId { get; set; }
  
     [JsonProperty("id")]
     public string Id { get; set; }

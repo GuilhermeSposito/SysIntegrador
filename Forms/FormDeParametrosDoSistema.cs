@@ -22,7 +22,6 @@ namespace SysIntegradorApp.Forms
             ClsEstiloComponentes.SetRoundedRegion(panel2, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel3, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel4, 24);
-            ClsEstiloComponentes.SetRoundedRegion(panel5, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel6, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel7, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel8, 24);
@@ -85,6 +84,19 @@ namespace SysIntegradorApp.Forms
                 pictureBoxOFF3.Visible = false;
             }
 
+            if (Configuracoes.EnviaPedidoAut)
+            {
+                pictureBoxONDELMATCH.Visible = true;
+                pictureBoxOFFDELMATCH.Visible = false;
+            }
+            else
+            {
+                pictureBoxONDELMATCH.Visible = false;
+                pictureBoxOFFDELMATCH.Visible = true;
+            }
+
+
+
         }
 
         public void AlimentaComboBoxDeImpressoras(FormDeParametrosDoSistema instancia)
@@ -122,7 +134,7 @@ namespace SysIntegradorApp.Forms
             instancia.comboBoxImpressora4.Text = Configuracoes.Impressora4;
             instancia.comboBoxImpressora5.Text = Configuracoes.Impressora5;
             instancia.comboBoxImpressoraAuxiliar.Text = Configuracoes.ImpressoraAux;
-
+            instancia.textBoxDelMatchId.Text = Configuracoes.DelMatchId;
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -161,6 +173,8 @@ namespace SysIntegradorApp.Forms
                     bool agrupaComandas = false;
                     bool imprimirComandaNoCaixa = false;
                     int tipoComanda = 1;
+                    bool enviaPedidoAut = false;
+                    string delMatchId = textBoxDelMatchId.Text;
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -192,6 +206,16 @@ namespace SysIntegradorApp.Forms
                         tipoComanda = 2;
                     }
 
+                    if (pictureBoxONDELMATCH.Visible == true)
+                    {
+                        enviaPedidoAut = true;
+                    }
+
+                    if (pictureBoxOFFDELMATCH.Visible == true)
+                    {
+                        enviaPedidoAut = false;
+                    }
+
 
                     // Chamando o método SetInfosSistema com os valores obtidos
                     ParametrosDoSistema.SetInfosSistema(
@@ -213,7 +237,9 @@ namespace SysIntegradorApp.Forms
                          merchantId,
                          agrupaComandas,
                          imprimirComandaNoCaixa,
-                         tipoComanda
+                         tipoComanda,
+                         enviaPedidoAut,
+                         delMatchId
                      );
 
                     this.Close();
@@ -273,6 +299,18 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxON3.Visible = false;
             pictureBoxOFF3.Visible = true;
+        }
+
+        private void pictureBoxOFFDELMATCH_Click(object sender, EventArgs e)
+        {
+            pictureBoxONDELMATCH.Visible = true;
+            pictureBoxOFFDELMATCH.Visible = false;
+        }
+
+        private void pictureBoxONDELMATCH_Click(object sender, EventArgs e)
+        {
+            pictureBoxONDELMATCH.Visible = false;
+            pictureBoxOFFDELMATCH.Visible = true;
         }
     }
 }

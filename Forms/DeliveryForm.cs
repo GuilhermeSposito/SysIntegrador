@@ -82,7 +82,7 @@ public partial class DeliveryForm : Form
 
             foreach (var item in pedidosAbertos)
             {
-                modalPedidosAbertos.AdicionaNoPanel(new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item });
+                modalPedidosAbertos.AdicionaNoPanel(new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item, ListandoPedidoAbertos = false });
             }
 
             modalPedidosAbertos.ShowDialog();
@@ -105,7 +105,7 @@ public partial class DeliveryForm : Form
 
             foreach (var item in pedidosAbertos)
             {
-                var userControlPedido = new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item };
+                var userControlPedido = new UserControls.UCPedidoAbertoSys() { PedidoParaDeliveyAtual = item, ListandoPedidoAbertos = true };
                 userControlPedido.MudaVisibilidadeDaPictureBox();
                 modalPedidosEnviados.AdicionaNoPanel(userControlPedido);
             }
@@ -117,7 +117,7 @@ public partial class DeliveryForm : Form
             MessageBox.Show("Não Tem nenhum pedido em aberto");
         }
 
-       
+
     }
 
     private void panelDeIniciarEntrega_MouseEnter(object sender, EventArgs e)
@@ -155,6 +155,9 @@ public partial class DeliveryForm : Form
         panelDeListarPedidos.BackColor = Color.FromArgb(197, 85, 6);
     }
 
-
+    private void label1_Click(object sender, EventArgs e)
+    {
+        panelDeListarPedidos_Click(sender, e);
+    }
 }
 

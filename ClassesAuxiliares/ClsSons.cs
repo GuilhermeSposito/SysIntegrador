@@ -24,6 +24,20 @@ internal class ClsSons
 
     }
 
+    public static void PlaySom2()
+    {
+        //C:\Program Files\SysLogica\SysIntegradorSetup\
+
+        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\IFoodCancel.wav";
+
+        if (File.Exists(caminhoDoArquivo))
+        {
+            player = new SoundPlayer(caminhoDoArquivo);
+            player.Play();
+        }
+
+    }
+
     public static void StopSom()
     {
         if (player != null)

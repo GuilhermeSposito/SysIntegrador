@@ -1,4 +1,5 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.UserControls;
 using System;
 using System.Collections.Generic;
@@ -9,6 +10,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace SysIntegradorApp.Forms
 {
@@ -20,6 +22,7 @@ namespace SysIntegradorApp.Forms
         public FormPedidosEnviados()
         {
             InitializeComponent();
+            ClsEstiloComponentes.SetRoundedRegion(panel1, 24);
         }
 
         public void AdicionaNoPanel(UCPedidoAbertoSys pedidoAberto)
@@ -32,5 +35,6 @@ namespace SysIntegradorApp.Forms
             FormDePedidosAbertos.ItensAEnviarDelMach.Clear();
             this.Close();
         }
+
     }
 }

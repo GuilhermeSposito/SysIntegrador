@@ -64,8 +64,9 @@ partial class DeliveryForm
         label1.Name = "label1";
         label1.Size = new Size(330, 117);
         label1.TabIndex = 1;
-        label1.Text = "Clique na prancheta para listar os pedidos";
+        label1.Text = "Clique aqui para listar os pedidos";
         label1.TextAlign = ContentAlignment.MiddleCenter;
+        label1.Click += label1_Click;
         label1.MouseEnter += label1_MouseEnter;
         // 
         // panelDeIniciarEntrega
@@ -90,7 +91,7 @@ partial class DeliveryForm
         label2.Name = "label2";
         label2.Size = new Size(330, 117);
         label2.TabIndex = 2;
-        label2.Text = "Clique Aqui para iniciar um novo pedido";
+        label2.Text = "Clique aqui para iniciar um novo pedido";
         label2.TextAlign = ContentAlignment.MiddleCenter;
         label2.Click += label2_Click;
         label2.MouseEnter += label2_MouseEnter;
@@ -143,7 +144,7 @@ partial class DeliveryForm
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.White;
-        ClientSize = new Size(909, 682);
+        ClientSize = new Size(882, 682);
         Controls.Add(pictureBox1);
         Controls.Add(label4);
         Controls.Add(label3);

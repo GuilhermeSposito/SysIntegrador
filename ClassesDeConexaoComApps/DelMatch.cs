@@ -1,5 +1,8 @@
-﻿using SysIntegradorApp.ClassesAuxiliares;
+﻿using Entidades;
+using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.data;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
@@ -7,6 +10,7 @@ using System.Linq;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
@@ -61,24 +65,25 @@ public class DelMatch : Ifood
                                                        Convert.ToDecimal(reader["VOUCHER"]) -
                                                        Convert.ToDecimal(reader["TROCO"]) -
                                                        Convert.ToDecimal(reader["CORTESIA"]);
-
                                 string NumConta = sequencia.numConta.ToString();
+                                
+                                Guid idPedido = Guid.NewGuid();
 
+                                sequencia.DelMatchId = idPedido.ToString();
                                 sequencia.Id = "dd56e3a213da0d221091d3bc6a0e621071550b80";
-                                sequencia.ShortReference = NumConta.PadLeft(4, '0');
+                                sequencia.ShortReference = idPedido.ToString();
                                 sequencia.CreatedAt = "";
                                 sequencia.Type = "DELIVERY";
                                 sequencia.TimeMax = "";
 
                                 sequencia.Merchant.RestaurantId = opcSistema.DelMatchId;
-                                sequencia.Merchant.Name = "Pastéis e Panquecas";
-                                sequencia.Merchant.Id = "62e91b20e390370012f98023";
+                                sequencia.Merchant.Name = opcSistema.NomeFantasia;
+                                sequencia.Merchant.Id = opcSistema.DelMatchId;
                                 sequencia.Merchant.Unit = "62e91b20e390370012f9802e";
 
                                 sequencias.Add(sequencia);
                             }
 
-                           
                         }
 
 
@@ -147,6 +152,7 @@ public class DelMatch : Ifood
                                 string NumConta = sequencia.numConta.ToString();
 
                                 sequencia.ShortReference = NumConta.PadLeft(4, '0');
+                                sequencia.DelMatchId = reader["DelMatchId"].ToString();
 
                                 sequencias.Add(sequencia);
                             }
@@ -168,17 +174,13 @@ public class DelMatch : Ifood
 
     public static async Task GerarPedido(string? jsonContent)
     {
-        string? url = "http://100.26.63.137/api/deliveries/default/";
+        string? url = "https://delmatchapp.com/api/deliveries/default/";
         try
         {
             using HttpClient client = new HttpClient();
             StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync(url, content);
-            string resposta = await response.Content.ReadAsStringAsync(); ;
-
-
-            MessageBox.Show($"Leitura do endpoint = {resposta}\n" +
-                 $"Status Code da Requisição HTTP: {(int)response.StatusCode}", "Retorno");
+            string resposta = await response.Content.ReadAsStringAsync(); 
         }
         catch (Exception ex)
         {
@@ -186,8 +188,46 @@ public class DelMatch : Ifood
         }
     }
 
+    public static async Task<ClsDeserializacaoDelMatchEntrega> GetPedido(string? delMatchId)
+    {
+        ClsDeserializacaoDelMatchEntrega pedido = new ClsDeserializacaoDelMatchEntrega();
 
-    public static void UpdateDelMatchId(int numConta)
+        string apiUrl = "https://delmatchapp.com/api/deliveries-list/";
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            string token = ConfigsSistema.DelMatchId;
+
+            using HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
+
+            var response = await client.GetAsync(apiUrl);
+
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            string responseJson = await response.Content.ReadAsStringAsync();
+            var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
+
+            pedido = pedidos.Where(x => x.IdOrder == delMatchId).FirstOrDefault();
+
+            if (pedido == null)
+            {
+                return new ClsDeserializacaoDelMatchEntrega() { Status = "Não Enviado" };
+            }
+
+            return pedido;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+        return pedido;
+    }
+
+
+    public static void UpdateDelMatchId(int numConta, string delmatchId)
     {
         try
         {
@@ -199,7 +239,7 @@ public class DelMatch : Ifood
             string updateQuery = "UPDATE Sequencia SET DelMatchId = @NovoValor WHERE CONTA = @CONDICAO;";
 
 
-            string novoValor1 = "Teste";
+            string DelMatchId = delmatchId;
 
             using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
             {
@@ -209,7 +249,7 @@ public class DelMatch : Ifood
                 using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
                 {
                     // Definindo os parâmetros para a instrução SQL
-                    command.Parameters.AddWithValue("@NovoValor1", novoValor1);
+                    command.Parameters.AddWithValue("@NovoValor1", DelMatchId);
                     command.Parameters.AddWithValue("@CONDICAO", numConta);
 
                     // Executando o comando UPDATE
@@ -262,7 +302,7 @@ public class DelMatch : Ifood
                             sequencia.DeliveryAddress.Neighborhood = reader["BAIRRO"].ToString();
                             sequencia.DeliveryAddress.StreetName = reader["ENDERECO"].ToString();
                             sequencia.DeliveryAddress.StreetNumber = "";                        //falta terminar
-                            sequencia.DeliveryAddress.PostalCode = reader["CEP"].ToString();
+                            sequencia.DeliveryAddress.PostalCode = reader["CEP"].ToString() == null ? " " : reader["CEP"].ToString();
                             sequencia.DeliveryAddress.Complement = reader["REFERE"].ToString();
 
                             sequencia.DeliveryAddress.Coordinates.Latitude = 0;
@@ -280,4 +320,50 @@ public class DelMatch : Ifood
         }
         return sequencia;
     }
+
+
+    public async static void EnviaPedidosAut()
+    {
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            if (Configuracoes.EnviaPedidoAut)
+            {
+                List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+                int contagemdepedidos = pedidosAbertos.Count;
+                List<Sequencia> ItensAEnviarDelMach = FormDePedidosAbertos.ItensAEnviarDelMach;
+
+                if (contagemdepedidos > 0)
+                {
+                    foreach (var item in pedidosAbertos)
+                    {
+                        ItensAEnviarDelMach.Add(item);
+                    }
+
+                }
+
+                if (ItensAEnviarDelMach.Count() > 0)
+                {
+
+                    foreach (var item in ItensAEnviarDelMach)
+                    {
+                        string jsonContent = JsonConvert.SerializeObject(item);
+                        await DelMatch.GerarPedido(jsonContent);
+                        DelMatch.UpdateDelMatchId(item.numConta, item.ShortReference);
+                    }
+
+                    ItensAEnviarDelMach.Clear();
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao enviar pedidos automatico para delmatch", "Ops");
+        }
+    }
+
+
 }

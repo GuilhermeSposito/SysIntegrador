@@ -39,6 +39,8 @@
             label4 = new Label();
             picBoxCheck = new PictureBox();
             panel1 = new Panel();
+            label5 = new Label();
+            labelStatus = new Label();
             ((System.ComponentModel.ISupportInitialize)picBoxCheck).BeginInit();
             panel1.SuspendLayout();
             SuspendLayout();
@@ -50,9 +52,8 @@
             labelNomeCliente.ForeColor = SystemColors.Control;
             labelNomeCliente.Location = new Point(77, 37);
             labelNomeCliente.Name = "labelNomeCliente";
-            labelNomeCliente.Size = new Size(282, 28);
+            labelNomeCliente.Size = new Size(0, 28);
             labelNomeCliente.TabIndex = 0;
-            labelNomeCliente.Text = "Guilherme Sposito Calandrin";
             // 
             // labelNumConta
             // 
@@ -61,9 +62,8 @@
             labelNumConta.ForeColor = SystemColors.Control;
             labelNumConta.Location = new Point(0, 35);
             labelNumConta.Name = "labelNumConta";
-            labelNumConta.Size = new Size(130, 31);
+            labelNumConta.Size = new Size(0, 31);
             labelNumConta.TabIndex = 1;
-            labelNumConta.Text = "NumConta";
             // 
             // labelEndereco
             // 
@@ -72,9 +72,8 @@
             labelEndereco.ForeColor = SystemColors.Control;
             labelEndereco.Location = new Point(365, 35);
             labelEndereco.Name = "labelEndereco";
-            labelEndereco.Size = new Size(259, 28);
+            labelEndereco.Size = new Size(0, 28);
             labelEndereco.TabIndex = 2;
-            labelEndereco.Text = "Rua Dr Jonas Novaes, 979";
             // 
             // labelValorPedido
             // 
@@ -90,6 +89,7 @@
             // label1
             // 
             label1.AutoSize = true;
+            label1.ForeColor = SystemColors.ControlLightLight;
             label1.Location = new Point(3, 1);
             label1.Name = "label1";
             label1.Size = new Size(51, 20);
@@ -99,6 +99,7 @@
             // label2
             // 
             label2.AutoSize = true;
+            label2.ForeColor = SystemColors.ControlLightLight;
             label2.Location = new Point(365, 1);
             label2.Name = "label2";
             label2.Size = new Size(74, 20);
@@ -108,6 +109,7 @@
             // label3
             // 
             label3.AutoSize = true;
+            label3.ForeColor = SystemColors.ControlLightLight;
             label3.Location = new Point(77, 0);
             label3.Name = "label3";
             label3.Size = new Size(53, 20);
@@ -117,7 +119,8 @@
             // label4
             // 
             label4.AutoSize = true;
-            label4.Location = new Point(944, 8);
+            label4.ForeColor = SystemColors.ControlLightLight;
+            label4.Location = new Point(944, 1);
             label4.Name = "label4";
             label4.Size = new Size(46, 20);
             label4.TabIndex = 7;
@@ -126,11 +129,11 @@
             // picBoxCheck
             // 
             picBoxCheck.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
-            picBoxCheck.BackColor = SystemColors.ControlDark;
+            picBoxCheck.BackColor = Color.FromArgb(219, 95, 7);
             picBoxCheck.Image = (Image)resources.GetObject("picBoxCheck.Image");
-            picBoxCheck.Location = new Point(3, 0);
+            picBoxCheck.Location = new Point(0, 0);
             picBoxCheck.Name = "picBoxCheck";
-            picBoxCheck.Size = new Size(58, 47);
+            picBoxCheck.Size = new Size(64, 47);
             picBoxCheck.SizeMode = PictureBoxSizeMode.Zoom;
             picBoxCheck.TabIndex = 8;
             picBoxCheck.TabStop = false;
@@ -139,7 +142,7 @@
             // 
             // panel1
             // 
-            panel1.BackColor = SystemColors.ControlDark;
+            panel1.BackColor = Color.FromArgb(219, 95, 7);
             panel1.Controls.Add(picBoxCheck);
             panel1.Location = new Point(1062, 8);
             panel1.Margin = new Padding(3, 3, 3, 6);
@@ -148,11 +151,33 @@
             panel1.TabIndex = 9;
             panel1.Click += panel1_Click;
             // 
+            // label5
+            // 
+            label5.AutoSize = true;
+            label5.ForeColor = SystemColors.ControlLightLight;
+            label5.Location = new Point(761, 0);
+            label5.Name = "label5";
+            label5.Size = new Size(52, 20);
+            label5.TabIndex = 10;
+            label5.Text = "Status:";
+            // 
+            // labelStatus
+            // 
+            labelStatus.AutoSize = true;
+            labelStatus.Font = new Font("Segoe UI", 11.8F, FontStyle.Bold);
+            labelStatus.ForeColor = SystemColors.Control;
+            labelStatus.Location = new Point(761, 35);
+            labelStatus.Name = "labelStatus";
+            labelStatus.Size = new Size(0, 28);
+            labelStatus.TabIndex = 11;
+            // 
             // UCPedidoAbertoSys
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            BackColor = SystemColors.ControlDark;
+            BackColor = Color.FromArgb(219, 95, 7);
+            Controls.Add(labelStatus);
+            Controls.Add(label5);
             Controls.Add(label4);
             Controls.Add(label3);
             Controls.Add(label2);
@@ -187,5 +212,7 @@
         private Label label4;
         private PictureBox picBoxCheck;
         private Panel panel1;
+        private Label label5;
+        private Label labelStatus;
     }
 }

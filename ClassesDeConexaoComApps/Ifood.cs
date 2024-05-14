@@ -16,6 +16,8 @@ using SysIntegradorApp.data;
 using System.Security.Cryptography.X509Certificates;
 using Newtonsoft.Json;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Windows.Forms;
+using System.Runtime.CompilerServices;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -28,7 +30,18 @@ public class Ifood
         string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
         try
         {
-            RefreshTokenIfood();
+            bool CaixaAberto = ClsDeIntegracaoSys.VerificaCaixaAberto();
+
+            if (!CaixaAberto)
+            {
+               ClsSons.PlaySom2();
+               MessageBox.Show("Seu aplicativo está integrado com o SysMenu, abra o caixa para continuar", "Aplicativo Integrado");
+               ClsSons.StopSom();
+               Application.Exit();
+                return;
+            }
+
+            await RefreshTokenIfood();
 
             using HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token.TokenDaSessao);
@@ -42,8 +55,6 @@ public class Ifood
 
                 string jsonContent = await reponse.Content.ReadAsStringAsync();
                 List<Polling>? pollings = JsonConvert.DeserializeObject<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
-
-
 
                 foreach (var P in pollings)
                 {
@@ -68,15 +79,18 @@ public class Ifood
                             await AvisarAcknowledge(P);
                             break;
                         case "CAN":
+                            ClsSons.StopSom();
                             ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId);
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
                         case "CON": //mudaria o status ou na tabela do sys menu
+                            ClsSons.StopSom();
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
                         case "DSP":
+                            ClsSons.StopSom();
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
@@ -208,7 +222,7 @@ public class Ifood
                        obsConta2: " ",
                        endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress,
                        bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood,
-                       entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveredBy); //fim dos parâmetros do método de integração
+                       entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : " "); //fim dos parâmetros do método de integração
 
                     ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado, insertNoSysMenuConta);
                     ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
@@ -1084,15 +1098,36 @@ public class Ifood
                 HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
                 string? jsonContent = await response.Content.ReadAsStringAsync();
 
-                var deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent).FirstOrDefault();
-                validations = deliveryStatus.Validations.FirstOrDefault();
+                int statusCode = (int)response.StatusCode;
+
+                if (statusCode == 200)
+                {
+                    var deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent).FirstOrDefault();
+                    validations = deliveryStatus.Validations.FirstOrDefault();
+
+                    return validations.State;
+                }
+
+                if (statusCode == 401)
+                {
+                    ClsSons.PlaySom2();
+                    MessageBox.Show("Login expirado, por favor refaça o login!", "Login Vencido",MessageBoxButtons.OK ,MessageBoxIcon.Error);
+                    ClsSons.StopSom();
+                    Application.Exit();
+                }
+
+                if (statusCode != 200)
+                {
+                    var message = JsonConvert.DeserializeObject<ClsDeserializacaoMessage>(jsonContent);
+                    throw new Exception(message.message);
+                }
 
             }
-            return validations.State;
+
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString(), "Ops");
+            MessageBox.Show(ex.Message, "Ops");
         }
         return validationState;
     }
@@ -1155,7 +1190,7 @@ public class Ifood
         return response;
     }
 
-    public static async void RefreshTokenIfood()
+    public static async Task RefreshTokenIfood()
     {
         try
         {
@@ -1175,10 +1210,9 @@ public class Ifood
                     if (RespostaDoRefreshTokenEndPoint.IsSuccessStatusCode)
                     {
                         var repsonseWithToken = await RespostaDoRefreshTokenEndPoint.Content.ReadAsStringAsync();
-                        Token propriedadesAPIWithToken = JsonConvert.DeserializeObject<Token>(repsonseWithToken);//JsonSerializer.Deserialize<Token>(repsonseWithToken);
+                        Token propriedadesAPIWithToken = JsonConvert.DeserializeObject<Token>(repsonseWithToken);
 
                         DateTime horaAtual = DateTime.Now;
-                        double milissegundosAdicionais = 21600;
                         DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
                         string HoraFormatada = horaFutura.ToString();
 
@@ -1188,10 +1222,9 @@ public class Ifood
                         db.SaveChanges();
                         Token.TokenDaSessao = AutenticacaoNaBase.accessToken;
                     }
-
-
                 }
             }
+
         }
         catch (Exception ex)
         {

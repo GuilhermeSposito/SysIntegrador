@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -60,6 +61,7 @@ public partial class FormMenuInicial : Form
     }
 
     private void FormMenuInicial_Shown(object sender, EventArgs e) { }
+
 
 
     public static async void SetarPanelPedidos(int? pesquisaDisplayId = null)
@@ -296,6 +298,12 @@ public partial class FormMenuInicial : Form
     private async void TimerCallback(object state) // função para ser chamada a cada 30 segundos, e com isso chamando o pulling
     {
         await Ifood.Polling();
+        ChamaEntregaAutDelMatch();
+    }
+
+    private void ChamaEntregaAutDelMatch() //Função que vai ser chamada para chamar os pedidos aut
+    {
+        DelMatch.EnviaPedidosAut();
     }
 
     private void pictureBoxDelivery_Click(object sender, EventArgs e)

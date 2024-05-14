@@ -45,7 +45,7 @@ public partial class FormDePedidosAbertos : Form
             {
                 string jsonContent = JsonConvert.SerializeObject(item);
                 await DelMatch.GerarPedido(jsonContent);
-                DelMatch.UpdateDelMatchId(item.numConta);
+                DelMatch.UpdateDelMatchId(item.numConta, item.ShortReference);
             }
 
             ItensAEnviarDelMach.Clear();
