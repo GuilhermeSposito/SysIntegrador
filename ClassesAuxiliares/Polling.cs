@@ -29,8 +29,9 @@ public class Metadata
     public string? CLIENT_ID { get; set; }
     public string? ORIGIN { get; set; }
     public string? appName { get; set; }
+    public string? details { get; set; }
     public string? ownerName { get; set; }
-
+    public string? reason_code { get; set; }    
     public Metadata()
     {
 

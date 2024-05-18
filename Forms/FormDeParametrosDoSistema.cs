@@ -26,9 +26,11 @@ namespace SysIntegradorApp.Forms
             ClsEstiloComponentes.SetRoundedRegion(panel7, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel8, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel9, 24);
-            ClsEstiloComponentes.SetRoundedRegion(panel10, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel11, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel12, 24);
+            ClsEstiloComponentes.SetRoundedRegion(panel5, 24);
+            ClsEstiloComponentes.SetRoundedRegion(panel13, 24);
+            ClsEstiloComponentes.SetRoundedRegion(panel14, 24);
             ClsEstiloComponentes.SetRoundedRegion(panelmpressoras, 24);
 
             this.Resize += (sender, e) =>
@@ -95,6 +97,27 @@ namespace SysIntegradorApp.Forms
                 pictureBoxOFFDELMATCH.Visible = true;
             }
 
+            if (Configuracoes.IntegraIfood)
+            {
+                pictureBoxONIntegracaoIfood.Visible = true;
+                pictureBoxOFFIntegracaoIfood.Visible = false;
+            }
+            else
+            {
+                pictureBoxONIntegracaoIfood.Visible = false;
+                pictureBoxOFFIntegracaoIfood.Visible = true;
+            }
+
+            if (Configuracoes.IntegraDelMatch)
+            {
+                pictureBoxOFFIntegracaoDelMatch.Visible = false;
+                pictureBoxOnIntegracaoDelMatch.Visible = true;
+            }
+            else
+            {
+                pictureBoxOFFIntegracaoDelMatch.Visible = true;
+                pictureBoxOnIntegracaoDelMatch.Visible = false;
+            }
 
 
         }
@@ -135,6 +158,8 @@ namespace SysIntegradorApp.Forms
             instancia.comboBoxImpressora5.Text = Configuracoes.Impressora5;
             instancia.comboBoxImpressoraAuxiliar.Text = Configuracoes.ImpressoraAux;
             instancia.textBoxDelMatchId.Text = Configuracoes.DelMatchId;
+            instancia.textBoxUserDelMatch.Text = Configuracoes.UserDelMatch;
+            instancia.textBoxSenhaDelMatch.Text = Configuracoes.SenhaDelMatch;
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -175,6 +200,10 @@ namespace SysIntegradorApp.Forms
                     int tipoComanda = 1;
                     bool enviaPedidoAut = false;
                     string delMatchId = textBoxDelMatchId.Text;
+                    string UserDelMatch = textBoxUserDelMatch.Text;
+                    string senhaDelMatch = textBoxSenhaDelMatch.Text;
+                    bool integraIfood = false;
+                    bool integraDelMatch = false;
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -216,6 +245,25 @@ namespace SysIntegradorApp.Forms
                         enviaPedidoAut = false;
                     }
 
+                    if (pictureBoxONIntegracaoIfood.Visible == true) { }
+                    {
+                        integraIfood = true;
+                    }
+
+                    if(pictureBoxOFFIntegracaoIfood.Visible == true)
+                    {
+                        integraIfood = false;
+                    }
+
+                    if (pictureBoxOnIntegracaoDelMatch.Visible == true)
+                    {
+                        integraDelMatch = true; 
+                    }
+
+                    if(pictureBoxOFFIntegracaoDelMatch.Visible == true)
+                    {
+                        integraDelMatch = false;
+                    }
 
                     // Chamando o método SetInfosSistema com os valores obtidos
                     ParametrosDoSistema.SetInfosSistema(
@@ -239,7 +287,11 @@ namespace SysIntegradorApp.Forms
                          imprimirComandaNoCaixa,
                          tipoComanda,
                          enviaPedidoAut,
-                         delMatchId
+                         delMatchId,
+                         UserDelMatch,
+                         senhaDelMatch,
+                         integraIfood,
+                         integraDelMatch
                      );
 
                     this.Close();
@@ -311,6 +363,30 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxONDELMATCH.Visible = false;
             pictureBoxOFFDELMATCH.Visible = true;
+        }
+
+        private void pictureBoxOFFIntegracaoIfood_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoIfood.Visible = false;
+            pictureBoxONIntegracaoIfood.Visible = true;
+        }
+
+        private void pictureBoxONIntegracaoIfood_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoIfood.Visible = true;
+            pictureBoxONIntegracaoIfood.Visible = false;
+        }
+
+        private void pictureBoxOFFIntegracaoDelMatch_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoDelMatch.Visible = false;
+            pictureBoxOnIntegracaoDelMatch.Visible = true;
+        }
+
+        private void pictureBoxOnIntegracaoDelMatch_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoDelMatch.Visible = true;
+            pictureBoxOnIntegracaoDelMatch.Visible = false;
         }
     }
 }

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -143,10 +144,16 @@ public class ClsDeIntegracaoSys
                         case "CASH":
                             tipoPagamento = "PAGDNH";
                             break;
-                        case "BANK_PAY ":
+                        case "BANK_PAY":
                             tipoPagamento = "PAGCRT";
                             break;
-                        case "FOOD_VOUCHER ":
+                        case "FOOD_VOUCHER":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "DIN":
+                            tipoPagamento = "PAGDNHDELMATCH";
+                            break;
+                        case "DEB":
                             tipoPagamento = "PAGCRT";
                             break;
                         default:
@@ -183,6 +190,35 @@ public class ClsDeIntegracaoSys
                         {
                             valor = pagamentoAtual.cash.changeFor;
                             troco = pagamentoAtual.cash.changeFor - pagamentoAtual.value;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+                        continue;
+                    }
+                    
+                    if (tipoPagamento == "PAGDNHDELMATCH")
+                    {
+                        tipoPagamento = "PAGDNH";
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.value;
+                            troco = pagamentoAtual.cash.changeFor;
                         }
 
 
@@ -330,7 +366,7 @@ public class ClsDeIntegracaoSys
     }
 
 
-    public static void IntegracaoPagCartao(PedidoCompleto pedidoCompleto, int NumContas)
+    public static void IntegracaoPagCartao(string? metodo , int NumContas, float valor)
     {
         string? cartao = "";
         string? tipo = "";
@@ -346,7 +382,7 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                string? tipoPagamento = DefinePagamento(pedidoCompleto.payments.methods[0].method);
+                string? tipoPagamento = DefinePagamento(metodo);//pedidoCompleto.payments.methods[0].method);
 
 
                 string SqlSelectIntoCadastros = $"SELECT * FROM CARTAO WHERE NOME = {tipoPagamento}";
@@ -372,7 +408,7 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                float valorPagamento = pedidoCompleto.payments.methods[0].value;
+                float valorPagamento = valor;//pedidoCompleto.payments.methods[0].value;
 
                 string sqlInsert = $"INSERT INTO PagCartao (CONTA, CARTAO, TIPO, VALOR) VALUES (?,?,?,?)";
 
@@ -1592,6 +1628,867 @@ public class ClsDeIntegracaoSys
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+
+    public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemDelMatch(items item, bool comanda = false)
+    {
+        string? NomeProduto = "";
+        ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
+
+        bool ePizza = item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" ? true : false;
+
+        if (ePizza)
+        {
+            string obs = item.ExternalCode == null || item.ExternalCode == "" ? " " : item.ExternalCode.ToString();
+            string externalCode = " ";
+
+            string? ePizza1 = null;
+            string? ePizza2 = null;
+            string? ePizza3 = null;
+
+            string? obs1 = " ";
+            string? obs2 = " ";
+            string? obs3 = " ";
+            string? obs4 = " ";
+            string? obs5 = " ";
+            string? obs6 = " ";
+            string? obs7 = " ";
+            string? obs8 = " ";
+            string? obs9 = " ";
+            string? obs10 = " ";
+            string? obs11 = " ";
+            string? obs12 = " ";
+            string? obs13 = " ";
+            string? obs14 = " ";
+
+            foreach (var option in item.SubItems)
+            {
+                if (!option.ExternalCode.Contains("m") && ePizza1 == null)
+                {
+                    ePizza1 = option.ExternalCode == "" ? " " : option.ExternalCode;
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        NomeProduto += ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                    }
+                    else
+                    {
+                        NomeProduto += option.Name;
+                    }
+                    continue;
+                }
+
+                if (!option.ExternalCode.Contains("m") && ePizza2 == null)
+                {
+                    ePizza2 = option.ExternalCode == "" ? " " : option.ExternalCode;
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                    }
+                    else
+                    {
+                        NomeProduto += " / " + option.Name;
+                    }
+                    continue;
+                }
+
+                if (!option.ExternalCode.Contains("m") && ePizza3 == null)
+                {
+                    ePizza3 = option.ExternalCode == "" ? " " : option.ExternalCode;
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                    }
+                    else
+                    {
+                        NomeProduto += " / " + option.Name;
+                    }
+                    continue;
+                }
+
+            }
+
+
+            foreach (var opcao in item.SubItems)
+            {
+                if (obs1 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs1 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs1);
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs1 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs1);
+                    }
+
+                    continue;
+                }
+
+                if (obs2 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs2 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs2);
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs2 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs2);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs3 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs3 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs3);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs3 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs3);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs4 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs4 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs4);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs4 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs4);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs5 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs5 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs5);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs5 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs5);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs6 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs6 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs6);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs6 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs6);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs7 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs7 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs7);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs7 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs7);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs8 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs8 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs8);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs8 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs8);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs9 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs8 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs9);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs9 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs9);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs10 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs10 = $"{opcao.ExternalCode}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs10);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs10 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs10);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs11 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs11 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs11);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs11 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs11);
+                    }
+
+                    continue;
+                }
+
+                if (obs12 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs12 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs12);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs12 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs12);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs13 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs13 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs13);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs13 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs13);
+
+                    }
+
+                    continue;
+                }
+
+                if (obs14 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
+                    {
+                        obs14 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs14);
+
+                    }
+                    else if (opcao.ExternalCode.Contains("m"))
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs14 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs14);
+                    }
+
+                    continue;
+                }
+
+            }
+
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+
+            return ClasseDeSuporte;
+
+        }
+        else
+        {
+            string? externalCode = item.ExternalCode == null || item.ExternalCode == "" ? " " : item.ExternalCode;
+            string? obs = item.Observations == null || item.Observations == "" ? " " : item.Observations.ToString();
+
+            bool existeProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(externalCode);
+
+            if (existeProduto)
+            {
+                NomeProduto = ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode);
+            }
+            else
+            {
+                NomeProduto = item.Name;
+            }
+
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+
+            string? obs1 = " ";
+            string? obs2 = " ";
+            string? obs3 = " ";
+            string? obs4 = " ";
+            string? obs5 = " ";
+            string? obs6 = " ";
+            string? obs7 = " ";
+            string? obs8 = " ";
+            string? obs9 = " ";
+            string? obs10 = " ";
+            string? obs11 = " ";
+            string? obs12 = " ";
+            string? obs13 = " ";
+            string? obs14 = " ";
+
+
+            foreach (var opcao in item.SubItems)
+            {
+                if (obs1 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs1 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs1);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs1 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs1);
+                    }
+
+                    continue;
+                }
+
+                if (obs2 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs2 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs2);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                       obs2 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs2);
+                    }
+
+                    continue;
+                }
+
+                if (obs3 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs3 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs3);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs3 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs3);
+                    }
+
+                    continue;
+                }
+
+                if (obs4 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs4 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs4);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs4 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs4);
+                    }
+
+                    continue;
+                }
+
+                if (obs5 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs5 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs5);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs5 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs5);
+                    }
+
+                    continue;
+                }
+
+                if (obs6 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs6 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs6);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs6 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs6);
+                    }
+
+                    continue;
+                }
+
+                if (obs7 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs7 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs7);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs7 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs7);
+                    }
+
+                    continue;
+                }
+
+                if (obs8 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs8 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs8);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs8 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs8);
+                    }
+
+                    continue;
+                }
+
+                if (obs9 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs9 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs9);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs9 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs9);
+                    }
+
+                    continue;
+                }
+
+                if (obs10 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs10 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs10);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs10 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs10);
+                    }
+
+                    continue;
+                }
+
+                if (obs11 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs11 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs11);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs11 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs11);
+                    }
+
+                    continue;
+                }
+
+                if (obs12 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs12 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs12);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs12 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs12);
+                    }
+
+                    continue;
+                }
+
+                if (obs13 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs13 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs13);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs13 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs13);
+                    }
+
+                    continue;
+                }
+
+                if (obs14 == " ")
+                {
+                    bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
+
+                    if (pesquisaProduto)
+                    {
+                        obs14 = $"{opcao.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
+                        ClasseDeSuporte.Observações.Add(obs14);
+                    }
+                    else
+                    {
+                        string precoProduto = $"- {opcao.Price.ToString("c")}";
+
+                        if (comanda || precoProduto == "- R$ 0,00")
+                        {
+                            precoProduto = " ";
+                        }
+
+                        obs14 = $"{opcao.Quantity}X  {opcao.Name} {precoProduto}";
+                        ClasseDeSuporte.Observações.Add(obs14);
+                    }
+
+                    continue;
+                }
+
+
+            }
+
+            return ClasseDeSuporte;
+
         }
     }
 

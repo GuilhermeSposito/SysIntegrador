@@ -32,6 +32,12 @@ internal class TraduzStatus
             case "DISPATCHED":
                 StatusTraduzido = "Despachado";
                 break;
+            case "CANCELLATION_REQUESTED":
+                StatusTraduzido = "Cancelado";
+                    break;
+            default:
+                StatusTraduzido = status; 
+                break;
         }
 
         return StatusTraduzido; 

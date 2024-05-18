@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,6 +32,22 @@ public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas
     public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas()
     {
             
+    }
+}
+public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasDelMatch
+{
+    public string? Impressora1 { get; set; }
+    public string? Impressora2 { get; set; }
+    public List<items> Itens { get; set; } = new List<items>();
+
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasDelMatch(string? impressora)
+    {
+        Impressora1 = impressora;
+        Itens = new List<items>();
+    }
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasDelMatch()
+    {
+
     }
 }
 

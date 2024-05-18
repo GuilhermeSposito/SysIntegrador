@@ -78,11 +78,11 @@ public class Ifood
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
                             break;
-                        case "CAN":
+                        case "CAR":
                             ClsSons.StopSom();
-                            ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId);
                             await AtualizarStatusPedido(P);
                             await AvisarAcknowledge(P);
+                            ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId);
                             break;
                         case "CON": //mudaria o status ou na tabela do sys menu
                             ClsSons.StopSom();
@@ -224,14 +224,14 @@ public class Ifood
                        bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood,
                        entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : " "); //fim dos parâmetros do método de integração
 
-                    ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado, insertNoSysMenuConta);
+                    ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado.payments.methods[0].method, insertNoSysMenuConta, pedidoCompletoDeserialiado.payments.methods[0].value);
                     ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
                 }
 
                 //serializar o polling para inserir no banco
                 string jsonDoPolling = JsonConvert.SerializeObject(P);
 
-                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString(), DisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId), JsonPolling = jsonDoPolling });
+                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido() { Id = P.orderId, Json = jsonContent, Situacao = P.fullCode, Conta = insertNoSysMenuConta, CriadoEm = DateTimeOffset.Now.ToString(), DisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId), JsonPolling = jsonDoPolling, CriadoPor = "IFOOD" });
                 db.SaveChanges();
 
 
@@ -920,7 +920,7 @@ public class Ifood
     }
 
     //função que está retornando os pedidos para setar os pedidos no panel
-    public static async Task<List<ParametrosDoPedido>> GetPedido(string? pedido_id = null)
+    public static async Task<List<ParametrosDoPedido>> GetPedido(int? display_ID = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
@@ -928,22 +928,23 @@ public class Ifood
         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
-            if (pedido_id != null)
+            if (display_ID != null)
             {
                 using ApplicationDbContext dataBase = new ApplicationDbContext();
 
-                pedidosFromDb = dataBase.parametrosdopedido.Where(p => p.Id == pedido_id).ToList();
-                //adicionar cada json em uma lista para poder deserializar nas funções
+                pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "IFOOD" || x.Conta == display_ID && x.CriadoPor == "IFOOD").ToList();
+               
 
                 return pedidosFromDb;
             }
+            else
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
 
-            using ApplicationDbContext db = new ApplicationDbContext();
+                pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "IFOOD").ToList();
 
-            pedidosFromDb = db.parametrosdopedido.ToList();
-            //adicionar cada json em uma lista para poder deserializar nas funções
-
-            return pedidosFromDb;
+                return pedidosFromDb;
+            }
 
         }
         catch (Exception ex)

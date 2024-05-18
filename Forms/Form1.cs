@@ -104,46 +104,61 @@ namespace SysIntegradorApp
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-   
             try
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
                 var AutenticacaoNaBase = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+                var ConfigApp = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                await Ifood.RefreshTokenIfood();
-
-                ParametrosDoSistema ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
-
-                string idMerchant = ConfigSistem.MerchantId;
-                string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
-
-
-                Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-                ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
-
-                if (Config.IntegracaoSysMenu)
+                if (ConfigApp.IntegraIfood)
                 {
-                    bool CaixaAberto = ClsDeIntegracaoSys.VerificaCaixaAberto();
+                    await Ifood.RefreshTokenIfood();
 
-                    if (!CaixaAberto)
+                    ParametrosDoSistema? ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                    string idMerchant = ConfigSistem.MerchantId;
+                    string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
+
+
+                    Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+                    ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
+
+                    if (Config.IntegracaoSysMenu)
                     {
-                        MessageBox.Show("Seu app está integrado com o SysMenu, Por favor abra o caixa antes de continuar", "Caixa Fechado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        this.Dispose();
+                        bool CaixaAberto = ClsDeIntegracaoSys.VerificaCaixaAberto();
+
+                        if (!CaixaAberto)
+                        {
+                            MessageBox.Show("Seu app está integrado com o SysMenu, Por favor abra o caixa antes de continuar", "Caixa Fechado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                            this.Dispose();
+                        }
+
+                    }
+
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
+                    HttpResponseMessage response = await client.GetAsync(url);
+
+                    if ((int)response.StatusCode != 401)
+                    {
+                        Token.TokenDaSessao = tokenNoDb.accessToken;
+
+                        FormMenuInicial menu = new FormMenuInicial();
+                        menu.Show();
+                        this.Hide();
                     }
 
                 }
-
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
-                HttpResponseMessage response = await client.GetAsync(url);
-
-                if (response.IsSuccessStatusCode)
+                else
                 {
-                    Token.TokenDaSessao = tokenNoDb.accessToken;
-
                     FormMenuInicial menu = new FormMenuInicial();
                     menu.Show();
                     this.Hide();
+                }
+
+                if (ConfigApp.IntegraDelMatch)
+                {
+                    await DelMatch.GetToken();
                 }
 
             }

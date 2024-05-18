@@ -60,6 +60,13 @@ public class ParametrosDoSistema
     public int TipoComanda { get; set; }
     [Column("enviapedidoaut")]
     public bool EnviaPedidoAut{ get; set; }
+    [Column("integradelmatch")]
+    public bool IntegraDelMatch { get; set; }
+    [Column("integraifood")]
+    public bool IntegraIfood { get; set; }
+    [Column("userdelmatch")] public string? UserDelMatch { get; set; }
+    [Column("senhadelmatch")] public string? SenhaDelMatch { get; set; }
+
     public ParametrosDoSistema() {}
 
 
@@ -116,7 +123,11 @@ public class ParametrosDoSistema
      bool imprimirComandaNoCaixa,
      int tipoComanda ,
      bool enviaPedidoAut,
-     string delMatchId
+     string delMatchId,
+     string UserDelMatch,
+     string senhaDelMatch,
+     bool integraIfood,
+     bool integraDelMatch
      )
     {
         try
@@ -146,6 +157,10 @@ public class ParametrosDoSistema
             configuracoes.TipoComanda = tipoComanda;
             configuracoes.EnviaPedidoAut = enviaPedidoAut;
             configuracoes.DelMatchId = delMatchId;
+            configuracoes.UserDelMatch = UserDelMatch;
+            configuracoes.SenhaDelMatch = senhaDelMatch;
+            configuracoes.IntegraDelMatch = integraDelMatch;
+            configuracoes.IntegraIfood = integraIfood;  
 
             dbContext.SaveChanges();
         }

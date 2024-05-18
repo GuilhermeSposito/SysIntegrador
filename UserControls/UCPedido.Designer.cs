@@ -38,8 +38,10 @@
             label1 = new Label();
             labelNumConta = new Label();
             pictureBoxImp = new PictureBox();
+            pictureBoxDELMATCH = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -137,6 +139,18 @@
             pictureBoxImp.TabStop = false;
             pictureBoxImp.Click += pictureBoxImp_Click;
             // 
+            // pictureBoxDELMATCH
+            // 
+            pictureBoxDELMATCH.Image = (Image)resources.GetObject("pictureBoxDELMATCH.Image");
+            pictureBoxDELMATCH.Location = new Point(0, -9);
+            pictureBoxDELMATCH.Name = "pictureBoxDELMATCH";
+            pictureBoxDELMATCH.Size = new Size(126, 137);
+            pictureBoxDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDELMATCH.TabIndex = 9;
+            pictureBoxDELMATCH.TabStop = false;
+            pictureBoxDELMATCH.Visible = false;
+            pictureBoxDELMATCH.Click += pictureBoxDELMATCH_Click;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -150,6 +164,7 @@
             Controls.Add(labelEntregarAte);
             Controls.Add(labelNomePedido);
             Controls.Add(labelNumPedido);
+            Controls.Add(pictureBoxDELMATCH);
             Controls.Add(pictureBox1);
             Cursor = Cursors.Hand;
             Name = "UCPedido";
@@ -162,6 +177,7 @@
             Leave += UCPedido_Leave;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -177,5 +193,6 @@
         private Label label1;
         private Label labelNumConta;
         private PictureBox pictureBoxImp;
+        private PictureBox pictureBoxDELMATCH;
     }
 }

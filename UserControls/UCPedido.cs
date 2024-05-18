@@ -1,5 +1,8 @@
-﻿using SysIntegradorApp.ClassesAuxiliares;
+﻿using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.data;
+using SysIntegradorApp.UserControls.UCSDelMatch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -15,7 +18,7 @@ namespace SysIntegradorApp;
 
 public partial class UCPedido : UserControl
 {
-    public PedidoCompleto Pedido { get; set; }
+    public PedidoCompleto Pedido { get; set; } = new PedidoCompleto();
     public string? Id_pedido { get; set; }
     public string? OrderType { get; set; }
     public string? Display_id { get; set; }
@@ -79,32 +82,82 @@ public partial class UCPedido : UserControl
 
     public async void UCPedido_Click(object sender, EventArgs e)
     {
-        FormMenuInicial.panelDetalhePedido.Controls.Clear();
-        FormMenuInicial.panelDetalhePedido.PerformLayout();
-        UCInfoPedido infoPedido = new UCInfoPedido() { Pedido = Pedido, Id_pedido = Id_pedido, orderType = OrderType, Display_id = Display_id };
+        try
+        {
+            if (Pedido.CriadoPor == "DELMATCH")
+            {
+                try
+                {
 
-        infoPedido.SetLabels(
-                               horarioEntrega: HorarioEntrega,
-                               localizadorPedido: LocalizadorPedido,
-                               enderecoFormatado: EnderecoFormatado,
-                               bairro: Bairro,
-                               TipoEntrega: TipoDaEntrega,
-                               valorTotalItens: ValorTotalItens,
-                               valorTaxaDeentrega: ValorTaxaDeentrega,
-                               valortaxaadicional: Valortaxaadicional,
-                               descontos: Descontos,
-                               total: TotalDoPedido
-                          );
+                    ApplicationDbContext db = new ApplicationDbContext();
+                    ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).ToList().FirstOrDefault();
 
-        int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+                    PedidoDelMatch? PedidoDeserializado = JsonConvert.DeserializeObject<PedidoDelMatch>(Pedido.Json);
 
-        infoPedido.Width = tamanhoPanel - 50;//1707;
-        infoPedido.Height = 1200;
+                    FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                    FormMenuInicial.panelDetalhePedido.PerformLayout();
+                    UCInfoPedidosDelMatch infoPedido = new UCInfoPedidosDelMatch() { Pedido = PedidoDeserializado, Status = Pedido.Situacao};
+                    infoPedido.SetLabels();
 
-        infoPedido.InsereItemNoPedido(items);
-        FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
-        FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+                    int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
 
+                    infoPedido.Width = tamanhoPanel - 50;//1707;
+                    infoPedido.Height = 1200;
+
+                    infoPedido.InsereItemNoPedido(PedidoDeserializado.Items);
+                    FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
+                    FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+
+            }
+
+
+            if (Pedido.CriadoPor == "IFOOD")
+            {
+
+                FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                FormMenuInicial.panelDetalhePedido.PerformLayout();
+                UCInfoPedido infoPedido = new UCInfoPedido() { Pedido = Pedido, Id_pedido = Id_pedido, orderType = OrderType, Display_id = Display_id };
+
+                infoPedido.SetLabels(
+                                       horarioEntrega: HorarioEntrega,
+                                       localizadorPedido: LocalizadorPedido,
+                                       enderecoFormatado: EnderecoFormatado,
+                                       bairro: Bairro,
+                                       TipoEntrega: TipoDaEntrega,
+                                       valorTotalItens: ValorTotalItens,
+                                       valorTaxaDeentrega: ValorTaxaDeentrega,
+                                       valortaxaadicional: Valortaxaadicional,
+                                       descontos: Descontos,
+                                       total: TotalDoPedido
+                                  );
+
+                int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+
+                infoPedido.Width = tamanhoPanel - 50;//1707;
+                infoPedido.Height = 1200;
+
+                infoPedido.InsereItemNoPedido(items);
+                FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
+                FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Erro");
+        }
+
+    }
+
+    public void MudaParaLogoDelMatch(UCPedido instancia)
+    {
+        instancia.pictureBox1.Visible = false;
+        instancia.pictureBoxDELMATCH.Visible = true;
     }
 
     private void UCPedido_Enter(object sender, EventArgs e)
@@ -178,30 +231,62 @@ public partial class UCPedido : UserControl
     {
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
-            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
-
-            if (!opSistema.AgruparComandas)
+            if (Pedido.CriadoPor == "DELMATCH")
             {
-                foreach (string imp in impressoras)
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
                 {
-                    if (imp != "Sem Impressora" && imp != null)
+                    foreach (string imp in impressoras)
                     {
-                        Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            ImpressaoDelMatch.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
                     }
                 }
+                else
+                {
+                    ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
+
+
+
+                impressoras.Clear();
             }
-            else
+
+            if (Pedido.CriadoPor == "IFOOD")
             {
-                Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
+                {
+                    foreach (string imp in impressoras)
+                    {
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
+                    }
+                }
+                else
+                {
+                    Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
+
+
+
+                impressoras.Clear();
             }
-
-
-
-            impressoras.Clear();
         }
         catch (Exception ex)
         {
@@ -215,5 +300,12 @@ public partial class UCPedido : UserControl
         {
             pictureBoxImp_Click(sender, e);
         }
+    }
+
+    private void pictureBoxDELMATCH_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
     }
 }

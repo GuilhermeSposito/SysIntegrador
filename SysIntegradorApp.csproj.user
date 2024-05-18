@@ -46,5 +46,17 @@
     <Compile Update="UserControls\UCPedidoAbertoSys.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="UserControls\UCSDelMatch\UCComplementoDoItemDelMatch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSDelMatch\UCInfoPedidosDelMatch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSDelMatch\UCItemDelMatch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSDelMatch\UCPedidoDelMatch.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
   </ItemGroup>
 </Project>

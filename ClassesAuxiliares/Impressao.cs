@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static SysIntegradorApp.ClassesAuxiliares.ImpressaoDelMatch;
 using static System.Windows.Forms.LinkLabel;
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -344,6 +345,8 @@ public class Impressao
                     AdicionaConteudo("Impresso por:", FonteGeral);
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
                 }
 
                 Imprimir(Conteudo, impressora1);
@@ -444,6 +447,8 @@ public class Impressao
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
+
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
                 }
 
                 Imprimir(Conteudo, impressora1);
@@ -549,7 +554,7 @@ public class Impressao
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
                     Imprimir(Conteudo, impressora1);
                     Conteudo.Clear();
@@ -761,6 +766,7 @@ public class Impressao
             AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
+            AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
             if (impressora != "Nao")
             {
@@ -863,6 +869,8 @@ public class Impressao
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
+
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
                     if (impressora != "Nao")
                     {
                         Imprimir(Conteudo, impressora);

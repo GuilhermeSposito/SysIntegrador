@@ -52,3 +52,7 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Rel
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.pdb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.genruntimeconfig.cache
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\ref\SysIntegradorApp.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCPedidoDelMatch.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCInfoPedidosDelMatch.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCComplementoDoItemDelMatch.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCItemDelMatch.resources

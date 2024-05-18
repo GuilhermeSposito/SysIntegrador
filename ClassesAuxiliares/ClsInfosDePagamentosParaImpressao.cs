@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading.Tasks; 
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -76,3 +76,57 @@ public class ClsInfosDePagamentosParaImpressao
         return infos;
     }
 }
+
+
+public class ClsInfosDePagamentosParaImpressaoDelMatch
+{
+    public string? FormaPagamento { get; set; }
+    public string? TipoPagamento { get; set; }
+    public double valor { get; set; }
+
+    public ClsInfosDePagamentosParaImpressaoDelMatch()
+    {
+
+    }
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch.Payments>  pagamentos)
+    {
+        ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
+        foreach (var metodo in pagamentos)
+        {
+            switch (metodo.Code)
+            {
+                case "online":
+                    infos.TipoPagamento = metodo.Name;
+                    break;
+                case "DEB":
+                    infos.TipoPagamento = metodo.Name;
+                    break;
+                default:
+                    infos.TipoPagamento = metodo.Name;
+                    break;
+            }
+
+            if (metodo.Code == "online")
+            {
+                infos.FormaPagamento = "Não é nescessario receber do cliente na entrega";
+                continue;
+            }
+
+            if (metodo.CashChange > 0)
+            {
+                infos.FormaPagamento = $"Será pago na entrega em dinhero, Levar Troco: {metodo.CashChange.ToString("c")}";
+                continue;
+            }
+            else
+            {
+                infos.FormaPagamento = $"Será pago na entrega";
+                continue;
+            }
+           
+            
+        }
+
+        return infos;
+    }
+}
+

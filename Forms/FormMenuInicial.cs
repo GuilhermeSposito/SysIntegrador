@@ -1,8 +1,10 @@
 ﻿using Svg;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.Forms;
+using SysIntegradorApp.UserControls.UCSDelMatch;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,6 +20,8 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
+using Newtonsoft.Json;
+using System.Collections;
 
 namespace SysIntegradorApp;
 
@@ -51,7 +55,7 @@ public partial class FormMenuInicial : Form
 
     private void FormMenuInicial_Load(object sender, EventArgs e)
     {
-        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
+        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
     }
 
@@ -68,30 +72,38 @@ public partial class FormMenuInicial : Form
     {
         try
         {
+            ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
 
-            List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
-            List<ParametrosDoPedido> pedidosFromDb = await Ifood.GetPedido();
-
-            if (pesquisaDisplayId != null)
-            {
-                using ApplicationDbContext db = new ApplicationDbContext();
-                pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == pesquisaDisplayId).ToList();
-            }
+            List<PedidoCompleto> pedidos = new List<PedidoCompleto>(); //lista para colocar os pedidos do ifood
+            List<ParametrosDoPedido> pedidosFromDb = await Ifood.GetPedido(pesquisaDisplayId);
+            List<ParametrosDoPedido> DelMatchPedidos = await DelMatch.GetPedidoDelMatch(pesquisaDisplayId);
 
             var pedidoOrdenado = pedidosFromDb.ToList();
 
             panelPedidos.Controls.Clear();
             panelPedidos.PerformLayout();
 
+            foreach (var item in DelMatchPedidos)
+            {
+                var pedidoJsonConvertido = JsonConvert.DeserializeObject<PedidoDelMatch>(item.Json);
+                PedidoCompleto PedidoConvertido = DelMatch.DelMatchPedidoCompleto(pedidoJsonConvertido);
+                PedidoConvertido.Situacao = item.Situacao;
+                PedidoConvertido.NumConta = item.Conta;
+                PedidoConvertido.CriadoPor = "DELMATCH";
+                pedidos.Add(PedidoConvertido);
+            }
+
+
             foreach (ParametrosDoPedido item in pedidoOrdenado)
             {
-                PedidoCompleto? pedido = JsonSerializer.Deserialize<PedidoCompleto>(item.Json);
+                PedidoCompleto? pedido = JsonConvert.DeserializeObject<PedidoCompleto>(item.Json);
+                pedido.CriadoPor = "IFOOD";
                 pedido.JsonPolling = item.JsonPolling;
                 pedido.Situacao = item.Situacao;
                 pedido.NumConta = item.Conta;
                 pedidos.Add(pedido);
             }
-
 
             var pedidosOrdenado = pedidos.OrderByDescending(p =>
             {
@@ -102,20 +114,23 @@ public partial class FormMenuInicial : Form
             //Faz um loop para adicionar os UserControls De pedido no panel
             foreach (var item in pedidosOrdenado)
             {
-                DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(item.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
-                                              System.Globalization.CultureInfo.InvariantCulture,
-                                              System.Globalization.DateTimeStyles.AssumeUniversal);
-                DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
-
-                if (item.takeout.mode == null) //caso Entre nesse if, é porque o pedido vai ser para delivery
+                if (item.CriadoPor == "DELMATCH")
                 {
-                    DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(item.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
-                                                 System.Globalization.CultureInfo.InvariantCulture,
-                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
-                    DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
-
-                    if (item.orderTiming != "SCHEDULED")
+                    if (Configuracoes.IntegraDelMatch)
                     {
+                        string horarioCorrigido = "";
+
+                        if(item.orderType == "DELIVERY")
+                        {
+                            DateTime HorarioMudado = DateTime.Parse(item.createdAt).AddMinutes(50);
+                            horarioCorrigido = HorarioMudado.ToString();
+                        }
+                        else
+                        {
+                            DateTime HorarioMudado = DateTime.Parse(item.createdAt).AddMinutes(30);
+                            horarioCorrigido = HorarioMudado.ToString();
+                        }
+
                         UCPedido UserControlPedido = new UCPedido()
                         {
                             Pedido = item,
@@ -123,129 +138,183 @@ public partial class FormMenuInicial : Form
                             OrderType = item.orderType,
                             Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
                             NomePedido = item.customer.name,
-                            DeliveryBy = item.delivery.deliveredBy,
-                            FeitoAs = DataCertaDaFeitoEm.ToString(),
-                            HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
-                            LocalizadorPedido = item.delivery.pickupCode,
-                            EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
-                            Bairro = item.delivery.deliveryAddress.neighborhood,
-                            TipoDaEntrega = item.delivery.deliveredBy,
+                            DeliveryBy = "RETIRADA",
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = horarioCorrigido,//item.delivery.deliveryDateTime,
+                            LocalizadorPedido = "RETIRADA",
+                            EnderecoFormatado = "RETIRADA",
+                            Bairro = "RETIRADA",
+                            TipoDaEntrega = "RETIRADA",
                             ValorTotalItens = item.total.subTotal,
                             ValorTaxaDeentrega = item.total.deliveryFee,
                             Valortaxaadicional = item.total.additionalFees,
                             Descontos = item.total.benefits,
                             TotalDoPedido = item.total.orderAmount,
-                            Observations = item.delivery.observations,
+                            // Observations = item.delivery.observations,
                             items = item.items,
                         };
 
-
-                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.delivery.deliveryDateTime, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
-
-                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
-
-                    }
-                    else
-                    {
-                        UCPedido UserControlPedido = new UCPedido()
-                        {
-                            Pedido = item,
-                            Id_pedido = item.id,
-                            OrderType = item.orderType,
-                            Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
-                            NomePedido = item.customer.name,
-                            DeliveryBy = item.delivery.deliveredBy,
-                            FeitoAs = DataCertaDaFeitoEm.ToString(),//item.createdAt,
-                            HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
-                            LocalizadorPedido = item.delivery.pickupCode,
-                            EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
-                            Bairro = item.delivery.deliveryAddress.neighborhood,
-                            TipoDaEntrega = item.delivery.deliveredBy,
-                            ValorTotalItens = item.total.subTotal,
-                            ValorTaxaDeentrega = item.total.deliveryFee,
-                            Valortaxaadicional = item.total.additionalFees,
-                            Descontos = item.total.benefits,
-                            TotalDoPedido = item.total.orderAmount,
-                            Observations = item.delivery.observations,
-                            items = item.items,
-                        };
-
-
-                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.schedule.deliveryDateTimeEnd, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
-                        UserControlPedido.MudarLabelQuandoAgendada("Agendato até:");
+                        UserControlPedido.MudaParaLogoDelMatch(UserControlPedido);
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
                         panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
                     }
+
                 }
 
-                if (item.delivery.pickupCode == null) // se entrar nesse if é porque  vai ser para retirada
+
+                if (item.CriadoPor == "IFOOD")
                 {
-                    DateTime DataCertaDaRetiradaEmTimeStamp = DateTime.ParseExact(item.takeout.takeoutDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
-                                                 System.Globalization.CultureInfo.InvariantCulture,
-                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
-                    DateTime DataCertaDaRetirada = DataCertaDaRetiradaEmTimeStamp.ToLocalTime();
-
-                    if (item.orderTiming != "SCHEDULED")
+                    if (Configuracoes.IntegraIfood)
                     {
-                        UCPedido UserControlPedido = new UCPedido()
+
+                        DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(item.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                      System.Globalization.CultureInfo.InvariantCulture,
+                                                      System.Globalization.DateTimeStyles.AssumeUniversal);
+                        DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
+
+                        if (item.takeout.mode == null) //caso Entre nesse if, é porque o pedido vai ser para delivery
                         {
-                            Pedido = item,
-                            Id_pedido = item.id,
-                            Display_id = item.displayId,
-                            OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
-                            NomePedido = item.customer.name,
-                            FeitoAs = DataCertaDaFeitoEm.ToString(),
-                            HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
-                            LocalizadorPedido = item.delivery.pickupCode,
-                            EnderecoFormatado = "Retirada No local",
-                            Bairro = item.delivery.deliveryAddress.neighborhood,
-                            TipoDaEntrega = "Retirada",
-                            ValorTotalItens = item.total.subTotal,
-                            ValorTaxaDeentrega = item.total.deliveryFee,
-                            Valortaxaadicional = item.total.additionalFees,
-                            Descontos = item.total.benefits,
-                            TotalDoPedido = item.total.orderAmount,
-                            Observations = item.delivery.observations,
-                            items = item.items
-                        };
+                            DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(item.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                         System.Globalization.CultureInfo.InvariantCulture,
+                                                         System.Globalization.DateTimeStyles.AssumeUniversal);
+                            DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
+
+                            if (item.orderTiming != "SCHEDULED")
+                            {
+                                UCPedido UserControlPedido = new UCPedido()
+                                {
+                                    Pedido = item,
+                                    Id_pedido = item.id,
+                                    OrderType = item.orderType,
+                                    Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                    NomePedido = item.customer.name,
+                                    DeliveryBy = item.delivery.deliveredBy,
+                                    FeitoAs = DataCertaDaFeitoEm.ToString(),
+                                    HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
+                                    LocalizadorPedido = item.delivery.pickupCode,
+                                    EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
+                                    Bairro = item.delivery.deliveryAddress.neighborhood,
+                                    TipoDaEntrega = item.delivery.deliveredBy,
+                                    ValorTotalItens = item.total.subTotal,
+                                    ValorTaxaDeentrega = item.total.deliveryFee,
+                                    Valortaxaadicional = item.total.additionalFees,
+                                    Descontos = item.total.benefits,
+                                    TotalDoPedido = item.total.orderAmount,
+                                    Observations = item.delivery.observations,
+                                    items = item.items,
+                                };
 
 
-                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                                UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.delivery.deliveryDateTime, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
-                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
-                    }
-                    else
-                    {
-                        UCPedido UserControlPedido = new UCPedido()
+                                panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+
+                            }
+                            else
+                            {
+                                UCPedido UserControlPedido = new UCPedido()
+                                {
+                                    Pedido = item,
+                                    Id_pedido = item.id,
+                                    OrderType = item.orderType,
+                                    Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                    NomePedido = item.customer.name,
+                                    DeliveryBy = item.delivery.deliveredBy,
+                                    FeitoAs = DataCertaDaFeitoEm.ToString(),//item.createdAt,
+                                    HorarioEntrega = DataCertaDaEntrega.ToString(),//item.delivery.deliveryDateTime,
+                                    LocalizadorPedido = item.delivery.pickupCode,
+                                    EnderecoFormatado = item.delivery.deliveryAddress.formattedAddress,
+                                    Bairro = item.delivery.deliveryAddress.neighborhood,
+                                    TipoDaEntrega = item.delivery.deliveredBy,
+                                    ValorTotalItens = item.total.subTotal,
+                                    ValorTaxaDeentrega = item.total.deliveryFee,
+                                    Valortaxaadicional = item.total.additionalFees,
+                                    Descontos = item.total.benefits,
+                                    TotalDoPedido = item.total.orderAmount,
+                                    Observations = item.delivery.observations,
+                                    items = item.items,
+                                };
+
+
+                                UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.schedule.deliveryDateTimeEnd, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                                UserControlPedido.MudarLabelQuandoAgendada("Agendato até:");
+
+                                panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                            }
+                        }
+
+                        if (item.delivery.pickupCode == null) // se entrar nesse if é porque  vai ser para retirada
                         {
-                            Pedido = item,
-                            Id_pedido = item.id,
-                            Display_id = item.displayId,
-                            OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
-                            NomePedido = item.customer.name,
-                            FeitoAs = DataCertaDaFeitoEm.ToString(),
-                            HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
-                            LocalizadorPedido = item.delivery.pickupCode,
-                            EnderecoFormatado = "Pedido Agendado Para Retirada",
-                            Bairro = item.delivery.deliveryAddress.neighborhood,
-                            TipoDaEntrega = "Retirada",
-                            ValorTotalItens = item.total.subTotal,
-                            ValorTaxaDeentrega = item.total.deliveryFee,
-                            Valortaxaadicional = item.total.additionalFees,
-                            Descontos = item.total.benefits,
-                            TotalDoPedido = item.total.orderAmount,
-                            Observations = item.delivery.observations,
-                            items = item.items
-                        };
+                            DateTime DataCertaDaRetiradaEmTimeStamp = DateTime.ParseExact(item.takeout.takeoutDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                         System.Globalization.CultureInfo.InvariantCulture,
+                                                         System.Globalization.DateTimeStyles.AssumeUniversal);
+                            DateTime DataCertaDaRetirada = DataCertaDaRetiradaEmTimeStamp.ToLocalTime();
+
+                            if (item.orderTiming != "SCHEDULED")
+                            {
+                                UCPedido UserControlPedido = new UCPedido()
+                                {
+                                    Pedido = item,
+                                    Id_pedido = item.id,
+                                    Display_id = item.displayId,
+                                    OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                    NomePedido = item.customer.name,
+                                    FeitoAs = DataCertaDaFeitoEm.ToString(),
+                                    HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
+                                    LocalizadorPedido = item.delivery.pickupCode,
+                                    EnderecoFormatado = "Retirada No local",
+                                    Bairro = item.delivery.deliveryAddress.neighborhood,
+                                    TipoDaEntrega = "Retirada",
+                                    ValorTotalItens = item.total.subTotal,
+                                    ValorTaxaDeentrega = item.total.deliveryFee,
+                                    Valortaxaadicional = item.total.additionalFees,
+                                    Descontos = item.total.benefits,
+                                    TotalDoPedido = item.total.orderAmount,
+                                    Observations = item.delivery.observations,
+                                    items = item.items
+                                };
 
 
-                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+                                UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
-                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                                panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                            }
+                            else
+                            {
+                                UCPedido UserControlPedido = new UCPedido()
+                                {
+                                    Pedido = item,
+                                    Id_pedido = item.id,
+                                    Display_id = item.displayId,
+                                    OrderType = item.orderType,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                    NomePedido = item.customer.name,
+                                    FeitoAs = DataCertaDaFeitoEm.ToString(),
+                                    HorarioEntrega = DataCertaDaRetirada.ToString(),//item.takeout.takeoutDateTime,
+                                    LocalizadorPedido = item.delivery.pickupCode,
+                                    EnderecoFormatado = "Pedido Agendado Para Retirada",
+                                    Bairro = item.delivery.deliveryAddress.neighborhood,
+                                    TipoDaEntrega = "Retirada",
+                                    ValorTotalItens = item.total.subTotal,
+                                    ValorTaxaDeentrega = item.total.deliveryFee,
+                                    Valortaxaadicional = item.total.additionalFees,
+                                    Descontos = item.total.benefits,
+                                    TotalDoPedido = item.total.orderAmount,
+                                    Observations = item.delivery.observations,
+                                    items = item.items
+                                };
+
+
+                                UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+
+                                panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                            }
+
+                        }
+
                     }
 
                 }
-
             }
 
             pedidos.Clear();
@@ -255,7 +324,7 @@ public partial class FormMenuInicial : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK);
+            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK);
         }
     }
 
@@ -297,8 +366,31 @@ public partial class FormMenuInicial : Form
 
     private async void TimerCallback(object state) // função para ser chamada a cada 30 segundos, e com isso chamando o pulling
     {
-        await Ifood.Polling();
-        ChamaEntregaAutDelMatch();
+        try
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            if (Configuracoes.IntegraIfood)
+            {
+                await Ifood.Polling();
+            }
+
+            if (Configuracoes.EnviaPedidoAut)
+            {
+                ChamaEntregaAutDelMatch();
+            }
+
+            if (Configuracoes.IntegraDelMatch)
+            {
+                await DelMatch.PoolingDelMatch();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "OPS");
+        }
     }
 
     private void ChamaEntregaAutDelMatch() //Função que vai ser chamada para chamar os pedidos aut

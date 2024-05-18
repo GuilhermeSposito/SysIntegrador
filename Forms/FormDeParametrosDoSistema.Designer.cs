@@ -80,7 +80,6 @@
             panel9 = new Panel();
             label14 = new Label();
             textBoxNomeFantasia = new TextBox();
-            panel10 = new Panel();
             label15 = new Label();
             textBoxNumeroTelefone = new TextBox();
             panel11 = new Panel();
@@ -96,6 +95,20 @@
             panel4 = new Panel();
             label24 = new Label();
             pictureBoxONDELMATCH = new PictureBox();
+            panel5 = new Panel();
+            label26 = new Label();
+            textBoxUserDelMatch = new TextBox();
+            panel13 = new Panel();
+            label27 = new Label();
+            textBoxSenhaDelMatch = new TextBox();
+            panel14 = new Panel();
+            pictureBoxOnIntegracaoDelMatch = new PictureBox();
+            pictureBoxOFFIntegracaoDelMatch = new PictureBox();
+            label30 = new Label();
+            label29 = new Label();
+            pictureBoxONIntegracaoIfood = new PictureBox();
+            label28 = new Label();
+            pictureBoxOFFIntegracaoIfood = new PictureBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelmpressoras.SuspendLayout();
@@ -111,12 +124,18 @@
             panel7.SuspendLayout();
             panel8.SuspendLayout();
             panel9.SuspendLayout();
-            panel10.SuspendLayout();
             panel11.SuspendLayout();
             panel12.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFDELMATCH).BeginInit();
             panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONDELMATCH).BeginInit();
+            panel5.SuspendLayout();
+            panel13.SuspendLayout();
+            panel14.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoDelMatch).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoIfood).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoIfood).BeginInit();
             SuspendLayout();
             // 
             // panel1
@@ -129,7 +148,7 @@
             panel1.Controls.Add(pictureBox1);
             panel1.Location = new Point(12, 12);
             panel1.Name = "panel1";
-            panel1.Size = new Size(1267, 68);
+            panel1.Size = new Size(1758, 68);
             panel1.TabIndex = 0;
             // 
             // button1
@@ -138,7 +157,7 @@
             button1.Cursor = Cursors.Hand;
             button1.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
             button1.ForeColor = SystemColors.ButtonFace;
-            button1.Location = new Point(1064, 8);
+            button1.Location = new Point(1542, 10);
             button1.Name = "button1";
             button1.Size = new Size(148, 52);
             button1.TabIndex = 2;
@@ -150,7 +169,7 @@
             // 
             label1.AutoSize = true;
             label1.Font = new Font("Segoe UI", 16.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label1.Location = new Point(221, 13);
+            label1.Location = new Point(537, 10);
             label1.Name = "label1";
             label1.Size = new Size(632, 38);
             label1.TabIndex = 1;
@@ -655,7 +674,7 @@
             textBoxMarchantId.BackColor = SystemColors.ButtonShadow;
             textBoxMarchantId.Font = new Font("Segoe UI", 12F);
             textBoxMarchantId.ForeColor = SystemColors.ButtonFace;
-            textBoxMarchantId.Location = new Point(16, 68);
+            textBoxMarchantId.Location = new Point(16, 71);
             textBoxMarchantId.Name = "textBoxMarchantId";
             textBoxMarchantId.PlaceholderText = "Caminho Banco De Dados";
             textBoxMarchantId.Size = new Size(443, 34);
@@ -692,21 +711,11 @@
             textBoxNomeFantasia.Size = new Size(443, 34);
             textBoxNomeFantasia.TabIndex = 0;
             // 
-            // panel10
-            // 
-            panel10.BackColor = SystemColors.ButtonFace;
-            panel10.Controls.Add(label15);
-            panel10.Controls.Add(textBoxNumeroTelefone);
-            panel10.Location = new Point(12, 729);
-            panel10.Name = "panel10";
-            panel10.Size = new Size(322, 112);
-            panel10.TabIndex = 10;
-            // 
             // label15
             // 
             label15.AutoSize = true;
             label15.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label15.Location = new Point(16, 9);
+            label15.Location = new Point(16, 77);
             label15.Name = "label15";
             label15.Size = new Size(208, 28);
             label15.TabIndex = 1;
@@ -716,7 +725,7 @@
             // 
             textBoxNumeroTelefone.BackColor = SystemColors.ButtonShadow;
             textBoxNumeroTelefone.Font = new Font("Segoe UI", 12F);
-            textBoxNumeroTelefone.Location = new Point(16, 40);
+            textBoxNumeroTelefone.Location = new Point(16, 108);
             textBoxNumeroTelefone.Name = "textBoxNumeroTelefone";
             textBoxNumeroTelefone.PlaceholderText = "Caminho Banco De Dados";
             textBoxNumeroTelefone.Size = new Size(289, 34);
@@ -725,11 +734,13 @@
             // panel11
             // 
             panel11.BackColor = SystemColors.ButtonFace;
+            panel11.Controls.Add(textBoxNumeroTelefone);
+            panel11.Controls.Add(label15);
             panel11.Controls.Add(label16);
             panel11.Controls.Add(textBoxEndLoja);
-            panel11.Location = new Point(346, 729);
+            panel11.Location = new Point(1298, 574);
             panel11.Name = "panel11";
-            panel11.Size = new Size(459, 112);
+            panel11.Size = new Size(468, 149);
             panel11.TabIndex = 11;
             // 
             // label16
@@ -758,7 +769,7 @@
             panel12.Controls.Add(btnNao);
             panel12.Controls.Add(btnSim);
             panel12.Controls.Add(label17);
-            panel12.Location = new Point(811, 729);
+            panel12.Location = new Point(1298, 729);
             panel12.Name = "panel12";
             panel12.Size = new Size(468, 112);
             panel12.TabIndex = 12;
@@ -861,7 +872,7 @@
             // 
             pictureBoxONDELMATCH.Cursor = Cursors.Hand;
             pictureBoxONDELMATCH.Image = (Image)resources.GetObject("pictureBoxONDELMATCH.Image");
-            pictureBoxONDELMATCH.Location = new Point(264, 86);
+            pictureBoxONDELMATCH.Location = new Point(264, 88);
             pictureBoxONDELMATCH.Name = "pictureBoxONDELMATCH";
             pictureBoxONDELMATCH.Size = new Size(84, 45);
             pictureBoxONDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
@@ -870,17 +881,177 @@
             pictureBoxONDELMATCH.Visible = false;
             pictureBoxONDELMATCH.Click += pictureBoxONDELMATCH_Click;
             // 
+            // panel5
+            // 
+            panel5.BackColor = SystemColors.ButtonFace;
+            panel5.Controls.Add(label26);
+            panel5.Controls.Add(textBoxUserDelMatch);
+            panel5.Location = new Point(1295, 101);
+            panel5.Name = "panel5";
+            panel5.Size = new Size(468, 112);
+            panel5.TabIndex = 14;
+            // 
+            // label26
+            // 
+            label26.AutoSize = true;
+            label26.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label26.Location = new Point(16, 15);
+            label26.Name = "label26";
+            label26.Size = new Size(157, 28);
+            label26.TabIndex = 1;
+            label26.Text = "User DelMatch:";
+            // 
+            // textBoxUserDelMatch
+            // 
+            textBoxUserDelMatch.BackColor = SystemColors.ButtonShadow;
+            textBoxUserDelMatch.Font = new Font("Segoe UI", 12F);
+            textBoxUserDelMatch.ForeColor = SystemColors.InactiveBorder;
+            textBoxUserDelMatch.Location = new Point(16, 46);
+            textBoxUserDelMatch.Name = "textBoxUserDelMatch";
+            textBoxUserDelMatch.PlaceholderText = "Usuario";
+            textBoxUserDelMatch.Size = new Size(433, 34);
+            textBoxUserDelMatch.TabIndex = 0;
+            // 
+            // panel13
+            // 
+            panel13.BackColor = SystemColors.ButtonFace;
+            panel13.Controls.Add(label27);
+            panel13.Controls.Add(textBoxSenhaDelMatch);
+            panel13.Location = new Point(1295, 229);
+            panel13.Name = "panel13";
+            panel13.Size = new Size(468, 159);
+            panel13.TabIndex = 15;
+            // 
+            // label27
+            // 
+            label27.AutoSize = true;
+            label27.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label27.Location = new Point(16, 45);
+            label27.Name = "label27";
+            label27.Size = new Size(167, 28);
+            label27.TabIndex = 1;
+            label27.Text = "Senha DelMatch";
+            // 
+            // textBoxSenhaDelMatch
+            // 
+            textBoxSenhaDelMatch.BackColor = SystemColors.ButtonShadow;
+            textBoxSenhaDelMatch.Font = new Font("Segoe UI", 12F);
+            textBoxSenhaDelMatch.ForeColor = SystemColors.ButtonFace;
+            textBoxSenhaDelMatch.Location = new Point(14, 76);
+            textBoxSenhaDelMatch.Name = "textBoxSenhaDelMatch";
+            textBoxSenhaDelMatch.PlaceholderText = "Senha";
+            textBoxSenhaDelMatch.Size = new Size(443, 34);
+            textBoxSenhaDelMatch.TabIndex = 0;
+            textBoxSenhaDelMatch.UseSystemPasswordChar = true;
+            // 
+            // panel14
+            // 
+            panel14.BackColor = SystemColors.ButtonFace;
+            panel14.Controls.Add(pictureBoxOnIntegracaoDelMatch);
+            panel14.Controls.Add(pictureBoxOFFIntegracaoDelMatch);
+            panel14.Controls.Add(label30);
+            panel14.Controls.Add(label29);
+            panel14.Controls.Add(pictureBoxONIntegracaoIfood);
+            panel14.Controls.Add(label28);
+            panel14.Controls.Add(pictureBoxOFFIntegracaoIfood);
+            panel14.Location = new Point(1295, 394);
+            panel14.Name = "panel14";
+            panel14.Size = new Size(468, 174);
+            panel14.TabIndex = 8;
+            // 
+            // pictureBoxOnIntegracaoDelMatch
+            // 
+            pictureBoxOnIntegracaoDelMatch.Cursor = Cursors.Hand;
+            pictureBoxOnIntegracaoDelMatch.Image = (Image)resources.GetObject("pictureBoxOnIntegracaoDelMatch.Image");
+            pictureBoxOnIntegracaoDelMatch.Location = new Point(148, 102);
+            pictureBoxOnIntegracaoDelMatch.Name = "pictureBoxOnIntegracaoDelMatch";
+            pictureBoxOnIntegracaoDelMatch.Size = new Size(72, 35);
+            pictureBoxOnIntegracaoDelMatch.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOnIntegracaoDelMatch.TabIndex = 24;
+            pictureBoxOnIntegracaoDelMatch.TabStop = false;
+            pictureBoxOnIntegracaoDelMatch.Visible = false;
+            pictureBoxOnIntegracaoDelMatch.Click += pictureBoxOnIntegracaoDelMatch_Click;
+            // 
+            // pictureBoxOFFIntegracaoDelMatch
+            // 
+            pictureBoxOFFIntegracaoDelMatch.Cursor = Cursors.Hand;
+            pictureBoxOFFIntegracaoDelMatch.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoDelMatch.Image");
+            pictureBoxOFFIntegracaoDelMatch.Location = new Point(148, 102);
+            pictureBoxOFFIntegracaoDelMatch.Name = "pictureBoxOFFIntegracaoDelMatch";
+            pictureBoxOFFIntegracaoDelMatch.Size = new Size(72, 35);
+            pictureBoxOFFIntegracaoDelMatch.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFIntegracaoDelMatch.TabIndex = 23;
+            pictureBoxOFFIntegracaoDelMatch.TabStop = false;
+            pictureBoxOFFIntegracaoDelMatch.Click += pictureBoxOFFIntegracaoDelMatch_Click;
+            // 
+            // label30
+            // 
+            label30.AutoSize = true;
+            label30.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label30.Location = new Point(7, 102);
+            label30.Name = "label30";
+            label30.Size = new Size(113, 28);
+            label30.TabIndex = 22;
+            label30.Text = "DELMATCH";
+            // 
+            // label29
+            // 
+            label29.AutoSize = true;
+            label29.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label29.Location = new Point(7, 55);
+            label29.Name = "label29";
+            label29.Size = new Size(61, 28);
+            label29.TabIndex = 21;
+            label29.Text = "Ifood";
+            // 
+            // pictureBoxONIntegracaoIfood
+            // 
+            pictureBoxONIntegracaoIfood.Cursor = Cursors.Hand;
+            pictureBoxONIntegracaoIfood.Image = (Image)resources.GetObject("pictureBoxONIntegracaoIfood.Image");
+            pictureBoxONIntegracaoIfood.Location = new Point(148, 55);
+            pictureBoxONIntegracaoIfood.Name = "pictureBoxONIntegracaoIfood";
+            pictureBoxONIntegracaoIfood.Size = new Size(72, 35);
+            pictureBoxONIntegracaoIfood.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxONIntegracaoIfood.TabIndex = 19;
+            pictureBoxONIntegracaoIfood.TabStop = false;
+            pictureBoxONIntegracaoIfood.Visible = false;
+            pictureBoxONIntegracaoIfood.Click += pictureBoxONIntegracaoIfood_Click;
+            // 
+            // label28
+            // 
+            label28.AutoSize = true;
+            label28.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label28.Location = new Point(3, 0);
+            label28.Name = "label28";
+            label28.Size = new Size(122, 28);
+            label28.TabIndex = 1;
+            label28.Text = "Integrações";
+            // 
+            // pictureBoxOFFIntegracaoIfood
+            // 
+            pictureBoxOFFIntegracaoIfood.Cursor = Cursors.Hand;
+            pictureBoxOFFIntegracaoIfood.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoIfood.Image");
+            pictureBoxOFFIntegracaoIfood.Location = new Point(148, 55);
+            pictureBoxOFFIntegracaoIfood.Name = "pictureBoxOFFIntegracaoIfood";
+            pictureBoxOFFIntegracaoIfood.Size = new Size(72, 35);
+            pictureBoxOFFIntegracaoIfood.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFIntegracaoIfood.TabIndex = 20;
+            pictureBoxOFFIntegracaoIfood.TabStop = false;
+            pictureBoxOFFIntegracaoIfood.Click += pictureBoxOFFIntegracaoIfood_Click;
+            // 
             // FormDeParametrosDoSistema
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
             BackColor = SystemColors.ButtonShadow;
-            ClientSize = new Size(1291, 853);
+            ClientSize = new Size(1782, 853);
+            Controls.Add(panel14);
+            Controls.Add(panel13);
+            Controls.Add(panel5);
             Controls.Add(panel4);
             Controls.Add(panel12);
             Controls.Add(panel11);
-            Controls.Add(panel10);
             Controls.Add(panel9);
             Controls.Add(panel8);
             Controls.Add(panel7);
@@ -919,8 +1090,6 @@
             panel8.PerformLayout();
             panel9.ResumeLayout(false);
             panel9.PerformLayout();
-            panel10.ResumeLayout(false);
-            panel10.PerformLayout();
             panel11.ResumeLayout(false);
             panel11.PerformLayout();
             panel12.ResumeLayout(false);
@@ -929,6 +1098,16 @@
             panel4.ResumeLayout(false);
             panel4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONDELMATCH).EndInit();
+            panel5.ResumeLayout(false);
+            panel5.PerformLayout();
+            panel13.ResumeLayout(false);
+            panel13.PerformLayout();
+            panel14.ResumeLayout(false);
+            panel14.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoDelMatch).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoIfood).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoIfood).EndInit();
             ResumeLayout(false);
         }
 
@@ -969,7 +1148,6 @@
         private TextBox textBoxMarchantId;
         private Panel panel9;
         private Label label14;
-        private Panel panel10;
         private Label label15;
         private TextBox textBoxNumeroTelefone;
         private Panel panel11;
@@ -1001,5 +1179,19 @@
         private Panel panel4;
         private Label label24;
         private PictureBox pictureBoxONDELMATCH;
+        private Panel panel5;
+        private Label label26;
+        private TextBox textBoxUserDelMatch;
+        private Panel panel13;
+        private Label label27;
+        private TextBox textBoxSenhaDelMatch;
+        private Panel panel14;
+        private Label label28;
+        private Label label29;
+        private PictureBox pictureBoxOFFIntegracaoIfood;
+        private PictureBox pictureBoxONIntegracaoIfood;
+        private Label label30;
+        private PictureBox pictureBoxOnIntegracaoDelMatch;
+        private PictureBox pictureBoxOFFIntegracaoDelMatch;
     }
 }

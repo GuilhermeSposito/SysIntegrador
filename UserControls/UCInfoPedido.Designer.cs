@@ -86,6 +86,7 @@
             groupBoxDeItens = new GroupBox();
             pictureBox3 = new PictureBox();
             pictureBox7 = new PictureBox();
+            pictureBox1 = new PictureBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
@@ -106,6 +107,7 @@
             panel9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // label1
@@ -790,12 +792,24 @@
             pictureBox7.TabIndex = 24;
             pictureBox7.TabStop = false;
             // 
+            // pictureBox1
+            // 
+            pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new Point(981, 0);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(71, 69);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 25;
+            pictureBox1.TabStop = false;
+            // 
             // UCInfoPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoScroll = true;
             BackColor = Color.DarkGray;
+            Controls.Add(pictureBox1);
             Controls.Add(pictureBox7);
             Controls.Add(pictureBox3);
             Controls.Add(panelDeItens);
@@ -846,6 +860,7 @@
             panel9.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -909,5 +924,6 @@
         private PictureBox pictureBox14;
         private Button BtnAceitar;
         private Button BtnRejeitar;
+        private PictureBox pictureBox1;
     }
 }

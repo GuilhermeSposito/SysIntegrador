@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static SysIntegradorApp.ClassesAuxiliares.Impressao;
+using static SysIntegradorApp.ClassesAuxiliares.ImpressaoDelMatch;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -16,4 +17,14 @@ public class ClsImpressaoDefinicoes
     public Alinhamentos Alinhamento { get; set; }
 
     public ClsImpressaoDefinicoes() { }
+}
+
+
+public class ClsImpressaoDefinicoesDelMatch
+{
+    public string Texto { get; set; }
+    public Font Fonte { get; set; }
+    public AlinhamentosDelMatch Alinhamento { get; set; }
+
+    public ClsImpressaoDefinicoesDelMatch() { }
 }

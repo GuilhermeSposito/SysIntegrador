@@ -13,6 +13,7 @@ namespace SysIntegradorApp.ClassesAuxiliares;
 
 public class PedidoCompleto
 {
+    public string? CriadoPor { get; set; }
     public string? Situacao { get; set; }
     public string JsonPolling { get; set; }
     public int? NumConta { get; set; }
