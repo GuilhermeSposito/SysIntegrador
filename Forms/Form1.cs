@@ -10,6 +10,9 @@ using SysIntegradorApp.data;
 using System.Drawing.Drawing2D;
 using SysIntegradorApp.Forms;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
+using SysIntegradorApp.ClassesAuxiliares.logs;
+using System.Runtime.Intrinsics.Arm;
 
 
 namespace SysIntegradorApp
@@ -28,6 +31,7 @@ namespace SysIntegradorApp
             CodeFromUser.Visible = false;
             labelCodigo.Visible = false;
         }
+
         private async void BrnAutorizar_Click(object sender, EventArgs e)
         {
             string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
@@ -89,6 +93,7 @@ namespace SysIntegradorApp
             }
             catch (Exception ex)
             {
+                await Logs.CriaLogDeErro(ex.ToString());
                 MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OKCancel);
             }
         }
@@ -106,26 +111,32 @@ namespace SysIntegradorApp
         {
             try
             {
+                bool verificaInternet = true;//await VerificaInternet.InternetAtiva();
+
+                if (!verificaInternet)
+                {
+                    ClsSons.PlaySom2();
+                    MessageBox.Show("Por favor verifique sua conexão com a internet", "Atenção", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    ClsSons.StopSom();
+                    Application.Exit();
+                }
+
                 using ApplicationDbContext db = new ApplicationDbContext();
-                var AutenticacaoNaBase = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-                var ConfigApp = db.parametrosdosistema.ToList().FirstOrDefault();
+                var AutenticacaoNaBase = db.parametrosdeautenticacao.FirstOrDefault();
+                var ConfigApp = db.parametrosdosistema.FirstOrDefault();
+
 
                 if (ConfigApp.IntegraIfood)
                 {
                     await Ifood.RefreshTokenIfood();
 
-                    ParametrosDoSistema? ConfigSistem = db.parametrosdosistema.ToList().FirstOrDefault();
+                    ParametrosDoSistema? ConfigSistem = db.parametrosdosistema.FirstOrDefault();
 
-                    string idMerchant = ConfigSistem.MerchantId;
-                    string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{idMerchant}/status";
+                    Token? tokenNoDb = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
 
-
-                    Token? tokenNoDb = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-                    ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
-
-                    if (Config.IntegracaoSysMenu)
+                    if (ConfigSistem.IntegracaoSysMenu)
                     {
-                        bool CaixaAberto = ClsDeIntegracaoSys.VerificaCaixaAberto();
+                        bool CaixaAberto = await ClsDeIntegracaoSys.VerificaCaixaAberto();
 
                         if (!CaixaAberto)
                         {
@@ -135,11 +146,9 @@ namespace SysIntegradorApp
 
                     }
 
-                    using HttpClient client = new HttpClient();
-                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenNoDb.accessToken);
-                    HttpResponseMessage response = await client.GetAsync(url);
+                    bool TokenAutorizado = await Ifood.VerificaTokenValido();
 
-                    if ((int)response.StatusCode != 401)
+                    if (TokenAutorizado)
                     {
                         Token.TokenDaSessao = tokenNoDb.accessToken;
 
@@ -161,9 +170,21 @@ namespace SysIntegradorApp
                     await DelMatch.GetToken();
                 }
 
+                if (ConfigApp.IntegraOnOPedido)
+                {
+                    DateTime HorarioAtualDoToken = DateTime.Parse(AutenticacaoNaBase.VenceEmOnPedido);
+
+                    if (DateTime.Now > HorarioAtualDoToken)
+                    {
+                        await OnPedido.GetToken();
+                    }
+                }
+
+
             }
             catch (Exception ex)
             {
+                await Logs.CriaLogDeErro(ex.ToString());
                 MessageBox.Show(ex.ToString(), "Ops");
             }
 
@@ -220,6 +241,7 @@ namespace SysIntegradorApp
             }
             catch (Exception ex)
             {
+                await Logs.CriaLogDeErro(ex.ToString());
                 MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 

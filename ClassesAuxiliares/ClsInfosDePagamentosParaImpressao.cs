@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -88,7 +88,7 @@ public class ClsInfosDePagamentosParaImpressaoDelMatch
     {
 
     }
-    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch.Payments>  pagamentos)
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch.Payments> pagamentos)
     {
         ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
         foreach (var metodo in pagamentos)
@@ -122,8 +122,55 @@ public class ClsInfosDePagamentosParaImpressaoDelMatch
                 infos.FormaPagamento = $"Será pago na entrega";
                 continue;
             }
-           
-            
+
+
+        }
+
+        return infos;
+    }
+}
+
+public class ClsInfosDePagamentosParaImpressaoONPedido
+{
+    public string? FormaPagamento { get; set; }
+    public string? TipoPagamento { get; set; }
+    public double valor { get; set; }
+
+    public ClsInfosDePagamentosParaImpressaoONPedido()
+    {
+
+    }
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido.Payments pagamentos)
+    {
+        ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
+
+        bool PrePago = pagamentos.Prepaid > 0 && pagamentos.Pending == 0;
+
+        foreach (var metodo in pagamentos.Methods)
+        {
+            if (PrePago)
+            {
+                infos.FormaPagamento = $"Pedido pago online, Não é nescessario Receber do cliente";
+            }
+            else
+            {
+                infos.FormaPagamento = $"Pedido Deverá ser cobrado na entrega";
+            }
+
+            if (PrePago)
+            {
+                infos.TipoPagamento = $"Pedido pago com ({metodo.Method}) valor {metodo.value}";
+            }
+            else
+            {
+                infos.TipoPagamento = $"Pedido Será pago com ({metodo.Method}) valor {metodo.value.ToString("c")}";
+            }
+
+            if (metodo.ChangeFor - metodo.value > 0)
+            {
+                infos.TipoPagamento += $" Levar troco  {(metodo.ChangeFor - metodo.value).ToString("c")}";
+            }
+
         }
 
         return infos;

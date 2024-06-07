@@ -55,7 +55,9 @@ public class PostgresConfigs
                 FormMenuInicial.panelDetalhePedido.Controls.Clear();
                 FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
                 FormMenuInicial.panelPedidos.Controls.Clear();
+                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
             }
+
 
         }
         catch (Exception ex)

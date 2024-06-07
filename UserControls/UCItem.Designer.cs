@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCItem));
             quantidadeItem = new Label();
             nomeDoItem = new Label();
             valorDoItem = new Label();
@@ -39,8 +40,10 @@
             labelValorTotalItemNM = new Label();
             panelDeComplementos = new FlowLayoutPanel();
             groupBoxComplementos = new GroupBox();
+            pictureBoxExternalCode = new PictureBox();
             panelValorDasOpcoes.SuspendLayout();
             panelValorTotal.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxExternalCode).BeginInit();
             SuspendLayout();
             // 
             // quantidadeItem
@@ -149,11 +152,24 @@
             groupBoxComplementos.TabStop = false;
             groupBoxComplementos.Text = "Complementos:";
             // 
+            // pictureBoxExternalCode
+            // 
+            pictureBoxExternalCode.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pictureBoxExternalCode.Image = (Image)resources.GetObject("pictureBoxExternalCode.Image");
+            pictureBoxExternalCode.Location = new Point(607, 8);
+            pictureBoxExternalCode.Name = "pictureBoxExternalCode";
+            pictureBoxExternalCode.Size = new Size(38, 48);
+            pictureBoxExternalCode.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxExternalCode.TabIndex = 26;
+            pictureBoxExternalCode.TabStop = false;
+            pictureBoxExternalCode.Visible = false;
+            // 
             // UCItem
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlLight;
+            Controls.Add(pictureBoxExternalCode);
             Controls.Add(panelValorTotal);
             Controls.Add(panelValorDasOpcoes);
             Controls.Add(valorDoItem);
@@ -168,6 +184,7 @@
             panelValorDasOpcoes.PerformLayout();
             panelValorTotal.ResumeLayout(false);
             panelValorTotal.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxExternalCode).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -185,5 +202,6 @@
         private Label labelValorTotalItemNM;
         private FlowLayoutPanel panelDeComplementos;
         private GroupBox groupBoxComplementos;
+        private PictureBox pictureBoxExternalCode;
     }
 }

@@ -23,7 +23,7 @@ namespace SysIntegradorApp
         }
 
         //método que define todas as labels e panel dentro do UCITEM
-        public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<Options> options, UCItem instancia)
+        public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<Options> options, UCItem instancia, Items itemIfood)
         {
             quantidadeItem.Text = $"{quantity.ToString()}X";
             nomeDoItem.Text = nome;
@@ -34,6 +34,17 @@ namespace SysIntegradorApp
             int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
             int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados
 
+            bool ePizza = itemIfood.externalCode == "G" || itemIfood.externalCode == "M" || itemIfood.externalCode == "P" || itemIfood.externalCode == "B" ? true : false;
+
+            if (!ePizza)
+            {
+                bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(itemIfood.externalCode);
+
+                if (!ExisteExternalCode)
+                {
+                    instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
+                }
+            }
 
             if (options.Count() == 0)
             {
@@ -48,13 +59,21 @@ namespace SysIntegradorApp
             {
                 UCComplementoDoItem ucComplemento = new UCComplementoDoItem();
                 ucComplemento.SetLabels(item.name, item.price);
-                ucComplemento.Size = new Size(600,60);
+                ucComplemento.Size = new Size(600, 60);
 
+                if (!item.externalCode.Contains("m") && ePizza)
+                {
+                    bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.externalCode);
 
-                Panel panelParaLeyout = new Panel();  
+                    if (!ExisteExternalCode)
+                    {
+                        instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
+                    }
+                }
+
+                Panel panelParaLeyout = new Panel();
                 panelParaLeyout.Controls.Add(ucComplemento);
                 panelParaLeyout.Size = new Size(640, 64);
-
 
                 ClsEstiloComponentes.CustomizePanelBorder(panelParaLeyout);
                 panelDeComplementos.Controls.Add(panelParaLeyout);
@@ -68,7 +87,10 @@ namespace SysIntegradorApp
 
         }
 
+        public void MudaPictureBoxDeAvisoExternalCode(UCItem instancia)
+        {
+            instancia.pictureBoxExternalCode.Visible = true;
+        }
 
-      
     }
 }

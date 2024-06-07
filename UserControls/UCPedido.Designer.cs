@@ -39,9 +39,17 @@
             labelNumConta = new Label();
             pictureBoxImp = new PictureBox();
             pictureBoxDELMATCH = new PictureBox();
+            pictureBoxOnPedido = new PictureBox();
+            pictureBoxPedidoEnviado = new PictureBox();
+            pictureBoxPedidoNaoEnviado = new PictureBox();
+            pictureBoxAgendada = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnPedido).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoEnviado).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -151,11 +159,60 @@
             pictureBoxDELMATCH.Visible = false;
             pictureBoxDELMATCH.Click += pictureBoxDELMATCH_Click;
             // 
+            // pictureBoxOnPedido
+            // 
+            pictureBoxOnPedido.Image = (Image)resources.GetObject("pictureBoxOnPedido.Image");
+            pictureBoxOnPedido.Location = new Point(0, -9);
+            pictureBoxOnPedido.Name = "pictureBoxOnPedido";
+            pictureBoxOnPedido.Size = new Size(126, 137);
+            pictureBoxOnPedido.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOnPedido.TabIndex = 10;
+            pictureBoxOnPedido.TabStop = false;
+            pictureBoxOnPedido.Visible = false;
+            pictureBoxOnPedido.Click += pictureBoxOnPedido_Click;
+            // 
+            // pictureBoxPedidoEnviado
+            // 
+            pictureBoxPedidoEnviado.Image = (Image)resources.GetObject("pictureBoxPedidoEnviado.Image");
+            pictureBoxPedidoEnviado.Location = new Point(280, 3);
+            pictureBoxPedidoEnviado.Name = "pictureBoxPedidoEnviado";
+            pictureBoxPedidoEnviado.Size = new Size(42, 22);
+            pictureBoxPedidoEnviado.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxPedidoEnviado.TabIndex = 11;
+            pictureBoxPedidoEnviado.TabStop = false;
+            pictureBoxPedidoEnviado.Visible = false;
+            // 
+            // pictureBoxPedidoNaoEnviado
+            // 
+            pictureBoxPedidoNaoEnviado.Image = (Image)resources.GetObject("pictureBoxPedidoNaoEnviado.Image");
+            pictureBoxPedidoNaoEnviado.Location = new Point(280, 3);
+            pictureBoxPedidoNaoEnviado.Name = "pictureBoxPedidoNaoEnviado";
+            pictureBoxPedidoNaoEnviado.Size = new Size(42, 22);
+            pictureBoxPedidoNaoEnviado.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxPedidoNaoEnviado.TabIndex = 12;
+            pictureBoxPedidoNaoEnviado.TabStop = false;
+            pictureBoxPedidoNaoEnviado.Visible = false;
+            // 
+            // pictureBoxAgendada
+            // 
+            pictureBoxAgendada.Image = (Image)resources.GetObject("pictureBoxAgendada.Image");
+            pictureBoxAgendada.Location = new Point(280, 3);
+            pictureBoxAgendada.Name = "pictureBoxAgendada";
+            pictureBoxAgendada.Size = new Size(42, 22);
+            pictureBoxAgendada.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAgendada.TabIndex = 13;
+            pictureBoxAgendada.TabStop = false;
+            pictureBoxAgendada.Visible = false;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxAgendada);
+            Controls.Add(pictureBoxPedidoNaoEnviado);
+            Controls.Add(pictureBoxPedidoEnviado);
+            Controls.Add(pictureBoxOnPedido);
             Controls.Add(pictureBoxImp);
             Controls.Add(labelNumConta);
             Controls.Add(label1);
@@ -178,6 +235,10 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnPedido).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoEnviado).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -194,5 +255,9 @@
         private Label labelNumConta;
         private PictureBox pictureBoxImp;
         private PictureBox pictureBoxDELMATCH;
+        private PictureBox pictureBoxOnPedido;
+        private PictureBox pictureBoxPedidoEnviado;
+        private PictureBox pictureBoxPedidoNaoEnviado;
+        private PictureBox pictureBoxAgendada;
     }
 }

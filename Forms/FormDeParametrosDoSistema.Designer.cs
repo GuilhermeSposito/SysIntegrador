@@ -34,6 +34,12 @@
             label1 = new Label();
             pictureBox1 = new PictureBox();
             panelmpressoras = new Panel();
+            pictureBoxOFFRemoveOpcoes = new PictureBox();
+            pictureBoxONRemoveOpcoes = new PictureBox();
+            label32 = new Label();
+            pictureBoxONImpressaoCompacta = new PictureBox();
+            pictureBoxOFFImpressãoCompacta = new PictureBox();
+            label31 = new Label();
             pictureBoxOFF3 = new PictureBox();
             pictureBoxON3 = new PictureBox();
             label23 = new Label();
@@ -93,15 +99,21 @@
             label25 = new Label();
             pictureBoxOFFDELMATCH = new PictureBox();
             panel4 = new Panel();
+            LimparPedidosDelMatchBtn = new Button();
             label24 = new Label();
             pictureBoxONDELMATCH = new PictureBox();
             panel5 = new Panel();
+            label36 = new Label();
+            textBoxTokenDeIntegracaoOnPedido = new TextBox();
             label26 = new Label();
             textBoxUserDelMatch = new TextBox();
             panel13 = new Panel();
             label27 = new Label();
             textBoxSenhaDelMatch = new TextBox();
             panel14 = new Panel();
+            pictureBoxONIntegracaoOnPedido = new PictureBox();
+            pictureBoxOFFIntegracaoOnPedido = new PictureBox();
+            label33 = new Label();
             pictureBoxOnIntegracaoDelMatch = new PictureBox();
             pictureBoxOFFIntegracaoDelMatch = new PictureBox();
             label30 = new Label();
@@ -109,9 +121,18 @@
             pictureBoxONIntegracaoIfood = new PictureBox();
             label28 = new Label();
             pictureBoxOFFIntegracaoIfood = new PictureBox();
+            panel10 = new Panel();
+            label35 = new Label();
+            textBoxsenhaOnPedido = new TextBox();
+            label34 = new Label();
+            textBoxuserOnPedido = new TextBox();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelmpressoras.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFRemoveOpcoes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONRemoveOpcoes).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONImpressaoCompacta).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFImpressãoCompacta).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFF3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxON3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOn2).BeginInit();
@@ -132,10 +153,13 @@
             panel5.SuspendLayout();
             panel13.SuspendLayout();
             panel14.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoOnPedido).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoDelMatch).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoIfood).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoIfood).BeginInit();
+            panel10.SuspendLayout();
             SuspendLayout();
             // 
             // panel1
@@ -189,6 +213,12 @@
             // panelmpressoras
             // 
             panelmpressoras.BackColor = SystemColors.ButtonFace;
+            panelmpressoras.Controls.Add(pictureBoxOFFRemoveOpcoes);
+            panelmpressoras.Controls.Add(pictureBoxONRemoveOpcoes);
+            panelmpressoras.Controls.Add(label32);
+            panelmpressoras.Controls.Add(pictureBoxONImpressaoCompacta);
+            panelmpressoras.Controls.Add(pictureBoxOFFImpressãoCompacta);
+            panelmpressoras.Controls.Add(label31);
             panelmpressoras.Controls.Add(pictureBoxOFF3);
             panelmpressoras.Controls.Add(pictureBoxON3);
             panelmpressoras.Controls.Add(label23);
@@ -215,8 +245,78 @@
             panelmpressoras.Controls.Add(labelImpressorasNM);
             panelmpressoras.Location = new Point(15, 101);
             panelmpressoras.Name = "panelmpressoras";
-            panelmpressoras.Size = new Size(319, 622);
+            panelmpressoras.Size = new Size(319, 740);
             panelmpressoras.TabIndex = 1;
+            // 
+            // pictureBoxOFFRemoveOpcoes
+            // 
+            pictureBoxOFFRemoveOpcoes.Cursor = Cursors.Hand;
+            pictureBoxOFFRemoveOpcoes.Image = (Image)resources.GetObject("pictureBoxOFFRemoveOpcoes.Image");
+            pictureBoxOFFRemoveOpcoes.Location = new Point(213, 686);
+            pictureBoxOFFRemoveOpcoes.Name = "pictureBoxOFFRemoveOpcoes";
+            pictureBoxOFFRemoveOpcoes.Size = new Size(84, 43);
+            pictureBoxOFFRemoveOpcoes.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFRemoveOpcoes.TabIndex = 29;
+            pictureBoxOFFRemoveOpcoes.TabStop = false;
+            pictureBoxOFFRemoveOpcoes.Click += pictureBoxOFFRemoveOpcoes_Click;
+            // 
+            // pictureBoxONRemoveOpcoes
+            // 
+            pictureBoxONRemoveOpcoes.Cursor = Cursors.Hand;
+            pictureBoxONRemoveOpcoes.Image = (Image)resources.GetObject("pictureBoxONRemoveOpcoes.Image");
+            pictureBoxONRemoveOpcoes.Location = new Point(213, 686);
+            pictureBoxONRemoveOpcoes.Name = "pictureBoxONRemoveOpcoes";
+            pictureBoxONRemoveOpcoes.Size = new Size(84, 45);
+            pictureBoxONRemoveOpcoes.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxONRemoveOpcoes.TabIndex = 28;
+            pictureBoxONRemoveOpcoes.TabStop = false;
+            pictureBoxONRemoveOpcoes.Visible = false;
+            pictureBoxONRemoveOpcoes.Click += pictureBoxONRemoveOpcoes_Click;
+            // 
+            // label32
+            // 
+            label32.AutoSize = true;
+            label32.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label32.Location = new Point(8, 688);
+            label32.Name = "label32";
+            label32.Size = new Size(159, 28);
+            label32.TabIndex = 27;
+            label32.Text = "Remove Opções";
+            // 
+            // pictureBoxONImpressaoCompacta
+            // 
+            pictureBoxONImpressaoCompacta.Cursor = Cursors.Hand;
+            pictureBoxONImpressaoCompacta.Image = (Image)resources.GetObject("pictureBoxONImpressaoCompacta.Image");
+            pictureBoxONImpressaoCompacta.Location = new Point(213, 628);
+            pictureBoxONImpressaoCompacta.Name = "pictureBoxONImpressaoCompacta";
+            pictureBoxONImpressaoCompacta.Size = new Size(84, 45);
+            pictureBoxONImpressaoCompacta.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxONImpressaoCompacta.TabIndex = 26;
+            pictureBoxONImpressaoCompacta.TabStop = false;
+            pictureBoxONImpressaoCompacta.Visible = false;
+            pictureBoxONImpressaoCompacta.Click += pictureBoxONImpressaoCompacta_Click;
+            // 
+            // pictureBoxOFFImpressãoCompacta
+            // 
+            pictureBoxOFFImpressãoCompacta.Cursor = Cursors.Hand;
+            pictureBoxOFFImpressãoCompacta.Image = (Image)resources.GetObject("pictureBoxOFFImpressãoCompacta.Image");
+            pictureBoxOFFImpressãoCompacta.Location = new Point(213, 628);
+            pictureBoxOFFImpressãoCompacta.Name = "pictureBoxOFFImpressãoCompacta";
+            pictureBoxOFFImpressãoCompacta.Size = new Size(84, 43);
+            pictureBoxOFFImpressãoCompacta.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFImpressãoCompacta.TabIndex = 25;
+            pictureBoxOFFImpressãoCompacta.TabStop = false;
+            pictureBoxOFFImpressãoCompacta.Click += pictureBoxOFFImpressãoCompacta_Click;
+            // 
+            // label31
+            // 
+            label31.AutoSize = true;
+            label31.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label31.Location = new Point(8, 637);
+            label31.Name = "label31";
+            label31.Size = new Size(199, 28);
+            label31.TabIndex = 24;
+            label31.Text = "Impressão compacta";
             // 
             // pictureBoxOFF3
             // 
@@ -247,7 +347,7 @@
             // 
             label23.AutoSize = true;
             label23.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label23.Location = new Point(73, 578);
+            label23.Location = new Point(30, 578);
             label23.Name = "label23";
             label23.Size = new Size(98, 28);
             label23.TabIndex = 21;
@@ -257,7 +357,7 @@
             // 
             label22.AutoSize = true;
             label22.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label22.Location = new Point(30, 550);
+            label22.Location = new Point(8, 550);
             label22.Name = "label22";
             label22.Size = new Size(163, 28);
             label22.TabIndex = 20;
@@ -278,7 +378,7 @@
             // 
             label21.AutoSize = true;
             label21.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label21.Location = new Point(79, 507);
+            label21.Location = new Point(36, 507);
             label21.Name = "label21";
             label21.Size = new Size(92, 28);
             label21.TabIndex = 19;
@@ -288,7 +388,7 @@
             // 
             label20.AutoSize = true;
             label20.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label20.Location = new Point(30, 479);
+            label20.Location = new Point(8, 482);
             label20.Name = "label20";
             label20.Size = new Size(182, 28);
             label20.TabIndex = 18;
@@ -344,7 +444,7 @@
             // 
             label18.AutoSize = true;
             label18.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label18.Location = new Point(26, 434);
+            label18.Location = new Point(8, 434);
             label18.Name = "label18";
             label18.Size = new Size(186, 28);
             label18.TabIndex = 13;
@@ -837,7 +937,7 @@
             // 
             pictureBoxOFFDELMATCH.Cursor = Cursors.Hand;
             pictureBoxOFFDELMATCH.Image = (Image)resources.GetObject("pictureBoxOFFDELMATCH.Image");
-            pictureBoxOFFDELMATCH.Location = new Point(264, 88);
+            pictureBoxOFFDELMATCH.Location = new Point(190, 90);
             pictureBoxOFFDELMATCH.Name = "pictureBoxOFFDELMATCH";
             pictureBoxOFFDELMATCH.Size = new Size(84, 43);
             pictureBoxOFFDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
@@ -848,6 +948,7 @@
             // panel4
             // 
             panel4.BackColor = SystemColors.ButtonFace;
+            panel4.Controls.Add(LimparPedidosDelMatchBtn);
             panel4.Controls.Add(label24);
             panel4.Controls.Add(pictureBoxONDELMATCH);
             panel4.Controls.Add(pictureBoxOFFDELMATCH);
@@ -858,11 +959,26 @@
             panel4.Size = new Size(459, 149);
             panel4.TabIndex = 13;
             // 
+            // LimparPedidosDelMatchBtn
+            // 
+            LimparPedidosDelMatchBtn.BackColor = Color.Red;
+            LimparPedidosDelMatchBtn.Cursor = Cursors.Hand;
+            LimparPedidosDelMatchBtn.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            LimparPedidosDelMatchBtn.ForeColor = SystemColors.ButtonFace;
+            LimparPedidosDelMatchBtn.Location = new Point(287, 88);
+            LimparPedidosDelMatchBtn.Name = "LimparPedidosDelMatchBtn";
+            LimparPedidosDelMatchBtn.Size = new Size(148, 49);
+            LimparPedidosDelMatchBtn.TabIndex = 20;
+            LimparPedidosDelMatchBtn.Text = "Limpar Pedidos";
+            LimparPedidosDelMatchBtn.UseVisualStyleBackColor = false;
+            LimparPedidosDelMatchBtn.Visible = false;
+            LimparPedidosDelMatchBtn.Click += LimparPedidosDelMatchBtn_Click;
+            // 
             // label24
             // 
             label24.AutoSize = true;
             label24.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label24.Location = new Point(112, 77);
+            label24.Location = new Point(16, 86);
             label24.Name = "label24";
             label24.Size = new Size(135, 56);
             label24.TabIndex = 19;
@@ -872,7 +988,7 @@
             // 
             pictureBoxONDELMATCH.Cursor = Cursors.Hand;
             pictureBoxONDELMATCH.Image = (Image)resources.GetObject("pictureBoxONDELMATCH.Image");
-            pictureBoxONDELMATCH.Location = new Point(264, 88);
+            pictureBoxONDELMATCH.Location = new Point(190, 90);
             pictureBoxONDELMATCH.Name = "pictureBoxONDELMATCH";
             pictureBoxONDELMATCH.Size = new Size(84, 45);
             pictureBoxONDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
@@ -884,18 +1000,39 @@
             // panel5
             // 
             panel5.BackColor = SystemColors.ButtonFace;
-            panel5.Controls.Add(label26);
-            panel5.Controls.Add(textBoxUserDelMatch);
+            panel5.Controls.Add(label36);
+            panel5.Controls.Add(textBoxTokenDeIntegracaoOnPedido);
             panel5.Location = new Point(1295, 101);
             panel5.Name = "panel5";
             panel5.Size = new Size(468, 112);
             panel5.TabIndex = 14;
             // 
+            // label36
+            // 
+            label36.AutoSize = true;
+            label36.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label36.Location = new Point(19, 21);
+            label36.Name = "label36";
+            label36.Size = new Size(318, 28);
+            label36.TabIndex = 3;
+            label36.Text = "Token De integração ONPEDIDO";
+            // 
+            // textBoxTokenDeIntegracaoOnPedido
+            // 
+            textBoxTokenDeIntegracaoOnPedido.BackColor = SystemColors.ButtonShadow;
+            textBoxTokenDeIntegracaoOnPedido.Font = new Font("Segoe UI", 12F);
+            textBoxTokenDeIntegracaoOnPedido.ForeColor = SystemColors.InactiveBorder;
+            textBoxTokenDeIntegracaoOnPedido.Location = new Point(19, 52);
+            textBoxTokenDeIntegracaoOnPedido.Name = "textBoxTokenDeIntegracaoOnPedido";
+            textBoxTokenDeIntegracaoOnPedido.PlaceholderText = "TOKEN";
+            textBoxTokenDeIntegracaoOnPedido.Size = new Size(433, 34);
+            textBoxTokenDeIntegracaoOnPedido.TabIndex = 2;
+            // 
             // label26
             // 
             label26.AutoSize = true;
             label26.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label26.Location = new Point(16, 15);
+            label26.Location = new Point(16, 10);
             label26.Name = "label26";
             label26.Size = new Size(157, 28);
             label26.TabIndex = 1;
@@ -906,7 +1043,7 @@
             textBoxUserDelMatch.BackColor = SystemColors.ButtonShadow;
             textBoxUserDelMatch.Font = new Font("Segoe UI", 12F);
             textBoxUserDelMatch.ForeColor = SystemColors.InactiveBorder;
-            textBoxUserDelMatch.Location = new Point(16, 46);
+            textBoxUserDelMatch.Location = new Point(14, 41);
             textBoxUserDelMatch.Name = "textBoxUserDelMatch";
             textBoxUserDelMatch.PlaceholderText = "Usuario";
             textBoxUserDelMatch.Size = new Size(433, 34);
@@ -915,7 +1052,9 @@
             // panel13
             // 
             panel13.BackColor = SystemColors.ButtonFace;
+            panel13.Controls.Add(label26);
             panel13.Controls.Add(label27);
+            panel13.Controls.Add(textBoxUserDelMatch);
             panel13.Controls.Add(textBoxSenhaDelMatch);
             panel13.Location = new Point(1295, 229);
             panel13.Name = "panel13";
@@ -926,7 +1065,7 @@
             // 
             label27.AutoSize = true;
             label27.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label27.Location = new Point(16, 45);
+            label27.Location = new Point(16, 89);
             label27.Name = "label27";
             label27.Size = new Size(167, 28);
             label27.TabIndex = 1;
@@ -937,7 +1076,7 @@
             textBoxSenhaDelMatch.BackColor = SystemColors.ButtonShadow;
             textBoxSenhaDelMatch.Font = new Font("Segoe UI", 12F);
             textBoxSenhaDelMatch.ForeColor = SystemColors.ButtonFace;
-            textBoxSenhaDelMatch.Location = new Point(14, 76);
+            textBoxSenhaDelMatch.Location = new Point(14, 120);
             textBoxSenhaDelMatch.Name = "textBoxSenhaDelMatch";
             textBoxSenhaDelMatch.PlaceholderText = "Senha";
             textBoxSenhaDelMatch.Size = new Size(443, 34);
@@ -947,6 +1086,9 @@
             // panel14
             // 
             panel14.BackColor = SystemColors.ButtonFace;
+            panel14.Controls.Add(pictureBoxONIntegracaoOnPedido);
+            panel14.Controls.Add(pictureBoxOFFIntegracaoOnPedido);
+            panel14.Controls.Add(label33);
             panel14.Controls.Add(pictureBoxOnIntegracaoDelMatch);
             panel14.Controls.Add(pictureBoxOFFIntegracaoDelMatch);
             panel14.Controls.Add(label30);
@@ -958,6 +1100,41 @@
             panel14.Name = "panel14";
             panel14.Size = new Size(468, 174);
             panel14.TabIndex = 8;
+            // 
+            // pictureBoxONIntegracaoOnPedido
+            // 
+            pictureBoxONIntegracaoOnPedido.Cursor = Cursors.Hand;
+            pictureBoxONIntegracaoOnPedido.Image = (Image)resources.GetObject("pictureBoxONIntegracaoOnPedido.Image");
+            pictureBoxONIntegracaoOnPedido.Location = new Point(373, 45);
+            pictureBoxONIntegracaoOnPedido.Name = "pictureBoxONIntegracaoOnPedido";
+            pictureBoxONIntegracaoOnPedido.Size = new Size(84, 45);
+            pictureBoxONIntegracaoOnPedido.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxONIntegracaoOnPedido.TabIndex = 27;
+            pictureBoxONIntegracaoOnPedido.TabStop = false;
+            pictureBoxONIntegracaoOnPedido.Visible = false;
+            pictureBoxONIntegracaoOnPedido.Click += pictureBoxONIntegracaoOnPedido_Click;
+            // 
+            // pictureBoxOFFIntegracaoOnPedido
+            // 
+            pictureBoxOFFIntegracaoOnPedido.Cursor = Cursors.Hand;
+            pictureBoxOFFIntegracaoOnPedido.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoOnPedido.Image");
+            pictureBoxOFFIntegracaoOnPedido.Location = new Point(373, 47);
+            pictureBoxOFFIntegracaoOnPedido.Name = "pictureBoxOFFIntegracaoOnPedido";
+            pictureBoxOFFIntegracaoOnPedido.Size = new Size(84, 43);
+            pictureBoxOFFIntegracaoOnPedido.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOFFIntegracaoOnPedido.TabIndex = 26;
+            pictureBoxOFFIntegracaoOnPedido.TabStop = false;
+            pictureBoxOFFIntegracaoOnPedido.Click += pictureBoxOFFIntegracaoOnPedido_Click;
+            // 
+            // label33
+            // 
+            label33.AutoSize = true;
+            label33.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label33.Location = new Point(246, 55);
+            label33.Name = "label33";
+            label33.Size = new Size(102, 28);
+            label33.TabIndex = 25;
+            label33.Text = "OnPedido";
             // 
             // pictureBoxOnIntegracaoDelMatch
             // 
@@ -1039,6 +1216,61 @@
             pictureBoxOFFIntegracaoIfood.TabStop = false;
             pictureBoxOFFIntegracaoIfood.Click += pictureBoxOFFIntegracaoIfood_Click;
             // 
+            // panel10
+            // 
+            panel10.BackColor = SystemColors.ButtonFace;
+            panel10.Controls.Add(label35);
+            panel10.Controls.Add(textBoxsenhaOnPedido);
+            panel10.Controls.Add(label34);
+            panel10.Controls.Add(textBoxuserOnPedido);
+            panel10.Location = new Point(346, 729);
+            panel10.Name = "panel10";
+            panel10.Size = new Size(933, 112);
+            panel10.TabIndex = 16;
+            // 
+            // label35
+            // 
+            label35.AutoSize = true;
+            label35.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label35.Location = new Point(478, 17);
+            label35.Name = "label35";
+            label35.Size = new Size(180, 28);
+            label35.TabIndex = 4;
+            label35.Text = "Senha ONPEDIDO";
+            // 
+            // textBoxsenhaOnPedido
+            // 
+            textBoxsenhaOnPedido.BackColor = SystemColors.ButtonShadow;
+            textBoxsenhaOnPedido.Font = new Font("Segoe UI", 12F);
+            textBoxsenhaOnPedido.ForeColor = SystemColors.ButtonFace;
+            textBoxsenhaOnPedido.Location = new Point(478, 54);
+            textBoxsenhaOnPedido.Name = "textBoxsenhaOnPedido";
+            textBoxsenhaOnPedido.PlaceholderText = "Senha";
+            textBoxsenhaOnPedido.Size = new Size(443, 34);
+            textBoxsenhaOnPedido.TabIndex = 3;
+            textBoxsenhaOnPedido.UseSystemPasswordChar = true;
+            // 
+            // label34
+            // 
+            label34.AutoSize = true;
+            label34.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label34.Location = new Point(16, 23);
+            label34.Name = "label34";
+            label34.Size = new Size(165, 28);
+            label34.TabIndex = 2;
+            label34.Text = "User ONPEDIDO";
+            // 
+            // textBoxuserOnPedido
+            // 
+            textBoxuserOnPedido.BackColor = SystemColors.ButtonShadow;
+            textBoxuserOnPedido.Font = new Font("Segoe UI", 12F);
+            textBoxuserOnPedido.ForeColor = SystemColors.InactiveBorder;
+            textBoxuserOnPedido.Location = new Point(16, 54);
+            textBoxuserOnPedido.Name = "textBoxuserOnPedido";
+            textBoxuserOnPedido.PlaceholderText = "Usuario";
+            textBoxuserOnPedido.Size = new Size(433, 34);
+            textBoxuserOnPedido.TabIndex = 1;
+            // 
             // FormDeParametrosDoSistema
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -1046,6 +1278,7 @@
             AutoScroll = true;
             BackColor = SystemColors.ButtonShadow;
             ClientSize = new Size(1782, 853);
+            Controls.Add(panel10);
             Controls.Add(panel14);
             Controls.Add(panel13);
             Controls.Add(panel5);
@@ -1072,6 +1305,10 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             panelmpressoras.ResumeLayout(false);
             panelmpressoras.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFRemoveOpcoes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONRemoveOpcoes).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONImpressaoCompacta).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFImpressãoCompacta).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFF3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxON3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOn2).EndInit();
@@ -1104,10 +1341,14 @@
             panel13.PerformLayout();
             panel14.ResumeLayout(false);
             panel14.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoOnPedido).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoDelMatch).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoIfood).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoIfood).EndInit();
+            panel10.ResumeLayout(false);
+            panel10.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -1193,5 +1434,22 @@
         private Label label30;
         private PictureBox pictureBoxOnIntegracaoDelMatch;
         private PictureBox pictureBoxOFFIntegracaoDelMatch;
+        private Button LimparPedidosDelMatchBtn;
+        private PictureBox pictureBoxONImpressaoCompacta;
+        private PictureBox pictureBoxOFFImpressãoCompacta;
+        private Label label31;
+        private PictureBox pictureBoxOFFRemoveOpcoes;
+        private PictureBox pictureBoxONRemoveOpcoes;
+        private Label label32;
+        private PictureBox pictureBoxOFFIntegracaoOnPedido;
+        private Label label33;
+        private PictureBox pictureBoxONIntegracaoOnPedido;
+        private Label label36;
+        private TextBox textBoxTokenDeIntegracaoOnPedido;
+        private Panel panel10;
+        private Label label35;
+        private TextBox textBoxsenhaOnPedido;
+        private Label label34;
+        private TextBox textBoxuserOnPedido;
     }
 }

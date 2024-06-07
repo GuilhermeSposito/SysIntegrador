@@ -137,7 +137,7 @@ public partial class UCInfoPedido : UserControl
         foreach (Items item in items)
         {
             UCItem uCItem = new UCItem();
-            uCItem.SetLabels(item.name, item.quantity, item.unitPrice, item.optionsPrice, item.totalPrice, item.options, uCItem);
+            uCItem.SetLabels(item.name, item.quantity, item.unitPrice, item.optionsPrice, item.totalPrice, item.options, uCItem, item);
             panelDeItens.Controls.Add(uCItem);
         }
 
@@ -152,7 +152,10 @@ public partial class UCInfoPedido : UserControl
 
         List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
 
-        if (!opSistema.AgruparComandas)
+        bool ImprimeSoCaixa = pictureBoxDois.Visible == true && pictureBoxUm.Visible == false ? true : false;
+
+
+        if (!opSistema.AgruparComandas && !ImprimeSoCaixa)
         {
             foreach (string imp in impressoras)
             {
@@ -162,11 +165,22 @@ public partial class UCInfoPedido : UserControl
                 }
             }
         }
-        else
+        else if (!ImprimeSoCaixa)
         {
             Impressao.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
         }
 
+        if (ImprimeSoCaixa)
+        {
+            if (opSistema.ImpCompacta)
+            {
+                Impressao.DefineImpressao2(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+            }
+            else
+            {
+                Impressao.DefineImpressao(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+            }
+        }
 
 
         impressoras.Clear();
@@ -228,11 +242,12 @@ public partial class UCInfoPedido : UserControl
                 }
             }
 
-            if(Pedido.Situacao == "CANCELLED" || Pedido.Situacao == "CONCLUDED")
+            if (Pedido.Situacao == "CANCELLED" || Pedido.Situacao == "CONCLUDED")
             {
                 btnDespacharIfood.Visible = false;
                 buttonReadyToPickUp.Visible = false;
-                btnCancelar.Visible = false;    
+                btnCancelar.Visible = false;
+                BtnChamaEntregador.Visible = false;
             }
         }
         catch (Exception ex)
@@ -285,6 +300,31 @@ public partial class UCInfoPedido : UserControl
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "Erro ao Aceitar o pedido manualmente");
+        }
+    }
+
+    private void pictureBoxUm_Click(object sender, EventArgs e)
+    {
+        pictureBoxUm.Visible = false;
+        pictureBoxDois.Visible = true;
+
+    }
+
+    private void pictureBoxDois_Click(object sender, EventArgs e)
+    {
+        pictureBoxUm.Visible = true;
+        pictureBoxDois.Visible = false;
+    }
+
+    private async void BtnChamaEntregador_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            await Ifood.ChamaEntregador(Pedido.id);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
         }
     }
 }

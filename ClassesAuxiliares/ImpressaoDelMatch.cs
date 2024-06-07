@@ -32,7 +32,7 @@ public class ImpressaoDelMatch
     public static Font FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold);
     public static Font FonteNúmeroDoTelefone = new Font("DejaVu sans mono", 11, FontStyle.Bold);
     public static Font FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
-    public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 13, FontStyle.Bold);
+    public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteItens = new Font("DejaVu sans mono", 12, FontStyle.Bold);
     public static Font FonteOpcionais = new Font("DejaVu sans mono", 11, FontStyle.Regular);
     public static Font FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
@@ -53,7 +53,7 @@ public class ImpressaoDelMatch
         BROTINHO
     }
 
-    public static void Imprimir(List<ClsImpressaoDefinicoesDelMatch> conteudo, string impressora1)
+    public static void Imprimir(List<ClsImpressaoDefinicoesDelMatch> conteudo, string impressora1, int separacao)
     {
         // Defina o nome da impressora específica que você deseja usar
         string printerName = impressora1;
@@ -68,13 +68,13 @@ public class ImpressaoDelMatch
 
 
         // Atribua um manipulador de evento para o evento PrintPage
-        printDocument.PrintPage += (sender, e) => PrintPageHandler(sender, e, conteudo);
+        printDocument.PrintPage += (sender, e) => PrintPageHandler(sender, e, conteudo, separacao);
 
         // Inicie o processo de impressão
         printDocument.Print();
     }
 
-    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoesDelMatch> conteudo)
+    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoesDelMatch> conteudo, int separacao)
     {
         try
         {
@@ -96,7 +96,7 @@ public class ImpressaoDelMatch
                     else
                     {
                         e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
-                        Y += 24;
+                        Y += separacao;
                         continue;
                     }
                 }
@@ -118,7 +118,7 @@ public class ImpressaoDelMatch
                         {
 
                             e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                            Y += 24;
+                            Y += separacao;
                             frase = "";
                             continue;
 
@@ -126,14 +126,12 @@ public class ImpressaoDelMatch
                         else
                         {
                             e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
-                            Y += 24;
+                            Y += separacao;
                             frase = "";
                             continue;
                         }
 
                     }
-
-
 
                     if (frase != "")
                     {
@@ -154,7 +152,7 @@ public class ImpressaoDelMatch
                 }
 
                 frase = "";
-                Y += 24;
+                Y += separacao;
             }
             // Desenhe o texto na área de impressão
 
@@ -203,6 +201,8 @@ public class ImpressaoDelMatch
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
 
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+
                     AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteNomeRestaurante, AlinhamentosDelMatch.Centro);
                     AdicionaConteudo($"{opcDoSistema.Endereco}", FonteGeral);
                     AdicionaConteudo($"{opcDoSistema.Telefone}", FonteGeral, AlinhamentosDelMatch.Centro);
@@ -224,10 +224,10 @@ public class ImpressaoDelMatch
                     DateTime DataCertaCriadoEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
                     var DataCertaCriadoEm = DataCertaCriadoEmTimeStamp.ToString();
 
-                    AdicionaConteudo($"Realizado: \t {DataCertaCriadoEm.Substring(0,10)} {DataCertaCriadoEm.Substring(11,5)}", FonteGeral);
+                    AdicionaConteudo($"Realizado: \t {DataCertaCriadoEm.Substring(0, 10)} {DataCertaCriadoEm.Substring(11, 5)}", FonteGeral);
 
                     if (defineEntrega == "Retirada")
-                    { 
+                    {
 
                         DateTime DataCertaTerminarEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
                         var DataCertaTerminarEm = DataCertaTerminarEmTimeStamp.AddMinutes(30);
@@ -256,7 +256,7 @@ public class ImpressaoDelMatch
                         AdicionaConteudo($"{pedidoCompleto.deliveryAddress.StreetName}, {pedidoCompleto.deliveryAddress.StreetNumber} - {pedidoCompleto.deliveryAddress.Neighboardhood}", FonteEndereçoDoCliente);
 
 
-                        if (pedidoCompleto.deliveryAddress.Complement != null || pedidoCompleto.deliveryAddress.Complement != "")
+                        if (pedidoCompleto.deliveryAddress.Complement != null && pedidoCompleto.deliveryAddress.Complement.Length >= 1)
                         {
                             AdicionaConteudo($"Complemento: {pedidoCompleto.deliveryAddress.Complement}", FonteEndereçoDoCliente);
                         }
@@ -273,11 +273,11 @@ public class ImpressaoDelMatch
 
                     foreach (var item in pedidoCompleto.Items)
                     {
-                       ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
+                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
 
                         AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
 
-                       if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
+                        if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
                         {
                             if (item.ExternalCode == "G")
                             {
@@ -301,18 +301,20 @@ public class ImpressaoDelMatch
 
                         }
 
-                        if (item.SubItems.Count > 0)
+                        if (!opcDoSistema.RemoveComplementos)
                         {
-                            foreach (var option in CaracteristicasPedido.Observações)
+                            if (item.SubItems.Count > 0)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
-                            }
+                                foreach (var option in CaracteristicasPedido.Observações)
+                                {
+                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                }
 
-                            if (item.Observations != null && item.Observations.Length > 0)
-                            {
-                                AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                                if (item.Observations != null && item.Observations.Length > 0)
+                                {
+                                    AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                                }
                             }
-
                         }
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -333,11 +335,9 @@ public class ImpressaoDelMatch
                     }
                     var InfoPag = ClsInfosDePagamentosParaImpressaoDelMatch.DefineTipoDePagamento(pedidoCompleto.Payments);
 
-                    var Info1 =  $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
-                    var Info2 = InfoPag.TipoPagamento == "Não é nescessario receber do cliente na entrega" ?  "Não é nescessario receber do cliente na entrega" : "Receber do Cliente na entrega";
+                    var Info1 = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
 
                     AdicionaConteudo(Info1, FonteGeral);
-                    AdicionaConteudo(Info2, FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("Impresso por:", FonteGeral);
@@ -345,10 +345,186 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteCPF, AlinhamentosDelMatch.Centro);
 
                 }
 
-                Imprimir(Conteudo, impressora1);
+                Imprimir(Conteudo, impressora1, 24);
+                Conteudo.Clear();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
+    public static void DefineImpressao2(int numConta, int displayId, string impressora1) //impressão caixa
+    {
+        try
+        {
+            //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
+            PedidoDelMatch? pedidoCompleto = JsonConvert.DeserializeObject<PedidoDelMatch>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcDoSistema = dbContext.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+
+            string banco = opcDoSistema.CaminhodoBanco;
+            string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+                connection.Open();
+                string? defineEntrega = pedidoCompleto.Type == "TOGO" ? "R E T I R A D A" : "E N T R E G A";
+
+                string NumContaString = numConta.ToString();
+
+                using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
+                using (OleDbDataReader reader = comando.ExecuteReader())
+                {
+
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"{defineEntrega}", FonteItens);
+                    AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteItens);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"Pedido:                           #{pedidoCompleto.Id}", FonteGeral);
+   
+                    DateTime DataCertaCriadoEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
+                    var DataCertaCriadoEm = DataCertaCriadoEmTimeStamp.ToString();
+
+                    AdicionaConteudo($"Realizado: \t {DataCertaCriadoEm.Substring(0, 10)} {DataCertaCriadoEm.Substring(11, 5)}", FonteGeral);
+
+                    if (defineEntrega == "Retirada")
+                    {
+
+                        DateTime DataCertaTerminarEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
+                        var DataCertaTerminarEm = DataCertaTerminarEmTimeStamp.AddMinutes(30);
+
+                        AdicionaConteudo($"Terminar Até: \t {DataCertaTerminarEm.ToString().Substring(0, 10)} {DataCertaTerminarEm.ToString().Substring(11, 5)}", FonteGeral);
+                    }
+                    else
+                    {
+                        DateTime DataCertaEntregarEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
+                        var DataCertaEntregarEm = DataCertaEntregarEmTimeStamp.AddMinutes(50);
+
+                        AdicionaConteudo($"Entregar Até: \t {DataCertaEntregarEm.ToString().Substring(0, 10)} {DataCertaEntregarEm.ToString().Substring(11, 5)}", FonteGeral);
+                    }
+
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"Conta Nº:     {NumContaString.PadLeft(3, '0')}\n", FonteNúmeroDoPedido);
+                   
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo(pedidoCompleto.Customer.Name, FonteItens);
+                    AdicionaConteudo($"Fone: {pedidoCompleto.Customer.Phone}", FonteItens);
+
+                    if (pedidoCompleto.Type == "DELIVERY")
+                    {
+                        AdicionaConteudo("\n", FonteGeral);
+                        AdicionaConteudo($"{pedidoCompleto.deliveryAddress.StreetName}, {pedidoCompleto.deliveryAddress.StreetNumber} - {pedidoCompleto.deliveryAddress.Neighboardhood}", FonteItens);
+
+
+                        if (pedidoCompleto.deliveryAddress.Complement != null && pedidoCompleto.deliveryAddress.Complement.Length >= 1)
+                        {
+                            AdicionaConteudo($"Complemento: {pedidoCompleto.deliveryAddress.Complement}", FonteItens);
+                        }
+
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+                    else
+                    {
+                        AdicionaConteudo("RETIRADA NO BALCÃO", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    float valorDosItens = 0f;
+
+                    foreach (var item in pedidoCompleto.Items)
+                    {
+                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
+
+                        AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
+
+                        if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
+                        {
+                            if (item.ExternalCode == "G")
+                            {
+                                AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.ExternalCode == "M")
+                            {
+                                AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.ExternalCode == "P")
+                            {
+                                AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.ExternalCode == "B")
+                            {
+                                AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                            }
+
+                        }
+
+                        if (!opcDoSistema.RemoveComplementos)
+                        { 
+                            if (item.SubItems.Count > 0)
+                            {
+                                foreach (var option in CaracteristicasPedido.Observações)
+                                {
+                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                }
+
+                                if (item.Observations != null && item.Observations.Length > 0)
+                                {
+                                    AdicionaConteudo($"Obs: {item.Observations}", FonteGeral);
+                                }
+
+                            }
+                        }
+
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    AdicionaConteudo($"Valor dos itens:    \t {pedidoCompleto.SubTotal.ToString("c")} ", FonteGeral);
+                    AdicionaConteudo($"Taxa De Entrega:  \t {pedidoCompleto.deliveryFee.ToString("c")}", FonteGeral);
+                    AdicionaConteudo($"Taxa Adicional:   \t {pedidoCompleto.AdditionalFee.ToString("c")} ", FonteGeral);
+                    AdicionaConteudo($"Descontos:        \t\t {pedidoCompleto.Discount.ToString("c")}", FonteGeral);
+                    AdicionaConteudo($"Valor Total:      \t\t {pedidoCompleto.TotalPrice.ToString("c")}", FonteGeral);
+                    valorDosItens = 0f;
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    if (pedidoCompleto.deliveryAddress.Reference != null && pedidoCompleto.deliveryAddress.Reference.Length > 0)
+                    {
+                        AdicionaConteudo($"{pedidoCompleto.deliveryAddress.Reference}", FonteGeral);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    var InfoPag = ClsInfosDePagamentosParaImpressaoDelMatch.DefineTipoDePagamento(pedidoCompleto.Payments);
+
+                    var Info1 = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
+
+                    AdicionaConteudo(Info1, FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("Impresso por:", FonteGeral);
+                    AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
+
+                }
+
+                Imprimir(Conteudo, impressora1, 16);
                 Conteudo.Clear();
             }
 
@@ -381,7 +557,8 @@ public class ImpressaoDelMatch
                 using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
-                    //nome do restaurante estatico por enquanto
+
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
                     AdicionaConteudo($"Pedido:   #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -447,9 +624,10 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
                 }
 
-                Imprimir(Conteudo, impressora1);
+                Imprimir(Conteudo, impressora1, 24);
                 Conteudo.Clear();
             }
         }
@@ -490,6 +668,9 @@ public class ImpressaoDelMatch
             {
                 for (var i = 0; i < item.Quantity; i++)
                 {
+
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+
                     AdicionaConteudo($"Pedido:  #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -497,7 +678,7 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
-                   ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item, true);
+                    ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item, true);
 
                     if (item.Quantity > 1)
                     {
@@ -553,8 +734,9 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
-                    Imprimir(Conteudo, impressora1);
+                    Imprimir(Conteudo, impressora1, 24);
                     Conteudo.Clear();
 
 
@@ -695,6 +877,9 @@ public class ImpressaoDelMatch
 
             //nome do restaurante estatico por enquanto
 
+
+            AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -766,10 +951,11 @@ public class ImpressaoDelMatch
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+            AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
             if (impressora != "Nao")
             {
-                Imprimir(Conteudo, impressora);
+                Imprimir(Conteudo, impressora, 24);
             }
 
             //Imprimir(Conteudo, impressora);
@@ -805,6 +991,9 @@ public class ImpressaoDelMatch
 
                 for (int i = 0; i < quantidadeDoItem; i++)
                 {
+
+                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -869,10 +1058,11 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
                     if (impressora != "Nao")
                     {
-                        Imprimir(Conteudo, impressora);
+                        Imprimir(Conteudo, impressora, 24);
                     }
                     contagemItemAtual++;
                 }
@@ -894,7 +1084,15 @@ public class ImpressaoDelMatch
         ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-        DefineImpressao(numConta, displayId, opcSistema.Impressora1);
+        if (opcSistema.ImpCompacta)
+        {
+            DefineImpressao2(numConta, displayId, opcSistema.Impressora1);
+        }
+        else
+        {
+            DefineImpressao(numConta, displayId, opcSistema.Impressora1);
+        }
+
         SeparaItensParaImpressaoSeparada(numConta, displayId);
     }
 
@@ -906,7 +1104,14 @@ public class ImpressaoDelMatch
 
         if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
         {
-            DefineImpressao(numConta, displayId, impressora);
+            if (opcSistema.ImpCompacta)
+            {
+                DefineImpressao2(numConta, displayId, impressora);
+            }
+            else
+            {
+                DefineImpressao(numConta, displayId, impressora);
+            }
             ContagemDeImpressoes++;
             if (opcSistema.ImprimirComandaNoCaixa)
             {
@@ -941,7 +1146,7 @@ public class ImpressaoDelMatch
         return "───────────────────────────";
     }
 
-    
+
 
     public static void AdicionaConteudo(string conteudo, Font fonte, AlinhamentosDelMatch alinhamento = AlinhamentosDelMatch.Esquerda)
     {

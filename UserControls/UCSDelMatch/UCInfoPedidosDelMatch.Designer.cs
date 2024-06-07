@@ -658,6 +658,7 @@
             BtnAceitar.Text = "Aceitar";
             BtnAceitar.UseVisualStyleBackColor = false;
             BtnAceitar.Visible = false;
+            BtnAceitar.Click += BtnAceitar_Click;
             // 
             // BtnRejeitar
             // 
@@ -679,6 +680,7 @@
             BtnRejeitar.Text = "Rejeitar";
             BtnRejeitar.UseVisualStyleBackColor = false;
             BtnRejeitar.Visible = false;
+            BtnRejeitar.Click += BtnRejeitar_Click;
             // 
             // BtnConcluirPedido
             // 
@@ -801,6 +803,7 @@
             // pictureBoxDELMATCH
             // 
             pictureBoxDELMATCH.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            pictureBoxDELMATCH.Cursor = Cursors.Hand;
             pictureBoxDELMATCH.Image = (Image)resources.GetObject("pictureBoxDELMATCH.Image");
             pictureBoxDELMATCH.Location = new Point(981, 0);
             pictureBoxDELMATCH.Name = "pictureBoxDELMATCH";
@@ -808,6 +811,7 @@
             pictureBoxDELMATCH.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxDELMATCH.TabIndex = 41;
             pictureBoxDELMATCH.TabStop = false;
+            pictureBoxDELMATCH.Click += pictureBoxDELMATCH_Click;
             // 
             // UCInfoPedidosDelMatch
             // 

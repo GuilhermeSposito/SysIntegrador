@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.data;
+﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -13,7 +14,7 @@ namespace SysIntegradorApp.ClassesAuxiliares;
 public class ParametrosDoSistema
 {
     [Column("id")]
-    public int Id { get; set; }  
+    public int Id { get; set; }
     [Column("nomefantasia")]
     public string? NomeFantasia { get; set; }
     [Column("endereco")]
@@ -59,15 +60,21 @@ public class ParametrosDoSistema
     [Column("tipocomanda")]
     public int TipoComanda { get; set; }
     [Column("enviapedidoaut")]
-    public bool EnviaPedidoAut{ get; set; }
+    public bool EnviaPedidoAut { get; set; }
     [Column("integradelmatch")]
     public bool IntegraDelMatch { get; set; }
     [Column("integraifood")]
     public bool IntegraIfood { get; set; }
     [Column("userdelmatch")] public string? UserDelMatch { get; set; }
     [Column("senhadelmatch")] public string? SenhaDelMatch { get; set; }
+    [Column("impcompacta")] public bool ImpCompacta { get; set; }
+    [Column("removecomplmentos")] public bool RemoveComplementos { get; set; }
+    [Column("integraonpedido")] public bool IntegraOnOPedido { get; set; }
+    [Column("tokenonpedido")] public string? TokenOnPedido { get; set; }
+    [Column("useronpedido")] public string? UserOnPedido { get; set; }
+    [Column("senhaonpedido")] public string? SenhaOnPedido { get; set; }
 
-    public ParametrosDoSistema() {}
+    public ParametrosDoSistema() { }
 
 
     public static List<string> ListaImpressoras()
@@ -80,12 +87,12 @@ public class ParametrosDoSistema
             listaImpressoras.Add(item.ToString());
         }
 
-        return listaImpressoras;    
+        return listaImpressoras;
     }
 
     public static ParametrosDoSistema GetInfosSistema()
     {
-        ParametrosDoSistema Configuracoes = new ParametrosDoSistema();  
+        ParametrosDoSistema Configuracoes = new ParametrosDoSistema();
         try
         {
             ApplicationDbContext dbContext = new ApplicationDbContext();
@@ -121,13 +128,19 @@ public class ParametrosDoSistema
      string? merchantId,
      bool agrupaComandas,
      bool imprimirComandaNoCaixa,
-     int tipoComanda ,
+     int tipoComanda,
      bool enviaPedidoAut,
      string delMatchId,
      string UserDelMatch,
      string senhaDelMatch,
      bool integraIfood,
-     bool integraDelMatch
+     bool integraDelMatch,
+     bool impCompacta,
+     bool removeComplementos,
+     bool integraOnPedido,
+     string tokenOnPedido,
+     string userOnPedido,
+     string senhaOnPedido
      )
     {
         try
@@ -160,7 +173,13 @@ public class ParametrosDoSistema
             configuracoes.UserDelMatch = UserDelMatch;
             configuracoes.SenhaDelMatch = senhaDelMatch;
             configuracoes.IntegraDelMatch = integraDelMatch;
-            configuracoes.IntegraIfood = integraIfood;  
+            configuracoes.IntegraIfood = integraIfood;
+            configuracoes.ImpCompacta = impCompacta;
+            configuracoes.RemoveComplementos = removeComplementos;
+            configuracoes.IntegraOnOPedido = integraOnPedido;
+            configuracoes.TokenOnPedido = tokenOnPedido;
+            configuracoes.UserOnPedido = userOnPedido;
+            configuracoes.SenhaOnPedido = senhaOnPedido;
 
             dbContext.SaveChanges();
         }

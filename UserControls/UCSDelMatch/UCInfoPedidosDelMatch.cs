@@ -1,5 +1,7 @@
-﻿using SysIntegradorApp.ClassesAuxiliares;
+﻿using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using System;
@@ -8,6 +10,7 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -82,8 +85,11 @@ public partial class UCInfoPedidosDelMatch : UserControl
 
         var InfoPag = ClsInfosDePagamentosParaImpressaoDelMatch.DefineTipoDePagamento(Pedido.Payments);
 
-        infoPagPedido.Text = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
-        obsPagamentoPedido.Text = InfoPag.TipoPagamento == "Será pago na entrega" ? "Receber do Cliente na entrega" : "Não é nescessario receber do cliente na entrega";
+        var Info1 = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
+        var Info2 = InfoPag.TipoPagamento == "Não é nescessario receber do cliente na entrega" ? "Não é nescessario receber do cliente na entrega" : "Receber do Cliente na entrega";
+
+        infoPagPedido.Text = Info1;
+        obsPagamentoPedido.Text = Info2;
 
         if (Pedido.Customer.CPF == null)
         {
@@ -103,7 +109,7 @@ public partial class UCInfoPedidosDelMatch : UserControl
         foreach (items item in items)
         {
             UCItemDelMatch uCItem = new UCItemDelMatch();
-            uCItem.SetLabels(item.Name, item.Quantity, item.Price, item.SubItemsPrice, item.TotalPrice, item.SubItems, uCItem);
+            uCItem.SetLabels(item.Name, item.Quantity, item.Price, item.SubItemsPrice, item.TotalPrice, item.SubItems, uCItem, item);
             panelDeItens.Controls.Add(uCItem);
         }
 
@@ -157,6 +163,8 @@ public partial class UCInfoPedidosDelMatch : UserControl
         {
             await DelMatch.CancelaPedidoDelMatch(Pedido.Reference);
 
+            ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(Pedido.Id.ToString());
+
             MessageBox.Show($"Pedido {Pedido.Reference} Cancelado com sucesso!", "Cancelado", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
         catch (Exception)
@@ -183,7 +191,10 @@ public partial class UCInfoPedidosDelMatch : UserControl
     {
         try
         {
-            if(Status == "Cancelado")
+            ApplicationDbContext db = new ApplicationDbContext();
+            var configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            if (Status == "Cancelado")
             {
                 buttonCancelar.Visible = false;
                 BtnConcluirPedido.Visible = false;
@@ -191,12 +202,19 @@ public partial class UCInfoPedidosDelMatch : UserControl
                 btnDespachar.Visible = false;
             }
 
-            if(Status == "Pendente")///terminar de implementar depois
+            if (Status == "Pendente")///terminar de implementar depois
             {
                 buttonCancelar.Visible = false;
                 BtnConcluirPedido.Visible = false;
                 BtnConcluirPedido.Visible = false;
                 btnDespachar.Visible = false;
+
+                if (!configs.AceitaPedidoAut)
+                {
+                    BtnAceitar.Visible = true;
+                    BtnRejeitar.Visible = true;
+                }
+
             }
 
             if (Status == "Concluido")
@@ -212,4 +230,97 @@ public partial class UCInfoPedidosDelMatch : UserControl
             MessageBox.Show(ex.Message, "Ops");
         }
     }
+
+    private async void BtnAceitar_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            await DelMatch.ConfirmaPedidoDelMatch(Pedido);
+            ClsSons.StopSom();
+
+            FormMenuInicial.panelDetalhePedido.Controls.Clear();
+            FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+            FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao confirmar pedido", "Ops");
+        }
+    }
+
+    private async void BtnRejeitar_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            await DelMatch.CancelaPedidoDelMatch(Pedido.Reference);
+
+            MessageBox.Show($"Pedido {Pedido.Reference} Cancelado com sucesso!", "Cancelado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+            FormMenuInicial.panelDetalhePedido.Controls.Clear();
+            FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe);
+            FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true;
+        }
+        catch (Exception)
+        {
+            MessageBox.Show("Erro ao despachar pedido");
+        }
+    }
+
+    private async void pictureBoxDELMATCH_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema Configs = db.parametrosdosistema.FirstOrDefault();
+
+            DialogResult respUser = MessageBox.Show($"Você deseja chamar entregador para o pedido {Pedido.Id}?", "Chamando entregador", MessageBoxButtons.YesNo);
+
+            if (respUser == DialogResult.Yes)
+            {
+                Sequencia ClsParaEnviarPedido = await DelMatch.CriarPedidoParaEnviar(Pedido);
+
+                string? JsonContent = JsonConvert.SerializeObject(ClsParaEnviarPedido);
+
+                HttpResponseMessage response = await DelMatch.GerarPedidoManual(JsonContent);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string? jsonContent = await response.Content.ReadAsStringAsync();
+
+                    ClsDeserializacaoPedidoSucesso? reposta = JsonConvert.DeserializeObject<ClsDeserializacaoPedidoSucesso>(jsonContent);
+
+                    string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
+
+                    MessageBox.Show(reposta.Response, Titulo);
+
+                    FormMenuInicial.SetarPanelPedidos();
+                }
+                else
+                {
+                    string? jsonContent = await response.Content.ReadAsStringAsync();
+
+                    ClsDeserializacaoPedidoFalho? reposta = JsonConvert.DeserializeObject<ClsDeserializacaoPedidoFalho>(jsonContent);
+
+                    string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
+                    string Erro = "";
+
+                    foreach (var item in reposta.Response)
+                    {
+                        Erro += item.Message;
+                    }
+
+                    MessageBox.Show(Erro, Titulo);
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+
 }

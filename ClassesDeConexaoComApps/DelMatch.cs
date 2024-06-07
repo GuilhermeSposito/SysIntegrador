@@ -1,7 +1,10 @@
 ﻿using Entidades;
+using ExCSS;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.ClassesAuxiliares.logs;
+using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 using SysIntegradorApp.data;
 using SysIntegradorApp.Forms;
 using System;
@@ -11,6 +14,7 @@ using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection.Metadata;
+using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Text;
@@ -31,6 +35,14 @@ public class DelMatch
         string url = "https://delmatchcardapio.com/api/orders.json";
         try
         {
+            bool verificaInternet = await VerificaInternet.InternetAtiva();
+
+            if (!verificaInternet)
+            {
+                throw new Exception("Por favor verifique sua conexão com a internet");
+            }
+
+
             await RefreshTokenDelMatch();
 
             using ApplicationDbContext db = new ApplicationDbContext();
@@ -71,7 +83,10 @@ public class DelMatch
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString());
+            await Logs.CriaLogDeErro(ex.ToString());
+            ClsSons.PlaySom2();
+            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            ClsSons.StopSom();
         }
     }
 
@@ -86,9 +101,50 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
     }
+
+    public static async Task LimparPedidosDelMatch()
+    {
+        string url = "https://delmatchcardapio.com/api/orders.json";
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            HttpResponseMessage response = await EnviaReqParaDelMatch(url, "GET");
+            string reponseJson = await response.Content.ReadAsStringAsync();
+
+            if (reponseJson != null || reponseJson != "")
+            {
+                if ((int)response.StatusCode == 200)
+                {
+                    List<PedidoDelMatch> pedidosRecebido = JsonConvert.DeserializeObject<List<PedidoDelMatch>>(reponseJson);
+
+                    foreach (var pedido in pedidosRecebido)
+                    {
+                        var dataPedido = DateTime.Parse(pedido.CreatedAt);
+
+                        if (dataPedido != DateTime.Now)
+                        {
+                            await ConfirmaPedidoDelMatch(pedido);
+                        }
+
+                    }
+
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show("Erro ao limpar pedidos", "Ops");
+        }
+    }
+
 
     public static async Task AtualizarStatusPedido(string? Status, string? orderId)
     {
@@ -109,6 +165,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show("Erro ao atualizar Status Pedido", "OPS");
         }
     }
@@ -123,6 +180,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
     }
@@ -137,6 +195,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
     }
@@ -151,6 +210,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
     }
@@ -167,6 +227,15 @@ public class DelMatch
             string statusPedido = "Pendente";
             int insertNoSysMenuConta = 0;
             int displayId = pedido.Reference;
+
+            string? ComplementoDaEntrega = pedido.deliveryAddress.Complement; 
+
+            if(String.IsNullOrEmpty(ComplementoDaEntrega))
+            {
+                ComplementoDaEntrega = " ";
+            }
+
+
 
             if (opSistema.IntegracaoSysMenu)
             {
@@ -186,11 +255,13 @@ public class DelMatch
                    obsConta1: " ",
                    iFoodPedidoID: pedido.Id.ToString(),
                    obsConta2: " ",
+                   referencia: ComplementoDaEntrega,
                    endEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.StreetName + ", " + pedido.deliveryAddress.StreetNumber,
                    bairEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.Neighboardhood,
-                   entregador: mesa == "WEBB" ? "RETIRADA" : " "); //fim dos parâmetros do método de integração
+                   entregador: mesa == "WEBB" ? "RETIRADA" : "99"
+                   );//mesa == "WEBB" ? "RETIRADA" : " ") ; //fim dos parâmetros do método de integração
 
-                ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments[0].Code, insertNoSysMenuConta, pedido.Payments[0].Value);//por enquanto tudo esta caindo debito
+                ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments[0].Code, insertNoSysMenuConta, pedido.Payments[0].Value, pedido.Payments[0].Code, "DELMATCH");//por enquanto tudo esta caindo debito
 
 
                 SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
@@ -570,7 +641,7 @@ public class DelMatch
                                    obs12: obs12,
                                    obs13: obs13,
                                    obs14: obs14,
-                                   obs15: obs,
+                                   obs15: obs.Length > 80 ? obs.Substring(0, 80) : obs,
                                    cliente: pedido.Customer.Name, // texto curto 80 letras
                                    telefone: pedido.Customer.Phone == "" || pedido.Customer.Phone == null ? " " : pedido.Customer.Phone.Replace(" ", ""), // texto curto 14 letras
                                    impComanda: "Não",
@@ -862,7 +933,7 @@ public class DelMatch
                                    obs12: obs12,
                                    obs13: obs13,
                                    obs14: obs14,
-                                   obs15: obs,
+                                   obs15: obs.Length > 80 ? obs.Substring(0,80) : obs,
                                    cliente: pedido.Customer.Name, // texto curto 80 letras
                                    telefone: pedido.Customer.Phone == "" || pedido.Customer.Phone == null ? " " : pedido.Customer.Phone.Replace(" ", ""), // texto curto 14 letras
                                    impComanda: "Não",
@@ -902,6 +973,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
     }
@@ -933,13 +1005,14 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.Message, "ERRO AO GETPEDIDO");
         }
 
         return pedidosFromDb;
     }
 
-    public static PedidoCompleto DelMatchPedidoCompleto(PedidoDelMatch p)
+    public static async Task<PedidoCompleto> DelMatchPedidoCompleto(PedidoDelMatch p)
     {
         PedidoCompleto PedidoCompletoConvertido = new PedidoCompleto();
         try
@@ -981,12 +1054,13 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString());
         }
         return PedidoCompletoConvertido;
     }
 
-    public static List<Sequencia> ListarPedidosAbertos() //método que serve para enviarmos um pedido
+    public static async Task<List<Sequencia>> ListarPedidosAbertos() //método que serve para enviarmos um pedido
     {
         List<Sequencia> sequencias = new List<Sequencia>();
         try
@@ -1013,11 +1087,17 @@ public class DelMatch
                         while (reader.Read())
                         {
                             string telefone = reader["TELEFONE"].ToString();
-                            Sequencia sequencia = PesquisaClientesNoCadastro(telefone.Trim());
+                            Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "ENVIARPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
+
+                            if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
+                            {
+                                sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
+                            }
+
+                            sequencia.numConta = Convert.ToInt32(reader["CONTA"].ToString());
 
                             if (sequencia.DeliveryAddress.FormattedAddress != null)
                             {
-                                sequencia.numConta = Convert.ToInt32(reader["CONTA"].ToString());
                                 sequencia.ValorConta = Convert.ToDecimal(reader["ACRESCIMO"]) +
                                                        Convert.ToDecimal(reader["SERVICO"]) +
                                                        Convert.ToDecimal(reader["COUVERT"]) +
@@ -1063,13 +1143,14 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
         }
 
         return sequencias;
     }
 
-    public static List<Sequencia> ListarPedidosJaEnviados()
+    public static async Task<List<Sequencia>> ListarPedidosJaEnviados()
     {
         List<Sequencia> sequencias = new List<Sequencia>();
         try
@@ -1096,7 +1177,13 @@ public class DelMatch
                     {
                         while (reader.Read())
                         {
-                            Sequencia sequencia = PesquisaClientesNoCadastro(reader["TELEFONE"].ToString());
+                            string telefone = reader["TELEFONE"].ToString();
+                            Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "GETPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
+
+                            if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
+                            {
+                                sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
+                            }
 
                             if (sequencia.DeliveryAddress.FormattedAddress != null)
                             {
@@ -1134,6 +1221,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
         }
 
@@ -1149,12 +1237,43 @@ public class DelMatch
             StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync(url, content);
             string resposta = await response.Content.ReadAsStringAsync();
+
+            if ((int)response.StatusCode != 200)
+            {
+                ClsSons.PlaySom2();
+                MessageBox.Show("Erro ao enviar pedido, Comunique a syslogica!", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                ClsSons.StopSom();
+            }
+
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.Message);
+            await Logs.CriaLogDeErro(ex.ToString());
+            Console.WriteLine(ex.Message, "Ops");
         }
     }
+
+    public static async Task<HttpResponseMessage> GerarPedidoManual(string? jsonContent)
+    {
+        string? url = "https://delmatchapp.com/api/deliveries/default/";
+        HttpResponseMessage response = new HttpResponseMessage();
+        try
+        {
+            using HttpClient client = new HttpClient();
+            StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            response = await client.PostAsync(url, content);
+            string resposta = await response.Content.ReadAsStringAsync();
+
+            return response;
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            Console.WriteLine(ex.Message, "Ops");
+        }
+        return response;
+    }
+
 
     public static async Task<ClsDeserializacaoDelMatchEntrega> GetPedido(string? delMatchId)
     {
@@ -1189,13 +1308,63 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             Console.WriteLine(ex.Message);
         }
         return pedido;
     }
 
 
-    public static void UpdateDelMatchId(int numConta, string delmatchId)
+
+    public static async Task<bool> VerificaSePedidoFoiEnviado(List<string> pedidosId)
+    {
+        string apiUrl = "https://delmatchapp.com/api/deliveries-list/";
+        bool ExistePedido = false;
+        try
+        {
+            using ApplicationDbContext db = new ApplicationDbContext();
+            var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            string token = ConfigsSistema.DelMatchId;
+
+            using HttpClient client = new HttpClient();
+            client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
+
+            var response = await client.GetAsync(apiUrl);
+
+            string responseString = await response.Content.ReadAsStringAsync();
+
+            string responseJson = await response.Content.ReadAsStringAsync();
+            var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
+
+            foreach(string PedidoRef in pedidosId)
+            {
+                var pedidosValidos = pedidos.Where(x => x.IdOrder == PedidoRef).ToList();
+                
+                if (pedidosValidos.Count > 0)
+                {
+                    bool ExistePedidoENviado = pedidosValidos.Any(x => x.Status != "Created");
+
+                    if (ExistePedidoENviado)
+                    {
+                        ExistePedido = true;
+                    }
+                }   
+
+            }
+
+            return ExistePedido;
+            
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Erro ao enviar Req DelMatch");
+        }
+        return ExistePedido;
+    }
+
+    public static async void UpdateDelMatchId(int numConta, string delmatchId)
     {
         try
         {
@@ -1229,11 +1398,12 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.Message, "ERRO NO UPDATE DELMATCHID");
         }
     }
 
-    public static Sequencia PesquisaClientesNoCadastro(string? telefone)
+    public static async Task<Sequencia> PesquisaClientesNoCadastro(string? telefone)
     {
         Sequencia sequencia = new Sequencia();
         try
@@ -1248,7 +1418,6 @@ public class DelMatch
             using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
             {
                 connection.Open();
-
 
                 using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
                 {
@@ -1284,6 +1453,72 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Erro Ao listar Cliente Cadastrado");
+        }
+        return sequencia;
+    }
+
+    public static async Task<Sequencia> PesquisaEnderecoDeEntrega(string? numConta, string? metodo)
+    {
+        Sequencia sequencia = new Sequencia();
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+            string? SqlSelectIntoCadastros = "";
+
+            if (metodo == "ENVIARPEDIDO")
+            {
+                SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NULL";
+            }
+
+            if (metodo == "GETPEDIDO")
+            {
+                SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NOT NULL";
+            }
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                {
+                    selectCommand.Parameters.AddWithValue("@NUMCONTA", numConta);
+
+                    // Executar a consulta SELECT
+                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            sequencia.Customer.Name = reader["CONTATO"].ToString();
+                            sequencia.Customer.Phone = reader["TELEFONE"].ToString();
+                            sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
+
+                            sequencia.DeliveryAddress.FormattedAddress = reader["ENDENTREGA"].ToString();
+                            sequencia.DeliveryAddress.Country = "BR";
+                            sequencia.DeliveryAddress.State = "SP";
+                            sequencia.DeliveryAddress.City = "São Carlos";
+                            sequencia.DeliveryAddress.Neighborhood = reader["BAIENTREGA"].ToString();
+                            sequencia.DeliveryAddress.StreetName = reader["ENDENTREGA"].ToString();
+                            sequencia.DeliveryAddress.StreetNumber = "";
+                            sequencia.DeliveryAddress.PostalCode = "";
+                            sequencia.DeliveryAddress.Complement = reader["REFENTREGA"].ToString();
+
+                            sequencia.DeliveryAddress.Coordinates.Latitude = 0;
+                            sequencia.DeliveryAddress.Coordinates.Longitude = 0;
+                        }
+                        return sequencia;
+                    }
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "Erro Ao listar Cliente Cadastrado");
         }
         return sequencia;
@@ -1299,7 +1534,7 @@ public class DelMatch
 
             if (Configuracoes.EnviaPedidoAut)
             {
-                List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+                List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
                 int contagemdepedidos = pedidosAbertos.Count;
                 List<Sequencia> ItensAEnviarDelMach = FormDePedidosAbertos.ItensAEnviarDelMach;
 
@@ -1329,6 +1564,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show("Erro ao enviar pedidos automatico para delmatch", "Ops");
         }
     }
@@ -1368,6 +1604,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
         }
     }
@@ -1413,10 +1650,59 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
         }
     }
 
+
+    public static async Task<Sequencia> CriarPedidoParaEnviar(PedidoDelMatch Pedido)
+    {
+        Sequencia ClsParaEnviarPedido = new Sequencia();
+        try
+        {
+            ApplicationDbContext db = new ApplicationDbContext();
+            ParametrosDoSistema Configs = db.parametrosdosistema.FirstOrDefault();
+
+            ClsParaEnviarPedido.Id = Pedido.Id.ToString();
+            ClsParaEnviarPedido.ShortReference = Pedido.Reference.ToString();
+            ClsParaEnviarPedido.CreatedAt = Pedido.CreatedAt;
+            ClsParaEnviarPedido.Type = "DELIVERY";
+            ClsParaEnviarPedido.TimeMax = "";
+            ClsParaEnviarPedido.ValorConta = Convert.ToDecimal(Pedido.TotalPrice);
+
+            ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
+            ClsParaEnviarPedido.Merchant.Id = Configs.DelMatchId;
+            ClsParaEnviarPedido.Merchant.Name = Configs.NomeFantasia;
+            ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
+            ClsParaEnviarPedido.Merchant.Unit = Configs.DelMatchId;
+
+            ClsParaEnviarPedido.Customer.Name = Pedido.Customer.Name;
+            ClsParaEnviarPedido.Customer.Phone = Pedido.Customer.Phone;
+            ClsParaEnviarPedido.Customer.TaxPayerIdentificationNumber = Pedido.Customer.CPF;
+
+            ClsParaEnviarPedido.DeliveryAddress.FormattedAddress = $"{Pedido.deliveryAddress.StreetName}, {Pedido.deliveryAddress.StreetNumber} - {Pedido.deliveryAddress.Neighborhood}";
+            ClsParaEnviarPedido.DeliveryAddress.Country = Pedido.deliveryAddress.Country;
+            ClsParaEnviarPedido.DeliveryAddress.State = Pedido.deliveryAddress.State;
+            ClsParaEnviarPedido.DeliveryAddress.City = Pedido.deliveryAddress.City;
+            ClsParaEnviarPedido.DeliveryAddress.Neighborhood = Pedido.deliveryAddress.Neighborhood;
+            ClsParaEnviarPedido.DeliveryAddress.StreetName = Pedido.deliveryAddress.StreetName;
+            ClsParaEnviarPedido.DeliveryAddress.StreetNumber = Pedido.deliveryAddress.StreetNumber;
+            ClsParaEnviarPedido.DeliveryAddress.PostalCode = Pedido.deliveryAddress.PostalCode;
+            ClsParaEnviarPedido.DeliveryAddress.Complement = Pedido.deliveryAddress.Complement;
+
+            ClsParaEnviarPedido.DeliveryAddress.Coordinates.Latitude = 0;
+            ClsParaEnviarPedido.DeliveryAddress.Coordinates.Longitude = 0;
+
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.Message, "Ops");
+        }
+        return ClsParaEnviarPedido;
+    }
 
     public static async Task<HttpResponseMessage> EnviaReqParaDelMatch(string? url, string? metodo, string? content = "")
     {
@@ -1459,6 +1745,7 @@ public class DelMatch
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "Erro ao enviar Req DelMatch");
         }
         return response;

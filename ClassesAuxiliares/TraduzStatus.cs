@@ -35,6 +35,21 @@ internal class TraduzStatus
             case "CANCELLATION_REQUESTED":
                 StatusTraduzido = "Cancelado";
                     break;
+            case "REQUEST_DRIVER_SUCCESS":
+                StatusTraduzido = "Entregador Chamado";
+                break;
+            case "REQUEST_DRIVER":
+                StatusTraduzido = "Chamando Entregador";
+                break;
+            case "DELIVERED":
+                StatusTraduzido = "Concluido";
+                break;
+            case "HANDSHAKE_SETTLEMENT":
+                StatusTraduzido = "Disputa Concluida";
+                break;
+            case "HANDSHAKE_DISPUTE":
+                StatusTraduzido = "Disputa Aberta";
+                break;
             default:
                 StatusTraduzido = status; 
                 break;

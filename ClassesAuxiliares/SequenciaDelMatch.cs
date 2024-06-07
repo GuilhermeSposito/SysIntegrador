@@ -9,8 +9,6 @@ using System.Text.Json;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
-
-
 public class Sequencia
 {
     [JsonIgnore]public int numConta {  get; set; } 

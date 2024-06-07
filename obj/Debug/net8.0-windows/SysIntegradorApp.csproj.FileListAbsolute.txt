@@ -56,3 +56,6 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Deb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCPedidoDelMatch.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCComplementoDoItemDelMatch.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSDelMatch.UCItemDelMatch.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSOnPedido.UCInfoPedidoOnPedido.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSOnPedido.UCItemONPedido.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormCancelamentoOnPedido.resources

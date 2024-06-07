@@ -33,6 +33,8 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            progressBar1 = new ProgressBar();
+            label6 = new Label();
             BtnBuscar = new Button();
             textBoxBuscarPedido = new TextBox();
             label5 = new Label();
@@ -51,7 +53,6 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
-            label6 = new Label();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).BeginInit();
@@ -71,7 +72,6 @@
             panelPedidos.AutoScroll = true;
             panelPedidos.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panelPedidos.BackColor = SystemColors.ButtonHighlight;
-            panelPedidos.BorderStyle = BorderStyle.FixedSingle;
             panelPedidos.FlowDirection = FlowDirection.TopDown;
             panelPedidos.Location = new Point(13, 101);
             panelPedidos.Margin = new Padding(3, 300, 3, 3);
@@ -87,7 +87,6 @@
             panelDetalhePedido.AutoScroll = true;
             panelDetalhePedido.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panelDetalhePedido.BackColor = SystemColors.ButtonHighlight;
-            panelDetalhePedido.BorderStyle = BorderStyle.FixedSingle;
             panelDetalhePedido.Controls.Add(labelDeAvisoPedidoDetalhe);
             panelDetalhePedido.FlowDirection = FlowDirection.TopDown;
             panelDetalhePedido.Location = new Point(419, 101);
@@ -115,6 +114,7 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(progressBar1);
             panel1.Controls.Add(label6);
             panel1.Controls.Add(BtnBuscar);
             panel1.Controls.Add(textBoxBuscarPedido);
@@ -135,6 +135,25 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
+            // 
+            // progressBar1
+            // 
+            progressBar1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            progressBar1.Location = new Point(1217, 52);
+            progressBar1.Name = "progressBar1";
+            progressBar1.Size = new Size(125, 14);
+            progressBar1.Step = 1;
+            progressBar1.TabIndex = 20;
+            // 
+            // label6
+            // 
+            label6.AutoSize = true;
+            label6.Font = new Font("Segoe UI", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label6.Location = new Point(526, 3);
+            label6.Name = "label6";
+            label6.Size = new Size(16, 12);
+            label6.TabIndex = 18;
+            label6.Text = "F2";
             // 
             // BtnBuscar
             // 
@@ -243,7 +262,7 @@
             pollingManual.FlatAppearance.BorderSize = 3;
             pollingManual.FlatStyle = FlatStyle.Flat;
             pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(1034, 16);
+            pollingManual.Location = new Point(964, 16);
             pollingManual.Name = "pollingManual";
             pollingManual.Size = new Size(123, 39);
             pollingManual.TabIndex = 8;
@@ -305,9 +324,9 @@
             panelStatusLoja.Controls.Add(pictureBoxOfline);
             panelStatusLoja.Controls.Add(pictureBoxOnline);
             panelStatusLoja.Controls.Add(labelStatusLojaNM);
-            panelStatusLoja.Location = new Point(1200, 11);
+            panelStatusLoja.Location = new Point(1208, 3);
             panelStatusLoja.Name = "panelStatusLoja";
-            panelStatusLoja.Size = new Size(169, 47);
+            panelStatusLoja.Size = new Size(145, 47);
             panelStatusLoja.TabIndex = 7;
             // 
             // pictureBoxOfline
@@ -340,16 +359,6 @@
             labelStatusLojaNM.Size = new Size(86, 23);
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
-            // 
-            // label6
-            // 
-            label6.AutoSize = true;
-            label6.Font = new Font("Segoe UI", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label6.Location = new Point(526, 3);
-            label6.Name = "label6";
-            label6.Size = new Size(16, 12);
-            label6.TabIndex = 18;
-            label6.Text = "F2";
             // 
             // FormMenuInicial
             // 
@@ -410,6 +419,7 @@
         private Button BtnBuscar;
         private TextBox textBoxBuscarPedido;
         private Label label6;
+        private static ProgressBar progressBar1;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;

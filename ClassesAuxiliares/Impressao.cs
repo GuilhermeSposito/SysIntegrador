@@ -1,4 +1,6 @@
-﻿using SysIntegradorApp.data;
+﻿using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
 using System.Data.OleDb;
@@ -31,7 +33,7 @@ public class Impressao
     public static Font FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold);
     public static Font FonteNúmeroDoTelefone = new Font("DejaVu sans mono", 11, FontStyle.Bold);
     public static Font FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
-    public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 13, FontStyle.Bold);
+    public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteItens = new Font("DejaVu sans mono", 12, FontStyle.Bold);
     public static Font FonteOpcionais = new Font("DejaVu sans mono", 11, FontStyle.Regular);
     public static Font FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
@@ -52,7 +54,7 @@ public class Impressao
         BROTINHO
     }
 
-    public static void Imprimir(List<ClsImpressaoDefinicoes> conteudo, string impressora1)
+    public static void Imprimir(List<ClsImpressaoDefinicoes> conteudo, string impressora1, int espacamento)
     {
         // Defina o nome da impressora específica que você deseja usar
         string printerName = impressora1;
@@ -67,13 +69,13 @@ public class Impressao
 
 
         // Atribua um manipulador de evento para o evento PrintPage
-        printDocument.PrintPage += (sender, e) => PrintPageHandler(sender, e, conteudo);
+        printDocument.PrintPage += (sender, e) => PrintPageHandler(sender, e, conteudo, espacamento);
 
         // Inicie o processo de impressão
         printDocument.Print();
     }
 
-    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoes> conteudo)
+    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoes> conteudo, int espacamento)
     {
         try
         {
@@ -95,7 +97,7 @@ public class Impressao
                     else
                     {
                         e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
-                        Y += 24;
+                        Y += espacamento;
                         continue;
                     }
                 }
@@ -117,7 +119,7 @@ public class Impressao
                         {
 
                             e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                            Y += 24;
+                            Y += espacamento;
                             frase = "";
                             continue;
 
@@ -125,7 +127,7 @@ public class Impressao
                         else
                         {
                             e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
-                            Y += 24;
+                            Y += espacamento;
                             frase = "";
                             continue;
                         }
@@ -153,7 +155,7 @@ public class Impressao
                 }
 
                 frase = "";
-                Y += 24;
+                Y += espacamento;
             }
             // Desenhe o texto na área de impressão
 
@@ -177,7 +179,6 @@ public class Impressao
         return Meio;
     }
 
-
     public static void DefineImpressao(int numConta, int displayId, string impressora1) //impressão caixa
     {
         try
@@ -185,7 +186,7 @@ public class Impressao
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcDoSistema = dbContext.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
 
             string banco = opcDoSistema.CaminhodoBanco;
@@ -201,6 +202,7 @@ public class Impressao
                 using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
                     AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteNomeRestaurante, Alinhamentos.Centro);
                     AdicionaConteudo($"{opcDoSistema.Endereco}", FonteGeral);
@@ -298,19 +300,22 @@ public class Impressao
 
                         }
 
-                        if (item.options != null)
+                        if (!opcDoSistema.RemoveComplementos)
                         {
-                            foreach (var option in CaracteristicasPedido.Observações)
+                            if (item.options != null)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
-                            }
+                                foreach (var option in CaracteristicasPedido.Observações)
+                                {
+                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                }
 
-                            if (item.observations != null && item.observations.Length > 0)
-                            {
-                                AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
-                            }
+                                if (item.observations != null && item.observations.Length > 0)
+                                {
+                                    AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                                }
 
-                            valorDosItens += item.totalPrice;
+                                valorDosItens += item.totalPrice;
+                            }
                         }
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -349,7 +354,7 @@ public class Impressao
                     AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
                 }
 
-                Imprimir(Conteudo, impressora1);
+                Imprimir(Conteudo, impressora1, 24);
                 Conteudo.Clear();
             }
 
@@ -360,6 +365,197 @@ public class Impressao
         }
     }
 
+    public static void DefineImpressao2(int numConta, int displayId, string impressora1) //impressão caixa
+    {
+        try
+        {
+            //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcDoSistema = dbContext.parametrosdosistema.Where(x => x.Id == 1).FirstOrDefault();
+
+            string banco = opcDoSistema.CaminhodoBanco;
+            string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
+
+            using (OleDbConnection connection = new OleDbConnection(banco))
+            {
+                connection.Open();
+                string? defineEntrega = pedidoCompleto.orderType == "TAKEOUT" ? "R E T I R A D A" : "E N T R E G A";
+
+                string? defineEntrega2 = pedidoCompleto.orderType == "TAKEOUT" ? "Retirada" : "Entrega";
+
+                string NumContaString = numConta.ToString();
+
+                using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
+                using (OleDbDataReader reader = comando.ExecuteReader())
+                {
+
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"{defineEntrega}", FonteItens);
+                    AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteItens);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo($"Pedido:                                    #{pedidoCompleto.displayId}", FonteGeral);
+                    AdicionaConteudo($"Conta Nº:                                     {NumContaString.PadLeft(3, '0')}\n", FonteGeral);
+
+                    DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(pedidoCompleto.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                          System.Globalization.CultureInfo.InvariantCulture,
+                          System.Globalization.DateTimeStyles.AssumeUniversal);
+                    DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
+
+                    AdicionaConteudo($"Realizado: \t {DataCertaDaFeitoEm.ToString().Substring(0, 10)} {DataCertaDaFeitoEm.ToString().Substring(11, 5)}", FonteGeral);
+
+                    if (defineEntrega2 == "Retirada")
+                    {
+                        DateTime DataCertaDaRetiradaemTimeStamp = DateTime.ParseExact(pedidoCompleto.takeout.takeoutDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                 System.Globalization.CultureInfo.InvariantCulture,
+                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
+                        DateTime DataCertaDaRetirada = DataCertaDaRetiradaemTimeStamp.ToLocalTime();
+                        AdicionaConteudo($"Terminar Até: \t {DataCertaDaRetirada.ToString().Substring(0, 10)} {DataCertaDaRetirada.ToString().Substring(11, 5)}", FonteGeral);
+                    }
+                    else
+                    {
+                        DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(pedidoCompleto.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                 System.Globalization.CultureInfo.InvariantCulture,
+                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
+                        DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
+                        AdicionaConteudo($"Entregar Até: \t {DataCertaDaEntrega.ToString().Substring(0, 10)} {DataCertaDaEntrega.ToString().Substring(11, 5)}", FonteGeral);
+                    }
+
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
+                    AdicionaConteudo($"Localizador: {pedidoCompleto.customer.phone.localizer}", FonteItens);
+
+                    if (pedidoCompleto.orderType == "DELIVERY")
+                    {
+                        AdicionaConteudo("\n", FonteGeral);
+                        AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.formattedAddress} - {pedidoCompleto.delivery.deliveryAddress.neighborhood}", FonteItens);
+
+
+                        if (pedidoCompleto.delivery.deliveryAddress.complement != null && pedidoCompleto.delivery.deliveryAddress.complement.Length >= 1)
+                        {
+                            AdicionaConteudo($"Complemento: {pedidoCompleto.delivery.deliveryAddress.complement}", FonteItens);
+                        }
+
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+                    else
+                    {
+                        AdicionaConteudo("RETIRADA NO BALCÃO", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    float valorDosItens = 0f;
+
+                    foreach (var item in pedidoCompleto.items)
+                    {
+                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item);
+
+                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.totalPrice.ToString("c")}\n\n", FonteItens);
+
+                        if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                        {
+                            if (item.externalCode == "G")
+                            {
+                                AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "M")
+                            {
+                                AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "P")
+                            {
+                                AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                            }
+
+                            if (item.externalCode == "B")
+                            {
+                                AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                            }
+
+                        }
+
+                        if (!opcDoSistema.RemoveComplementos)
+                        {
+
+                            if (item.options.Count > 0)
+                            {
+                                foreach (var option in CaracteristicasPedido.Observações)
+                                {
+                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                }
+
+
+                                if (item.observations != null && item.observations.Length > 0)
+                                {
+                                    AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                                }
+
+                            }
+                        }
+
+                        if(item.observations != null && item.observations.Length > 0)
+                        {
+                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                        }
+
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    AdicionaConteudo($"Valor dos itens:    \t {pedidoCompleto.total.subTotal.ToString("c")} ", FonteGeral);
+                    AdicionaConteudo($"Taxa De Entrega:  \t {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteGeral);
+                    AdicionaConteudo($"Taxa Adicional:   \t {pedidoCompleto.total.additionalFees.ToString("c")} ", FonteGeral);
+                    AdicionaConteudo($"Descontos:        \t\t {pedidoCompleto.total.benefits.ToString("c")}", FonteGeral);
+                    AdicionaConteudo($"Valor Total:      \t\t {pedidoCompleto.total.orderAmount.ToString("c")}", FonteGeral);
+                    valorDosItens = 0f;
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    if (pedidoCompleto.delivery.deliveryAddress.reference != null && pedidoCompleto.delivery.deliveryAddress.reference.Length > 0)
+                    {
+                        AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.reference}", FonteGeral);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    ClsInfosDePagamentosParaImpressao infosDePagamento = DefineTipoDePagamento(pedidoCompleto.payments.methods);
+
+                    AdicionaConteudo(infosDePagamento.FormaPagamento, FonteGeral);
+                    AdicionaConteudo(infosDePagamento.TipoPagamento, FonteGeral);
+                    if (infosDePagamento.TipoPagamento == "Pago Online")
+                    {
+                        AdicionaConteudo("Pedido pago online, não é nescessario receber do cliente na entrega", FonteGeral);
+                    }
+
+                    AdicionaConteudo($"Valor: \t {infosDePagamento.valor.ToString("c")}", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+
+                    AdicionaConteudo("Impresso por:", FonteGeral);
+                    AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
+
+                }
+
+                Imprimir(Conteudo, impressora1, 16);
+                Conteudo.Clear();
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
+
     public static void ImprimeComanda(int numConta, int displayId, string impressora1) //comanda
     {
         try
@@ -367,7 +563,7 @@ public class Impressao
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
             string banco = opcSistema.CaminhodoBanco;
@@ -382,7 +578,7 @@ public class Impressao
                 using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
-                    //nome do restaurante estatico por enquanto
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -449,9 +645,10 @@ public class Impressao
 
 
                     AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
                 }
 
-                Imprimir(Conteudo, impressora1);
+                Imprimir(Conteudo, impressora1, 24);
                 Conteudo.Clear();
             }
         }
@@ -469,7 +666,7 @@ public class Impressao
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
             string banco = opcSistema.CaminhodoBanco;
@@ -492,6 +689,8 @@ public class Impressao
             {
                 for (var i = 0; i < item.quantity; i++)
                 {
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -555,8 +754,9 @@ public class Impressao
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
 
-                    Imprimir(Conteudo, impressora1);
+                    Imprimir(Conteudo, impressora1, 24);
                     Conteudo.Clear();
 
 
@@ -581,13 +781,13 @@ public class Impressao
 
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
 
             foreach (var item in pedidoCompleto.items)
             {
-                bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? true : false;
+                bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" ? true : false;
                 string externalCode = item.externalCode;
 
                 if (ePizza)
@@ -598,33 +798,36 @@ public class Impressao
                         {
                             List<string> LocalDeImpressaoDasPizza = ClsDeIntegracaoSys.DefineNomeImpressoraPorProduto(option.externalCode);
 
-                            var GruposDoItemPizza = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).ToList();
-
                             if (LocalDeImpressaoDasPizza.Count() > 1)
                             {
-                                foreach (var grupo in GruposDoItemPizza)
-                                {
-                                    var verifSejaExisteAPizzaDEntroDosItens = grupo.Itens.Any(x => x == item);
+                                var GruposDoItemPizza = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).ToList();
 
-                                    if (!verifSejaExisteAPizzaDEntroDosItens)
+                                if (LocalDeImpressaoDasPizza.Count() > 1)
+                                {
+                                    foreach (var grupo in GruposDoItemPizza)
                                     {
-                                        grupo.Itens.Add(item);
+                                        var verifSejaExisteAPizzaDEntroDosItens = grupo.Itens.Any(x => x == item);
+
+                                        if (!verifSejaExisteAPizzaDEntroDosItens)
+                                        {
+                                            grupo.Itens.Add(item);
+                                        }
                                     }
                                 }
-                            }
-                            else
-                            {
-                                var GrupoDoItem = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).FirstOrDefault();
-
-                                if (GrupoDoItem != null)
+                                else
                                 {
-                                    var verifSejaExisteAPizzaDEntroDosItens = GrupoDoItem.Itens.Any(x => x == item);
+                                    var GrupoDoItem = ListaDeItems.Where(x => x.Impressora1 == LocalDeImpressaoDasPizza[0] || x.Impressora1 == LocalDeImpressaoDasPizza[1]).FirstOrDefault();
 
-                                    if (!verifSejaExisteAPizzaDEntroDosItens)
+                                    if (GrupoDoItem != null)
                                     {
-                                        GrupoDoItem.Itens.Add(item);
-                                    }
+                                        var verifSejaExisteAPizzaDEntroDosItens = GrupoDoItem.Itens.Any(x => x == item);
 
+                                        if (!verifSejaExisteAPizzaDEntroDosItens)
+                                        {
+                                            GrupoDoItem.Itens.Add(item);
+                                        }
+
+                                    }
                                 }
                             }
                         }
@@ -687,7 +890,7 @@ public class Impressao
         {
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string NumContaString = numConta.ToString();
 
@@ -695,6 +898,7 @@ public class Impressao
             //string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
 
             //nome do restaurante estatico por enquanto
+            AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -704,7 +908,6 @@ public class Impressao
 
             int qtdItens = pedidoCompleto.items.Count();
             int contagemItemAtual = 1;
-
 
             foreach (var item in itens)
             {
@@ -767,10 +970,11 @@ public class Impressao
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+            AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
 
             if (impressora != "Nao")
             {
-                Imprimir(Conteudo, impressora);
+                Imprimir(Conteudo, impressora, 24);
             }
 
             //Imprimir(Conteudo, impressora);
@@ -779,7 +983,7 @@ public class Impressao
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString());
+            MessageBox.Show(ex.Message, "Erro ao imprimir comanda", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -790,7 +994,7 @@ public class Impressao
 
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
-            PedidoCompleto? pedidoCompleto = JsonSerializer.Deserialize<PedidoCompleto>(pedidoPSQL.Json);
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string NumContaString = numConta.ToString();
 
@@ -806,6 +1010,8 @@ public class Impressao
 
                 for (int i = 0; i < quantidadeDoItem; i++)
                 {
+                    AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -871,9 +1077,11 @@ public class Impressao
 
 
                     AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
+
                     if (impressora != "Nao")
                     {
-                        Imprimir(Conteudo, impressora);
+                        Imprimir(Conteudo, impressora, 24);
                     }
                     contagemItemAtual++;
                 }
@@ -895,7 +1103,14 @@ public class Impressao
         ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-        DefineImpressao(numConta, displayId, opcSistema.Impressora1);
+        if (opcSistema.ImpCompacta)
+        {
+            DefineImpressao2(numConta, displayId, opcSistema.Impressora1);
+        }
+        else
+        {
+            DefineImpressao(numConta, displayId, opcSistema.Impressora1);
+        }
         SeparaItensParaImpressaoSeparada(numConta, displayId);
     }
 
@@ -907,7 +1122,14 @@ public class Impressao
 
         if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
         {
-            DefineImpressao(numConta, displayId, impressora);
+            if (opcSistema.ImpCompacta)
+            {
+                DefineImpressao2(numConta, displayId, impressora);
+            }
+            else
+            {
+                DefineImpressao(numConta, displayId, impressora);
+            }
             ContagemDeImpressoes++;
             if (opcSistema.ImprimirComandaNoCaixa)
             {

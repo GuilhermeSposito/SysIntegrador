@@ -19,6 +19,8 @@ public class Token
     [Column("venceem")] public string? VenceEm { get; set; }
     [Column("tokendelmatch")] public string? TokenDelMatch { get; set; }
     [Column("venceemdelmatch")] public string? VenceEmDelMatch { get; set; }
+    [Column("tokenonpedido")] public string? TokenOnPedido { get; set; }
+    [Column("venceemonpedido")] public string? VenceEmOnPedido { get; set; }
 
     public static string? TokenDaSessao { get; set; }
     public Token(){}

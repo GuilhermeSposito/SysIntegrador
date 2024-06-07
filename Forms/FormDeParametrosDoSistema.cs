@@ -1,4 +1,5 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
@@ -119,6 +120,38 @@ namespace SysIntegradorApp.Forms
                 pictureBoxOnIntegracaoDelMatch.Visible = false;
             }
 
+            if (Configuracoes.ImpCompacta)
+            {
+                pictureBoxOFFImpressãoCompacta.Visible = false;
+                pictureBoxONImpressaoCompacta.Visible = true;
+            }
+            else
+            {
+                pictureBoxOFFImpressãoCompacta.Visible = true;
+                pictureBoxONImpressaoCompacta.Visible = false;
+            }
+
+            if (Configuracoes.RemoveComplementos)
+            {
+                pictureBoxOFFRemoveOpcoes.Visible = false;
+                pictureBoxONRemoveOpcoes.Visible = true;
+            }
+            else
+            {
+                pictureBoxOFFRemoveOpcoes.Visible = true;
+                pictureBoxONRemoveOpcoes.Visible = false;
+            }
+
+            if (Configuracoes.IntegraOnOPedido)
+            {
+                pictureBoxOFFIntegracaoOnPedido.Visible = false;
+                pictureBoxONIntegracaoOnPedido.Visible = true;
+            }
+            else
+            {
+                pictureBoxOFFIntegracaoOnPedido.Visible = true;
+                pictureBoxONIntegracaoOnPedido.Visible = false;
+            }
 
         }
 
@@ -160,6 +193,9 @@ namespace SysIntegradorApp.Forms
             instancia.textBoxDelMatchId.Text = Configuracoes.DelMatchId;
             instancia.textBoxUserDelMatch.Text = Configuracoes.UserDelMatch;
             instancia.textBoxSenhaDelMatch.Text = Configuracoes.SenhaDelMatch;
+            instancia.textBoxTokenDeIntegracaoOnPedido.Text = Configuracoes.TokenOnPedido;
+            instancia.textBoxuserOnPedido.Text = Configuracoes.UserOnPedido;
+            instancia.textBoxsenhaOnPedido.Text = Configuracoes.SenhaOnPedido;
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -204,6 +240,12 @@ namespace SysIntegradorApp.Forms
                     string senhaDelMatch = textBoxSenhaDelMatch.Text;
                     bool integraIfood = false;
                     bool integraDelMatch = false;
+                    bool impCompacta = false;
+                    bool removeComplementos = false;
+                    bool integraOnPedido = false;
+                    string? tokenOnPedido = textBoxTokenDeIntegracaoOnPedido.Text;  
+                    string? userOnPedido = textBoxuserOnPedido.Text;  
+                    string? senhaOnPedido = textBoxsenhaOnPedido.Text;  
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -250,19 +292,49 @@ namespace SysIntegradorApp.Forms
                         integraIfood = true;
                     }
 
-                    if(pictureBoxOFFIntegracaoIfood.Visible == true)
+                    if (pictureBoxOFFIntegracaoIfood.Visible == true)
                     {
                         integraIfood = false;
                     }
 
                     if (pictureBoxOnIntegracaoDelMatch.Visible == true)
                     {
-                        integraDelMatch = true; 
+                        integraDelMatch = true;
                     }
 
-                    if(pictureBoxOFFIntegracaoDelMatch.Visible == true)
+                    if (pictureBoxOFFIntegracaoDelMatch.Visible == true)
                     {
                         integraDelMatch = false;
+                    }
+
+                    if (pictureBoxONImpressaoCompacta.Visible == true)
+                    {
+                        impCompacta = true;
+                    }
+
+                    if (pictureBoxOFFImpressãoCompacta.Visible == true)
+                    {
+                        impCompacta = false;
+                    }
+
+                    if (pictureBoxONRemoveOpcoes.Visible == true)
+                    {
+                        removeComplementos = true;
+                    }
+
+                    if (pictureBoxONRemoveOpcoes.Visible == false)
+                    {
+                        removeComplementos = false;
+                    }
+
+                    if (pictureBoxOFFIntegracaoOnPedido.Visible == true)
+                    {
+                        integraOnPedido = false;
+                    }
+
+                    if (pictureBoxONIntegracaoOnPedido.Visible == true)
+                    {
+                        integraOnPedido = true;
                     }
 
                     // Chamando o método SetInfosSistema com os valores obtidos
@@ -291,7 +363,13 @@ namespace SysIntegradorApp.Forms
                          UserDelMatch,
                          senhaDelMatch,
                          integraIfood,
-                         integraDelMatch
+                         integraDelMatch,
+                         impCompacta,
+                         removeComplementos,
+                         integraOnPedido,
+                         tokenOnPedido,
+                         userOnPedido,
+                         senhaOnPedido
                      );
 
                     this.Close();
@@ -387,6 +465,60 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxOFFIntegracaoDelMatch.Visible = true;
             pictureBoxOnIntegracaoDelMatch.Visible = false;
+        }
+
+        private async void LimparPedidosDelMatchBtn_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+
+                await DelMatch.LimparPedidosDelMatch();
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Ops");
+            }
+        }
+
+        private void pictureBoxOFFImpressãoCompacta_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFImpressãoCompacta.Visible = false;
+            pictureBoxONImpressaoCompacta.Visible = true;
+        }
+
+        private void pictureBoxONImpressaoCompacta_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFImpressãoCompacta.Visible = true;
+            pictureBoxONImpressaoCompacta.Visible = false;
+        }
+
+        private void pictureBoxONRemoveOpcoes_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFRemoveOpcoes.Visible = true;
+            pictureBoxONRemoveOpcoes.Visible = false;
+        }
+
+        private void pictureBoxOFFRemoveOpcoes_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFRemoveOpcoes.Visible = false;
+            pictureBoxONRemoveOpcoes.Visible = true;
+        }
+
+        private void pictureBoxOFFIntegracaoOnPedido_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoOnPedido.Visible = false;
+            pictureBoxONIntegracaoOnPedido.Visible = true;
+
+        }
+
+        private void pictureBoxONIntegracaoOnPedido_Click(object sender, EventArgs e)
+        {
+            pictureBoxOFFIntegracaoOnPedido.Visible = true;
+            pictureBoxONIntegracaoOnPedido.Visible = false;
         }
     }
 }

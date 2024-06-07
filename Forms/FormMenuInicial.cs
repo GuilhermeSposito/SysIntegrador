@@ -22,6 +22,8 @@ using System.Windows.Forms;
 using System.Windows.Forms.VisualStyles;
 using Newtonsoft.Json;
 using System.Collections;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.ClassesAuxiliares.logs;
 
 namespace SysIntegradorApp;
 
@@ -30,6 +32,10 @@ public partial class FormMenuInicial : Form
     //public Panel panelPedidos; 
 
     private System.Threading.Timer _timer;
+    private System.Threading.Timer _timer2;
+
+
+    public static int ContadorPooling { get; set; }
 
     public FormMenuInicial()
     {
@@ -55,7 +61,7 @@ public partial class FormMenuInicial : Form
 
     private void FormMenuInicial_Load(object sender, EventArgs e)
     {
-        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(10)); //Função que chama o pulling a cada 30 segundos 
+        _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
     }
 
@@ -78,16 +84,27 @@ public partial class FormMenuInicial : Form
             List<PedidoCompleto> pedidos = new List<PedidoCompleto>(); //lista para colocar os pedidos do ifood
             List<ParametrosDoPedido> pedidosFromDb = await Ifood.GetPedido(pesquisaDisplayId);
             List<ParametrosDoPedido> DelMatchPedidos = await DelMatch.GetPedidoDelMatch(pesquisaDisplayId);
+            List<ParametrosDoPedido> PedidosONPedidos = await OnPedido.GetPedidoOnPedido(pesquisaDisplayId);
 
             var pedidoOrdenado = pedidosFromDb.ToList();
 
             panelPedidos.Controls.Clear();
             panelPedidos.PerformLayout();
 
+            foreach (var item in PedidosONPedidos)
+            {
+                var pedidoJsonConvertido = JsonConvert.DeserializeObject<PedidoOnPedido>(item.Json);
+                PedidoCompleto PedidoConvertido = await OnPedido.OnPedidoPedidoCompleto(pedidoJsonConvertido);
+                PedidoConvertido.Situacao = item.Situacao;
+                PedidoConvertido.NumConta = item.Conta;
+                PedidoConvertido.CriadoPor = "ONPEDIDO";
+                pedidos.Add(PedidoConvertido);
+            }
+
             foreach (var item in DelMatchPedidos)
             {
                 var pedidoJsonConvertido = JsonConvert.DeserializeObject<PedidoDelMatch>(item.Json);
-                PedidoCompleto PedidoConvertido = DelMatch.DelMatchPedidoCompleto(pedidoJsonConvertido);
+                PedidoCompleto PedidoConvertido = await DelMatch.DelMatchPedidoCompleto(pedidoJsonConvertido);
                 PedidoConvertido.Situacao = item.Situacao;
                 PedidoConvertido.NumConta = item.Conta;
                 PedidoConvertido.CriadoPor = "DELMATCH";
@@ -114,13 +131,68 @@ public partial class FormMenuInicial : Form
             //Faz um loop para adicionar os UserControls De pedido no panel
             foreach (var item in pedidosOrdenado)
             {
+
+                if (item.CriadoPor == "ONPEDIDO")
+                {
+                    if (Configuracoes.IntegraOnOPedido)
+                    {
+                        string horarioCorrigido = "";
+
+                        if (item.orderType == "DELIVERY")
+                        {
+                            DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime);
+                            horarioCorrigido = HorarioMudado.ToString();
+                        }
+                        else
+                        {
+                            DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime);
+                            horarioCorrigido = HorarioMudado.ToString();
+                        }
+
+                        UCPedido UserControlPedido = new UCPedido()
+                        {
+                            Pedido = item,
+                            Id_pedido = item.id,
+                            OrderType = item.orderType,
+                            Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                            NomePedido = item.customer.name,
+                            DeliveryBy = "RETIRADA",
+                            FeitoAs = item.createdAt,
+                            HorarioEntrega = horarioCorrigido,//item.delivery.deliveryDateTime,
+                            LocalizadorPedido = "RETIRADA",
+                            EnderecoFormatado = "RETIRADA",
+                            Bairro = "RETIRADA",
+                            TipoDaEntrega = "RETIRADA",
+                            ValorTotalItens = item.total.subTotal,
+                            ValorTaxaDeentrega = item.total.deliveryFee,
+                            Valortaxaadicional = item.total.additionalFees,
+                            Descontos = item.total.benefits,
+                            TotalDoPedido = item.total.orderAmount,
+                            // Observations = item.delivery.observations,
+                            items = item.items,
+                        };
+
+                        if (item.orderTiming == "SCHEDULED")
+                        {
+                            UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
+                        }
+
+                        UserControlPedido.MudaParaLogoONPedido(UserControlPedido);
+                        UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+
+                        panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                    }
+
+                }
+
+
                 if (item.CriadoPor == "DELMATCH")
                 {
                     if (Configuracoes.IntegraDelMatch)
                     {
                         string horarioCorrigido = "";
 
-                        if(item.orderType == "DELIVERY")
+                        if (item.orderType == "DELIVERY")
                         {
                             DateTime HorarioMudado = DateTime.Parse(item.createdAt).AddMinutes(50);
                             horarioCorrigido = HorarioMudado.ToString();
@@ -154,6 +226,8 @@ public partial class FormMenuInicial : Form
                             items = item.items,
                         };
 
+
+                        UserControlPedido.MudaPicturesBoxDePedidoEnviado();
                         UserControlPedido.MudaParaLogoDelMatch(UserControlPedido);
                         UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
@@ -236,6 +310,7 @@ public partial class FormMenuInicial : Form
                                     items = item.items,
                                 };
 
+                                UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
 
                                 UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.schedule.deliveryDateTimeEnd, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
                                 UserControlPedido.MudarLabelQuandoAgendada("Agendato até:");
@@ -304,6 +379,7 @@ public partial class FormMenuInicial : Form
                                     items = item.items
                                 };
 
+                                UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
 
                                 UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, item.createdAt, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
@@ -324,7 +400,7 @@ public partial class FormMenuInicial : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK);
+            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
 
@@ -386,9 +462,38 @@ public partial class FormMenuInicial : Form
                 await DelMatch.PoolingDelMatch();
             }
 
+            if (Configuracoes.IntegraOnOPedido)
+            {
+                await OnPedido.Pooling();
+            }
+
+            // BarraDeCarregamento();
+
+            _timer2 = new System.Threading.Timer(BarraDeCarregamento, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(1000)); //Função que chama o pulling a cada 30 segundos 
         }
         catch (Exception ex)
         {
+            MessageBox.Show(ex.ToString(), "OPS");
+        }
+    }
+
+    private async void BarraDeCarregamento(object state)
+    {
+        try
+        {
+            ContadorPooling += 1 * 4;
+
+            if (ContadorPooling >= 100)
+            {
+                _timer2.Dispose();
+                ContadorPooling = 0;
+            }
+
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.progressBar1.Value = ContadorPooling));
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "OPS");
         }
     }

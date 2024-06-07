@@ -40,10 +40,10 @@ public partial class DeliveryForm : Form
 
     }
 
-    private void label2_Click(object sender, EventArgs e)
+    private async void label2_Click(object sender, EventArgs e)
     {
 
-        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
         int contagemdepedidos = pedidosAbertos.Count;
 
 
@@ -69,10 +69,10 @@ public partial class DeliveryForm : Form
     private void panelDeIniciarEntrega_Paint(object sender, PaintEventArgs e)
     { }
 
-    private void panelDeIniciarEntrega_Click(object sender, EventArgs e)
+    private async void panelDeIniciarEntrega_Click(object sender, EventArgs e)
     {
 
-        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosAbertos();
+        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
         int contagemdepedidos = pedidosAbertos.Count;
 
 
@@ -94,9 +94,9 @@ public partial class DeliveryForm : Form
 
     }
 
-    private void panelDeListarPedidos_Click(object sender, EventArgs e)
+    private async void panelDeListarPedidos_Click(object sender, EventArgs e)
     {
-        List<Sequencia> pedidosAbertos = DelMatch.ListarPedidosJaEnviados();
+        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosJaEnviados();
         int contagemdepedidos = pedidosAbertos.Count;
 
         if (contagemdepedidos > 0)

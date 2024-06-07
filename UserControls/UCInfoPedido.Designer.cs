@@ -70,6 +70,10 @@
             labelCPF = new Label();
             label16 = new Label();
             panel9 = new Panel();
+            BtnChamaEntregador = new Button();
+            pictureBoxDois = new PictureBox();
+            pictureBoxUm = new PictureBox();
+            pictureBox15 = new PictureBox();
             BtnAceitar = new Button();
             BtnRejeitar = new Button();
             buttonReadyToPickUp = new Button();
@@ -105,6 +109,9 @@
             panel8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).BeginInit();
             panel9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDois).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxUm).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox15).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
@@ -550,6 +557,10 @@
             panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonHighlight;
             panel9.BorderStyle = BorderStyle.FixedSingle;
+            panel9.Controls.Add(BtnChamaEntregador);
+            panel9.Controls.Add(pictureBoxDois);
+            panel9.Controls.Add(pictureBoxUm);
+            panel9.Controls.Add(pictureBox15);
             panel9.Controls.Add(BtnAceitar);
             panel9.Controls.Add(BtnRejeitar);
             panel9.Controls.Add(buttonReadyToPickUp);
@@ -561,6 +572,67 @@
             panel9.Padding = new Padding(0, 10, 0, 0);
             panel9.Size = new Size(1006, 70);
             panel9.TabIndex = 10;
+            // 
+            // BtnChamaEntregador
+            // 
+            BtnChamaEntregador.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnChamaEntregador.AutoSize = true;
+            BtnChamaEntregador.BackColor = SystemColors.ButtonHighlight;
+            BtnChamaEntregador.Cursor = Cursors.Hand;
+            BtnChamaEntregador.FlatAppearance.BorderColor = Color.Blue;
+            BtnChamaEntregador.FlatAppearance.BorderSize = 2;
+            BtnChamaEntregador.FlatAppearance.MouseDownBackColor = Color.Red;
+            BtnChamaEntregador.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
+            BtnChamaEntregador.FlatStyle = FlatStyle.Flat;
+            BtnChamaEntregador.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            BtnChamaEntregador.ForeColor = Color.Blue;
+            BtnChamaEntregador.Location = new Point(549, 13);
+            BtnChamaEntregador.Name = "BtnChamaEntregador";
+            BtnChamaEntregador.Size = new Size(188, 40);
+            BtnChamaEntregador.TabIndex = 26;
+            BtnChamaEntregador.Text = "Chamar Entregador";
+            BtnChamaEntregador.UseVisualStyleBackColor = false;
+            BtnChamaEntregador.Visible = false;
+            BtnChamaEntregador.Click += BtnChamaEntregador_Click;
+            // 
+            // pictureBoxDois
+            // 
+            pictureBoxDois.Cursor = Cursors.Hand;
+            pictureBoxDois.ErrorImage = (Image)resources.GetObject("pictureBoxDois.ErrorImage");
+            pictureBoxDois.Image = (Image)resources.GetObject("pictureBoxDois.Image");
+            pictureBoxDois.Location = new Point(137, 16);
+            pictureBoxDois.Name = "pictureBoxDois";
+            pictureBoxDois.Size = new Size(26, 30);
+            pictureBoxDois.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDois.TabIndex = 29;
+            pictureBoxDois.TabStop = false;
+            pictureBoxDois.Visible = false;
+            pictureBoxDois.Click += pictureBoxDois_Click;
+            // 
+            // pictureBoxUm
+            // 
+            pictureBoxUm.Cursor = Cursors.Hand;
+            pictureBoxUm.ErrorImage = (Image)resources.GetObject("pictureBoxUm.ErrorImage");
+            pictureBoxUm.Image = (Image)resources.GetObject("pictureBoxUm.Image");
+            pictureBoxUm.Location = new Point(137, 16);
+            pictureBoxUm.Name = "pictureBoxUm";
+            pictureBoxUm.Size = new Size(26, 30);
+            pictureBoxUm.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxUm.TabIndex = 28;
+            pictureBoxUm.TabStop = false;
+            pictureBoxUm.Click += pictureBoxUm_Click;
+            // 
+            // pictureBox15
+            // 
+            pictureBox15.Cursor = Cursors.Hand;
+            pictureBox15.ErrorImage = (Image)resources.GetObject("pictureBox15.ErrorImage");
+            pictureBox15.Image = (Image)resources.GetObject("pictureBox15.Image");
+            pictureBox15.Location = new Point(126, 12);
+            pictureBox15.Name = "pictureBox15";
+            pictureBox15.Size = new Size(50, 40);
+            pictureBox15.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox15.TabIndex = 27;
+            pictureBox15.TabStop = false;
             // 
             // BtnAceitar
             // 
@@ -574,9 +646,9 @@
             BtnAceitar.FlatStyle = FlatStyle.Flat;
             BtnAceitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
             BtnAceitar.ForeColor = Color.White;
-            BtnAceitar.Location = new Point(539, 6);
+            BtnAceitar.Location = new Point(565, 2);
             BtnAceitar.Name = "BtnAceitar";
-            BtnAceitar.Size = new Size(125, 51);
+            BtnAceitar.Size = new Size(125, 49);
             BtnAceitar.TabIndex = 6;
             BtnAceitar.TabStop = false;
             BtnAceitar.Text = "Aceitar";
@@ -596,9 +668,9 @@
             BtnRejeitar.FlatStyle = FlatStyle.Flat;
             BtnRejeitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
             BtnRejeitar.ForeColor = Color.White;
-            BtnRejeitar.Location = new Point(682, 5);
+            BtnRejeitar.Location = new Point(696, 2);
             BtnRejeitar.Name = "BtnRejeitar";
-            BtnRejeitar.Size = new Size(125, 51);
+            BtnRejeitar.Size = new Size(125, 49);
             BtnRejeitar.TabIndex = 5;
             BtnRejeitar.TabStop = false;
             BtnRejeitar.Text = "Rejeitar";
@@ -618,7 +690,7 @@
             buttonReadyToPickUp.FlatStyle = FlatStyle.Flat;
             buttonReadyToPickUp.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             buttonReadyToPickUp.ForeColor = Color.Blue;
-            buttonReadyToPickUp.Location = new Point(313, 13);
+            buttonReadyToPickUp.Location = new Point(346, 12);
             buttonReadyToPickUp.Name = "buttonReadyToPickUp";
             buttonReadyToPickUp.Size = new Size(188, 40);
             buttonReadyToPickUp.TabIndex = 4;
@@ -658,7 +730,7 @@
             btnDespacharIfood.FlatStyle = FlatStyle.Flat;
             btnDespacharIfood.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnDespacharIfood.ForeColor = Color.Blue;
-            btnDespacharIfood.Location = new Point(166, 13);
+            btnDespacharIfood.Location = new Point(219, 12);
             btnDespacharIfood.Name = "btnDespacharIfood";
             btnDespacharIfood.Size = new Size(107, 39);
             btnDespacharIfood.TabIndex = 1;
@@ -758,7 +830,7 @@
             panelDeItens.Location = new Point(47, 265);
             panelDeItens.Name = "panelDeItens";
             panelDeItens.Padding = new Padding(55, 0, 0, 0);
-            panelDeItens.Size = new Size(967, 487);
+            panelDeItens.Size = new Size(988, 487);
             panelDeItens.TabIndex = 20;
             panelDeItens.WrapContents = false;
             // 
@@ -858,6 +930,9 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox9).EndInit();
             panel9.ResumeLayout(false);
             panel9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDois).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxUm).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox15).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
@@ -925,5 +1000,9 @@
         private Button BtnAceitar;
         private Button BtnRejeitar;
         private PictureBox pictureBox1;
+        private PictureBox pictureBoxUm;
+        private PictureBox pictureBox15;
+        private PictureBox pictureBoxDois;
+        private Button BtnChamaEntregador;
     }
 }

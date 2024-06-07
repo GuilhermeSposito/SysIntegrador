@@ -1,8 +1,11 @@
 ﻿using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.UserControls.UCSDelMatch;
+using SysIntegradorApp.UserControls.UCSOnPedido;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -49,7 +52,7 @@ public partial class UCPedido : UserControl
     {
         Id_pedido = id_pedido;
         labelNumPedido.Text = $"#{numPedido}";
-        labelNumConta.Text = Pedido.NumConta.ToString().PadLeft(3, '0');
+        labelNumConta.Text = Pedido.NumConta.ToString() == "999" ? "MESA" : Pedido.NumConta.ToString().PadLeft(3, '0');
         labelNomePedido.Text = nomePedido;
         labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
         string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
@@ -84,6 +87,37 @@ public partial class UCPedido : UserControl
     {
         try
         {
+            if (Pedido.CriadoPor == "ONPEDIDO")
+            {
+                try
+                {
+
+                    ApplicationDbContext db = new ApplicationDbContext();
+                    ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).ToList().FirstOrDefault();
+
+                    PedidoOnPedido? PedidoDeserializado = JsonConvert.DeserializeObject<PedidoOnPedido>(Pedido.Json);
+
+                    FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                    FormMenuInicial.panelDetalhePedido.PerformLayout();
+                    UCInfoPedidoOnPedido infoPedido = new UCInfoPedidoOnPedido() { Pedido = PedidoDeserializado, Status = Pedido.Situacao };
+                    infoPedido.SetLabels();
+
+                    int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+
+                    infoPedido.Width = tamanhoPanel - 50;//1707;
+                    infoPedido.Height = 1200;
+
+                    infoPedido.InsereItemNoPedido(PedidoDeserializado.Return.ItemsOn);
+                    FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
+                    FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+
+            }
+
             if (Pedido.CriadoPor == "DELMATCH")
             {
                 try
@@ -96,7 +130,7 @@ public partial class UCPedido : UserControl
 
                     FormMenuInicial.panelDetalhePedido.Controls.Clear();
                     FormMenuInicial.panelDetalhePedido.PerformLayout();
-                    UCInfoPedidosDelMatch infoPedido = new UCInfoPedidosDelMatch() { Pedido = PedidoDeserializado, Status = Pedido.Situacao};
+                    UCInfoPedidosDelMatch infoPedido = new UCInfoPedidosDelMatch() { Pedido = PedidoDeserializado, Status = Pedido.Situacao };
                     infoPedido.SetLabels();
 
                     int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
@@ -114,7 +148,6 @@ public partial class UCPedido : UserControl
                 }
 
             }
-
 
             if (Pedido.CriadoPor == "IFOOD")
             {
@@ -158,6 +191,13 @@ public partial class UCPedido : UserControl
     {
         instancia.pictureBox1.Visible = false;
         instancia.pictureBoxDELMATCH.Visible = true;
+    }
+
+    public void MudaParaLogoONPedido(UCPedido instancia)
+    {
+        instancia.pictureBox1.Visible = false;
+        instancia.pictureBoxDELMATCH.Visible = false;
+        instancia.pictureBoxOnPedido.Visible = true;
     }
 
     private void UCPedido_Enter(object sender, EventArgs e)
@@ -231,6 +271,35 @@ public partial class UCPedido : UserControl
     {
         try
         {
+            if (Pedido.CriadoPor == "ONPEDIDO")
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
+                {
+                    foreach (string imp in impressoras)
+                    {
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            ImpressaoONPedido.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
+                    }
+                }
+                else
+                {
+                    ImpressaoONPedido.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
+
+
+
+                impressoras.Clear();
+            }
+
+
             if (Pedido.CriadoPor == "DELMATCH")
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
@@ -308,4 +377,55 @@ public partial class UCPedido : UserControl
         UCPedido_Enter(sender, e);
         this.Focus();
     }
+
+    private void pictureBoxOnPedido_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+    public async void MudaPicturesBoxDePedidoEnviado()
+    {
+        try
+        {
+            string idPedido1 = Pedido.NumConta.ToString().PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
+            string idPedido2 = Pedido.displayId;
+
+            List<string> PossiveisIDPedido = new List<string>();
+            PossiveisIDPedido.Add(idPedido1);
+            PossiveisIDPedido.Add(idPedido2);
+
+            if (Pedido.orderType == "DELIVERY")
+            {
+                bool verificaSeFoiEnviadoPedido = await DelMatch.VerificaSePedidoFoiEnviado(PossiveisIDPedido);
+
+                if (verificaSeFoiEnviadoPedido)
+                {
+                    pictureBoxPedidoEnviado.Visible = true;
+                }
+                else
+                {
+                    pictureBoxPedidoNaoEnviado.Visible = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    public async void MudaPictureBoxAgendada(UCPedido instancia)
+    {
+        try
+        {
+            instancia.pictureBoxAgendada.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
 }

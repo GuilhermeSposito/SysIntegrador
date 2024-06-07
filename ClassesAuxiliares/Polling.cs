@@ -31,7 +31,8 @@ public class Metadata
     public string? appName { get; set; }
     public string? details { get; set; }
     public string? ownerName { get; set; }
-    public string? reason_code { get; set; }    
+    public string? reason_code { get; set; }
+    public List<string> acceptCancellationReasons { get; set; } = new List<string>();
     public Metadata()
     {
 

@@ -22,7 +22,7 @@ public partial class UCItemDelMatch : UserControl
         ClsEstiloComponentes.CustomizePanelBorder(panelValorTotal);
     }
 
-    public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<SubItens> options, UCItemDelMatch instancia)
+    public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<SubItens> options, UCItemDelMatch instancia, items itemDelMatch)
     {
         quantidadeItem.Text = $"{quantity.ToString()}X";
         nomeDoItem.Text = nome;
@@ -32,6 +32,18 @@ public partial class UCItemDelMatch : UserControl
 
         int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
         int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados
+
+        bool ePizza = itemDelMatch.ExternalCode == "G" || itemDelMatch.ExternalCode == "M" || itemDelMatch.ExternalCode == "P" || itemDelMatch.ExternalCode == "B" ? true : false;
+
+        if (!ePizza)
+        {
+            bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(itemDelMatch.ExternalCode);
+
+            if (!ExisteExternalCode)
+            {
+                instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
+            }
+        }
 
 
         if (options.Count() == 0)
@@ -49,6 +61,15 @@ public partial class UCItemDelMatch : UserControl
             ucComplemento.SetLabels(item.Name, item.TotalPrice);
             ucComplemento.Size = new Size(600, 60);
 
+            if (!item.ExternalCode.Contains("m") && ePizza)
+            {
+                bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.ExternalCode);
+
+                if (!ExisteExternalCode)
+                {
+                    instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
+                }
+            }
 
             Panel panelParaLeyout = new Panel();
             panelParaLeyout.Controls.Add(ucComplemento);
@@ -67,5 +88,9 @@ public partial class UCItemDelMatch : UserControl
 
     }
 
+    public void MudaPictureBoxDeAvisoExternalCode(UCItemDelMatch instancia)
+    {
+        instancia.pictureBoxExternalCode.Visible = true;
+    }
 
 }
