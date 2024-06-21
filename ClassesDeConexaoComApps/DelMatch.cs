@@ -1,11 +1,13 @@
 ﻿using Entidades;
 using ExCSS;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
@@ -29,13 +31,19 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
 public class DelMatch
 {
+    public readonly IMeuContexto _Contxt;
 
-    public async static Task PoolingDelMatch()
+    public DelMatch(IMeuContexto contxt)
+    {
+        _Contxt = contxt;
+    }
+
+    public async Task PoolingDelMatch()
     {
         string url = "https://delmatchcardapio.com/api/orders.json";
         try
         {
-            bool verificaInternet = await VerificaInternet.InternetAtiva();
+            bool verificaInternet = true; //await VerificaInternet.InternetAtiva();
 
             if (!verificaInternet)
             {
@@ -45,40 +53,48 @@ public class DelMatch
 
             await RefreshTokenDelMatch();
 
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            HttpResponseMessage response = await EnviaReqParaDelMatch(url, "GET");
-            string reponseJson = await response.Content.ReadAsStringAsync();
-
-            if (reponseJson != null || reponseJson != "")
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                if ((int)response.StatusCode == 200)
+                ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                HttpResponseMessage response = await EnviaReqParaDelMatch(url, "GET");
+                string reponseJson = await response.Content.ReadAsStringAsync();
+
+                if (reponseJson != null || reponseJson != "")
                 {
-                    List<PedidoDelMatch> pedidosRecebido = JsonConvert.DeserializeObject<List<PedidoDelMatch>>(reponseJson);
-
-                    foreach (var pedido in pedidosRecebido)
+                    if ((int)response.StatusCode == 200)
                     {
-                        string idPedido = pedido.Id.ToString();
-                        bool ExistePedido = db.parametrosdopedido.Any(x => x.Id == idPedido);
+                        List<PedidoDelMatch> pedidosRecebido = JsonConvert.DeserializeObject<List<PedidoDelMatch>>(reponseJson);
 
-                        if (!ExistePedido)
+                        foreach (var pedido in pedidosRecebido)
                         {
-                            ClsSons.PlaySom();
-                            await SetPedidoDelMatch(pedido);
+                            string idPedido = pedido.Id.ToString();
+                            bool ExistePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == idPedido);
 
-                            if (Configs.AceitaPedidoAut)
+                            if (!ExistePedido)
                             {
-                                await ConfirmaPedidoDelMatch(pedido);
-                                ClsSons.StopSom();
+                                ClsSons.PlaySom();
+                                await SetPedidoDelMatch(pedido);
+
+                                if (Configs.AceitaPedidoAut)
+                                {
+                                    await ConfirmaPedidoDelMatch(pedido);
+                                    ClsSons.StopSom();
+                                }
+
+                                ClsDeSuporteAtualizarPanel.MudouDataBase = true;
                             }
 
-                            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                            /*if (ExistePedido && pedido.Type == "INDOOR")
+                             {
+                                 ClsSons.PlaySom();
+                                 await SetPedidoDelMatch(pedido, true);
+                             }*/
                         }
+
                     }
 
                 }
-
             }
         }
         catch (Exception ex)
@@ -90,13 +106,13 @@ public class DelMatch
         }
     }
 
-    public static async Task ConfirmaPedidoDelMatch(PedidoDelMatch pedido)
+    public async Task ConfirmaPedidoDelMatch(PedidoDelMatch pedido)
     {
         string url = $"https://delmatchcardapio.com/api/orders/{pedido.Reference.ToString()}/statuses/confirmation.json";
         try
         {
             await EnviaReqParaDelMatch(url, "POST");
-            await AtualizarStatusPedido("Confirmado", pedido.Reference.ToString());
+            await AtualizarStatusPedido("CONFIRMED", pedido.Reference.ToString());
 
         }
         catch (Exception ex)
@@ -106,36 +122,38 @@ public class DelMatch
         }
     }
 
-    public static async Task LimparPedidosDelMatch()
+    public async Task LimparPedidosDelMatch()
     {
         string url = "https://delmatchcardapio.com/api/orders.json";
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            HttpResponseMessage response = await EnviaReqParaDelMatch(url, "GET");
-            string reponseJson = await response.Content.ReadAsStringAsync();
-
-            if (reponseJson != null || reponseJson != "")
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                if ((int)response.StatusCode == 200)
+                ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                HttpResponseMessage response = await EnviaReqParaDelMatch(url, "GET");
+                string reponseJson = await response.Content.ReadAsStringAsync();
+
+                if (reponseJson != null || reponseJson != "")
                 {
-                    List<PedidoDelMatch> pedidosRecebido = JsonConvert.DeserializeObject<List<PedidoDelMatch>>(reponseJson);
-
-                    foreach (var pedido in pedidosRecebido)
+                    if ((int)response.StatusCode == 200)
                     {
-                        var dataPedido = DateTime.Parse(pedido.CreatedAt);
+                        List<PedidoDelMatch> pedidosRecebido = JsonConvert.DeserializeObject<List<PedidoDelMatch>>(reponseJson);
 
-                        if (dataPedido != DateTime.Now)
+                        foreach (var pedido in pedidosRecebido)
                         {
-                            await ConfirmaPedidoDelMatch(pedido);
+                            var dataPedido = DateTime.Parse(pedido.CreatedAt);
+
+                            if (dataPedido != DateTime.Now)
+                            {
+                                await ConfirmaPedidoDelMatch(pedido);
+                            }
+
                         }
 
                     }
 
                 }
-
             }
         }
         catch (Exception ex)
@@ -145,22 +163,23 @@ public class DelMatch
         }
     }
 
-
-    public static async Task AtualizarStatusPedido(string? Status, string? orderId)
+    public async Task AtualizarStatusPedido(string? Status, string? orderId)
     {
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-
-            bool verificaSeExistePedido = db.parametrosdopedido.Any(x => x.Id == orderId);
-
-            if (verificaSeExistePedido)
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                var pedido = db.parametrosdopedido.Where(x => x.Id == orderId).FirstOrDefault();
-                pedido.Situacao = Status;
-                db.SaveChanges();
+                bool verificaSeExistePedido = db.parametrosdopedido.Any(x => x.Id == orderId);
 
-                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                if (verificaSeExistePedido)
+                {
+                    var pedido = db.parametrosdopedido.Where(x => x.Id == orderId).FirstOrDefault();
+                    pedido.Situacao = Status;
+                    db.SaveChanges();
+
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                    //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                }
             }
         }
         catch (Exception ex)
@@ -170,13 +189,13 @@ public class DelMatch
         }
     }
 
-    public static async Task DispachaPedidoDelMatch(int reference)
+    public async Task DispachaPedidoDelMatch(int reference)
     {
         string url = $"https://delmatchcardapio.com/api/orders/{reference.ToString()}/statuses/dispatch.json";
         try
         {
             await EnviaReqParaDelMatch(url, "POST");
-            await AtualizarStatusPedido("Despachado", reference.ToString());
+            await AtualizarStatusPedido("DISPATCHED", reference.ToString());
         }
         catch (Exception ex)
         {
@@ -185,13 +204,13 @@ public class DelMatch
         }
     }
 
-    public static async Task MarcaEntregePedidoDelMatch(int reference)
+    public async Task MarcaEntregePedidoDelMatch(int reference)
     {
         string url = $"https://delmatchcardapio.com/api/orders/{reference.ToString()}/statuses/delivered.json";
         try
         {
             await EnviaReqParaDelMatch(url, "POST");
-            await AtualizarStatusPedido("Concluido", reference.ToString());
+            await AtualizarStatusPedido("CONCLUDED", reference.ToString());
         }
         catch (Exception ex)
         {
@@ -200,13 +219,13 @@ public class DelMatch
         }
     }
 
-    public static async Task CancelaPedidoDelMatch(int reference)
+    public async Task CancelaPedidoDelMatch(int reference)
     {
         string url = $"https://delmatchcardapio.com/api/orders/{reference.ToString()}/statuses/cancellation.json";
         try
         {
             await EnviaReqParaDelMatch(url, "POST");
-            await AtualizarStatusPedido("Cancelado", reference.ToString());
+            await AtualizarStatusPedido("CANCELLED", reference.ToString());
         }
         catch (Exception ex)
         {
@@ -215,761 +234,26 @@ public class DelMatch
         }
     }
 
-    public static async Task SetPedidoDelMatch(PedidoDelMatch pedido)
+    public async Task FechaMesa()
     {
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            bool ProcuraMesaFechada = ClsDeIntegracaoSys.ProcuraMesaFechada();
 
-            string IdPedido = pedido.Id.ToString();
-            string jsonContent = JsonConvert.SerializeObject(pedido);
-            string statusPedido = "Pendente";
-            int insertNoSysMenuConta = 0;
-            int displayId = pedido.Reference;
-
-            string? ComplementoDaEntrega = pedido.deliveryAddress.Complement; 
-
-            if(String.IsNullOrEmpty(ComplementoDaEntrega))
+            if (ProcuraMesaFechada)
             {
-                ComplementoDaEntrega = " ";
+                ClsApoioFechamanetoDeMesa MesasFechadas = ClsDeIntegracaoSys.MesasFechadas();
+
+                foreach (var item in MesasFechadas.Mesas)
+                {
+                    string url = $"https://delmatchcardapio.com/api/orders/{item.PedidoID}/statuses/finish.json";
+
+                    await EnviaReqParaDelMatch(url, "POST");
+
+                    await AtualizarStatusPedido("CONCLUDED", item.PedidoID);
+                }
+
             }
-
-
-
-            if (opSistema.IntegracaoSysMenu)
-            {
-                string mesa = pedido.Type == "TOGO" ? "WEBB" : "WEB";
-
-                insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
-                   mesa: mesa,
-                   cortesia: pedido.Discount,
-                   taxaEntrega: pedido.deliveryFee,
-                   taxaMotoboy: 0.00f,
-                   dtInicio: pedido.CreatedAt.Substring(0, 10),
-                   hrInicio: pedido.CreatedAt.ToString().Substring(11, 5),
-                   contatoNome: pedido.Customer.Name,
-                   usuario: "CAIXA",
-                   dataSaida: pedido.CreatedAt.Substring(0, 10),
-                   hrSaida: pedido.CreatedAt.Substring(11, 5),
-                   obsConta1: " ",
-                   iFoodPedidoID: pedido.Id.ToString(),
-                   obsConta2: " ",
-                   referencia: ComplementoDaEntrega,
-                   endEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.StreetName + ", " + pedido.deliveryAddress.StreetNumber,
-                   bairEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.Neighboardhood,
-                   entregador: mesa == "WEBB" ? "RETIRADA" : "99"
-                   );//mesa == "WEBB" ? "RETIRADA" : " ") ; //fim dos parâmetros do método de integração
-
-                ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments[0].Code, insertNoSysMenuConta, pedido.Payments[0].Value, pedido.Payments[0].Code, "DELMATCH");//por enquanto tudo esta caindo debito
-
-
-                SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
-
-                foreach (var item in pedido.Payments)
-                {
-                    Cash SeForPagamentoEmDinherio = new Cash() { changeFor = item.CashChange };
-                    payments.methods.Add(new Methods() { method = item.Code, value = item.Value, cash = SeForPagamentoEmDinherio });
-                }
-
-
-                ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
-            }
-
-
-            var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
-            {
-                Id = IdPedido,
-                Json = jsonContent,
-                Situacao = statusPedido,
-                Conta = insertNoSysMenuConta,
-                CriadoEm = DateTimeOffset.Now.ToString(),
-                DisplayId = displayId,
-                JsonPolling = "Sem Polling ID",
-                CriadoPor = "DELMATCH"
-            });
-            await db.SaveChangesAsync();
-
-
-
-            if (opSistema.IntegracaoSysMenu)
-            {
-
-                bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente(pedido.Customer.Phone);
-
-                if (!existeCliente && pedido.Type == "DELIVERY")
-                {
-                    //  ClsDeIntegracaoSys.CadastraCliente(pedidoCompletoDeserialiado.customer, pedidoCompletoDeserialiado.delivery);
-                }
-
-
-                foreach (items item in pedido.Items)
-                {
-                    bool ePizza = item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B" ? true : false;
-                    string mesa = pedido.Type == "TOGO" ? "WEBB" : "WEB";
-
-                    if (ePizza)
-                    {
-                        string obs = item.Observations == null || item.Observations == "" ? " " : item.Observations.ToString();
-                        string externalCode = " ";
-                        string? NomeProduto = "";
-
-                        string? ePizza1 = null;
-                        string? ePizza2 = null;
-                        string? ePizza3 = null;
-
-                        string? obs1 = " ";
-                        string? obs2 = " ";
-                        string? obs3 = " ";
-                        string? obs4 = " ";
-                        string? obs5 = " ";
-                        string? obs6 = " ";
-                        string? obs7 = " ";
-                        string? obs8 = " ";
-                        string? obs9 = " ";
-                        string? obs10 = " ";
-                        string? obs11 = " ";
-                        string? obs12 = " ";
-                        string? obs13 = " ";
-                        string? obs14 = " ";
-
-                        foreach (var option in item.SubItems)
-                        {
-                            if (!option.ExternalCode.Contains("m") && ePizza1 == null)
-                            {
-                                ePizza1 = option.ExternalCode == "" ? " " : option.ExternalCode;
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    NomeProduto += $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    NomeProduto += $"{item.Quantity}X - {option.Name}";
-                                }
-                                continue;
-                            }
-
-                            if (!option.ExternalCode.Contains("m") && ePizza2 == null)
-                            {
-                                ePizza2 = option.ExternalCode == "" ? " " : option.ExternalCode;
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
-                                }
-                                else
-                                {
-                                    NomeProduto += " / " + option.Name;
-                                }
-                                continue;
-                            }
-
-                            if (!option.ExternalCode.Contains("m") && ePizza3 == null)
-                            {
-                                ePizza3 = option.ExternalCode == "" ? " " : option.ExternalCode;
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
-                                }
-                                else
-                                {
-                                    NomeProduto += " / " + option.Name;
-                                }
-                                continue;
-                            }
-
-                        }
-
-                        foreach (var opcao in item.SubItems)
-                        {
-                            if (obs1 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs1 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs1 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs2 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs2 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs2 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs3 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs3 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs3 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs4 == " ")
-                            {
-
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs4 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs4 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs5 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs5 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs5 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs6 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs6 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs6 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs7 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs7 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs7 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs8 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs8 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs8 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs9 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs9 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs9 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs10 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs10 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs10 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs11 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs11 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs11 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs12 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs12 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs12 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs13 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs13 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs13 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs14 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto && opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs14 = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else if (opcao.ExternalCode.Contains("m"))
-                                {
-                                    obs14 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                        }
-
-                        ClsDeIntegracaoSys.IntegracaoContas(
-                                   conta: insertNoSysMenuConta, //numero
-                                   mesa: mesa, //texto curto 
-                                   qtdade: 1, //numero
-                                   codCarda1: ePizza1 != null ? ePizza1 : externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
-                                   codCarda2: ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
-                                   codCarda3: ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
-                                   tamanho: item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" ? item.ExternalCode : "U", ////texto curto 1 letra
-                                   descarda: NomeProduto == "" ? $"{item.Quantity}X - {item.Name}" : NomeProduto, // texto curto 31 letras
-                                   valorUnit: (item.Price + item.SubItemsPrice) * item.Quantity, //moeda
-                                   valorTotal: item.TotalPrice, //moeda
-                                   dataInicio: pedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
-                                   horaInicio: pedido.CreatedAt.Substring(11, 5), //data
-                                   obs1: obs1,
-                                   obs2: obs2,
-                                   obs3: obs3,
-                                   obs4: obs4,
-                                   obs5: obs5,
-                                   obs6: obs6,
-                                   obs7: obs7,
-                                   obs8: obs8,
-                                   obs9: obs9,
-                                   obs10: obs10,
-                                   obs11: obs11,
-                                   obs12: obs12,
-                                   obs13: obs13,
-                                   obs14: obs14,
-                                   obs15: obs.Length > 80 ? obs.Substring(0, 80) : obs,
-                                   cliente: pedido.Customer.Name, // texto curto 80 letras
-                                   telefone: pedido.Customer.Phone == "" || pedido.Customer.Phone == null ? " " : pedido.Customer.Phone.Replace(" ", ""), // texto curto 14 letras
-                                   impComanda: "Não",
-                                   ImpComanda2: "Não",
-                                   qtdComanda: 00f  //numero duplo 
-                              );//fim dos parâmetros
-                    }
-                    else
-                    {
-                        string? externalCode = item.ExternalCode == null || item.ExternalCode == "" ? " " : item.ExternalCode;
-                        string? obs = item.Observations == null || item.Observations == "" ? " " : item.Observations.ToString();
-                        string? nomeProduto = null;
-
-                        bool existeProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(externalCode);
-
-                        if (existeProduto)
-                        {
-                            nomeProduto = $"{item.Quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode)}";
-                        }
-
-                        string? obs1 = " ";
-                        string? obs2 = " ";
-                        string? obs3 = " ";
-                        string? obs4 = " ";
-                        string? obs5 = " ";
-                        string? obs6 = " ";
-                        string? obs7 = " ";
-                        string? obs8 = " ";
-                        string? obs9 = " ";
-                        string? obs10 = " ";
-                        string? obs11 = " ";
-                        string? obs12 = " ";
-                        string? obs13 = " ";
-                        string? obs14 = " ";
-
-
-                        foreach (var opcao in item.SubItems)
-                        {
-                            if (obs1 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs1 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs1 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs2 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs2 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs2 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs3 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs3 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs3 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs4 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs4 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs4 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs5 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs5 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs5 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs6 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs6 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs6 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs7 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs7 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs7 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs8 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs8 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs8 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs9 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs9 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs9 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs10 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs10 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs10 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs11 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs11 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs11 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs12 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs12 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs12 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs13 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs13 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs13 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                            if (obs14 == " ")
-                            {
-                                bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.ExternalCode);
-
-                                if (pesquisaProduto)
-                                {
-                                    obs14 = $"{item.Quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.ExternalCode)}";
-                                }
-                                else
-                                {
-                                    obs14 = $"{opcao.Quantity}X - {opcao.Name} - {opcao.Price.ToString("c")}";
-                                }
-
-                                continue;
-                            }
-
-                        }
-
-                        ClsDeIntegracaoSys.IntegracaoContas(
-                                   conta: insertNoSysMenuConta, //numero
-                                   mesa: mesa, //texto curto 
-                                   qtdade: 1, //numero
-                                   codCarda1: externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
-                                   codCarda2: " ", //texto curto 4 letras
-                                   codCarda3: " ",//texto curto 4 letras
-                                   tamanho: item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" ? item.ExternalCode : "U", ////texto curto 1 letra
-                                   descarda: nomeProduto != null ? nomeProduto : $"{item.Quantity}X - {item.Name}", // texto curto 31 letras
-                                   valorUnit: (item.Price + item.SubItemsPrice) * item.Quantity, //moeda
-                                   valorTotal: item.TotalPrice, //moeda
-                                   dataInicio: pedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
-                                   horaInicio: pedido.CreatedAt.Substring(11, 5), //data
-                                   obs1: obs1,
-                                   obs2: obs2,
-                                   obs3: obs3,
-                                   obs4: obs4,
-                                   obs5: obs5,
-                                   obs6: obs6,
-                                   obs7: obs7,
-                                   obs8: obs8,
-                                   obs9: obs9,
-                                   obs10: obs10,
-                                   obs11: obs11,
-                                   obs12: obs12,
-                                   obs13: obs13,
-                                   obs14: obs14,
-                                   obs15: obs.Length > 80 ? obs.Substring(0,80) : obs,
-                                   cliente: pedido.Customer.Name, // texto curto 80 letras
-                                   telefone: pedido.Customer.Phone == "" || pedido.Customer.Phone == null ? " " : pedido.Customer.Phone.Replace(" ", ""), // texto curto 14 letras
-                                   impComanda: "Não",
-                                   ImpComanda2: "Não",
-                                   qtdComanda: 00f  //numero duplo 
-                              );//fim dos parâmetros
-
-                    }
-                }
-            }
-
-
-            if (opSistema.ImpressaoAut)
-            {
-                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
-
-                if (!opSistema.AgruparComandas)
-                {
-                    foreach (string imp in impressoras)
-                    {
-                        if (imp != "Sem Impressora" && imp != null)
-                        {
-                            ImpressaoDelMatch.ChamaImpressoes(insertNoSysMenuConta, displayId, imp);
-                        }
-                    }
-                }
-                else
-                {
-                    ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(insertNoSysMenuConta, displayId, impressoras);
-                }
-
-
-
-                impressoras.Clear();
-            }
-
         }
         catch (Exception ex)
         {
@@ -978,7 +262,324 @@ public class DelMatch
         }
     }
 
-    public static async Task<List<ParametrosDoPedido>> GetPedidoDelMatch(int? display_ID = null)
+    public async Task SetPedidoDelMatch(PedidoDelMatch pedido, bool pedidoMesa = false)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+            {
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                string IdPedido = pedido.Id.ToString();
+                string jsonContent = JsonConvert.SerializeObject(pedido);
+                string statusPedido = "Pendente";
+                int insertNoSysMenuConta = 0;
+                int displayId = pedido.Reference;
+                string? mesa = " ";
+                string Status = " ";
+                string telefone = " ";
+
+                if (pedido.Customer.Phone != null && pedido.Customer.Phone.Length > 0)
+                {
+                    telefone = pedido.Customer.Phone;
+                }
+
+
+                string? ComplementoDaEntrega = pedido.deliveryAddress.Complement;
+
+                if (String.IsNullOrEmpty(ComplementoDaEntrega))
+                {
+                    ComplementoDaEntrega = " ";
+                }
+
+                if (opSistema.IntegracaoSysMenu)
+                {
+                    if (pedido.Type == "DELIVERY")
+                    {
+                        mesa = "WEB";
+                        Status = "P";
+                    }
+
+                    if (pedido.Type == "TOGO")
+                    {
+                        mesa = "WEBB";
+                        Status = "P";
+                    }
+
+                    if (pedido.Type == "INDOOR")
+                    {
+                        mesa = pedido.Indoor.table.PadLeft(4, '0');
+                        Status = "A";
+                    }
+
+                    if (pedido.Type != "INDOOR")
+                    {
+
+                        insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                           mesa: mesa,
+                           cortesia: pedido.Discount,
+                           taxaEntrega: pedido.deliveryFee,
+                           taxaMotoboy: 0.00f,
+                           dtInicio: pedido.CreatedAt.Substring(0, 10),
+                           hrInicio: pedido.CreatedAt.ToString().Substring(11, 5),
+                           contatoNome: pedido.Customer.Name,
+                           usuario: "CAIXA",
+                           dataSaida: pedido.CreatedAt.Substring(0, 10),
+                           hrSaida: pedido.CreatedAt.Substring(11, 5),
+                           obsConta1: " ",
+                           iFoodPedidoID: pedido.Id.ToString(),
+                           obsConta2: " ",
+                           referencia: ComplementoDaEntrega,
+                           endEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.StreetName + ", " + pedido.deliveryAddress.StreetNumber,
+                           bairEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.Neighboardhood,
+                           entregador: mesa == "WEBB" ? "RETIRADA" : "99",
+                           eDelMatch: true
+                           );//mesa == "WEBB" ? "RETIRADA" : " ") ; //fim dos parâmetros do método de integração
+
+                        ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments[0].Code, insertNoSysMenuConta, pedido.Payments[0].Value, pedido.Payments[0].Code, "DELMATCH");//por enquanto tudo esta caindo debito
+
+
+                        SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
+
+                        foreach (var item in pedido.Payments)
+                        {
+                            Cash SeForPagamentoEmDinherio = new Cash() { changeFor = item.CashChange };
+                            payments.methods.Add(new Methods() { method = item.Code, value = item.Value, cash = SeForPagamentoEmDinherio });
+                        }
+
+
+                        ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                    }
+                }
+
+                if (pedido.Type == "INDOOR")
+                {
+                    insertNoSysMenuConta = 999;
+                }
+
+                if (!pedidoMesa)
+                {
+                    if (pedido.Type != "INDOOR") //entra aqui caso não seja mesa
+                    {
+                        var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
+                        {
+                            Id = IdPedido,
+                            Json = jsonContent,
+                            Situacao = statusPedido,
+                            Conta = insertNoSysMenuConta,
+                            CriadoEm = DateTimeOffset.Now.ToString(),
+                            DisplayId = displayId,
+                            JsonPolling = "Sem Polling ID",
+                            CriadoPor = "DELMATCH",
+                            PesquisaDisplayId = displayId
+                        });
+                        await db.SaveChangesAsync();
+                    }
+
+                    if (pedido.Type == "INDOOR")
+                    {
+                        string? urlLimpaPedido = $"https://delmatchcardapio.com/api/orders/{pedido.Reference.ToString()}/statuses/confirmation.json";
+                        ClsParaConfirmarItem confirmarItens = new ClsParaConfirmarItem();
+
+                        var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
+                        {
+                            Id = IdPedido,
+                            Json = jsonContent,
+                            Situacao = statusPedido,
+                            Conta = insertNoSysMenuConta,
+                            CriadoEm = DateTimeOffset.Now.ToString(),
+                            DisplayId = displayId,
+                            JsonPolling = "Sem Polling ID",
+                            CriadoPor = "DELMATCH",
+                            PesquisaDisplayId = displayId
+                        });
+                        await db.SaveChangesAsync();
+
+                        foreach (var item in pedido.Items)
+                        {
+                            if (!item.Is_Read)
+                            {
+                                confirmarItens.Itens.Add(item.Item_Id);
+
+                            }
+                        }
+
+                        if (confirmarItens.Itens.Count() > 0)
+                        {
+                            await EnviaReqParaDelMatch(urlLimpaPedido, "POST", JsonConvert.SerializeObject(confirmarItens));
+                        }
+                    }
+                }
+
+
+                if (opSistema.IntegracaoSysMenu)
+                {
+
+                    bool existeCliente = pedido.Customer.Phone != null ? ClsDeIntegracaoSys.ProcuraCliente(pedido.Customer.Phone) : false;
+                    bool pedidoOnLineMesa = false;
+                    string idPedido = " ";
+
+
+                    if (!existeCliente && pedido.Type == "DELIVERY")
+                    {
+                        //  ClsDeIntegracaoSys.CadastraCliente(pedidoCompletoDeserialiado.customer, pedidoCompletoDeserialiado.delivery);
+                    }
+
+                    if (pedido.Type == "INDOOR")
+                    {
+                        insertNoSysMenuConta = 0;
+                        pedidoOnLineMesa = true;
+                        idPedido = pedido.Reference.ToString();
+                    }
+
+
+                    if (!pedidoMesa)
+                    {
+                        foreach (items item in pedido.Items)
+                        {
+                            var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
+
+                            ClsDeIntegracaoSys.IntegracaoContas(
+                                             conta: insertNoSysMenuConta, //numero
+                                             mesa: mesa, //texto curto 
+                                             qtdade: 1, //numero
+                                             codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                             codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                             codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                             tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                             descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                             valorUnit: item.TotalPrice, //moeda
+                                             valorTotal: item.TotalPrice, //moeda
+                                             dataInicio: pedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
+                                             horaInicio: pedido.CreatedAt.Substring(11, 5), //data
+                                             obs1: CaracteristicasPedido.Obs1,
+                                             obs2: CaracteristicasPedido.Obs2,
+                                             obs3: CaracteristicasPedido.Obs3,
+                                             obs4: CaracteristicasPedido.Obs4,
+                                             obs5: CaracteristicasPedido.Obs5,
+                                             obs6: CaracteristicasPedido.Obs6,
+                                             obs7: CaracteristicasPedido.Obs7,
+                                             obs8: CaracteristicasPedido.Obs8,
+                                             obs9: CaracteristicasPedido.Obs9,
+                                             obs10: CaracteristicasPedido.Obs10,
+                                             obs11: CaracteristicasPedido.Obs11,
+                                             obs12: CaracteristicasPedido.Obs12,
+                                             obs13: CaracteristicasPedido.Obs13,
+                                             obs14: CaracteristicasPedido.Obs14,
+                                             obs15: CaracteristicasPedido.ObsDoItem,
+                                             cliente: pedido.Customer.Name, // texto curto 80 letras
+                                             telefone: pedido.Customer.Phone != null && pedido.Customer.Phone != "" ? pedido.Customer.Phone : " ", // texto curto 14 letras
+                                             impComanda: "Não",
+                                             ImpComanda2: "Não",
+                                             qtdComanda: 00f,//numero duplo 
+                                             status: Status,
+                                             pedidoOnLineMesa: pedidoOnLineMesa,
+                                             idPedido: idPedido
+                                        );//fim dos parâmetros
+                        }
+                    }
+
+                    if (pedidoMesa)
+                    {
+                        string? urlLimpaPedido = $"https://delmatchcardapio.com/api/orders/{pedido.Reference.ToString()}/statuses/confirmation.json";
+                        ParametrosDoPedido? pedidoJaExistenteDB = db.parametrosdopedido.Where(x => x.Id == pedido.Id.ToString()).FirstOrDefault();
+                        PedidoDelMatch? pedidoJaExistente = JsonConvert.DeserializeObject<PedidoDelMatch>(pedidoJaExistenteDB.Json);
+                        ClsParaConfirmarItem confirmarItens = new ClsParaConfirmarItem();
+
+                        foreach (var item in pedido.Items)
+                        {
+                            if (!item.Is_Read)
+                            {
+                                var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
+
+                                ClsDeIntegracaoSys.IntegracaoContas(
+                                                 conta: insertNoSysMenuConta, //numero
+                                                 mesa: mesa, //texto curto 
+                                                 qtdade: 1, //numero
+                                                 codCarda1: CaracteristicasPedido.ExternalCode1, //texto curto 4 letras
+                                                 codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                                 codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                                 tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                                 descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                                 valorUnit: item.TotalPrice, //moeda
+                                                 valorTotal: item.TotalPrice, //moeda
+                                                 dataInicio: pedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
+                                                 horaInicio: pedido.CreatedAt.Substring(11, 5), //data
+                                                 obs1: CaracteristicasPedido.Obs1,
+                                                 obs2: CaracteristicasPedido.Obs2,
+                                                 obs3: CaracteristicasPedido.Obs3,
+                                                 obs4: CaracteristicasPedido.Obs4,
+                                                 obs5: CaracteristicasPedido.Obs5,
+                                                 obs6: CaracteristicasPedido.Obs6,
+                                                 obs7: CaracteristicasPedido.Obs7,
+                                                 obs8: CaracteristicasPedido.Obs8,
+                                                 obs9: CaracteristicasPedido.Obs9,
+                                                 obs10: CaracteristicasPedido.Obs10,
+                                                 obs11: CaracteristicasPedido.Obs11,
+                                                 obs12: CaracteristicasPedido.Obs12,
+                                                 obs13: CaracteristicasPedido.Obs13,
+                                                 obs14: CaracteristicasPedido.Obs14,
+                                                 obs15: item.Observations != null && item.Observations.Length > 0 ? item.Observations : " ",
+                                                 cliente: pedido.Customer.Name, // texto curto 80 letras
+                                                 telefone: telefone,
+                                                 impComanda: "Não",
+                                                 ImpComanda2: "Não",
+                                                 qtdComanda: 00f,//numero duplo 
+                                                 status: Status,
+                                                 pedidoOnLineMesa: true,
+                                                 idPedido: pedido.Reference.ToString()
+                                            );//fim dos parâmetros
+
+                                confirmarItens.Itens.Add(item.Item_Id);
+
+                            }
+                        }
+
+                        if (confirmarItens.Itens.Count() > 0)
+                        {
+                            await EnviaReqParaDelMatch(urlLimpaPedido, "POST", JsonConvert.SerializeObject(confirmarItens));
+                        }
+
+
+                        pedidoJaExistenteDB.Json = JsonConvert.SerializeObject(pedido);
+                        db.SaveChanges();
+                    }
+                }
+
+
+                if (opSistema.ImpressaoAut)
+                {
+                    List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                    if (!opSistema.AgruparComandas)
+                    {
+                        foreach (string imp in impressoras)
+                        {
+                            if (imp != "Sem Impressora" && imp != null)
+                            {
+                                ImpressaoDelMatch.ChamaImpressoes(insertNoSysMenuConta, displayId, imp);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(insertNoSysMenuConta, displayId, impressoras);
+                    }
+
+
+
+                    impressoras.Clear();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString());
+        }
+    }
+
+    public async Task<List<ParametrosDoPedido>> GetPedidoDelMatch(int? display_ID = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
@@ -987,20 +588,26 @@ public class DelMatch
         {
             if (display_ID != null)
             {
-                using ApplicationDbContext dataBase = new ApplicationDbContext();
+                using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
+                {
 
-                pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").ToList();
+                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").ToList();
 
 
+                }
                 return pedidosFromDb;
+
             }
             else
             {
-                using ApplicationDbContext db = new ApplicationDbContext();
+                using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
+                {
 
-                pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "DELMATCH").ToList();
+                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.CriadoPor == "DELMATCH").ToList();
 
+                }
                 return pedidosFromDb;
+
             }
         }
         catch (Exception ex)
@@ -1012,7 +619,7 @@ public class DelMatch
         return pedidosFromDb;
     }
 
-    public static async Task<PedidoCompleto> DelMatchPedidoCompleto(PedidoDelMatch p)
+    public async Task<PedidoCompleto> DelMatchPedidoCompleto(PedidoDelMatch p)
     {
         PedidoCompleto PedidoCompletoConvertido = new PedidoCompleto();
         try
@@ -1060,161 +667,85 @@ public class DelMatch
         return PedidoCompletoConvertido;
     }
 
-    public static async Task<List<Sequencia>> ListarPedidosAbertos() //método que serve para enviarmos um pedido
+    public async Task<List<Sequencia>> ListarPedidosAbertos() //método que serve para enviarmos um pedido
     {
         List<Sequencia> sequencias = new List<Sequencia>();
         try
         {
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
-
-            string entregador = "99";
-            string SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NULL";
-
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            using (ApplicationDbContext dbPostgres = await _Contxt.GetContextoAsync())
             {
-                connection.Open();
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();
 
-                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+                string entregador = "99";
+                string SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NULL";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {
-                    selectCommand.Parameters.AddWithValue("@ENTREGADOR", entregador);
+                    connection.Open();
 
-                    // Executar a consulta SELECT
-                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
                     {
-                        while (reader.Read())
+                        selectCommand.Parameters.AddWithValue("@ENTREGADOR", entregador);
+
+                        // Executar a consulta SELECT
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
                         {
-                            string telefone = reader["TELEFONE"].ToString();
-                            Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "ENVIARPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
-
-                            if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
+                            while (reader.Read())
                             {
-                                sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
-                            }
+                                string telefone = reader["TELEFONE"].ToString();
+                                Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "ENVIARPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
 
-                            sequencia.numConta = Convert.ToInt32(reader["CONTA"].ToString());
-
-                            if (sequencia.DeliveryAddress.FormattedAddress != null)
-                            {
-                                sequencia.ValorConta = Convert.ToDecimal(reader["ACRESCIMO"]) +
-                                                       Convert.ToDecimal(reader["SERVICO"]) +
-                                                       Convert.ToDecimal(reader["COUVERT"]) +
-                                                       Convert.ToDecimal(reader["TAXAENTREGA"]) +
-                                                       Convert.ToDecimal(reader["TAXAMOTOBOY"]) +
-                                                       Convert.ToDecimal(reader["PAGDNH"]) +
-                                                       Convert.ToDecimal(reader["PAGCHQ"]) +
-                                                       Convert.ToDecimal(reader["PAGCRT"]) +
-                                                       Convert.ToDecimal(reader["PAGTKT"]) +
-                                                       Convert.ToDecimal(reader["PAGCVALE"]) +
-                                                       Convert.ToDecimal(reader["PAGCC"]) +
-                                                       Convert.ToDecimal(reader["PAGONLINE"]) +
-                                                       Convert.ToDecimal(reader["VOUCHER"]) -
-                                                       Convert.ToDecimal(reader["TROCO"]) -
-                                                       Convert.ToDecimal(reader["CORTESIA"]);
-                                string NumConta = sequencia.numConta.ToString();
-
-                                var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
-
-                                sequencia.DelMatchId = idPedido.ToString();
-                                sequencia.Id = "dd56e3a213da0d221091d3bc6a0e621071550b80";
-                                sequencia.ShortReference = idPedido.ToString();
-                                sequencia.CreatedAt = "";
-                                sequencia.Type = "DELIVERY";
-                                sequencia.TimeMax = "";
-
-                                sequencia.Merchant.RestaurantId = opcSistema.DelMatchId;
-                                sequencia.Merchant.Name = opcSistema.NomeFantasia;
-                                sequencia.Merchant.Id = opcSistema.DelMatchId;
-                                sequencia.Merchant.Unit = "62e91b20e390370012f9802e";
-
-                                sequencias.Add(sequencia);
-                            }
-
-                        }
-
-
-                    }
-
-                }
-                return sequencias;
-            }
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
-        }
-
-        return sequencias;
-    }
-
-    public static async Task<List<Sequencia>> ListarPedidosJaEnviados()
-    {
-        List<Sequencia> sequencias = new List<Sequencia>();
-        try
-        {
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
-
-            string entregador = "99";
-            string SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NOT NULL";
-
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
-            {
-                connection.Open();
-
-
-                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
-                {
-                    selectCommand.Parameters.AddWithValue("@ENTREGADOR", entregador);
-
-                    // Executar a consulta SELECT
-                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            string telefone = reader["TELEFONE"].ToString();
-                            Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "GETPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
-
-                            if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
-                            {
-                                sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
-                            }
-
-                            if (sequencia.DeliveryAddress.FormattedAddress != null)
-                            {
+                                if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
+                                {
+                                    sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
+                                }
 
                                 sequencia.numConta = Convert.ToInt32(reader["CONTA"].ToString());
-                                sequencia.ValorConta = Convert.ToDecimal(reader["ACRESCIMO"]) +
-                                                       Convert.ToDecimal(reader["SERVICO"]) +
-                                                       Convert.ToDecimal(reader["COUVERT"]) +
-                                                       Convert.ToDecimal(reader["TAXAENTREGA"]) +
-                                                       Convert.ToDecimal(reader["TAXAMOTOBOY"]) +
-                                                       Convert.ToDecimal(reader["PAGDNH"]) +
-                                                       Convert.ToDecimal(reader["PAGCHQ"]) +
-                                                       Convert.ToDecimal(reader["PAGCRT"]) +
-                                                       Convert.ToDecimal(reader["PAGTKT"]) +
-                                                       Convert.ToDecimal(reader["PAGCVALE"]) +
-                                                       Convert.ToDecimal(reader["PAGCC"]) +
-                                                       Convert.ToDecimal(reader["PAGONLINE"]) +
-                                                       Convert.ToDecimal(reader["VOUCHER"]) -
-                                                       Convert.ToDecimal(reader["TROCO"]) -
-                                                       Convert.ToDecimal(reader["CORTESIA"]);
-                                string NumConta = sequencia.numConta.ToString();
 
-                                sequencia.ShortReference = NumConta.PadLeft(4, '0');
-                                sequencia.DelMatchId = reader["DelMatchId"].ToString();
+                                if (sequencia.DeliveryAddress.FormattedAddress != null)
+                                {
+                                    sequencia.ValorConta = Convert.ToDecimal(reader["ACRESCIMO"]) +
+                                                           Convert.ToDecimal(reader["SERVICO"]) +
+                                                           Convert.ToDecimal(reader["COUVERT"]) +
+                                                           Convert.ToDecimal(reader["TAXAENTREGA"]) +
+                                                           Convert.ToDecimal(reader["TAXAMOTOBOY"]) +
+                                                           Convert.ToDecimal(reader["PAGDNH"]) +
+                                                           Convert.ToDecimal(reader["PAGCHQ"]) +
+                                                           Convert.ToDecimal(reader["PAGCRT"]) +
+                                                           Convert.ToDecimal(reader["PAGTKT"]) +
+                                                           Convert.ToDecimal(reader["PAGCVALE"]) +
+                                                           Convert.ToDecimal(reader["PAGCC"]) +
+                                                           Convert.ToDecimal(reader["PAGONLINE"]) +
+                                                           Convert.ToDecimal(reader["VOUCHER"]) -
+                                                           Convert.ToDecimal(reader["TROCO"]) -
+                                                           Convert.ToDecimal(reader["CORTESIA"]);
+                                    string NumConta = sequencia.numConta.ToString();
 
-                                sequencias.Add(sequencia);
+                                    var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
+
+                                    sequencia.DelMatchId = idPedido.ToString();
+                                    sequencia.Id = "dd56e3a213da0d221091d3bc6a0e621071550b80";
+                                    sequencia.ShortReference = idPedido.ToString();
+                                    sequencia.CreatedAt = "";
+                                    sequencia.Type = "DELIVERY";
+                                    sequencia.TimeMax = "";
+
+                                    sequencia.Merchant.RestaurantId = opcSistema.DelMatchId;
+                                    sequencia.Merchant.Name = opcSistema.NomeFantasia;
+                                    sequencia.Merchant.Id = opcSistema.DelMatchId;
+                                    sequencia.Merchant.Unit = "62e91b20e390370012f9802e";
+
+                                    sequencias.Add(sequencia);
+                                }
+
                             }
+
+
                         }
 
                     }
-
                 }
                 return sequencias;
             }
@@ -1228,7 +759,87 @@ public class DelMatch
         return sequencias;
     }
 
-    public static async Task GerarPedido(string? jsonContent)
+    public async Task<List<Sequencia>> ListarPedidosJaEnviados()
+    {
+        List<Sequencia> sequencias = new List<Sequencia>();
+        try
+        {
+            using (ApplicationDbContext dbPostgres = await _Contxt.GetContextoAsync())
+            {
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+                string entregador = "99";
+                string SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NOT NULL";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    connection.Open();
+
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                    {
+                        selectCommand.Parameters.AddWithValue("@ENTREGADOR", entregador);
+
+                        // Executar a consulta SELECT
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                string telefone = reader["TELEFONE"].ToString();
+                                Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "GETPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
+
+                                if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)
+                                {
+                                    sequencia = await PesquisaClientesNoCadastro(telefone.Trim());
+                                }
+
+                                if (sequencia.DeliveryAddress.FormattedAddress != null)
+                                {
+
+                                    sequencia.numConta = Convert.ToInt32(reader["CONTA"].ToString());
+                                    sequencia.ValorConta = Convert.ToDecimal(reader["ACRESCIMO"]) +
+                                                           Convert.ToDecimal(reader["SERVICO"]) +
+                                                           Convert.ToDecimal(reader["COUVERT"]) +
+                                                           Convert.ToDecimal(reader["TAXAENTREGA"]) +
+                                                           Convert.ToDecimal(reader["TAXAMOTOBOY"]) +
+                                                           Convert.ToDecimal(reader["PAGDNH"]) +
+                                                           Convert.ToDecimal(reader["PAGCHQ"]) +
+                                                           Convert.ToDecimal(reader["PAGCRT"]) +
+                                                           Convert.ToDecimal(reader["PAGTKT"]) +
+                                                           Convert.ToDecimal(reader["PAGCVALE"]) +
+                                                           Convert.ToDecimal(reader["PAGCC"]) +
+                                                           Convert.ToDecimal(reader["PAGONLINE"]) +
+                                                           Convert.ToDecimal(reader["VOUCHER"]) -
+                                                           Convert.ToDecimal(reader["TROCO"]) -
+                                                           Convert.ToDecimal(reader["CORTESIA"]);
+                                    string NumConta = sequencia.numConta.ToString();
+
+                                    sequencia.ShortReference = NumConta.PadLeft(4, '0');
+                                    sequencia.DelMatchId = reader["DelMatchId"].ToString();
+
+                                    sequencias.Add(sequencia);
+                                }
+                            }
+
+                        }
+
+                    }
+                }
+                return sequencias;
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
+        }
+
+        return sequencias;
+    }
+
+    public async Task GerarPedido(string? jsonContent)
     {
         string? url = "https://delmatchapp.com/api/deliveries/default/";
         try
@@ -1253,7 +864,7 @@ public class DelMatch
         }
     }
 
-    public static async Task<HttpResponseMessage> GerarPedidoManual(string? jsonContent)
+    public async Task<HttpResponseMessage> GerarPedidoManual(string? jsonContent)
     {
         string? url = "https://delmatchapp.com/api/deliveries/default/";
         HttpResponseMessage response = new HttpResponseMessage();
@@ -1275,29 +886,32 @@ public class DelMatch
     }
 
 
-    public static async Task<ClsDeserializacaoDelMatchEntrega> GetPedido(string? delMatchId)
+    public async Task<ClsDeserializacaoDelMatchEntrega> GetPedido(string? delMatchId)
     {
         ClsDeserializacaoDelMatchEntrega pedido = new ClsDeserializacaoDelMatchEntrega();
 
         string apiUrl = "https://delmatchapp.com/api/deliveries-list/";
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+            {
+                var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-            string token = ConfigsSistema.DelMatchId;
+                string token = ConfigsSistema.DelMatchId;
 
-            using HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
 
-            var response = await client.GetAsync(apiUrl);
+                var response = await client.GetAsync(apiUrl);
 
-            string responseString = await response.Content.ReadAsStringAsync();
+                string responseString = await response.Content.ReadAsStringAsync();
 
-            string responseJson = await response.Content.ReadAsStringAsync();
-            var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
+                string responseJson = await response.Content.ReadAsStringAsync();
+                var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
 
-            pedido = pedidos.Where(x => x.IdOrder == delMatchId).FirstOrDefault();
+                pedido = pedidos.Where(x => x.IdOrder == delMatchId).FirstOrDefault();
+
+            }
 
             if (pedido == null)
             {
@@ -1314,47 +928,47 @@ public class DelMatch
         return pedido;
     }
 
-
-
-    public static async Task<bool> VerificaSePedidoFoiEnviado(List<string> pedidosId)
+    public async Task<bool> VerificaSePedidoFoiEnviado(List<string> pedidosId)
     {
         string apiUrl = "https://delmatchapp.com/api/deliveries-list/";
         bool ExistePedido = false;
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            string token = ConfigsSistema.DelMatchId;
-
-            using HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
-
-            var response = await client.GetAsync(apiUrl);
-
-            string responseString = await response.Content.ReadAsStringAsync();
-
-            string responseJson = await response.Content.ReadAsStringAsync();
-            var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
-
-            foreach(string PedidoRef in pedidosId)
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                var pedidosValidos = pedidos.Where(x => x.IdOrder == PedidoRef).ToList();
-                
-                if (pedidosValidos.Count > 0)
+                var ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                string token = ConfigsSistema.DelMatchId;
+
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Add("Authorization", "Token " + token);
+
+                var response = await client.GetAsync(apiUrl);
+
+                string responseString = await response.Content.ReadAsStringAsync();
+
+                string responseJson = await response.Content.ReadAsStringAsync();
+                var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
+
+                foreach (string PedidoRef in pedidosId)
                 {
-                    bool ExistePedidoENviado = pedidosValidos.Any(x => x.Status != "Created");
+                    var pedidosValidos = pedidos.Where(x => x.IdOrder == PedidoRef).ToList();
 
-                    if (ExistePedidoENviado)
+                    if (pedidosValidos.Count > 0)
                     {
-                        ExistePedido = true;
-                    }
-                }   
+                        bool ExistePedidoENviado = pedidosValidos.Any(x => x.Status != "Created");
 
+                        if (ExistePedidoENviado)
+                        {
+                            ExistePedido = true;
+                        }
+                    }
+
+                }
             }
 
             return ExistePedido;
-            
+
         }
         catch (Exception ex)
         {
@@ -1364,37 +978,37 @@ public class DelMatch
         return ExistePedido;
     }
 
-    public static async void UpdateDelMatchId(int numConta, string delmatchId)
+    public async void UpdateDelMatchId(int numConta, string delmatchId)
     {
         try
         {
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
-
-            string updateQuery = "UPDATE Sequencia SET DelMatchId = @NovoValor WHERE CONTA = @CONDICAO;";
-
-
-            string DelMatchId = delmatchId;
-
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            using (ApplicationDbContext dbPostgres = await _Contxt.GetContextoAsync())
             {
-                // Abrindo a conexão
-                connection.Open();
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
 
-                using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+                string updateQuery = "UPDATE Sequencia SET DelMatchId = @NovoValor WHERE CONTA = @CONDICAO;";
+
+                string DelMatchId = delmatchId;
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {
-                    // Definindo os parâmetros para a instrução SQL
-                    command.Parameters.AddWithValue("@NovoValor1", DelMatchId);
-                    command.Parameters.AddWithValue("@CONDICAO", numConta);
+                    // Abrindo a conexão
+                    connection.Open();
 
-                    // Executando o comando UPDATE
-                    command.ExecuteNonQuery();
+                    using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                    {
+                        // Definindo os parâmetros para a instrução SQL
+                        command.Parameters.AddWithValue("@NovoValor", DelMatchId);
+                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                        // Executando o comando UPDATE
+                        command.ExecuteNonQuery();
+                    }
                 }
+
             }
-
-
         }
         catch (Exception ex)
         {
@@ -1403,53 +1017,56 @@ public class DelMatch
         }
     }
 
-    public static async Task<Sequencia> PesquisaClientesNoCadastro(string? telefone)
+    public async Task<Sequencia> PesquisaClientesNoCadastro(string? telefone)
     {
         Sequencia sequencia = new Sequencia();
         try
         {
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
-
-            string SqlSelectIntoCadastros = $"SELECT * FROM Clientes WHERE TRIM(TELEFONE) = '{telefone}'";
-
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            using (ApplicationDbContext dbPostgres = await _Contxt.GetContextoAsync())
             {
-                connection.Open();
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
 
-                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
+
+                string SqlSelectIntoCadastros = $"SELECT * FROM Clientes WHERE TRIM(TELEFONE) = '{telefone}'";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {
-                    selectCommand.Parameters.AddWithValue("@TELEFONE", telefone);
+                    connection.Open();
 
-                    // Executar a consulta SELECT
-                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
                     {
-                        while (reader.Read())
+                        selectCommand.Parameters.AddWithValue("@TELEFONE", telefone);
+
+                        // Executar a consulta SELECT
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
                         {
-                            sequencia.Customer.Name = reader["NOME"].ToString();
-                            sequencia.Customer.Phone = reader["TELEFONE"].ToString();
-                            sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
+                            while (reader.Read())
+                            {
+                                sequencia.Customer.Name = reader["NOME"].ToString();
+                                sequencia.Customer.Phone = reader["TELEFONE"].ToString();
+                                sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
 
-                            sequencia.DeliveryAddress.FormattedAddress = reader["ENDERECO"].ToString();
-                            sequencia.DeliveryAddress.Country = "BR";
-                            sequencia.DeliveryAddress.State = reader["ESTADO"].ToString();
-                            sequencia.DeliveryAddress.City = reader["CIDADE"].ToString();
-                            sequencia.DeliveryAddress.Neighborhood = reader["BAIRRO"].ToString();
-                            sequencia.DeliveryAddress.StreetName = reader["ENDERECO"].ToString();
-                            sequencia.DeliveryAddress.StreetNumber = "";                        //falta terminar
-                            sequencia.DeliveryAddress.PostalCode = reader["CEP"].ToString() == null ? " " : reader["CEP"].ToString();
-                            sequencia.DeliveryAddress.Complement = reader["REFERE"].ToString();
+                                sequencia.DeliveryAddress.FormattedAddress = reader["ENDERECO"].ToString();
+                                sequencia.DeliveryAddress.Country = "BR";
+                                sequencia.DeliveryAddress.State = reader["ESTADO"].ToString();
+                                sequencia.DeliveryAddress.City = reader["CIDADE"].ToString();
+                                sequencia.DeliveryAddress.Neighborhood = reader["BAIRRO"].ToString();
+                                sequencia.DeliveryAddress.StreetName = reader["ENDERECO"].ToString();
+                                sequencia.DeliveryAddress.StreetNumber = "";                        //falta terminar
+                                sequencia.DeliveryAddress.PostalCode = reader["CEP"].ToString() == null ? " " : reader["CEP"].ToString();
+                                sequencia.DeliveryAddress.Complement = reader["REFERE"].ToString();
 
-                            sequencia.DeliveryAddress.Coordinates.Latitude = 0;
-                            sequencia.DeliveryAddress.Coordinates.Longitude = 0;
+                                sequencia.DeliveryAddress.Coordinates.Latitude = 0;
+                                sequencia.DeliveryAddress.Coordinates.Longitude = 0;
+                            }
                         }
-                        return sequencia;
-                    }
 
+                    }
                 }
             }
+
+            return sequencia;
         }
         catch (Exception ex)
         {
@@ -1459,62 +1076,64 @@ public class DelMatch
         return sequencia;
     }
 
-    public static async Task<Sequencia> PesquisaEnderecoDeEntrega(string? numConta, string? metodo)
+    public async Task<Sequencia> PesquisaEnderecoDeEntrega(string? numConta, string? metodo)
     {
         Sequencia sequencia = new Sequencia();
         try
         {
-            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
-            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
-
-            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
-            string? SqlSelectIntoCadastros = "";
-
-            if (metodo == "ENVIARPEDIDO")
+            using (ApplicationDbContext dbPostgres = await _Contxt.GetContextoAsync())
             {
-                SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NULL";
-            }
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
 
-            if (metodo == "GETPEDIDO")
-            {
-                SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NOT NULL";
-            }
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+                string? SqlSelectIntoCadastros = "";
 
-            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
-            {
-                connection.Open();
-
-                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                if (metodo == "ENVIARPEDIDO")
                 {
-                    selectCommand.Parameters.AddWithValue("@NUMCONTA", numConta);
+                    SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NULL";
+                }
 
-                    // Executar a consulta SELECT
-                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                if (metodo == "GETPEDIDO")
+                {
+                    SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE CONTA = @NUMCONTA AND DelMatchId IS NOT NULL";
+                }
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    connection.Open();
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
                     {
-                        while (reader.Read())
+                        selectCommand.Parameters.AddWithValue("@NUMCONTA", numConta);
+
+                        // Executar a consulta SELECT
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
                         {
-                            sequencia.Customer.Name = reader["CONTATO"].ToString();
-                            sequencia.Customer.Phone = reader["TELEFONE"].ToString();
-                            sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
+                            while (reader.Read())
+                            {
+                                sequencia.Customer.Name = reader["CONTATO"].ToString();
+                                sequencia.Customer.Phone = reader["TELEFONE"].ToString();
+                                sequencia.Customer.TaxPayerIdentificationNumber = "CPF"; //falta terminar
 
-                            sequencia.DeliveryAddress.FormattedAddress = reader["ENDENTREGA"].ToString();
-                            sequencia.DeliveryAddress.Country = "BR";
-                            sequencia.DeliveryAddress.State = "SP";
-                            sequencia.DeliveryAddress.City = "São Carlos";
-                            sequencia.DeliveryAddress.Neighborhood = reader["BAIENTREGA"].ToString();
-                            sequencia.DeliveryAddress.StreetName = reader["ENDENTREGA"].ToString();
-                            sequencia.DeliveryAddress.StreetNumber = "";
-                            sequencia.DeliveryAddress.PostalCode = "";
-                            sequencia.DeliveryAddress.Complement = reader["REFENTREGA"].ToString();
+                                sequencia.DeliveryAddress.FormattedAddress = reader["ENDENTREGA"].ToString();
+                                sequencia.DeliveryAddress.Country = "BR";
+                                sequencia.DeliveryAddress.State = "SP";
+                                sequencia.DeliveryAddress.City = "São Carlos";
+                                sequencia.DeliveryAddress.Neighborhood = reader["BAIENTREGA"].ToString();
+                                sequencia.DeliveryAddress.StreetName = reader["ENDENTREGA"].ToString();
+                                sequencia.DeliveryAddress.StreetNumber = "";
+                                sequencia.DeliveryAddress.PostalCode = "";
+                                sequencia.DeliveryAddress.Complement = reader["REFENTREGA"].ToString();
 
-                            sequencia.DeliveryAddress.Coordinates.Latitude = 0;
-                            sequencia.DeliveryAddress.Coordinates.Longitude = 0;
+                                sequencia.DeliveryAddress.Coordinates.Latitude = 0;
+                                sequencia.DeliveryAddress.Coordinates.Longitude = 0;
+                            }
                         }
-                        return sequencia;
-                    }
 
+                    }
                 }
             }
+            return sequencia;
         }
         catch (Exception ex)
         {
@@ -1525,42 +1144,43 @@ public class DelMatch
     }
 
 
-    public async static void EnviaPedidosAut()
+    public async void EnviaPedidosAut()
     {
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            if (Configuracoes.EnviaPedidoAut)
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
-                int contagemdepedidos = pedidosAbertos.Count;
-                List<Sequencia> ItensAEnviarDelMach = FormDePedidosAbertos.ItensAEnviarDelMach;
+                ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                if (contagemdepedidos > 0)
+                if (Configuracoes.EnviaPedidoAut)
                 {
-                    foreach (var item in pedidosAbertos)
+                    List<Sequencia> pedidosAbertos = await ListarPedidosAbertos();
+                    int contagemdepedidos = pedidosAbertos.Count;
+                    List<Sequencia> ItensAEnviarDelMach = FormDePedidosAbertos.ItensAEnviarDelMach;
+
+                    if (contagemdepedidos > 0)
                     {
-                        ItensAEnviarDelMach.Add(item);
+                        foreach (var item in pedidosAbertos)
+                        {
+                            ItensAEnviarDelMach.Add(item);
+                        }
+
                     }
 
-                }
-
-                if (ItensAEnviarDelMach.Count() > 0)
-                {
-
-                    foreach (var item in ItensAEnviarDelMach)
+                    if (ItensAEnviarDelMach.Count() > 0)
                     {
-                        string jsonContent = JsonConvert.SerializeObject(item);
-                        await DelMatch.GerarPedido(jsonContent);
-                        DelMatch.UpdateDelMatchId(item.numConta, item.ShortReference);
-                    }
 
-                    ItensAEnviarDelMach.Clear();
+                        foreach (var item in ItensAEnviarDelMach)
+                        {
+                            string jsonContent = JsonConvert.SerializeObject(item);
+                            await GerarPedido(jsonContent);
+                            UpdateDelMatchId(item.numConta, item.ShortReference);
+                        }
+
+                        ItensAEnviarDelMach.Clear();
+                    }
                 }
             }
-
         }
         catch (Exception ex)
         {
@@ -1569,60 +1189,16 @@ public class DelMatch
         }
     }
 
-    public static async Task GetToken()
+    public async Task GetToken()
     {
         string url = @"https://delmatchcardapio.com/api/oauth/token.json";
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Config = db.parametrosdosistema.ToList().FirstOrDefault();
-            Token? Autentic = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-
-            string user = $"{Config.UserDelMatch}@delmatchcardapio.com";
-            string pass = $"{Config.SenhaDelMatch}";
-
-            var ValidacaoParaEnvio = new ClsParaPedirToken() { GrantType = "password", Username = user, Password = pass };
-            string JsonBody = JsonConvert.SerializeObject(ValidacaoParaEnvio);
-
-            HttpResponseMessage? responseDoEndPoint = await EnviaReqParaDelMatch(url, "GetToken", JsonBody);
-
-            if (responseDoEndPoint.IsSuccessStatusCode)
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
             {
-                string TokenObjectJson = await responseDoEndPoint.Content.ReadAsStringAsync();
-                DateTime horario = DateTime.Now;
-                string HorarioDeVencimento = horario.AddMinutes(50).ToString();
+                ParametrosDoSistema? Config = db.parametrosdosistema.ToList().FirstOrDefault();
+                Token? Autentic = db.parametrosdeautenticacao.ToList().FirstOrDefault();
 
-                TokenDelMatch? TokenObject = JsonConvert.DeserializeObject<TokenDelMatch>(TokenObjectJson);
-
-                Autentic.TokenDelMatch = TokenObject.Token;
-                Autentic.VenceEmDelMatch = HorarioDeVencimento;
-                db.SaveChanges();
-
-                TokenDelMatch.TokenDaSessao = TokenObject.Token;
-            }
-
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
-        }
-    }
-
-    public static async Task RefreshTokenDelMatch()
-    {
-        string url = @"https://delmatchcardapio.com/api/oauth/token.json";
-        try
-        {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Config = db.parametrosdosistema.ToList().FirstOrDefault();
-            Token? Autentic = db.parametrosdeautenticacao.ToList().FirstOrDefault();
-            DateTime horario = DateTime.Now;
-
-            DateTime HorarioDataBaseConvetido = DateTime.Parse(Autentic.VenceEmDelMatch);
-
-            if (horario > HorarioDataBaseConvetido)
-            {
                 string user = $"{Config.UserDelMatch}@delmatchcardapio.com";
                 string pass = $"{Config.SenhaDelMatch}";
 
@@ -1634,7 +1210,7 @@ public class DelMatch
                 if (responseDoEndPoint.IsSuccessStatusCode)
                 {
                     string TokenObjectJson = await responseDoEndPoint.Content.ReadAsStringAsync();
-
+                    DateTime horario = DateTime.Now;
                     string HorarioDeVencimento = horario.AddMinutes(50).ToString();
 
                     TokenDelMatch? TokenObject = JsonConvert.DeserializeObject<TokenDelMatch>(TokenObjectJson);
@@ -1645,7 +1221,6 @@ public class DelMatch
 
                     TokenDelMatch.TokenDaSessao = TokenObject.Token;
                 }
-
             }
         }
         catch (Exception ex)
@@ -1655,46 +1230,96 @@ public class DelMatch
         }
     }
 
+    public async Task RefreshTokenDelMatch()
+    {
+        string url = @"https://delmatchcardapio.com/api/oauth/token.json";
+        try
+        {
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+            {
+                ParametrosDoSistema? Config = db.parametrosdosistema.ToList().FirstOrDefault();
+                Token? Autentic = db.parametrosdeautenticacao.ToList().FirstOrDefault();
+                DateTime horario = DateTime.Now;
 
-    public static async Task<Sequencia> CriarPedidoParaEnviar(PedidoDelMatch Pedido)
+                DateTime HorarioDataBaseConvetido = DateTime.Parse(Autentic.VenceEmDelMatch);
+
+                if (horario > HorarioDataBaseConvetido)
+                {
+                    string user = $"{Config.UserDelMatch}@delmatchcardapio.com";
+                    string pass = $"{Config.SenhaDelMatch}";
+
+                    var ValidacaoParaEnvio = new ClsParaPedirToken() { GrantType = "password", Username = user, Password = pass };
+                    string JsonBody = JsonConvert.SerializeObject(ValidacaoParaEnvio);
+
+                    HttpResponseMessage? responseDoEndPoint = await EnviaReqParaDelMatch(url, "GetToken", JsonBody);
+
+                    if (responseDoEndPoint.IsSuccessStatusCode)
+                    {
+                        string TokenObjectJson = await responseDoEndPoint.Content.ReadAsStringAsync();
+
+                        string HorarioDeVencimento = horario.AddMinutes(50).ToString();
+
+                        TokenDelMatch? TokenObject = JsonConvert.DeserializeObject<TokenDelMatch>(TokenObjectJson);
+
+                        Autentic.TokenDelMatch = TokenObject.Token;
+                        Autentic.VenceEmDelMatch = HorarioDeVencimento;
+                        db.SaveChanges();
+
+                        TokenDelMatch.TokenDaSessao = TokenObject.Token;
+                    }
+
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
+        }
+    }
+
+
+    public async Task<Sequencia> CriarPedidoParaEnviar(PedidoDelMatch Pedido)
     {
         Sequencia ClsParaEnviarPedido = new Sequencia();
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema Configs = db.parametrosdosistema.FirstOrDefault();
+            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+            {
+                ParametrosDoSistema Configs = db.parametrosdosistema.FirstOrDefault();
 
-            ClsParaEnviarPedido.Id = Pedido.Id.ToString();
-            ClsParaEnviarPedido.ShortReference = Pedido.Reference.ToString();
-            ClsParaEnviarPedido.CreatedAt = Pedido.CreatedAt;
-            ClsParaEnviarPedido.Type = "DELIVERY";
-            ClsParaEnviarPedido.TimeMax = "";
-            ClsParaEnviarPedido.ValorConta = Convert.ToDecimal(Pedido.TotalPrice);
+                ClsParaEnviarPedido.Id = Pedido.Id.ToString();
+                ClsParaEnviarPedido.ShortReference = Pedido.Reference.ToString();
+                ClsParaEnviarPedido.CreatedAt = Pedido.CreatedAt;
+                ClsParaEnviarPedido.Type = "DELIVERY";
+                ClsParaEnviarPedido.TimeMax = "";
+                ClsParaEnviarPedido.ValorConta = Convert.ToDecimal(Pedido.TotalPrice);
 
-            ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
-            ClsParaEnviarPedido.Merchant.Id = Configs.DelMatchId;
-            ClsParaEnviarPedido.Merchant.Name = Configs.NomeFantasia;
-            ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
-            ClsParaEnviarPedido.Merchant.Unit = Configs.DelMatchId;
+                ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
+                ClsParaEnviarPedido.Merchant.Id = Configs.DelMatchId;
+                ClsParaEnviarPedido.Merchant.Name = Configs.NomeFantasia;
+                ClsParaEnviarPedido.Merchant.RestaurantId = Configs.DelMatchId;
+                ClsParaEnviarPedido.Merchant.Unit = Configs.DelMatchId;
 
-            ClsParaEnviarPedido.Customer.Name = Pedido.Customer.Name;
-            ClsParaEnviarPedido.Customer.Phone = Pedido.Customer.Phone;
-            ClsParaEnviarPedido.Customer.TaxPayerIdentificationNumber = Pedido.Customer.CPF;
+                ClsParaEnviarPedido.Customer.Name = Pedido.Customer.Name;
+                ClsParaEnviarPedido.Customer.Phone = Pedido.Customer.Phone;
+                ClsParaEnviarPedido.Customer.TaxPayerIdentificationNumber = Pedido.Customer.CPF;
 
-            ClsParaEnviarPedido.DeliveryAddress.FormattedAddress = $"{Pedido.deliveryAddress.StreetName}, {Pedido.deliveryAddress.StreetNumber} - {Pedido.deliveryAddress.Neighborhood}";
-            ClsParaEnviarPedido.DeliveryAddress.Country = Pedido.deliveryAddress.Country;
-            ClsParaEnviarPedido.DeliveryAddress.State = Pedido.deliveryAddress.State;
-            ClsParaEnviarPedido.DeliveryAddress.City = Pedido.deliveryAddress.City;
-            ClsParaEnviarPedido.DeliveryAddress.Neighborhood = Pedido.deliveryAddress.Neighborhood;
-            ClsParaEnviarPedido.DeliveryAddress.StreetName = Pedido.deliveryAddress.StreetName;
-            ClsParaEnviarPedido.DeliveryAddress.StreetNumber = Pedido.deliveryAddress.StreetNumber;
-            ClsParaEnviarPedido.DeliveryAddress.PostalCode = Pedido.deliveryAddress.PostalCode;
-            ClsParaEnviarPedido.DeliveryAddress.Complement = Pedido.deliveryAddress.Complement;
+                ClsParaEnviarPedido.DeliveryAddress.FormattedAddress = $"{Pedido.deliveryAddress.StreetName}, {Pedido.deliveryAddress.StreetNumber} - {Pedido.deliveryAddress.Neighborhood}";
+                ClsParaEnviarPedido.DeliveryAddress.Country = Pedido.deliveryAddress.Country;
+                ClsParaEnviarPedido.DeliveryAddress.State = Pedido.deliveryAddress.State;
+                ClsParaEnviarPedido.DeliveryAddress.City = Pedido.deliveryAddress.City;
+                ClsParaEnviarPedido.DeliveryAddress.Neighborhood = Pedido.deliveryAddress.Neighborhood;
+                ClsParaEnviarPedido.DeliveryAddress.StreetName = Pedido.deliveryAddress.StreetName;
+                ClsParaEnviarPedido.DeliveryAddress.StreetNumber = Pedido.deliveryAddress.StreetNumber;
+                ClsParaEnviarPedido.DeliveryAddress.PostalCode = Pedido.deliveryAddress.PostalCode;
+                ClsParaEnviarPedido.DeliveryAddress.Complement = Pedido.deliveryAddress.Complement;
 
-            ClsParaEnviarPedido.DeliveryAddress.Coordinates.Latitude = 0;
-            ClsParaEnviarPedido.DeliveryAddress.Coordinates.Longitude = 0;
+                ClsParaEnviarPedido.DeliveryAddress.Coordinates.Latitude = 0;
+                ClsParaEnviarPedido.DeliveryAddress.Coordinates.Longitude = 0;
 
-
+            }
         }
         catch (Exception ex)
         {
@@ -1704,30 +1329,37 @@ public class DelMatch
         return ClsParaEnviarPedido;
     }
 
-    public static async Task<HttpResponseMessage> EnviaReqParaDelMatch(string? url, string? metodo, string? content = "")
+    public async Task<HttpResponseMessage> EnviaReqParaDelMatch(string? url, string? metodo, string? content = "")
     {
         HttpResponseMessage response = new HttpResponseMessage();
         try
         {
             if (metodo == "GET")
             {
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TokenDelMatch.TokenDaSessao);
+                using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+                {
+                    var Configs = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
 
-                response = await client.GetAsync(url);
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Configs.TokenDelMatch);
 
+                    response = await client.GetAsync(url);
+                }
                 return response;
             }
 
             if (metodo == "POST")
             {
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TokenDelMatch.TokenDaSessao);
+                using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+                {
+                    var Configs = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Configs.TokenDelMatch);
 
-                StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
+                    StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
-                response = await client.PostAsync(url, contentToPost);
-
+                    response = await client.PostAsync(url, contentToPost);
+                }
                 return response;
 
             }
@@ -1742,6 +1374,7 @@ public class DelMatch
 
                 return response;
             }
+
         }
         catch (Exception ex)
         {

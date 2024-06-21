@@ -1,5 +1,6 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
@@ -29,11 +30,13 @@ public partial class UCPedidoAbertoSys : UserControl
     {
         try
         {
+            DelMatch Delmatch = new DelMatch(new MeuContexto());
+
             ClsDeserializacaoDelMatchEntrega pedido = new ClsDeserializacaoDelMatchEntrega();
 
             if (ListandoPedidoAbertos)
             {
-                pedido = await DelMatch.GetPedido(PedidoParaDeliveyAtual.DelMatchId);
+                pedido = await Delmatch.GetPedido(PedidoParaDeliveyAtual.DelMatchId);
                 labelStatus.Text = ClsDeTraducaoDelMatchStatus.TraduzStatus(pedido.Status);
 
                 picBoxCheck.Visible = false;

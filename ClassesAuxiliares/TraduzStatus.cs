@@ -49,6 +49,24 @@ internal class TraduzStatus
                 break;
             case "HANDSHAKE_DISPUTE":
                 StatusTraduzido = "Disputa Aberta";
+                break;  
+            case "DELIVERY_DROP_CODE_REQUESTED":
+                StatusTraduzido = "Código foi informado";
+                break;
+            case "GOING_TO_ORIGIN":
+                StatusTraduzido = "Entregador a caminho";
+                break;
+            case "ARRIVED_AT_DESTINATION":
+                StatusTraduzido = "Entregador Chegou no destino";
+                break;
+            case "DELIVERY_RETURNING_TO_ORIGIN":
+                StatusTraduzido = "Entregador Retornando";
+                break;
+            case "DELIVERY_CANCELLATION_REQUESTED":
+                StatusTraduzido = "Cancelamento De Entregador";
+                break;
+            case "DELIVERY_DROP_CODE_VALIDATION_SUCCESS":
+                StatusTraduzido = "Código Informado com sucesso";
                 break;
             default:
                 StatusTraduzido = status; 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Linq;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.Forms;
 
 namespace SysIntegradorApp;
@@ -42,8 +44,9 @@ public partial class DeliveryForm : Form
 
     private async void label2_Click(object sender, EventArgs e)
     {
+        DelMatch Delmatch = new DelMatch(new MeuContexto());
 
-        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
+        List<Sequencia> pedidosAbertos = await Delmatch.ListarPedidosAbertos();
         int contagemdepedidos = pedidosAbertos.Count;
 
 
@@ -71,8 +74,10 @@ public partial class DeliveryForm : Form
 
     private async void panelDeIniciarEntrega_Click(object sender, EventArgs e)
     {
+        DelMatch Delmatch = new DelMatch(new MeuContexto());
 
-        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosAbertos();
+
+        List<Sequencia> pedidosAbertos = await Delmatch.ListarPedidosAbertos();
         int contagemdepedidos = pedidosAbertos.Count;
 
 
@@ -96,7 +101,10 @@ public partial class DeliveryForm : Form
 
     private async void panelDeListarPedidos_Click(object sender, EventArgs e)
     {
-        List<Sequencia> pedidosAbertos = await DelMatch.ListarPedidosJaEnviados();
+        DelMatch Delmatch = new DelMatch(new MeuContexto());
+
+
+        List<Sequencia> pedidosAbertos = await Delmatch.ListarPedidosJaEnviados();
         int contagemdepedidos = pedidosAbertos.Count;
 
         if (contagemdepedidos > 0)
@@ -114,7 +122,7 @@ public partial class DeliveryForm : Form
         }
         else
         {
-            MessageBox.Show("Não Tem nenhum pedido em aberto");
+            MessageBox.Show("Não temos nenhum pedido enviado para ser listado.");
         }
 
 
@@ -158,6 +166,18 @@ public partial class DeliveryForm : Form
     private void label1_Click(object sender, EventArgs e)
     {
         panelDeListarPedidos_Click(sender, e);
+    }
+
+    private void pictureBoxEmpresaDelivery_Click(object sender, EventArgs e)
+    {
+        if (Uri.IsWellFormedUriString("https://delmatchdelivery.com/site/login", UriKind.Absolute))
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = "https://delmatchdelivery.com/site/login",
+                UseShellExecute = true
+            });
+        }
     }
 }
 

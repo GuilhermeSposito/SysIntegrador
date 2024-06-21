@@ -9,6 +9,7 @@
       "SysIntegradorApp/1.0.0": {
         "dependencies": {
           "Entity": "1.0.0",
+          "Microsoft.Extensions.DependencyInjection": "8.0.0",
           "Newtonsoft.Json": "13.0.3",
           "Npgsql.EntityFrameworkCore.PostgreSQL": "8.0.2",
           "Svg": "3.4.7",

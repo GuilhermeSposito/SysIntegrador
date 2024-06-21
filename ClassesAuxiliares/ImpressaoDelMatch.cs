@@ -263,9 +263,14 @@ public class ImpressaoDelMatch
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
-                    else
+                    else if (pedidoCompleto.Type == "TOGO")
                     {
                         AdicionaConteudo("RETIRADA NO BALCÃO", FonteEndereçoDoCliente);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+                    else if (pedidoCompleto.Type == "INDOOR")
+                    {
+                        AdicionaConteudo($"Mesa {pedidoCompleto.Indoor.table}", FonteEndereçoDoCliente);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
@@ -337,6 +342,11 @@ public class ImpressaoDelMatch
 
                     var Info1 = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
 
+                    if (pedidoCompleto.Type == "INDOOR")
+                    {
+                        Info1 = "Pedido será pago ao fechamento da conta";
+                    }
+
                     AdicionaConteudo(Info1, FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -392,7 +402,7 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo($"Pedido:                           #{pedidoCompleto.Id}", FonteGeral);
-   
+
                     DateTime DataCertaCriadoEmTimeStamp = DateTime.Parse(pedidoCompleto.CreatedAt);
                     var DataCertaCriadoEm = DataCertaCriadoEmTimeStamp.ToString();
 
@@ -417,7 +427,7 @@ public class ImpressaoDelMatch
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo($"Conta Nº:     {NumContaString.PadLeft(3, '0')}\n", FonteNúmeroDoPedido);
-                   
+
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo(pedidoCompleto.Customer.Name, FonteItens);
@@ -436,9 +446,14 @@ public class ImpressaoDelMatch
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
-                    else
+                    else if (pedidoCompleto.Type == "TOGO")
                     {
                         AdicionaConteudo("RETIRADA NO BALCÃO", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+                    else if (pedidoCompleto.Type == "INDOOR")
+                    {
+                        AdicionaConteudo($"Mesa {pedidoCompleto.Indoor.table}", FonteEndereçoDoCliente);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
@@ -475,7 +490,7 @@ public class ImpressaoDelMatch
                         }
 
                         if (!opcDoSistema.RemoveComplementos)
-                        { 
+                        {
                             if (item.SubItems.Count > 0)
                             {
                                 foreach (var option in CaracteristicasPedido.Observações)
@@ -511,6 +526,12 @@ public class ImpressaoDelMatch
                     var InfoPag = ClsInfosDePagamentosParaImpressaoDelMatch.DefineTipoDePagamento(pedidoCompleto.Payments);
 
                     var Info1 = $"{InfoPag.FormaPagamento} ({InfoPag.TipoPagamento})";
+
+
+                    if (pedidoCompleto.Type == "INDOOR")
+                    {
+                        Info1 = "Pedido será pago ao fechamento da conta";
+                    }
 
                     AdicionaConteudo(Info1, FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -563,7 +584,16 @@ public class ImpressaoDelMatch
                     AdicionaConteudo($"Pedido:   #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    if (pedidoCompleto.Type != "INDOOR")
+                    {
+                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
+                    else
+                    {
+                        AdicionaConteudo($"Mesa: \t  Nº{pedidoCompleto.Indoor.table.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     int qtdItens = pedidoCompleto.Items.Count();
@@ -674,7 +704,16 @@ public class ImpressaoDelMatch
                     AdicionaConteudo($"Pedido:  #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    if (pedidoCompleto.Type != "INDOOR")
+                    {
+                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
+                    else
+                    {
+                        AdicionaConteudo($"Mesa: \t  Nº{pedidoCompleto.Indoor.table.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
@@ -883,7 +922,16 @@ public class ImpressaoDelMatch
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-            AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+            if (pedidoCompleto.Type != "INDOOR")
+            {
+                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+            }
+            else
+            {
+                AdicionaConteudo($"Mesa: \t  Nº{pedidoCompleto.Indoor.table.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+            }
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             int qtdItens = pedidoCompleto.Items.Count();
@@ -997,7 +1045,16 @@ public class ImpressaoDelMatch
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    if (pedidoCompleto.Type != "INDOOR")
+                    {
+                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
+                    else
+                    {
+                        AdicionaConteudo($"Mesa: \t  Nº{pedidoCompleto.Indoor.table.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    }
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     int qtdItens = pedidoCompleto.Items.Count();

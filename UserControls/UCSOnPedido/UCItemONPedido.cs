@@ -28,9 +28,9 @@ public partial class UCItemONPedido : UserControl
     {
         quantidadeItem.Text = $"{quantity.ToString()}X";
         nomeDoItem.Text = nome;
-        valorDoItem.Text = unitPrice.ToString("c");
-        valorDasOpcoes.Text = optionsPrice.ToString("c");
-        valorTotalDoItem.Text = totalPrice.ToString("c");
+        valorDoItem.Text = itemOn.TotalPrice.Value.ToString("c");
+        valorDasOpcoes.Text = itemOn.OptionsPrice.Value.ToString("c");
+        valorTotalDoItem.Text = itemOn.TotalPrice.Value.ToString("c");
 
         int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
         int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados

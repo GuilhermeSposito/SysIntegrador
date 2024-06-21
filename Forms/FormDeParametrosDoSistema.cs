@@ -471,11 +471,6 @@ namespace SysIntegradorApp.Forms
         {
             try
             {
-                using ApplicationDbContext db = new ApplicationDbContext();
-                ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
-
-
-                await DelMatch.LimparPedidosDelMatch();
 
             }
             catch (Exception ex)

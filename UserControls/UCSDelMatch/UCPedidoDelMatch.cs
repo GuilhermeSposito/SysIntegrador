@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Converters;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -54,7 +55,7 @@ public partial class UCPedidoDelMatch : UserControl
     {
         FormMenuInicial.panelDetalhePedido.Controls.Clear();
         FormMenuInicial.panelDetalhePedido.PerformLayout();
-        UCInfoPedidosDelMatch infoPedido = new UCInfoPedidosDelMatch() { Pedido = Pedido };
+        UCInfoPedidosDelMatch infoPedido = new UCInfoPedidosDelMatch(new MeuContexto()) { Pedido = Pedido };
 
        // infoPedido.SetLabels(Pedido.CreatedAt, Pedido.Reference, "E", Pedido.deliveryAddress.FormattedAddress, Pedido.deliveryAddress.Neighboardhood, "MERCHANT", Pedido.SubTotal, Pedido.deliveryFee, Pedido.AdditionalFee, Pedido.Discount, Pedido.TotalPrice);
 

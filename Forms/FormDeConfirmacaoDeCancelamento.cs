@@ -2,6 +2,7 @@
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.UserControls;
 using System;
 using System.Collections.Generic;
@@ -37,10 +38,12 @@ public partial class FormDeConfirmacaoDeCancelamento : Form
     {
         try
         {
+            Ifood Ifood = new Ifood(new MeuContexto());
+
             int statusCode = await Ifood.CancelaPedido(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId); //retorna o status code
             using ApplicationDbContext db = new ApplicationDbContext();
             var ConfigSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-        
+
             if (statusCode == 202)
             {
                 if (Application.OpenForms["FormDeCancelamento"] != null)

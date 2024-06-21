@@ -27,6 +27,7 @@ public class OnPedido
             ApplicationDbContext db = new ApplicationDbContext();
             ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
 
+           // await PostgresConfigs.ConcluiPedidoOnPedido();
             await OnPedido.RefreshTokenOnPedidos();
 
             HttpResponseMessage response = await EnviaReq(url, "GET");
@@ -53,7 +54,7 @@ public class OnPedido
                         case "1":
                             //Set Pedido
                             await SetPedido(item.OrderURL, item.orderId);
-                            //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                            ClsSons.StopSom();
                             if (Configs.AceitaPedidoAut)
                             {
                                 await AceitaPedido(item.orderId.ToString(), item.OrderURL);
@@ -62,21 +63,26 @@ public class OnPedido
                         case "2":
                             await SetPedido(item.OrderURL, item.orderId);
                             await MudaStatusPedido(item.orderId, "CONFIRMED");
+                            ClsSons.StopSom();
                             break;
                         case "3":
                             await MudaStatusPedido(item.orderId, "DISPATCHED");
                             //muda status
+                            ClsSons.StopSom();
                             break;
                         case "4":
-                            await MudaStatusPedido(item.orderId, "DELIVERED");
+                            await MudaStatusPedido(item.orderId, "CONCLUDED");
                             //muda status
+                            ClsSons.StopSom();
                             break;
                         case "5":
                             await MudaStatusPedido(item.orderId, "CANCELLED");
+                            ClsSons.StopSom();
                             break;
                     }
                 }
             }
+
         }
         catch (Exception ex)
         {
@@ -97,8 +103,9 @@ public class OnPedido
                 if (Pedido.Situacao != Status)
                 {
                     Pedido.Situacao = Status;
-                    db.SaveChanges();
-                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                    await db.SaveChangesAsync();
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                    //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                 }
             }
         }
@@ -145,8 +152,7 @@ public class OnPedido
         }
     }
 
-
-    public static async Task ConcluirPedido(string? orderId)
+    public static async Task ConcluirPedido(string? orderId, bool concluiuAut = false)
     {
         try
         {
@@ -161,17 +167,26 @@ public class OnPedido
 
                 if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show($"Pedido de id {orderId} Confirmado com sucesso!");
+                    if (!concluiuAut)
+                    {
+                        MessageBox.Show($"Pedido de id {orderId} Concluido com sucesso!");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Não foi possivel Confirmado pedido", "Não foi possivel!");
+                    if (!concluiuAut)
+                    {
+                        MessageBox.Show("Não foi possivel Concluir pedido", "Não foi possivel!");
+                    }
                 }
 
             }
             else
             {
-                MessageBox.Show("Pedido já Confirmado", "Não é possivel!");
+                if (!concluiuAut)
+                {
+                    MessageBox.Show("Pedido já Confirmado", "Não é possivel!");
+                }
             }
 
         }
@@ -182,8 +197,6 @@ public class OnPedido
         }
     }
 
-
-
     public static async Task AceitaPedido(string? orderID, string urlDoPedido = null)
     {
         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderID}/confirm";
@@ -193,12 +206,24 @@ public class OnPedido
 
             if (response.IsSuccessStatusCode)
             {
+                ApplicationDbContext db = new ApplicationDbContext();
+                var Configs = db.parametrosdosistema.FirstOrDefault();
+
                 string? jsonContent = await response.Content.ReadAsStringAsync();
                 PedidoOnPedido? Pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(jsonContent);
 
+                string? BodyDeConfirmacao = " ";
 
-                ClsParaConfirmarPedido ClsConfirma = new ClsParaConfirmarPedido("Confirmed", Pedido.Return.CreatedAt, Pedido.Return.Id.ToString(), 20);
-                string? BodyDeConfirmacao = JsonConvert.SerializeObject(ClsConfirma);
+                if (Pedido.Return.Type == "DELIVERY")
+                {
+                    ClsParaConfirmarPedido ClsConfirma = new ClsParaConfirmarPedido("Confirmed", Pedido.Return.CreatedAt, Pedido.Return.Id.ToString(), Configs.TempoEntrega);
+                    BodyDeConfirmacao = JsonConvert.SerializeObject(ClsConfirma);
+                }
+                else
+                {
+                    ClsParaConfirmarPedido ClsConfirma = new ClsParaConfirmarPedido("Confirmed", Pedido.Return.CreatedAt, Pedido.Return.Id.ToString(), Configs.TempoRetirada);
+                    BodyDeConfirmacao = JsonConvert.SerializeObject(ClsConfirma);
+                }
 
                 HttpResponseMessage responseDeConfirmacao = await EnviaReq(url, "POST", BodyDeConfirmacao);
 
@@ -236,6 +261,20 @@ public class OnPedido
             MessageBox.Show(ex.ToString(), "Ops");
         }
         return pedidoCancelado;
+    }   
+    
+    public static async Task FechaMesa(string? orderID)
+    {
+        string url = $"https://delmatchcardapio.com/api/orders/{orderID}/statuses/finish.json";
+        try
+        {
+            HttpResponseMessage response = await EnviaReq(url, "POST");
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
     }
 
     public static async Task SetPedido(string? urlDOPedido, int OrderId)
@@ -253,7 +292,7 @@ public class OnPedido
 
                 if (response.IsSuccessStatusCode)
                 {
-                    ClsSons.PlaySom();
+                    await ClsSons.PlaySomAsync();
 
                     ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
                     string? respondeJson = await response.Content.ReadAsStringAsync();
@@ -326,7 +365,9 @@ public class OnPedido
                                     referencia: Complemento,
                                      endEntrega: EndEntrega,
                                      bairEntrega: BairEntrega,
-                                     entregador: Entregador); //fim dos parâmetros do método de integração
+                                     entregador: Entregador,
+                                     eOnpedido: true
+                                     ); //fim dos parâmetros do método de integração
 
                             string type = pedido.Return.Payments.Prepaid > 0 && pedido.Return.Payments.Pending == 0 ? "ONLINE" : "OFFLINE";
 
@@ -358,7 +399,8 @@ public class OnPedido
                         CriadoEm = DateTime.Now.AddHours(16).ToString(),
                         DisplayId = Convert.ToInt32(pedido.Return.DisplayId),
                         JsonPolling = "Sem Polling ID",
-                        CriadoPor = "ONPEDIDO"
+                        CriadoPor = "ONPEDIDO",
+                        PesquisaDisplayId = Convert.ToInt32(pedido.Return.DisplayId)
                     });
 
                     db.SaveChanges();
@@ -423,14 +465,19 @@ public class OnPedido
 
                     }
 
-                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                    //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
 
                     if (opSistema.ImpressaoAut)
                     {
                         ImprimeAutomatico(pedido);
                     }
 
-                    ClsSons.StopSom();
+                    if (pedido.Return.Type == "INDOOR")
+                    {
+                        ConcluirPedido(pedido.Return.Id.ToString(), concluiuAut: true);
+                    }
                 }
             }
 

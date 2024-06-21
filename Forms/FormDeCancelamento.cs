@@ -1,5 +1,7 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.UserControls;
 using System;
 using System.Collections.Generic;
@@ -25,6 +27,9 @@ public partial class FormDeCancelamento : Form
 
     private async void FormDeCancelamento_Load(object sender, EventArgs e)
     {
+       Ifood Ifood = new Ifood(new MeuContexto());
+
+
         List<ClsMotivosDeCancelamento> motivos = await Ifood.CancelaPedidoOpcoes(id_Pedido);
 
         if (motivos.Count() == 0)

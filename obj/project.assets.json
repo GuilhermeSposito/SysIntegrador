@@ -1279,6 +1279,7 @@
   "projectFileDependencyGroups": {
     "net8.0-windows7.0": [
       "Entity >= 1.0.0",
+      "Microsoft.Extensions.DependencyInjection >= 8.0.0",
       "Newtonsoft.Json >= 13.0.3",
       "Npgsql.EntityFrameworkCore.PostgreSQL >= 8.0.2",
       "Svg >= 3.4.7",
@@ -1338,6 +1339,10 @@
           "Entity": {
             "target": "Package",
             "version": "[1.0.0, )"
+          },
+          "Microsoft.Extensions.DependencyInjection": {
+            "target": "Package",
+            "version": "[8.0.0, )"
           },
           "Newtonsoft.Json": {
             "target": "Package",

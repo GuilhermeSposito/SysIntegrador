@@ -20,6 +20,7 @@ public class ParametrosDoPedido
     [Column("displayid")] public int DisplayId {  get; set; }  
     [Column("jsonpolling")] public string JsonPolling {  get; set; }  
     [Column("criadopor")] public string CriadoPor {  get; set; }  
+    [Column("pesquisadisplayid")] public int PesquisaDisplayId {  get; set; }  
     
     public ParametrosDoPedido() { }
 

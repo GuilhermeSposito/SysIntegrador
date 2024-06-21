@@ -43,6 +43,7 @@
             pictureBoxPedidoEnviado = new PictureBox();
             pictureBoxPedidoNaoEnviado = new PictureBox();
             pictureBoxAgendada = new PictureBox();
+            pictureBoxCCM = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
@@ -50,6 +51,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoEnviado).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -185,7 +187,7 @@
             // pictureBoxPedidoNaoEnviado
             // 
             pictureBoxPedidoNaoEnviado.Image = (Image)resources.GetObject("pictureBoxPedidoNaoEnviado.Image");
-            pictureBoxPedidoNaoEnviado.Location = new Point(280, 3);
+            pictureBoxPedidoNaoEnviado.Location = new Point(275, 3);
             pictureBoxPedidoNaoEnviado.Name = "pictureBoxPedidoNaoEnviado";
             pictureBoxPedidoNaoEnviado.Size = new Size(42, 22);
             pictureBoxPedidoNaoEnviado.SizeMode = PictureBoxSizeMode.Zoom;
@@ -196,7 +198,7 @@
             // pictureBoxAgendada
             // 
             pictureBoxAgendada.Image = (Image)resources.GetObject("pictureBoxAgendada.Image");
-            pictureBoxAgendada.Location = new Point(280, 3);
+            pictureBoxAgendada.Location = new Point(275, 3);
             pictureBoxAgendada.Name = "pictureBoxAgendada";
             pictureBoxAgendada.Size = new Size(42, 22);
             pictureBoxAgendada.SizeMode = PictureBoxSizeMode.Zoom;
@@ -204,11 +206,23 @@
             pictureBoxAgendada.TabStop = false;
             pictureBoxAgendada.Visible = false;
             // 
+            // pictureBoxCCM
+            // 
+            pictureBoxCCM.Image = (Image)resources.GetObject("pictureBoxCCM.Image");
+            pictureBoxCCM.Location = new Point(0, -9);
+            pictureBoxCCM.Name = "pictureBoxCCM";
+            pictureBoxCCM.Size = new Size(126, 137);
+            pictureBoxCCM.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxCCM.TabIndex = 14;
+            pictureBoxCCM.TabStop = false;
+            pictureBoxCCM.Visible = false;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxCCM);
             Controls.Add(pictureBoxAgendada);
             Controls.Add(pictureBoxPedidoNaoEnviado);
             Controls.Add(pictureBoxPedidoEnviado);
@@ -239,6 +253,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoEnviado).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -259,5 +274,6 @@
         private PictureBox pictureBoxPedidoEnviado;
         private PictureBox pictureBoxPedidoNaoEnviado;
         private PictureBox pictureBoxAgendada;
+        private PictureBox pictureBoxCCM;
     }
 }

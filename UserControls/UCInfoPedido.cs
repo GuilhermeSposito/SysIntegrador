@@ -3,6 +3,7 @@ using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
@@ -188,11 +189,13 @@ public partial class UCInfoPedido : UserControl
 
     private void btnDespacharIfood_Click(object sender, EventArgs e)
     {
+        Ifood Ifood = new Ifood(new MeuContexto());
         Ifood.DespacharPedido(orderId: Id_pedido);
     }
 
     private void buttonReadyToPickUp_Click(object sender, EventArgs e)
     {
+        Ifood Ifood = new Ifood(new MeuContexto());
         Ifood.AvisoReadyToPickUp(orderId: Id_pedido);
     }
 
@@ -266,6 +269,8 @@ public partial class UCInfoPedido : UserControl
             using ApplicationDbContext db = new ApplicationDbContext();
             var opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
+            Ifood Ifood = new Ifood(new MeuContexto());
+
             Ifood.ConfirmarPedido(NovoPolling);
             await Ifood.AvisarAcknowledge(NovoPolling);
             ClsSons.StopSom();
@@ -320,6 +325,7 @@ public partial class UCInfoPedido : UserControl
     {
         try
         {
+            Ifood Ifood = new Ifood(new MeuContexto());
             await Ifood.ChamaEntregador(Pedido.id);
         }
         catch (Exception ex)

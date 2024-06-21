@@ -38,6 +38,20 @@ internal class ClsSons
 
     }
 
+    public static async Task PlaySomAsync()
+    {
+        //C:\Program Files\SysLogica\SysIntegradorSetup\
+
+        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\UCT-24Horas.wav";
+
+        if (File.Exists(caminhoDoArquivo))
+        {
+            player = new SoundPlayer(caminhoDoArquivo);
+            player.Play();
+        }
+
+    }
+
     public static void StopSom()
     {
         if (player != null)

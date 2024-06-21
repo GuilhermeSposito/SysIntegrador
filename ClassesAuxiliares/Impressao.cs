@@ -541,6 +541,7 @@ public class Impressao
 
                     AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
+                    AdicionaConteudo(" ", FonteGeral, Alinhamentos.Centro);
 
                 }
 

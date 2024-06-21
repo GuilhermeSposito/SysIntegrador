@@ -59,3 +59,8 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Deb
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSOnPedido.UCInfoPedidoOnPedido.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSOnPedido.UCItemONPedido.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormCancelamentoOnPedido.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormDeCronograma.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormAguardoDeConclPedidos.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCNumPagina.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSccm.UCInfoPedidoCCM.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSccm.UCItemCCM.resources

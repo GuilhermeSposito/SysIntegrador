@@ -817,7 +817,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            AutoScroll = true;
+            AutoSize = true;
             BackColor = Color.DarkGray;
             Controls.Add(pictureBoxDELMATCH);
             Controls.Add(dateFeitoAs);

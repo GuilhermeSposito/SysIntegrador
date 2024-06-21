@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data.InterfaceDeContexto;
 
 namespace SysIntegradorApp.Forms;
 
@@ -38,14 +39,16 @@ public partial class FormDePedidosAbertos : Form
 
     private async void btnEnviar_Click(object sender, EventArgs e)
     {
+        DelMatch Delmatch = new DelMatch(new MeuContexto());
+
         if (ItensAEnviarDelMach.Count() > 0)
         {
 
             foreach (var item in ItensAEnviarDelMach)
             {
                 string jsonContent = JsonConvert.SerializeObject(item);
-                await DelMatch.GerarPedido(jsonContent);
-                DelMatch.UpdateDelMatchId(item.numConta, item.ShortReference);
+                await Delmatch.GerarPedido(jsonContent);
+                Delmatch.UpdateDelMatchId(item.numConta, item.ShortReference);
             }
 
             ItensAEnviarDelMach.Clear();

@@ -30,6 +30,7 @@ public class ClsDeSuporteParaImpressaoDosItens
     public string? Obs12 {  get; set; }   
     public string? Obs13 {  get; set; }   
     public string? Obs14 {  get; set; }   
+    public string? ObsDoItem {  get; set; }   
     public ClsDeSuporteParaImpressaoDosItens()
     {
             

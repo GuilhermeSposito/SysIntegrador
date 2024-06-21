@@ -12,6 +12,16 @@ namespace SysIntegradorApp.data;
 
 public class ApplicationDbContext : DbContext
 {
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+           : base(options)
+    {
+    }
+
+    public ApplicationDbContext()
+    {
+            
+    }
+
     public DbSet<Token> parametrosdeautenticacao { get; set; }
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
     public DbSet<ParametrosDoSistema> parametrosdosistema {  get; set; }

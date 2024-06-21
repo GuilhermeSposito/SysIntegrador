@@ -33,6 +33,8 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            label7 = new Label();
+            pictureBox2 = new PictureBox();
             progressBar1 = new ProgressBar();
             label6 = new Label();
             BtnBuscar = new Button();
@@ -53,8 +55,13 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
+            checkBoxConcluido = new CheckBox();
+            panelDePaginas = new FlowLayoutPanel();
+            checkBoxDespachados = new CheckBox();
+            checkBoxConfirmados = new CheckBox();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).BeginInit();
@@ -64,6 +71,7 @@
             panelStatusLoja.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOfline).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnline).BeginInit();
+            panelDePaginas.SuspendLayout();
             SuspendLayout();
             // 
             // panelPedidos
@@ -76,7 +84,7 @@
             panelPedidos.Location = new Point(13, 101);
             panelPedidos.Margin = new Padding(3, 300, 3, 3);
             panelPedidos.Name = "panelPedidos";
-            panelPedidos.Size = new Size(380, 541);
+            panelPedidos.Size = new Size(380, 500);
             panelPedidos.TabIndex = 0;
             panelPedidos.WrapContents = false;
             panelPedidos.Paint += panelPedidos_Paint;
@@ -114,6 +122,8 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(label7);
+            panel1.Controls.Add(pictureBox2);
             panel1.Controls.Add(progressBar1);
             panel1.Controls.Add(label6);
             panel1.Controls.Add(BtnBuscar);
@@ -136,6 +146,28 @@
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // label7
+            // 
+            label7.AutoSize = true;
+            label7.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label7.Location = new Point(475, 49);
+            label7.Name = "label7";
+            label7.Size = new Size(58, 17);
+            label7.TabIndex = 22;
+            label7.Text = "Cronogr";
+            // 
+            // pictureBox2
+            // 
+            pictureBox2.Cursor = Cursors.Hand;
+            pictureBox2.Image = (Image)resources.GetObject("pictureBox2.Image");
+            pictureBox2.Location = new Point(479, 3);
+            pictureBox2.Name = "pictureBox2";
+            pictureBox2.Size = new Size(51, 45);
+            pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox2.TabIndex = 21;
+            pictureBox2.TabStop = false;
+            pictureBox2.Click += pictureBox2_Click;
+            // 
             // progressBar1
             // 
             progressBar1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
@@ -149,7 +181,7 @@
             // 
             label6.AutoSize = true;
             label6.Font = new Font("Segoe UI", 6F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label6.Location = new Point(526, 3);
+            label6.Location = new Point(585, 3);
             label6.Name = "label6";
             label6.Size = new Size(16, 12);
             label6.TabIndex = 18;
@@ -160,7 +192,7 @@
             BtnBuscar.Cursor = Cursors.Hand;
             BtnBuscar.FlatAppearance.MouseOverBackColor = Color.FromArgb(224, 224, 224);
             BtnBuscar.Font = new Font("Segoe UI", 12F);
-            BtnBuscar.Location = new Point(786, 11);
+            BtnBuscar.Location = new Point(843, 13);
             BtnBuscar.Name = "BtnBuscar";
             BtnBuscar.Size = new Size(104, 37);
             BtnBuscar.TabIndex = 17;
@@ -172,7 +204,7 @@
             // textBoxBuscarPedido
             // 
             textBoxBuscarPedido.Font = new Font("Segoe UI", 12F);
-            textBoxBuscarPedido.Location = new Point(536, 11);
+            textBoxBuscarPedido.Location = new Point(593, 14);
             textBoxBuscarPedido.Name = "textBoxBuscarPedido";
             textBoxBuscarPedido.PlaceholderText = "Digite o número do pedido";
             textBoxBuscarPedido.Size = new Size(244, 34);
@@ -185,7 +217,7 @@
             // 
             label5.AutoSize = true;
             label5.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label5.Location = new Point(482, 49);
+            label5.Location = new Point(539, 49);
             label5.Name = "label5";
             label5.Size = new Size(48, 17);
             label5.TabIndex = 15;
@@ -195,7 +227,7 @@
             // 
             pictureBoxLupa.Cursor = Cursors.Hand;
             pictureBoxLupa.Image = (Image)resources.GetObject("pictureBoxLupa.Image");
-            pictureBoxLupa.Location = new Point(479, 3);
+            pictureBoxLupa.Location = new Point(536, 3);
             pictureBoxLupa.Name = "pictureBoxLupa";
             pictureBoxLupa.Size = new Size(51, 45);
             pictureBoxLupa.SizeMode = PictureBoxSizeMode.Zoom;
@@ -262,7 +294,7 @@
             pollingManual.FlatAppearance.BorderSize = 3;
             pollingManual.FlatStyle = FlatStyle.Flat;
             pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(964, 16);
+            pollingManual.Location = new Point(1079, 8);
             pollingManual.Name = "pollingManual";
             pollingManual.Size = new Size(123, 39);
             pollingManual.TabIndex = 8;
@@ -360,6 +392,61 @@
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
             // 
+            // checkBoxConcluido
+            // 
+            checkBoxConcluido.AutoSize = true;
+            checkBoxConcluido.Location = new Point(18, 6);
+            checkBoxConcluido.Margin = new Padding(18, 3, 3, 3);
+            checkBoxConcluido.Name = "checkBoxConcluido";
+            checkBoxConcluido.Size = new Size(104, 24);
+            checkBoxConcluido.TabIndex = 0;
+            checkBoxConcluido.Text = "Concluidos";
+            checkBoxConcluido.UseVisualStyleBackColor = true;
+            checkBoxConcluido.Click += checkBoxConcluido_Click;
+            // 
+            // panelDePaginas
+            // 
+            panelDePaginas.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            panelDePaginas.AutoScroll = true;
+            panelDePaginas.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            panelDePaginas.BackColor = SystemColors.ButtonHighlight;
+            panelDePaginas.Controls.Add(checkBoxConcluido);
+            panelDePaginas.Controls.Add(checkBoxDespachados);
+            panelDePaginas.Controls.Add(checkBoxConfirmados);
+            panelDePaginas.Location = new Point(13, 608);
+            panelDePaginas.Margin = new Padding(3, 300, 3, 3);
+            panelDePaginas.Name = "panelDePaginas";
+            panelDePaginas.Padding = new Padding(0, 3, 0, 0);
+            panelDePaginas.Size = new Size(380, 34);
+            panelDePaginas.TabIndex = 3;
+            panelDePaginas.WrapContents = false;
+            // 
+            // checkBoxDespachados
+            // 
+            checkBoxDespachados.AutoSize = true;
+            checkBoxDespachados.Checked = true;
+            checkBoxDespachados.CheckState = CheckState.Checked;
+            checkBoxDespachados.Location = new Point(128, 6);
+            checkBoxDespachados.Name = "checkBoxDespachados";
+            checkBoxDespachados.Size = new Size(120, 24);
+            checkBoxDespachados.TabIndex = 1;
+            checkBoxDespachados.Text = "Despachados";
+            checkBoxDespachados.UseVisualStyleBackColor = true;
+            checkBoxDespachados.CheckedChanged += checkBoxDespachados_CheckedChanged;
+            // 
+            // checkBoxConfirmados
+            // 
+            checkBoxConfirmados.AutoSize = true;
+            checkBoxConfirmados.Checked = true;
+            checkBoxConfirmados.CheckState = CheckState.Checked;
+            checkBoxConfirmados.Location = new Point(254, 6);
+            checkBoxConfirmados.Name = "checkBoxConfirmados";
+            checkBoxConfirmados.Size = new Size(116, 24);
+            checkBoxConfirmados.TabIndex = 2;
+            checkBoxConfirmados.Text = "Confirmados";
+            checkBoxConfirmados.UseVisualStyleBackColor = true;
+            checkBoxConfirmados.CheckedChanged += checkBoxConfirmados_CheckedChanged;
+            // 
             // FormMenuInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -367,6 +454,7 @@
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = SystemColors.ButtonShadow;
             ClientSize = new Size(1403, 655);
+            Controls.Add(panelDePaginas);
             Controls.Add(panel1);
             Controls.Add(panelPedidos);
             Controls.Add(panelDetalhePedido);
@@ -386,6 +474,7 @@
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxConfig).EndInit();
@@ -396,6 +485,8 @@
             panelStatusLoja.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOfline).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnline).EndInit();
+            panelDePaginas.ResumeLayout(false);
+            panelDePaginas.PerformLayout();
             ResumeLayout(false);
         }
 
@@ -419,6 +510,12 @@
         private Button BtnBuscar;
         private TextBox textBoxBuscarPedido;
         private Label label6;
+        private Label label7;
+        private PictureBox pictureBox2;
+        private static CheckBox checkBoxConcluido;
+        public static FlowLayoutPanel panelDePaginas;
+        private static CheckBox checkBoxDespachados;
+        private static CheckBox checkBoxConfirmados;
         private static ProgressBar progressBar1;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
@@ -427,3 +524,14 @@
         public static FlowLayoutPanel panelPedidos;
     }
 }
+
+/*      private static CheckBox checkBoxConcluido;
+        public static FlowLayoutPanel panelDePaginas;
+        private static CheckBox checkBoxDespachados;
+        private static CheckBox checkBoxConfirmados;
+        private static ProgressBar progressBar1;
+        private static PictureBox pictureBoxOnline;
+        private static PictureBox pictureBoxOfline;
+        public static Label labelDeAvisoPedidoDetalhe;
+        public static FlowLayoutPanel panelDetalhePedido;
+        public static FlowLayoutPanel panelPedidos;;*/

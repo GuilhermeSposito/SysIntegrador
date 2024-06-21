@@ -73,6 +73,12 @@ public class ParametrosDoSistema
     [Column("tokenonpedido")] public string? TokenOnPedido { get; set; }
     [Column("useronpedido")] public string? UserOnPedido { get; set; }
     [Column("senhaonpedido")] public string? SenhaOnPedido { get; set; }
+    [Column("tempoentrega")] public int TempoEntrega { get; set; }
+    [Column("tempoconclonpedido")] public int TempoConclonPedido { get; set; }
+    [Column("temporetirada")] public int TempoRetirada { get; set; }
+    [Column("dtultimaverif")] public string DtUltimaVerif { get; set; }
+    [Column("integraccm")] public bool IntegraCCM { get; set; }
+    [Column("tokenccm")] public string TokenCCM { get; set; }
 
     public ParametrosDoSistema() { }
 
@@ -185,9 +191,30 @@ public class ParametrosDoSistema
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString());
+            MessageBox.Show(ex.ToString());   
         }
     }
 
+    public static void SetInfosDeCronograma(int tempoDeEntrega = 50,int tempoDeRetirada = 20, int TempoConclPedido = 150)
+    {
+        try
+        {
+            ApplicationDbContext dbContext = new ApplicationDbContext();
+
+            var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            configuracoes.TempoEntrega = tempoDeEntrega;    
+            configuracoes.TempoRetirada = tempoDeRetirada;
+            configuracoes.TempoConclonPedido = TempoConclPedido;
+
+            dbContext.SaveChanges();
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+
+            throw;
+        }
+    }
 
 }

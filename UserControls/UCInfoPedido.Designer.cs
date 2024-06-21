@@ -879,7 +879,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            AutoScroll = true;
+            AutoSize = true;
             BackColor = Color.DarkGray;
             Controls.Add(pictureBox1);
             Controls.Add(pictureBox7);

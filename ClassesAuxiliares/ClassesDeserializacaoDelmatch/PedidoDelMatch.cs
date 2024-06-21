@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 
 namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 
@@ -32,7 +33,7 @@ public class PedidoDelMatch
     [JsonProperty("scheduleDateTime")] public string? ScheduleDateTime { get; set; } 
     [JsonProperty("orderType")] public string? orderType { get; set; } 
     [JsonProperty("takeout")] public Takeout Takeout { get; set; } = new Takeout();
-
+    [JsonProperty("indoor")] public SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch.Indoor Indoor { get; set; } = new SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch.Indoor();
 }
 
 public class Merchant
@@ -86,6 +87,8 @@ public class Customer
 
 public class items
 {
+    [JsonProperty("item_id")] public int Item_Id { get; set; }
+    [JsonProperty("id")] public int Id { get; set; }
     [JsonProperty("name")] public string? Name { get; set; }
     [JsonProperty("quantity")] public int Quantity { get; set; }
     [JsonProperty("price")] public float Price { get; set; }
@@ -93,6 +96,7 @@ public class items
     [JsonProperty("totalPrice")] public float TotalPrice { get; set; }
     [JsonProperty("discount")] public double Discount { get; set; }
     [JsonProperty("addition")] public double Addition { get; set; }
+    [JsonProperty("is_read")] public bool Is_Read { get; set; }
     [JsonProperty("externalCode")] public string? ExternalCode { get; set; }
     [JsonProperty("observations")] public string? Observations { get; set; }
     [JsonProperty("subItems")] public List<SubItens> SubItems { get; set; } = new List<SubItens>(); 
@@ -150,4 +154,18 @@ public class Takeout
     [JsonProperty("deliveredBy")] public string? DeliveredBy { get; set; }
     [JsonProperty("mode")] public string? Mode { get; set; }
     
+}
+
+public class Indoor
+{
+    [JsonProperty("mode")] public string? Mode { get; set; } 
+    [JsonProperty("table")] public string? table { get; set; }
+   // [JsonProperty("commander")] public string? commander { get; set; }
+
+}
+
+public class ClsParaConfirmarItem
+{
+    [JsonProperty("itens")] public List<int> Itens { get; set; } = new List<int>();        
+
 }

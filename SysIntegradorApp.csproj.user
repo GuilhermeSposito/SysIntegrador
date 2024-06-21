@@ -28,7 +28,13 @@
     <Compile Update="Forms\FormPedidosEnviados.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\ONPEDIDO\FormAguardoDeConclPedidos.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\ONPEDIDO\FormCancelamentoOnPedido.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Forms\ONPEDIDO\FormDeCronograma.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Update="UserControls\UCComplementoDoItem.cs">
@@ -43,10 +49,19 @@
     <Compile Update="UserControls\UCMotivoCancelamento.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="UserControls\UCNumPagina.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\UCPedido.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCPedidoAbertoSys.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSccm\UCInfoPedidoCCM.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSccm\UCItemCCM.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCSDelMatch\UCComplementoDoItemDelMatch.cs">

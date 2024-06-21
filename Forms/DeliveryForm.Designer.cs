@@ -31,8 +31,8 @@ partial class DeliveryForm
         System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DeliveryForm));
         panelDeListarPedidos = new Panel();
         label1 = new Label();
-        panelDeIniciarEntrega = new Panel();
         label2 = new Label();
+        panelDeIniciarEntrega = new Panel();
         pictureBoxEmpresaDelivery = new PictureBox();
         label3 = new Label();
         label4 = new Label();
@@ -60,7 +60,7 @@ partial class DeliveryForm
         // 
         label1.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
         label1.ForeColor = Color.FromArgb(255, 246, 193);
-        label1.Location = new Point(198, 28);
+        label1.Location = new Point(198, 26);
         label1.Name = "label1";
         label1.Size = new Size(330, 117);
         label1.TabIndex = 1;
@@ -68,6 +68,20 @@ partial class DeliveryForm
         label1.TextAlign = ContentAlignment.MiddleCenter;
         label1.Click += label1_Click;
         label1.MouseEnter += label1_MouseEnter;
+        // 
+        // label2
+        // 
+        label2.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label2.ForeColor = Color.FromArgb(255, 246, 193);
+        label2.Location = new Point(198, 25);
+        label2.Name = "label2";
+        label2.Size = new Size(330, 117);
+        label2.TabIndex = 2;
+        label2.Text = "Clique aqui para iniciar um novo pedido";
+        label2.TextAlign = ContentAlignment.MiddleCenter;
+        label2.Click += label2_Click;
+        label2.MouseEnter += label2_MouseEnter;
+        label2.MouseLeave += label2_MouseLeave;
         // 
         // panelDeIniciarEntrega
         // 
@@ -83,20 +97,6 @@ partial class DeliveryForm
         panelDeIniciarEntrega.MouseEnter += panelDeIniciarEntrega_MouseEnter;
         panelDeIniciarEntrega.MouseLeave += panelDeIniciarEntrega_MouseLeave;
         // 
-        // label2
-        // 
-        label2.Font = new Font("Segoe UI", 15F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label2.ForeColor = Color.FromArgb(255, 246, 193);
-        label2.Location = new Point(198, 22);
-        label2.Name = "label2";
-        label2.Size = new Size(330, 117);
-        label2.TabIndex = 2;
-        label2.Text = "Clique aqui para iniciar um novo pedido";
-        label2.TextAlign = ContentAlignment.MiddleCenter;
-        label2.Click += label2_Click;
-        label2.MouseEnter += label2_MouseEnter;
-        label2.MouseLeave += label2_MouseLeave;
-        // 
         // pictureBoxEmpresaDelivery
         // 
         pictureBoxEmpresaDelivery.Cursor = Cursors.Hand;
@@ -107,6 +107,7 @@ partial class DeliveryForm
         pictureBoxEmpresaDelivery.SizeMode = PictureBoxSizeMode.Zoom;
         pictureBoxEmpresaDelivery.TabIndex = 2;
         pictureBoxEmpresaDelivery.TabStop = false;
+        pictureBoxEmpresaDelivery.Click += pictureBoxEmpresaDelivery_Click;
         // 
         // label3
         // 

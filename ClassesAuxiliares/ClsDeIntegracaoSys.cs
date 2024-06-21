@@ -10,6 +10,9 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -33,7 +36,10 @@ public class ClsDeIntegracaoSys
      string? referencia,
      string? endEntrega = "RETIRADA",
      string? bairEntrega = "RETIRADA",
-     string? entregador = "RETIRADA"
+     string? entregador = "RETIRADA",
+     bool eIfood = false,
+     bool eDelMatch = false,
+     bool eOnpedido = false
      ) //método que está sendo usado para integrar a tabela contas do banco de dados com a tabela de pedido do SysIntegrador
     {
 
@@ -48,7 +54,7 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2, iFoodPedidoID) VALUES (?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES ( ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -95,6 +101,66 @@ public class ClsDeIntegracaoSys
                                     while (reader.Read())
                                     {
                                         ultimoNumeroConta = Convert.ToInt32(reader["CONTA"].ToString());
+                                    }
+
+                                    if (eIfood)
+                                    {
+                                        string query = "UPDATE Sequencia SET IsIFood = ?, PEDWEB = ? WHERE CONTA = ?";
+                                        using (OleDbCommand ComandoMudaIsIfood = new OleDbCommand(query, connection))
+                                        {
+                                            OleDbParameter paramIsIFood = new OleDbParameter("@IsIFood", OleDbType.Boolean);
+                                            paramIsIFood.Value = true;
+
+                                            OleDbParameter paramConta = new OleDbParameter("@Conta", OleDbType.VarChar);
+                                            paramConta.Value = ultimoNumeroConta.ToString(); // Assuming ultimoNumeroConta is a string
+
+                                            OleDbParameter paramPedWeb = new OleDbParameter("@PEDWEB", "IFOOD");
+
+
+                                            ComandoMudaIsIfood.Parameters.Add(paramIsIFood);
+                                            ComandoMudaIsIfood.Parameters.Add(paramPedWeb);
+                                            ComandoMudaIsIfood.Parameters.Add(paramConta);
+
+                                            ComandoMudaIsIfood.ExecuteNonQuery();
+                                        }
+                                    }
+
+                                    if (eDelMatch)
+                                    {
+                                        string query = "UPDATE Sequencia SET PEDWEB = ? WHERE CONTA = ?";
+                                        using (OleDbCommand ComandoMudaIsIfood = new OleDbCommand(query, connection))
+                                        {
+
+                                            OleDbParameter paramConta = new OleDbParameter("@CONTA", OleDbType.VarChar);
+                                            paramConta.Value = ultimoNumeroConta.ToString(); // Assuming ultimoNumeroConta is a string
+
+                                            OleDbParameter paramPedWeb = new OleDbParameter("@PEDWEB", OleDbType.VarChar);
+                                            paramPedWeb.Value = "DELMATCH";
+
+                                            ComandoMudaIsIfood.Parameters.Add(paramPedWeb);
+                                            ComandoMudaIsIfood.Parameters.Add(paramConta);
+
+                                            ComandoMudaIsIfood.ExecuteNonQuery();
+                                        }
+
+                                    }
+
+                                    if (eOnpedido)
+                                    {
+                                        string query = "UPDATE Sequencia SET PEDWEB = ? WHERE CONTA = ?";
+                                        using (OleDbCommand ComandoMudaIsIfood = new OleDbCommand(query, connection))
+                                        {
+
+                                            OleDbParameter paramConta = new OleDbParameter("@CONTA", OleDbType.VarChar);
+                                            paramConta.Value = ultimoNumeroConta.ToString();
+
+                                            OleDbParameter paramPedWeb = new OleDbParameter("@PEDWEB", "ONPEDIDO");
+
+                                            ComandoMudaIsIfood.Parameters.Add(paramPedWeb);
+                                            ComandoMudaIsIfood.Parameters.Add(paramConta);
+
+                                            ComandoMudaIsIfood.ExecuteNonQuery();
+                                        }
                                     }
 
                                     return ultimoNumeroConta;
@@ -327,12 +393,19 @@ public class ClsDeIntegracaoSys
       string? ImpComanda2, // texto curto 3 letras
       float qtdComanda, //numero duplo 
       string? usuario = "CAIXA",
-      string? status = "P"
+      string? status = "P",
+      bool pedidoOnLineMesa = false,
+      string? idPedido = " "
       )
     { //aqui começa o código para inserção na tabela CONTAS
         try
         {
             string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+
+            if (telefone.Length > 14)
+            {
+                telefone = telefone.Replace(" ", "");
+            }
 
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
@@ -342,8 +415,6 @@ public class ClsDeIntegracaoSys
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.ForegroundColor = ConsoleColor.White;
                     // Parâmetros para a consulta SQL
                     command.Parameters.AddWithValue("@CONTA", conta);
                     command.Parameters.AddWithValue("@MESA", mesa);
@@ -352,7 +423,7 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@CODCARDA2", codCarda2);
                     command.Parameters.AddWithValue("@CODCARDA3", codCarda3);
                     command.Parameters.AddWithValue("@TAMANHO", tamanho);
-                    command.Parameters.AddWithValue("@DESCARDA", descarda);
+                    command.Parameters.AddWithValue("@DESCARDA", descarda.Length > 31 ? descarda.Substring(0,31) : descarda);
                     command.Parameters.AddWithValue("@VALORUNIT", valorUnit); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@VALORTOTAL", valorTotal);//se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@DATAINICIO", dataInicio);
@@ -372,20 +443,36 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@OBS13", obs13);
                     command.Parameters.AddWithValue("@OBS14", obs14);
                     command.Parameters.AddWithValue("@OBS15", obs15);
-                    command.Parameters.AddWithValue("@CLIENTE", cliente);
+                    command.Parameters.AddWithValue("@CLIENTE", cliente.Length > 40 ? cliente.Substring(0,40) : cliente);
                     command.Parameters.AddWithValue("@STATUS", status);
-                    command.Parameters.AddWithValue("@TELEFONE", telefone);
+                    command.Parameters.AddWithValue("@TELEFONE", telefone.Length > 14 ? telefone.Substring(0,14) : telefone);
                     command.Parameters.AddWithValue("@IMPCOMANDA", impComanda);
                     command.Parameters.AddWithValue("@IMPCOMANDA2", ImpComanda2);
                     command.Parameters.AddWithValue("@QTDCOMANDA", qtdComanda);
                     command.Parameters.AddWithValue("@USUARIO", usuario);
 
-
                     // Executa o comando SQL
                     int rowsAffected = command.ExecuteNonQuery();
 
-                }//fechamento chave segundo using 
-            }//fechamento chave primeiro using
+                    if (rowsAffected > 0)
+                    {
+                        if (pedidoOnLineMesa)
+                        {
+                            string? sqlUpdate = "UPDATE Contas SET PEDIDOONLINEID = @PEDIDOONLINEID WHERE MESA = @MESA AND STATUS = @STATUS";
+
+                            using (OleDbCommand commando = new OleDbCommand(sqlUpdate, connection))
+                            {
+                                commando.Parameters.AddWithValue("@PEDIDOONLINEID", idPedido); //PEDIDOONLINEID
+                                commando.Parameters.AddWithValue("@MESA", mesa);
+                                commando.Parameters.AddWithValue("@STATUS", "A");
+
+                                commando.ExecuteNonQuery();
+                            }
+                        }
+
+                    }//fechamento chave segundo using 
+                }//fechamento chave primeiro using
+            }
         }
         catch (Exception ex)
         {
@@ -505,6 +592,41 @@ public class ClsDeIntegracaoSys
         return existeCliente;
     }
 
+    public static bool ProcuraMesaFechada()
+    {
+        bool ExisteMesa = false;
+        try
+        {
+            string banco = CaminhoBaseSysMenu;
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string sqlSelect = "SELECT COUNT(*) FROM ApoMesa";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(sqlSelect, connection))
+                {
+                    // Executar a consulta SELECT
+                    int count = (int)selectCommand.ExecuteScalar();
+                    ExisteMesa = count > 0;
+                }
+                return ExisteMesa;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Problema em procurar mesa para fechar");
+        }
+        return ExisteMesa;
+    }
+
+
     public static async void CadastraCliente(Customer cliente, Delivery entrega)
     {
         try
@@ -567,16 +689,17 @@ public class ClsDeIntegracaoSys
 
                 string referenciaDoEndereco = entrega.DeliveryAddressON.Complement == null || entrega.DeliveryAddressON.Complement == "" ? " " : entrega.DeliveryAddressON.Complement;
 
+                string TelefoneCliente = $"({cliente.PhoneOn.Extension}){cliente.PhoneOn.Number}";
 
                 using (OleDbCommand command = new OleDbCommand(SqlSelectIntoCadastros, connection))
                 {
-                    command.Parameters.AddWithValue("@TELEFONE", $"({cliente.PhoneOn.Extension}){cliente.PhoneOn.Number})");
+                    command.Parameters.AddWithValue("@TELEFONE", TelefoneCliente);
                     command.Parameters.AddWithValue("@NOME", cliente.Name);
                     command.Parameters.AddWithValue("@ENDERECO", entrega.DeliveryAddressON.FormattedAddress);
                     command.Parameters.AddWithValue("@BAIRRO", entrega.DeliveryAddressON.District);
                     command.Parameters.AddWithValue("@CIDADE", entrega.DeliveryAddressON.City);
                     command.Parameters.AddWithValue("@ESTADO", "SP");
-                    command.Parameters.AddWithValue("@CEP", entrega.DeliveryAddressON.PostalCode != null || entrega.DeliveryAddressON.PostalCode != "" ? entrega.DeliveryAddressON.PostalCode : " ");
+                    command.Parameters.AddWithValue("@CEP", entrega.DeliveryAddressON.PostalCode != null && entrega.DeliveryAddressON.PostalCode != "" ? entrega.DeliveryAddressON.PostalCode : " ");
                     command.Parameters.AddWithValue("@REFERE", referenciaDoEndereco);
 
 
@@ -734,6 +857,61 @@ public class ClsDeIntegracaoSys
         }
         return NomeProduto;
     }
+
+
+    public static ClsApoioFechamanetoDeMesa MesasFechadas()
+    {
+        ClsApoioFechamanetoDeMesa ClsApoioFechamanetoDeMesa = new ClsApoioFechamanetoDeMesa();
+        try
+        {
+            string banco = CaminhoBaseSysMenu;//@"Provider=Microsoft.ACE.OLEDB.12.0;Data Source=C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\CONTAS.mdb";
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+                connection.Open();
+
+                string SqlSelectIntoCadastros = "SELECT * FROM ApoMesa";
+
+
+                using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                {
+                    // Executar a consulta SELECT
+                    using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            Mesa mesa = new Mesa();
+
+                            mesa.MESA = reader["MESA"].ToString();
+                            mesa.PedidoID = reader["PEDIDOONLINEID"].ToString();
+
+                            ClsApoioFechamanetoDeMesa.Mesas.Add(mesa);
+                        }
+                    }
+                }
+
+                string? DeleteString = "DELETE FROM ApoMesa";
+
+                using (OleDbCommand DeleteCommand = new OleDbCommand(DeleteString, connection))
+                {
+                    int rowsAffected = DeleteCommand.ExecuteNonQuery();
+                }
+
+
+                return ClsApoioFechamanetoDeMesa;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString(), "Erro ao definir nome do produto");
+        }
+        return ClsApoioFechamanetoDeMesa;
+    }
+
 
     public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemOnPedido(itemsOn item, bool comanda = false)
     {
@@ -2623,11 +2801,6 @@ public class ClsDeIntegracaoSys
     }
 
 
-
-
-
-
-
     public static async Task<bool> VerificaCaixaAberto()
     {
         bool CaixaAberto = false;
@@ -2666,7 +2839,7 @@ public class ClsDeIntegracaoSys
     }
 
 
-    public static void ExcluiPedidoCasoCancelado(string orderId)
+    public static async void ExcluiPedidoCasoCancelado(string orderId, bool mesa = false)
     {
         try
         {
@@ -2675,9 +2848,30 @@ public class ClsDeIntegracaoSys
             int NumConta = pedido.Conta;
             string banco = CaminhoBaseSysMenu;
 
+            if (mesa)
+            {
+                using (OleDbConnection connection = new OleDbConnection(banco))
+                {
+                    ParametrosDoPedido? PedidoDB = dbPostgres.parametrosdopedido.Where(x => x.Id == orderId).FirstOrDefault();
+                    PedidoOnPedido? Pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(PedidoDB.Json);
+
+                    string numMesa = await OnPedido.RetiraNumeroDeMesa(Pedido.Return.Indoor.Place);
+
+                    connection.Open();
+
+                    string deleteCommandText = "DELETE FROM Contas WHERE MESA = @MESA";
+                    OleDbCommand deleteCommand = new OleDbCommand(deleteCommandText, connection);
+
+                    deleteCommand.Parameters.AddWithValue("@MESA", numMesa);
+
+                    deleteCommand.ExecuteNonQuery();
+
+                }//faz o delete da pagCartao
+            }
+
+
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
-
                 connection.Open();
 
                 string deleteCommandText = "DELETE FROM Sequencia WHERE CONTA = @NUMCONTA";
@@ -2732,10 +2926,28 @@ public class ClsDeIntegracaoSys
 
         bool ePizza = item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" ? true : false;
 
+        string? ObsDoItem = " ";
+
+        if (item.Observations != null && item.Observations != "")
+        {
+            if (item.Observations.Length > 80)
+            {
+                ObsDoItem = item.Observations.Substring(0, 80);
+            }
+            else
+            {
+                ObsDoItem = item.Observations;
+            }
+        }
+
+        ClasseDeSuporte.ObsDoItem = ObsDoItem;
+
         if (ePizza)
         {
             string obs = item.ExternalCode == null || item.ExternalCode == "" ? " " : item.ExternalCode.ToString();
-            string externalCode = " ";
+            string externalCode1 = " ";
+            string externalCode2 = " ";
+            string externalCode3 = " ";
 
             string? ePizza1 = null;
             string? ePizza2 = null;
@@ -2756,6 +2968,7 @@ public class ClsDeIntegracaoSys
             string? obs13 = " ";
             string? obs14 = " ";
 
+
             foreach (var option in item.SubItems)
             {
                 if (!option.ExternalCode.Contains("m") && ePizza1 == null)
@@ -2765,11 +2978,12 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        NomeProduto += ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                        NomeProduto = $"{item.Quantity}X "  + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                        externalCode1 = option.ExternalCode;
                     }
                     else
                     {
-                        NomeProduto += option.Name;
+                        NomeProduto = $"{item.Quantity}X " + option.Name;
                     }
                     continue;
                 }
@@ -2782,6 +2996,7 @@ public class ClsDeIntegracaoSys
                     if (pesquisaProduto)
                     {
                         NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                        externalCode2 = option.ExternalCode;
                     }
                     else
                     {
@@ -2798,6 +3013,7 @@ public class ClsDeIntegracaoSys
                     if (pesquisaProduto)
                     {
                         NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.ExternalCode);
+                        externalCode3 = option.ExternalCode;
                     }
                     else
                     {
@@ -2807,6 +3023,11 @@ public class ClsDeIntegracaoSys
                 }
 
             }
+
+            ClasseDeSuporte.Tamanho = item.ExternalCode;
+            ClasseDeSuporte.ExternalCode1 = externalCode1;
+            ClasseDeSuporte.ExternalCode2 = externalCode2;
+            ClasseDeSuporte.ExternalCode3 = externalCode3;
 
 
             foreach (var opcao in item.SubItems)
@@ -3187,6 +3408,20 @@ public class ClsDeIntegracaoSys
             }
 
             ClasseDeSuporte.NomeProduto = NomeProduto;
+            ClasseDeSuporte.Obs1 = obs1;
+            ClasseDeSuporte.Obs2 = obs2;
+            ClasseDeSuporte.Obs3 = obs3;
+            ClasseDeSuporte.Obs4 = obs4;
+            ClasseDeSuporte.Obs5 = obs5;
+            ClasseDeSuporte.Obs6 = obs6;
+            ClasseDeSuporte.Obs7 = obs7;
+            ClasseDeSuporte.Obs8 = obs8;
+            ClasseDeSuporte.Obs9 = obs9;
+            ClasseDeSuporte.Obs10 = obs10;
+            ClasseDeSuporte.Obs11 = obs11;
+            ClasseDeSuporte.Obs12 = obs12;
+            ClasseDeSuporte.Obs13 = obs13;
+            ClasseDeSuporte.Obs14 = obs14;
 
             return ClasseDeSuporte;
 
@@ -3196,15 +3431,20 @@ public class ClsDeIntegracaoSys
             string? externalCode = item.ExternalCode == null || item.ExternalCode == "" ? " " : item.ExternalCode;
             string? obs = item.Observations == null || item.Observations == "" ? " " : item.Observations.ToString();
 
+            string? externalCode1 = " ";
+            string? externalCode2 = " ";
+            string? externalCode3 = " ";
+
             bool existeProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(externalCode);
 
             if (existeProduto)
             {
-                NomeProduto = ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode);
+                NomeProduto =  $"{item.Quantity}X " + ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode);
+                externalCode1 = externalCode;
             }
             else
             {
-                NomeProduto = item.Name;
+                NomeProduto = $"{item.Quantity}X " + item.Name;
             }
 
             ClasseDeSuporte.NomeProduto = NomeProduto;
@@ -3579,6 +3819,28 @@ public class ClsDeIntegracaoSys
 
 
             }
+
+
+            ClasseDeSuporte.Tamanho = "U";
+
+            ClasseDeSuporte.ExternalCode1 = externalCode1;
+            ClasseDeSuporte.ExternalCode2 = externalCode2;
+            ClasseDeSuporte.ExternalCode3 = externalCode3;
+
+            ClasseDeSuporte.Obs1 = obs1;
+            ClasseDeSuporte.Obs2 = obs2;
+            ClasseDeSuporte.Obs3 = obs3;
+            ClasseDeSuporte.Obs4 = obs4;
+            ClasseDeSuporte.Obs5 = obs5;
+            ClasseDeSuporte.Obs6 = obs6;
+            ClasseDeSuporte.Obs7 = obs7;
+            ClasseDeSuporte.Obs8 = obs8;
+            ClasseDeSuporte.Obs9 = obs9;
+            ClasseDeSuporte.Obs10 = obs10;
+            ClasseDeSuporte.Obs11 = obs11;
+            ClasseDeSuporte.Obs12 = obs12;
+            ClasseDeSuporte.Obs13 = obs13;
+            ClasseDeSuporte.Obs14 = obs14;
 
             return ClasseDeSuporte;
 
