@@ -905,6 +905,7 @@
             Margin = new Padding(20, 0, 0, 0);
             Name = "UCInfoPedidoOnPedido";
             Size = new Size(1052, 1426);
+            Load += UCInfoPedidoOnPedido_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();

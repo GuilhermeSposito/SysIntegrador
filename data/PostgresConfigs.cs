@@ -111,11 +111,7 @@ public class PostgresConfigs
 
                     if (pedidos.Count() > 0)
                     {
-                        int numDePedidos = pedidos.Count();
-                        FormAguardoDeConclPedidos ModalDeAguardo = new FormAguardoDeConclPedidos() { Pedidos = pedidos };
-                        ModalDeAguardo.Instancia = ModalDeAguardo;
-
-                        FormMenuInicial.AbreModalDeAguardoDeConclPedidos(ModalDeAguardo);
+                        
                     }
 
                 }

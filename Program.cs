@@ -39,6 +39,7 @@ namespace SysIntegradorApp
 
             services.AddScoped<FormMenuInicial>();
             services.AddScoped<Ifood>();
+            services.AddScoped<OnPedido>();
             services.AddScoped<CCM>();
             services.AddScoped<IMeuContexto, MeuContexto>();
             services.AddScoped<Form1>();

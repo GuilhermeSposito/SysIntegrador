@@ -293,7 +293,7 @@ public class ImpressaoONPedido
                     {
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item);
 
-                        if (item.externalCode == "BB")
+                        if (item.externalCode == "BB" || item.externalCode == "LAN")
                         {
                             AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
                         }
@@ -517,7 +517,7 @@ public class ImpressaoONPedido
                     {
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item);
 
-                        if (item.externalCode == "BB")
+                        if (item.externalCode == "BB" || item.externalCode == "LAN")
                         {
                             AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
                         }
@@ -685,13 +685,13 @@ public class ImpressaoONPedido
                         AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item, true);
 
-                        if (item.externalCode == "BB")
+                        if (item.externalCode == "BB" || item.externalCode == "LAN")
                         {
-                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
+                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                         }
                         else
                         {
-                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
+                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                         }
 
                         if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
@@ -811,13 +811,13 @@ public class ImpressaoONPedido
                     }
                     else
                     {
-                        if (item.externalCode == "BB")
+                        if (item.externalCode == "BB" || item.externalCode == "LAN")
                         {
-                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
+                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                         }
                         else
                         {
-                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.Value.ToString("c")}\n\n", FonteItens);
+                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                         }
                     }
 
@@ -900,7 +900,7 @@ public class ImpressaoONPedido
 
             foreach (var item in pedidoCompleto.Return.ItemsOn)
             {
-                bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" || item.externalCode == "BB" ? true : false;
+                bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" || item.externalCode == "BB" || item.externalCode == "LAN" ? true : false;
                 string externalCode = item.externalCode;
 
                 if (ePizza)
@@ -1064,7 +1064,7 @@ public class ImpressaoONPedido
 
                 }
 
-                if (item.externalCode == "BB")
+                if (item.externalCode == "BB" || item.externalCode == "LAN")
                 {
                     AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 }
@@ -1180,13 +1180,13 @@ public class ImpressaoONPedido
 
                     }
 
-                    if (item.externalCode == "BB")
+                    if (item.externalCode == "BB" || item.externalCode == "LAN")
                     {
                         AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                     }
                     else
                     {
-                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens); 
+                        AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                     }
 
                     if (item.Options != null)
@@ -1250,46 +1250,55 @@ public class ImpressaoONPedido
 
     public static void ChamaImpressoes(int numConta, int displayId, string? impressora)
     {
-        ApplicationDbContext db = new ApplicationDbContext();
-        ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-        int ContagemDeImpressoes = 0;
-
-        if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
+        using (ApplicationDbContext db = new ApplicationDbContext())
         {
-            if (opcSistema.ImpCompacta)
+            ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            int ContagemDeImpressoes = 0;
+
+            ParametrosDoPedido? Pedido = db.parametrosdopedido.FirstOrDefault(x => x.DisplayId == displayId);
+
+            if (Pedido is not null)
             {
-                DefineImpressao2(numConta, displayId, impressora);
-            }
-            else
-            {
-                DefineImpressao(numConta, displayId, impressora);
-            }
-            ContagemDeImpressoes++;
-            if (opcSistema.ImprimirComandaNoCaixa)
-            {
-                if (opcSistema.TipoComanda == 2)
+                PedidoOnPedido? PedidoOn = JsonConvert.DeserializeObject<PedidoOnPedido>(Pedido.Json);
+
+                if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
                 {
-                    ImprimeComandaTipo2(numConta, displayId, impressora);
+                    if (opcSistema.ImpCompacta && PedidoOn.Return.Type != "INDOOR")
+                    {
+                        DefineImpressao2(numConta, displayId, impressora);
+                    }
+                    else if (PedidoOn.Return.Type != "INDOOR")
+                    {
+                        DefineImpressao(numConta, displayId, impressora);
+                    }
+                    ContagemDeImpressoes++;
+                    if (opcSistema.ImprimirComandaNoCaixa)
+                    {
+                        if (opcSistema.TipoComanda == 2)
+                        {
+                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                        }
+                        else
+                        {
+                            ImprimeComanda(numConta, displayId, impressora);
+                        }
+                    }
                 }
-                else
+                if (ContagemDeImpressoes == 0)
                 {
-                    ImprimeComanda(numConta, displayId, impressora);
+                    if (opcSistema.TipoComanda == 2)
+                    {
+                        ImprimeComandaTipo2(numConta, displayId, impressora);
+                    }
+                    else
+                    {
+                        ImprimeComanda(numConta, displayId, impressora);
+                    }
                 }
+
+                ContagemDeImpressoes = 0;
             }
         }
-        if (ContagemDeImpressoes == 0)
-        {
-            if (opcSistema.TipoComanda == 2)
-            {
-                ImprimeComandaTipo2(numConta, displayId, impressora);
-            }
-            else
-            {
-                ImprimeComanda(numConta, displayId, impressora);
-            }
-        }
-
-        ContagemDeImpressoes = 0;
     }
 
 

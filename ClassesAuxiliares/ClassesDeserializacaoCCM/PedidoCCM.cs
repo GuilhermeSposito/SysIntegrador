@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Schema;
+using System.Xml;
 using System.Xml.Serialization;
 
 namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM
@@ -92,30 +94,35 @@ namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM
     }
 
     public class Item
-    {
-        [XmlElement("Codigo")] public int Codigo { get; set; }
-        [XmlElement("CodPdv")] public string? CodPdv { get; set; }
-        [XmlElement("CodPdvGrupo")] public string? CodPdvGrupo { get; set; }
-        [XmlElement("Descricao")] public string? Descricao { get; set; }
-        [XmlElement("NomeItem")] public string? NomeItem { get; set; }
-        [XmlElement("Quantidade")] public int Quantidade { get; set; }
-        [XmlElement("ValorUnit")] public float ValorUnit { get; set; }
-        [XmlArray("adicionais"), XmlArrayItem("adicional")] public List<Adicional> Adicionais { get; set; } = new List<Adicional>();
-        [XmlArray("partes"), XmlArrayItem("parte")] public List<Parte> Partes { get; set; } = new List<Parte>();
+     {
+         [XmlElement("parte")] public List<Parte> Parte { get; set; } = new List<Parte>();
+         [XmlElement("Codigo")] public int Codigo { get; set; }
+         [XmlElement("CodPdv")] public string? CodPdv { get; set; }
+         [XmlElement("CodPdvGrupo")] public string? CodPdvGrupo { get; set; }
+         [XmlElement("Descricao")] public string? Descricao { get; set; }
+         [XmlElement("NomeItem")] public string? NomeItem { get; set; }
+         [XmlElement("Quantidade")] public int Quantidade { get; set; }
+         [XmlElement("ValorUnit")] public float ValorUnit { get; set; }
+         [XmlArray("adicionais"), XmlArrayItem("adicional")] public List<Adicional> Adicionais { get; set; } = new List<Adicional>();
 
-        public Item()
-        {
-            
-        }
-    }
+         public Item()
+         {
+
+         }
+     }
+
+  
+  
 
     public class Adicional
     {
         [XmlElement("Codigo")] public int Codigo { get; set; }
-        [XmlElement("CodPdv")] public int CodPdv { get; set; }
+        [XmlElement("CodPdv")] public string? CodPdv { get; set; }
         [XmlElement("Descricao")] public string? Descricao { get; set; }
         [XmlElement("Quantidade")] public int Quantidade { get; set; }
         [XmlElement("ValorUnit")] public float ValorUnit { get; set; }
+        [XmlElement("CodPdvTipo")] public float CodPdvTipo { get; set; }
+        [XmlElement("InfoTipo")] public string InfoTipo { get; set; }
 
         public Adicional()
         {
@@ -125,9 +132,9 @@ namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM
 
     public class Parte
     {
-        [XmlElement("CodPdvItem")] public int CodPdvItem { get; set; }
+        [XmlElement("CodPdvItem")] public string CodPdvItem { get; set; }
         [XmlElement("ObsParte")] public string? ObsParte { get; set; }
-        [XmlElement("CodPdvGrupo")] public int CodPdvGrupo { get; set; }
+        [XmlElement("CodPdvGrupo")] public string CodPdvGrupo { get; set; }
 
         public Parte()
         {

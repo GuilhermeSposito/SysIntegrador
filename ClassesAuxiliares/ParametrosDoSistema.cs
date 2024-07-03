@@ -79,6 +79,9 @@ public class ParametrosDoSistema
     [Column("dtultimaverif")] public string DtUltimaVerif { get; set; }
     [Column("integraccm")] public bool IntegraCCM { get; set; }
     [Column("tokenccm")] public string TokenCCM { get; set; }
+    [Column("cardapiousando")] public string CardapioUsando { get; set; }
+    [Column("empresadeentrega")] public string EmpresadeEntrega { get; set; }
+    [Column("cidade")] public string Cidade { get; set; }
 
     public ParametrosDoSistema() { }
 
@@ -151,63 +154,84 @@ public class ParametrosDoSistema
     {
         try
         {
-            ApplicationDbContext dbContext = new ApplicationDbContext();
+            using (ApplicationDbContext dbContext = new ApplicationDbContext())
+            {
+                var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
-            var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+                configuracoes.NomeFantasia = nomeFantasia;
+                configuracoes.Endereco = endereco;
+                configuracoes.ImpressaoAut = impressaoAut;
+                configuracoes.AceitaPedidoAut = aceitaPedidoAut;
+                configuracoes.CaminhodoBanco = caminhoDoBanco;
+                configuracoes.IntegracaoSysMenu = integracaoSysMenu;
+                configuracoes.Impressora1 = impressora1;
+                configuracoes.Impressora2 = impressora2;
+                configuracoes.Impressora3 = impressora3;
+                configuracoes.Impressora4 = impressora4;
+                configuracoes.Impressora5 = impressora5;
+                configuracoes.ImpressoraAux = impressoraAux;
+                configuracoes.Telefone = telefone;
+                configuracoes.ClientId = clientId;
+                configuracoes.ClientSecret = clientSecret;
+                configuracoes.MerchantId = merchantId;
+                configuracoes.AgruparComandas = agrupaComandas;
+                configuracoes.ImprimirComandaNoCaixa = imprimirComandaNoCaixa;
+                configuracoes.TipoComanda = tipoComanda;
+                configuracoes.EnviaPedidoAut = enviaPedidoAut;
+                configuracoes.DelMatchId = delMatchId;
+                configuracoes.UserDelMatch = UserDelMatch;
+                configuracoes.SenhaDelMatch = senhaDelMatch;
+                configuracoes.IntegraDelMatch = integraDelMatch;
+                configuracoes.IntegraIfood = integraIfood;
+                configuracoes.ImpCompacta = impCompacta;
+                configuracoes.RemoveComplementos = removeComplementos;
+                configuracoes.IntegraOnOPedido = integraOnPedido;
+                configuracoes.TokenOnPedido = tokenOnPedido;
+                configuracoes.UserOnPedido = userOnPedido;
+                configuracoes.SenhaOnPedido = senhaOnPedido;
 
-            configuracoes.NomeFantasia = nomeFantasia;
-            configuracoes.Endereco = endereco;
-            configuracoes.ImpressaoAut = impressaoAut;
-            configuracoes.AceitaPedidoAut = aceitaPedidoAut;
-            configuracoes.CaminhodoBanco = caminhoDoBanco;
-            configuracoes.IntegracaoSysMenu = integracaoSysMenu;
-            configuracoes.Impressora1 = impressora1;
-            configuracoes.Impressora2 = impressora2;
-            configuracoes.Impressora3 = impressora3;
-            configuracoes.Impressora4 = impressora4;
-            configuracoes.Impressora5 = impressora5;
-            configuracoes.ImpressoraAux = impressoraAux;
-            configuracoes.Telefone = telefone;
-            configuracoes.ClientId = clientId;
-            configuracoes.ClientSecret = clientSecret;
-            configuracoes.MerchantId = merchantId;
-            configuracoes.AgruparComandas = agrupaComandas;
-            configuracoes.ImprimirComandaNoCaixa = imprimirComandaNoCaixa;
-            configuracoes.TipoComanda = tipoComanda;
-            configuracoes.EnviaPedidoAut = enviaPedidoAut;
-            configuracoes.DelMatchId = delMatchId;
-            configuracoes.UserDelMatch = UserDelMatch;
-            configuracoes.SenhaDelMatch = senhaDelMatch;
-            configuracoes.IntegraDelMatch = integraDelMatch;
-            configuracoes.IntegraIfood = integraIfood;
-            configuracoes.ImpCompacta = impCompacta;
-            configuracoes.RemoveComplementos = removeComplementos;
-            configuracoes.IntegraOnOPedido = integraOnPedido;
-            configuracoes.TokenOnPedido = tokenOnPedido;
-            configuracoes.UserOnPedido = userOnPedido;
-            configuracoes.SenhaOnPedido = senhaOnPedido;
-
-            dbContext.SaveChanges();
+                dbContext.SaveChanges();
+            }
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString());   
+            MessageBox.Show(ex.ToString());
         }
     }
 
-    public static void SetInfosDeCronograma(int tempoDeEntrega = 50,int tempoDeRetirada = 20, int TempoConclPedido = 150)
+    public static void SetInfosDeCronograma(int tempoDeEntrega = 50, int tempoDeRetirada = 20, int TempoConclPedido = 150, bool integraIfood = true, bool integraCardapio = false, bool integraEntregaAut = true)
     {
         try
         {
-            ApplicationDbContext dbContext = new ApplicationDbContext();
+            using (ApplicationDbContext dbContext = new ApplicationDbContext())
+            {
 
-            var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+                var configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
-            configuracoes.TempoEntrega = tempoDeEntrega;    
-            configuracoes.TempoRetirada = tempoDeRetirada;
-            configuracoes.TempoConclonPedido = TempoConclPedido;
+                configuracoes.TempoEntrega = tempoDeEntrega;
+                configuracoes.TempoRetirada = tempoDeRetirada;
+                configuracoes.TempoConclonPedido = TempoConclPedido;
+                configuracoes.IntegraIfood = integraIfood;
+                configuracoes.EnviaPedidoAut = integraEntregaAut;
 
-            dbContext.SaveChanges();
+                if (configuracoes.CardapioUsando == "DELMATCH")
+                {
+                    configuracoes.IntegraDelMatch = integraCardapio;
+                }
+
+                if (configuracoes.CardapioUsando == "CCM")
+                {
+                    configuracoes.IntegraCCM = integraCardapio;
+                }
+
+                if (configuracoes.CardapioUsando == "ONPEDIDO")
+                {
+                    configuracoes.IntegraOnOPedido = integraCardapio;
+                }
+
+
+                dbContext.SaveChanges();
+            }
         }
         catch (Exception ex)
         {

@@ -13,6 +13,7 @@ using SysIntegradorApp.ClassesDeConexaoComApps;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Security.Cryptography.X509Certificates;
+using SysIntegradorApp.data.InterfaceDeContexto;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -918,7 +919,25 @@ public class ClsDeIntegracaoSys
         string? NomeProduto = "";
         ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
 
-        bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" ? true : false;
+        //Função que entra caso sejá pizza ou lanche ou porção, não mudei o nome do booleano pq já estava estruturado o cod 
+
+        bool ePizza = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" || item.externalCode == "LAN" || item.externalCode == "PRC"? true : false;
+
+        string? ObsDoItem = " ";
+
+        if (item.observations != null && item.observations != "")
+        {
+            if (item.observations.Length > 80)
+            {
+                ObsDoItem = item.observations.Substring(0, 80);
+            }
+            else
+            {
+                ObsDoItem = item.observations;
+            }
+        }
+
+        ClasseDeSuporte.ObsDoItem = ObsDoItem;
 
         if (ePizza)
         {
@@ -957,7 +976,7 @@ public class ClsDeIntegracaoSys
 
                     if (pesquisaProduto)
                     {
-                        NomeProduto += ClsDeIntegracaoSys.NomeProdutoCardapio(option.externalCode);
+                        NomeProduto = $"{item.quantity}X " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.externalCode);
                         externalCode1 = option.externalCode;
                     }
                     else
@@ -1003,7 +1022,9 @@ public class ClsDeIntegracaoSys
 
             }
 
-            ClasseDeSuporte.Tamanho = item.externalCode;
+            //aqui só define o tamanho se for pizza, se não for ele fica U de uitario
+
+            ClasseDeSuporte.Tamanho = item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B" ? item.externalCode : "U";
             ClasseDeSuporte.ExternalCode1 = externalCode1;
             ClasseDeSuporte.ExternalCode2 = externalCode2;
             ClasseDeSuporte.ExternalCode3 = externalCode3;
@@ -2854,6 +2875,8 @@ public class ClsDeIntegracaoSys
                 {
                     ParametrosDoPedido? PedidoDB = dbPostgres.parametrosdopedido.Where(x => x.Id == orderId).FirstOrDefault();
                     PedidoOnPedido? Pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(PedidoDB.Json);
+
+                    OnPedido OnPedido = new OnPedido(new MeuContexto());
 
                     string numMesa = await OnPedido.RetiraNumeroDeMesa(Pedido.Return.Indoor.Place);
 

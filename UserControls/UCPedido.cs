@@ -103,7 +103,7 @@ public partial class UCPedido : UserControl
 
                     FormMenuInicial.panelDetalhePedido.Controls.Clear();
                     FormMenuInicial.panelDetalhePedido.PerformLayout();
-                    UCInfoPedidoOnPedido infoPedido = new UCInfoPedidoOnPedido() { Pedido = PedidoDeserializado, Status = Pedido.Situacao };
+                    UCInfoPedidoOnPedido infoPedido = new UCInfoPedidoOnPedido() { Pedido = PedidoDeserializado, StatusPedido = Pedido.Situacao };
                     infoPedido.SetLabels();
 
                     int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
@@ -130,11 +130,7 @@ public partial class UCPedido : UserControl
                     ApplicationDbContext db = new ApplicationDbContext();
                     ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).ToList().FirstOrDefault();
 
-                    using var stringReader = new StringReader(Pedido.Json);
-                    var xmlReader = new ClsSuporteDeserializacaoXml(stringReader);
-
-                    XmlSerializer serializer = new XmlSerializer(typeof(Pedido));
-                    Pedido? PedidoDeserializado = (Pedido)serializer.Deserialize(xmlReader);
+                    Pedido? PedidoDeserializado = JsonConvert.DeserializeObject<Pedido>(Pedido.Json);//(Pedido)serializer.Deserialize(xmlReader);
 
                     FormMenuInicial.panelDetalhePedido.Controls.Clear();
                     FormMenuInicial.panelDetalhePedido.PerformLayout();

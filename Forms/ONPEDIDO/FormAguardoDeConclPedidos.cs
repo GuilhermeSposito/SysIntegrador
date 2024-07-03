@@ -1,5 +1,6 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,11 +31,14 @@ namespace SysIntegradorApp.Forms.ONPEDIDO
         {
             try
             {
+                OnPedido OnPedido = new OnPedido(new MeuContexto());
+
                 int numDePedidos = pedidos.Count();
                 NumPedidos.Text = numDePedidos.ToString();
 
                 foreach (var p in pedidos)
                 {
+
                     await OnPedido.ConcluirPedido(p.Id, concluiuAut: true);
                     Thread.Sleep(20000);
 

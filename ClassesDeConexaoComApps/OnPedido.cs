@@ -5,6 +5,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,131 +20,82 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
 public class OnPedido
 {
-    public static async Task Pooling()
+
+    private readonly IMeuContexto _Context;
+
+    public OnPedido(IMeuContexto context)
+    {
+        _Context = context;
+    }
+
+    public async Task Pooling()
     {
         string url = @"https://merchant-api.onpedido.com.br/v1/events:polling";
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
-
-           // await PostgresConfigs.ConcluiPedidoOnPedido();
-            await OnPedido.RefreshTokenOnPedidos();
-
-            HttpResponseMessage response = await EnviaReq(url, "GET");
-
-            if (response.IsSuccessStatusCode)
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                string responseString = await response.Content.ReadAsStringAsync();
+                ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
 
-                PollingOnPedido? pooling = JsonConvert.DeserializeObject<PollingOnPedido>(responseString);
+                // await PostgresConfigs.ConcluiPedidoOnPedido();
+                await RefreshTokenOnPedidos();
+                await ConcluirPedido(concluiuAut: true);
+                await DespachaPedido(DispachaAut: true);
+                ConcluiPedidosAutomatico();
 
-                foreach (var item in pooling.Return)
-                {
-                    switch (item.EventId)
-                    {
-                        case "0":
-                            //Set Pedido
-                            await SetPedido(item.OrderURL, item.orderId);
-                            // FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-                            if (Configs.AceitaPedidoAut)
-                            {
-                                await AceitaPedido(item.orderId.ToString(), item.OrderURL);
-                            }
-                            break;
-                        case "1":
-                            //Set Pedido
-                            await SetPedido(item.OrderURL, item.orderId);
-                            ClsSons.StopSom();
-                            if (Configs.AceitaPedidoAut)
-                            {
-                                await AceitaPedido(item.orderId.ToString(), item.OrderURL);
-                            }
-                            break;
-                        case "2":
-                            await SetPedido(item.OrderURL, item.orderId);
-                            await MudaStatusPedido(item.orderId, "CONFIRMED");
-                            ClsSons.StopSom();
-                            break;
-                        case "3":
-                            await MudaStatusPedido(item.orderId, "DISPATCHED");
-                            //muda status
-                            ClsSons.StopSom();
-                            break;
-                        case "4":
-                            await MudaStatusPedido(item.orderId, "CONCLUDED");
-                            //muda status
-                            ClsSons.StopSom();
-                            break;
-                        case "5":
-                            await MudaStatusPedido(item.orderId, "CANCELLED");
-                            ClsSons.StopSom();
-                            break;
-                    }
-                }
-            }
-
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
-        }
-    }
-
-    public static async Task MudaStatusPedido(int orderId, string? Status)
-    {
-        try
-        {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == orderId.ToString()).ToList().FirstOrDefault();
-
-            if (Pedido != null)
-            {
-                if (Pedido.Situacao != Status)
-                {
-                    Pedido.Situacao = Status;
-                    await db.SaveChangesAsync();
-                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
-                    //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
-        }
-    }
-
-    public static async Task DespachaPedido(string? orderId)
-    {
-        try
-        {
-            string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderId}/dispatch";
-
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == orderId.ToString()).ToList().FirstOrDefault();
-
-            if (Pedido.Situacao != "DISPATCHED")
-            {
-                var response = await EnviaReq(url, "POST");
+                HttpResponseMessage response = await EnviaReq(url, "GET");
 
                 if (response.IsSuccessStatusCode)
                 {
-                    MessageBox.Show($"Pedido de id: {orderId} Despachado com sucesso!");
-                }
-                else
-                {
-                    MessageBox.Show("Não foi possivel despachar pedido", "Não foi possivel!");
-                }
+                    string responseString = await response.Content.ReadAsStringAsync();
 
-            }
-            else
-            {
-                MessageBox.Show("Pedido já Despachado", "Não é possivel!");
-            }
+                    PollingOnPedido? pooling = JsonConvert.DeserializeObject<PollingOnPedido>(responseString);
 
+                    foreach (var item in pooling.Return)
+                    {
+                        switch (item.EventId)
+                        {
+                            case "0":
+                                //Set Pedido
+                                await SetPedido(item.OrderURL, item.orderId);
+                                // FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                                if (Configs.AceitaPedidoAut)
+                                {
+                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL);
+                                }
+                                break;
+                            case "1":
+                                //Set Pedido
+                                await SetPedido(item.OrderURL, item.orderId);
+                                ClsSons.StopSom();
+                                if (Configs.AceitaPedidoAut)
+                                {
+                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL);
+                                }
+                                break;
+                            case "2":
+                                await SetPedido(item.OrderURL, item.orderId);
+                                await MudaStatusPedido(item.orderId, "CONFIRMED");
+                                ClsSons.StopSom();
+                                break;
+                            case "3":
+                                await MudaStatusPedido(item.orderId, "DISPATCHED");
+                                //muda status
+                                ClsSons.StopSom();
+                                break;
+                            case "4":
+                                await MudaStatusPedido(item.orderId, "CONCLUDED");
+                                //muda status
+                                ClsSons.StopSom();
+                                break;
+                            case "5":
+                                await MudaStatusPedido(item.orderId, "CANCELLED");
+                                ClsSons.StopSom();
+                                break;
+                        }
+                    }
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -152,40 +104,138 @@ public class OnPedido
         }
     }
 
-    public static async Task ConcluirPedido(string? orderId, bool concluiuAut = false)
+    public async void ConcluiPedidosAutomatico()
     {
         try
         {
-            string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderId}/deliver";
-
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == orderId.ToString()).ToList().FirstOrDefault();
-
-            if (Pedido.Situacao != "DELIVERED")
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                var response = await EnviaReq(url, "POST");
+                List<ParametrosDoSistema> ConfigsList = await db.parametrosdosistema.ToListAsync();
+                ParametrosDoSistema? Configs = ConfigsList.FirstOrDefault();
 
-                if (response.IsSuccessStatusCode)
+                if (Configs.DtUltimaVerif != null)
                 {
-                    if (!concluiuAut)
+                    DateTime HoraAtual = DateTime.Now;
+                    DateTime DtUltimaVerif = DateTime.Parse(Configs.DtUltimaVerif);
+
+                    TimeSpan diferenca = HoraAtual - DtUltimaVerif;
+
+                    if (diferenca.TotalMinutes > Configs.TempoConclonPedido)
                     {
-                        MessageBox.Show($"Pedido de id {orderId} Concluido com sucesso!");
+                        Configs.DtUltimaVerif = HoraAtual.ToString();
+                        db.SaveChanges();
+
+                        int totalMinutos = db.parametrosdosistema.FirstOrDefault().TempoConclonPedido;
+
+                        int horas = totalMinutos / 60;
+                        int minutos = totalMinutos % 60;
+                        int segundos = 0;
+
+                        string tempoFormatado = $"{horas:D2}:{minutos:D2}:{segundos:D2}";
+
+                        TimeSpan intervalo = TimeSpan.Parse(tempoFormatado);
+
+                        var pedidosQuery = db.parametrosdopedido.AsQueryable();
+
+                        List<ParametrosDoPedido> pedidos = pedidosQuery
+                            .AsEnumerable()
+                            .Where(p => DateTime.Now - DateTime.Parse(p.CriadoEm) > intervalo && p.Situacao != "CANCELLED" && p.Situacao != "CONCLUDED" && p.CriadoPor == "ONPEDIDO")
+                            .ToList();
+
+                        if (pedidos.Count() > 0)
+                        {
+                            foreach (var pedido in pedidos)
+                            {
+                                bool ExistePedido = await db.apoioonpedido.AnyAsync(p => p.Id_Pedido == Convert.ToInt32(pedido.Id));
+
+                                if (!ExistePedido)
+                                {
+                                    db.apoioonpedido.Add(new ApoioOnPedido { Id_Pedido = Convert.ToInt32(pedido.Id), Action = "CONCLUIR" });
+                                    db.SaveChanges();
+                                }
+                            }
+                        }
+
                     }
                 }
-                else
-                {
-                    if (!concluiuAut)
-                    {
-                        MessageBox.Show("Não foi possivel Concluir pedido", "Não foi possivel!");
-                    }
-                }
-
             }
-            else
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+
+    public async Task MudaStatusPedido(int orderId, string? Status)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                if (!concluiuAut)
+                ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == orderId.ToString()).ToList().FirstOrDefault();
+
+                if (Pedido != null)
                 {
-                    MessageBox.Show("Pedido já Confirmado", "Não é possivel!");
+                    if (Pedido.Situacao != Status)
+                    {
+                        Pedido.Situacao = Status;
+                        await db.SaveChangesAsync();
+                        ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                        //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
+    public async Task DespachaPedido(string? orderId = "DEFAULT", bool DispachaAut = false)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                ApoioOnPedido? PedidoApoio = db.apoioonpedido.FirstOrDefault(p => p.Action == "DESPACHAR");
+
+                if (PedidoApoio is not null)
+                {
+                    ParametrosDoPedido? Pedido = await db.parametrosdopedido.FirstOrDefaultAsync(p => p.Id == PedidoApoio.Id_Pedido.ToString());
+
+                    if (Pedido.Situacao != "DISPATCHED")
+                    {
+                        string url = $"https://merchant-api.onpedido.com.br/v1/orders/{PedidoApoio.Id_Pedido.ToString()}/dispatch";
+
+                        var response = await EnviaReq(url, "POST");
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            if (!DispachaAut)
+                            {
+                                MessageBox.Show($"Pedido de id: {orderId} Despachado com sucesso!");
+                            }
+
+                            db.apoioonpedido.Remove(PedidoApoio);
+                            await db.SaveChangesAsync();
+                        }
+                        else
+                        {
+                            if (!DispachaAut)
+                            {
+                                MessageBox.Show("Não foi possivel despachar pedido", "Não foi possivel!");
+                            }
+
+                        }
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("Pedido já Despachado", "Não é possivel!");
+                    }
                 }
             }
 
@@ -197,7 +247,65 @@ public class OnPedido
         }
     }
 
-    public static async Task AceitaPedido(string? orderID, string urlDoPedido = null)
+    public async Task ConcluirPedido(string? orderId = "Default", bool concluiuAut = false)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                ApoioOnPedido? PedidoApoio = db.apoioonpedido.FirstOrDefault(p => p.Action == "CONCLUIR");
+
+                if (PedidoApoio is not null)
+                {
+                    ParametrosDoPedido? Pedido = await db.parametrosdopedido.FirstOrDefaultAsync(p => p.Id == PedidoApoio.Id_Pedido.ToString());
+
+                    if (Pedido.Situacao != "CONCLUDED")
+                    {
+                        string url = $"https://merchant-api.onpedido.com.br/v1/orders/{PedidoApoio.Id_Pedido}/deliver";
+
+                        var response = await EnviaReq(url, "POST");
+
+                        if (response.IsSuccessStatusCode)
+                        {
+                            if (!concluiuAut)
+                            {
+                                MessageBox.Show($"Pedido de id {orderId} Concluido com sucesso!");
+                            }
+
+                            db.apoioonpedido.Remove(PedidoApoio);
+                            await db.SaveChangesAsync();
+
+                        }
+                        else
+                        {
+                            if (!concluiuAut)
+                            {
+                                MessageBox.Show(await response.Content.ReadAsStringAsync(), "Não foi possivel!");
+                            }
+                        }
+
+                    }
+                    else
+                    {
+                        if (!concluiuAut)
+                        {
+                            MessageBox.Show("Pedido já Confirmado", "Não é possivel!");
+                        }
+                        db.apoioonpedido.Remove(PedidoApoio);
+                        await db.SaveChangesAsync();
+                    }
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
+    public async Task AceitaPedido(string? orderID, string urlDoPedido = null)
     {
         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderID}/confirm";
         try
@@ -240,7 +348,7 @@ public class OnPedido
         }
     }
 
-    public static async Task<bool> CancelaPedido(string? orderID, string motivo)
+    public async Task<bool> CancelaPedido(string? orderID, string motivo)
     {
         bool pedidoCancelado = false;
         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderID}/requestCancellation";
@@ -261,9 +369,9 @@ public class OnPedido
             MessageBox.Show(ex.ToString(), "Ops");
         }
         return pedidoCancelado;
-    }   
-    
-    public static async Task FechaMesa(string? orderID)
+    }
+
+    public async Task FechaMesa(string? orderID)
     {
         string url = $"https://delmatchcardapio.com/api/orders/{orderID}/statuses/finish.json";
         try
@@ -277,210 +385,211 @@ public class OnPedido
         }
     }
 
-    public static async Task SetPedido(string? urlDOPedido, int OrderId)
+    public async Task SetPedido(string? urlDOPedido, int OrderId)
     {
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            bool existePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == OrderId.ToString());
-
-            if (!existePedido)
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                HttpResponseMessage response = await EnviaReq(urlDOPedido, "GET");
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                if (response.IsSuccessStatusCode)
+                bool existePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == OrderId.ToString());
+
+                if (!existePedido)
                 {
-                    await ClsSons.PlaySomAsync();
+                    HttpResponseMessage response = await EnviaReq(urlDOPedido, "GET");
 
-                    ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
-                    string? respondeJson = await response.Content.ReadAsStringAsync();
-                    PedidoOnPedido? pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(respondeJson);
-
-                    int insertNoSysMenuConta = 0;
-                    string? mesa = " ";
-                    string? DataCertaEntregarEm = " ";
-                    string? Complemento = " ";
-                    string? EndEntrega = " ";
-                    string? BairEntrega = " ";
-                    string? Entregador = " ";
-                    string? Status = " ";
-
-                    if (Configs.IntegracaoSysMenu)
+                    if (response.IsSuccessStatusCode)
                     {
-                        if (pedido.Return.Type == "DELIVERY")
-                        {
-                            mesa = "WEB";
-                            DataCertaEntregarEm = pedido.Return.Delivery.DeliveryDateTime;
-                            Complemento = pedido.Return.Delivery.DeliveryAddressON.Complement;
-                            EndEntrega = pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
-                            BairEntrega = pedido.Return.Delivery.DeliveryAddressON.District;
-                            Status = "P";
-                        }
+                        await ClsSons.PlaySomAsync();
 
-                        if (pedido.Return.Type == "TAKEOUT")
+                        ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+                        string? respondeJson = await response.Content.ReadAsStringAsync();
+                        PedidoOnPedido? pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(respondeJson);
+
+                        int insertNoSysMenuConta = 0;
+                        string? mesa = " ";
+                        string? DataCertaEntregarEm = " ";
+                        string? Complemento = " ";
+                        string? EndEntrega = " ";
+                        string? BairEntrega = " ";
+                        string? Entregador = " ";
+                        string? Status = " ";
+
+                        if (Configs.IntegracaoSysMenu)
                         {
-                            mesa = "WEBB";
-                            DataCertaEntregarEm = pedido.Return.TakeOut.TakeoutDateTime;
-                            Entregador = "RETIRADA";
-                            Status = "P";
+                            if (pedido.Return.Type == "DELIVERY")
+                            {
+                                mesa = "WEB";
+                                DataCertaEntregarEm = pedido.Return.Delivery.DeliveryDateTime;
+                                Complemento = pedido.Return.Delivery.DeliveryAddressON.Complement;
+                                EndEntrega = pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
+                                BairEntrega = pedido.Return.Delivery.DeliveryAddressON.District;
+                                Status = "P";
+                            }
+
+                            if (pedido.Return.Type == "TAKEOUT")
+                            {
+                                mesa = "WEBB";
+                                DataCertaEntregarEm = pedido.Return.TakeOut.TakeoutDateTime;
+                                Entregador = "RETIRADA";
+                                Status = "P";
+                            }
+
+                            if (pedido.Return.Type == "INDOOR")
+                            {
+                                mesa = await RetiraNumeroDeMesa(pedido.Return.Indoor.Place);
+                                DataCertaEntregarEm = pedido.Return.Indoor.IndoorDateTime;
+                                Status = "A";
+                            }
+
+                            float ValorDescontosNum = 0.0f;
+
+                            foreach (var item in pedido.Return.Discounts)
+                            {
+                                ValorDescontosNum += item.Amount.value;
+                            }
+
+                            float ValorEntrega = 0.0f;
+
+                            var EntregaObj = pedido.Return.OtherFees.Where(x => x.Type == "DELIVERY_FEE").FirstOrDefault();
+                            ValorEntrega = EntregaObj.Price.Value;
+
+                            if (pedido.Return.Type != "INDOOR")
+                            {
+                                insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                                        mesa: mesa,
+                                        cortesia: ValorDescontosNum,
+                                        taxaEntrega: ValorEntrega,
+                                        taxaMotoboy: 0.00f,
+                                        dtInicio: pedido.Return.CreatedAt.ToString().Substring(0, 10),
+                                         hrInicio: pedido.Return.CreatedAt.ToString().Substring(11, 5),
+                                         contatoNome: pedido.Return.Customer.Name,
+                                         usuario: "CAIXA",
+                                         dataSaida: DataCertaEntregarEm.ToString().Substring(0, 10),
+                                        hrSaida: DataCertaEntregarEm.ToString().Substring(11, 5),
+                                         obsConta1: " ",
+                                        iFoodPedidoID: pedido.Return.Id,
+                                        obsConta2: " ",
+                                        referencia: Complemento,
+                                         endEntrega: EndEntrega,
+                                         bairEntrega: BairEntrega,
+                                         entregador: Entregador,
+                                         eOnpedido: true
+                                         ); //fim dos parâmetros do método de integração
+
+                                string type = pedido.Return.Payments.Prepaid > 0 && pedido.Return.Payments.Pending == 0 ? "ONLINE" : "OFFLINE";
+
+                                ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Return.Payments.Methods[0].Method, insertNoSysMenuConta, pedido.Return.Total.OrderAmount.value, type, "ONPEDIDO");
+
+                                SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
+
+                                foreach (var item in pedido.Return.Payments.Methods)
+                                {
+                                    Cash SeForPagamentoEmDinherio = new Cash() { changeFor = item.ChangeFor };
+                                    payments.methods.Add(new Methods() { method = item.Method, value = item.value, cash = SeForPagamentoEmDinherio });
+                                }
+
+                                ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                            }
                         }
 
                         if (pedido.Return.Type == "INDOOR")
                         {
-                            mesa = await RetiraNumeroDeMesa(pedido.Return.Indoor.Place);
-                            DataCertaEntregarEm = pedido.Return.Indoor.IndoorDateTime;
-                            Status = "A";
+                            insertNoSysMenuConta = 999;
                         }
 
-                        float ValorDescontosNum = 0.0f;
-
-                        foreach (var item in pedido.Return.Discounts)
+                        db.parametrosdopedido.Add(new ParametrosDoPedido()
                         {
-                            ValorDescontosNum += item.Amount.value;
+                            Id = pedido.Return.Id,
+                            Json = respondeJson,
+                            Situacao = "Novo",
+                            Conta = insertNoSysMenuConta,
+                            CriadoEm = DateTime.Now.ToString(),
+                            DisplayId = Convert.ToInt32(pedido.Return.DisplayId),
+                            JsonPolling = "Sem Polling ID",
+                            CriadoPor = "ONPEDIDO",
+                            PesquisaDisplayId = Convert.ToInt32(pedido.Return.DisplayId)
+                        });
+
+                        db.SaveChanges();
+
+
+                        if (pedido.Return.Type == "INDOOR")
+                        {
+                            insertNoSysMenuConta = 0;
                         }
 
-                        float ValorEntrega = 0.0f;
 
-                        var EntregaObj = pedido.Return.OtherFees.Where(x => x.Type == "DELIVERY_FEE").FirstOrDefault();
-                        ValorEntrega = EntregaObj.Price.Value;
-
-                        if (pedido.Return.Type != "INDOOR")
+                        if (Configs.IntegracaoSysMenu)
                         {
-                            insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
-                                    mesa: mesa,
-                                    cortesia: ValorDescontosNum,
-                                    taxaEntrega: ValorEntrega,
-                                    taxaMotoboy: 0.00f,
-                                    dtInicio: pedido.Return.CreatedAt.ToString().Substring(0, 10),
-                                     hrInicio: pedido.Return.CreatedAt.ToString().Substring(11, 5),
-                                     contatoNome: pedido.Return.Customer.Name,
-                                     usuario: "CAIXA",
-                                     dataSaida: DataCertaEntregarEm.ToString().Substring(0, 10),
-                                    hrSaida: DataCertaEntregarEm.ToString().Substring(11, 5),
-                                     obsConta1: " ",
-                                    iFoodPedidoID: pedido.Return.Id,
-                                    obsConta2: " ",
-                                    referencia: Complemento,
-                                     endEntrega: EndEntrega,
-                                     bairEntrega: BairEntrega,
-                                     entregador: Entregador,
-                                     eOnpedido: true
-                                     ); //fim dos parâmetros do método de integração
+                            bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente($"({pedido.Return.Customer.PhoneOn.Extension}){pedido.Return.Customer.PhoneOn.Number}");
 
-                            string type = pedido.Return.Payments.Prepaid > 0 && pedido.Return.Payments.Pending == 0 ? "ONLINE" : "OFFLINE";
-
-                            ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Return.Payments.Methods[0].Method, insertNoSysMenuConta, pedido.Return.Total.OrderAmount.value, type, "ONPEDIDO");
-
-                            SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
-
-                            foreach (var item in pedido.Return.Payments.Methods)
+                            if (!existeCliente && pedido.Return.Type == "DELIVERY")
                             {
-                                Cash SeForPagamentoEmDinherio = new Cash() { changeFor = item.ChangeFor };
-                                payments.methods.Add(new Methods() { method = item.Method, value = item.value, cash = SeForPagamentoEmDinherio });
+                                ClsDeIntegracaoSys.CadastraClienteOnPedido(pedido.Return.Customer, pedido.Return.Delivery);
                             }
 
-                            ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                            foreach (var item in pedido.Return.ItemsOn)
+                            {
+                                var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item);
+
+                                ClsDeIntegracaoSys.IntegracaoContas(
+                                          conta: insertNoSysMenuConta, //numero
+                                          mesa: mesa, //texto curto 
+                                          qtdade: 1, //numero
+                                          codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                          codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                          codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                          tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                          descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                          valorUnit: item.TotalPrice.Value, //moeda
+                                          valorTotal: item.TotalPrice.Value, //moeda
+                                          dataInicio: pedido.Return.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
+                                          horaInicio: pedido.Return.CreatedAt.Substring(11, 5), //data
+                                          obs1: CaracteristicasPedido.Obs1,
+                                          obs2: CaracteristicasPedido.Obs2,
+                                          obs3: CaracteristicasPedido.Obs3,
+                                          obs4: CaracteristicasPedido.Obs4,
+                                          obs5: CaracteristicasPedido.Obs5,
+                                          obs6: CaracteristicasPedido.Obs6,
+                                          obs7: CaracteristicasPedido.Obs7,
+                                          obs8: CaracteristicasPedido.Obs8,
+                                          obs9: CaracteristicasPedido.Obs9,
+                                          obs10: CaracteristicasPedido.Obs10,
+                                          obs11: CaracteristicasPedido.Obs11,
+                                          obs12: CaracteristicasPedido.Obs12,
+                                          obs13: CaracteristicasPedido.Obs13,
+                                          obs14: CaracteristicasPedido.Obs14,
+                                          obs15: item.observations != null && item.observations.Length > 0 ? item.observations : " ",
+                                          cliente: pedido.Return.Customer.Name, // texto curto 80 letras
+                                          telefone: pedido.Return.Customer.PhoneOn.Extension != null ? $"({pedido.Return.Customer.PhoneOn.Extension}){pedido.Return.Customer.PhoneOn.Number}" : " ", // texto curto 14 letras
+                                          impComanda: "Não",
+                                          ImpComanda2: "Não",
+                                          qtdComanda: 00f,//numero duplo 
+                                          status: Status
+                                     );//fim dos parâmetros
+
+                            }
+
                         }
-                    }
 
-                    if (pedido.Return.Type == "INDOOR")
-                    {
-                        insertNoSysMenuConta = 999;
-                    }
+                        ClsDeSuporteAtualizarPanel.MudouDataBase = true;
 
-                    db.parametrosdopedido.Add(new ParametrosDoPedido()
-                    {
-                        Id = pedido.Return.Id,
-                        Json = respondeJson,
-                        Situacao = "Novo",
-                        Conta = insertNoSysMenuConta,
-                        CriadoEm = DateTime.Now.AddHours(16).ToString(),
-                        DisplayId = Convert.ToInt32(pedido.Return.DisplayId),
-                        JsonPolling = "Sem Polling ID",
-                        CriadoPor = "ONPEDIDO",
-                        PesquisaDisplayId = Convert.ToInt32(pedido.Return.DisplayId)
-                    });
+                        //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
 
-                    db.SaveChanges();
-
-
-                    if (pedido.Return.Type == "INDOOR")
-                    {
-                        insertNoSysMenuConta = 0;
-                    }
-
-
-                    if (Configs.IntegracaoSysMenu)
-                    {
-                        bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente($"({pedido.Return.Customer.PhoneOn.Extension}){pedido.Return.Customer.PhoneOn.Number}");
-
-                        if (!existeCliente && pedido.Return.Type == "DELIVERY")
+                        if (opSistema.ImpressaoAut)
                         {
-                            ClsDeIntegracaoSys.CadastraClienteOnPedido(pedido.Return.Customer, pedido.Return.Delivery);
+                            ImprimeAutomatico(pedido);
                         }
 
-                        foreach (var item in pedido.Return.ItemsOn)
+                        if (pedido.Return.Type == "INDOOR")
                         {
-                            var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item);
-
-                            ClsDeIntegracaoSys.IntegracaoContas(
-                                      conta: insertNoSysMenuConta, //numero
-                                      mesa: mesa, //texto curto 
-                                      qtdade: 1, //numero
-                                      codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
-                                      codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
-                                      codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
-                                      tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
-                                      descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
-                                      valorUnit: item.TotalPrice.Value, //moeda
-                                      valorTotal: item.TotalPrice.Value, //moeda
-                                      dataInicio: pedido.Return.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
-                                      horaInicio: pedido.Return.CreatedAt.Substring(11, 5), //data
-                                      obs1: CaracteristicasPedido.Obs1,
-                                      obs2: CaracteristicasPedido.Obs2,
-                                      obs3: CaracteristicasPedido.Obs3,
-                                      obs4: CaracteristicasPedido.Obs4,
-                                      obs5: CaracteristicasPedido.Obs5,
-                                      obs6: CaracteristicasPedido.Obs6,
-                                      obs7: CaracteristicasPedido.Obs7,
-                                      obs8: CaracteristicasPedido.Obs8,
-                                      obs9: CaracteristicasPedido.Obs9,
-                                      obs10: CaracteristicasPedido.Obs10,
-                                      obs11: CaracteristicasPedido.Obs11,
-                                      obs12: CaracteristicasPedido.Obs12,
-                                      obs13: CaracteristicasPedido.Obs13,
-                                      obs14: CaracteristicasPedido.Obs14,
-                                      obs15: item.observations != null && item.observations.Length > 0 ? item.observations : " ",
-                                      cliente: pedido.Return.Customer.Name, // texto curto 80 letras
-                                      telefone: pedido.Return.Customer.PhoneOn.Extension != null ? $"({pedido.Return.Customer.PhoneOn.Extension}){pedido.Return.Customer.PhoneOn.Number}" : " ", // texto curto 14 letras
-                                      impComanda: "Não",
-                                      ImpComanda2: "Não",
-                                      qtdComanda: 00f,//numero duplo 
-                                      status: Status
-                                 );//fim dos parâmetros
-
+                            ConcluirPedido(pedido.Return.Id.ToString(), concluiuAut: true);
                         }
-
-                    }
-
-                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
-
-                    //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-
-                    if (opSistema.ImpressaoAut)
-                    {
-                        ImprimeAutomatico(pedido);
-                    }
-
-                    if (pedido.Return.Type == "INDOOR")
-                    {
-                        ConcluirPedido(pedido.Return.Id.ToString(), concluiuAut: true);
                     }
                 }
             }
-
         }
         catch (Exception ex)
         {
@@ -489,7 +598,7 @@ public class OnPedido
         }
     }
 
-    public static async Task<string> RetiraNumeroDeMesa(string? place)
+    public async Task<string> RetiraNumeroDeMesa(string? place)
     {
         string? numeroMesa = " ";
         try
@@ -508,32 +617,34 @@ public class OnPedido
         return numeroMesa;
     }
 
-    public static async void ImprimeAutomatico(PedidoOnPedido Pedido)
+    public async void ImprimeAutomatico(PedidoOnPedido Pedido)
     {
         try
         {
-            using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Pedido.Return.Id).FirstOrDefault();
-            ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
-
-            if (!opSistema.AgruparComandas)
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                foreach (string imp in impressoras)
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Pedido.Return.Id).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
                 {
-                    if (imp != "Sem Impressora" && imp != null)
+                    foreach (string imp in impressoras)
                     {
-                        ImpressaoONPedido.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            ImpressaoONPedido.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
                     }
                 }
-            }
-            else
-            {
-                ImpressaoONPedido.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
-            }
+                else
+                {
+                    ImpressaoONPedido.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
 
-            impressoras.Clear();
+                impressoras.Clear();
+            }
         }
         catch (Exception ex)
         {
@@ -542,7 +653,7 @@ public class OnPedido
         }
     }
 
-    public static async Task<List<ParametrosDoPedido>> GetPedidoOnPedido(int? display_ID = null)
+    public async Task<List<ParametrosDoPedido>> GetPedidoOnPedido(int? display_ID = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
@@ -551,20 +662,24 @@ public class OnPedido
         {
             if (display_ID != null)
             {
-                using ApplicationDbContext dataBase = new ApplicationDbContext();
+                using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                {
 
-                pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "ONPEDIDO" || x.Conta == display_ID && x.CriadoPor == "ONPEDIDO").ToList();
+                    pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "ONPEDIDO" || x.Conta == display_ID && x.CriadoPor == "ONPEDIDO").AsNoTracking().ToList();
 
 
-                return pedidosFromDb;
+                    return pedidosFromDb;
+                }
             }
             else
             {
-                using ApplicationDbContext db = new ApplicationDbContext();
+                using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                {
 
-                pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "ONPEDIDO").ToList();
+                    pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "ONPEDIDO").AsNoTracking().ToList();
 
-                return pedidosFromDb;
+                    return pedidosFromDb;
+                }
             }
         }
         catch (Exception ex)
@@ -576,7 +691,7 @@ public class OnPedido
         return pedidosFromDb;
     }
 
-    public static async Task<PedidoCompleto> OnPedidoPedidoCompleto(PedidoOnPedido p)
+    public async Task<PedidoCompleto> OnPedidoPedidoCompleto(PedidoOnPedido p)
     {
         PedidoCompleto PedidoCompletoConvertido = new PedidoCompleto();
         try
@@ -628,65 +743,17 @@ public class OnPedido
         return PedidoCompletoConvertido;
     }
 
-    public static async Task GetToken()
+    public async Task GetToken()
     {
         string url = @"https://merchant-api.onpedido.com.br/v1/oauth/";
 
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
-            ParametrosDoSistema? configs = db.parametrosdosistema.FirstOrDefault();
-
-            ClsPedirToken InfosParaOToken = new ClsPedirToken();
-            InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
-            InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
-            InfosParaOToken.MerchantUsername = configs.UserOnPedido;//"syslogica";
-            InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; //"69063360";
-            InfosParaOToken.ClearAnotherTokens = true;
-
-            string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);
-
-            HttpResponseMessage response = await EnviaReq(url, "GetToken", JsonContent);
-
-            if (response.IsSuccessStatusCode)
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                string? reposta = await response.Content.ReadAsStringAsync();
+                Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
+                ParametrosDoSistema? configs = db.parametrosdosistema.FirstOrDefault();
 
-                TokenOnPedido? TokenOnP = JsonConvert.DeserializeObject<TokenOnPedido>(reposta);
-
-                TokenOnPedido.TokenDaSessao = TokenOnP.AccessOAuthToken;
-
-                string? HorarioDeVencimento = DateTime.Now.AddHours(5).ToString();
-
-                AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
-                AutBase.VenceEmOnPedido = HorarioDeVencimento;
-                await db.SaveChangesAsync();
-            }
-
-
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao pegar token ONPedidos", "Ops");
-        }
-    }
-
-    public static async Task RefreshTokenOnPedidos()
-    {
-        string url = @"https://merchant-api.onpedido.com.br/v1/oauth/";
-        try
-        {
-
-            ApplicationDbContext db = new ApplicationDbContext();
-            Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
-            ParametrosDoSistema? configs = db.parametrosdosistema.FirstOrDefault();
-
-            DateTime HorarioAtualDoToken = DateTime.Parse(AutBase.VenceEmOnPedido);
-
-            if (DateTime.Now > HorarioAtualDoToken)
-            {
                 ClsPedirToken InfosParaOToken = new ClsPedirToken();
                 InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
                 InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
@@ -712,9 +779,59 @@ public class OnPedido
                     AutBase.VenceEmOnPedido = HorarioDeVencimento;
                     await db.SaveChangesAsync();
                 }
-                else
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show("Erro ao pegar token ONPedidos", "Ops");
+        }
+    }
+
+    public async Task RefreshTokenOnPedidos()
+    {
+        string url = @"https://merchant-api.onpedido.com.br/v1/oauth/";
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
+                ParametrosDoSistema? configs = db.parametrosdosistema.FirstOrDefault();
+
+                DateTime HorarioAtualDoToken = DateTime.Parse(AutBase.VenceEmOnPedido);
+
+                if (DateTime.Now > HorarioAtualDoToken)
                 {
-                    MessageBox.Show(await response.Content.ReadAsStringAsync());
+                    ClsPedirToken InfosParaOToken = new ClsPedirToken();
+                    InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
+                    InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
+                    InfosParaOToken.MerchantUsername = configs.UserOnPedido;//"syslogica";
+                    InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; //"69063360";
+                    InfosParaOToken.ClearAnotherTokens = true;
+
+                    string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);
+
+                    HttpResponseMessage response = await EnviaReq(url, "GetToken", JsonContent);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        string? reposta = await response.Content.ReadAsStringAsync();
+
+                        TokenOnPedido? TokenOnP = JsonConvert.DeserializeObject<TokenOnPedido>(reposta);
+
+                        TokenOnPedido.TokenDaSessao = TokenOnP.AccessOAuthToken;
+
+                        string? HorarioDeVencimento = DateTime.Now.AddHours(5).ToString();
+
+                        AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
+                        AutBase.VenceEmOnPedido = HorarioDeVencimento;
+                        await db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        MessageBox.Show(await response.Content.ReadAsStringAsync());
+                    }
                 }
             }
         }
@@ -725,46 +842,49 @@ public class OnPedido
         }
     }
 
-    public static async Task<HttpResponseMessage> EnviaReq(string? url, string? metodo, string? content = "")
+    public async Task<HttpResponseMessage> EnviaReq(string? url, string? metodo, string? content = "")
     {
         HttpResponseMessage response = new HttpResponseMessage();
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
-
-            if (metodo == "GET")
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AutBase.TokenOnPedido);
+                Token? AutBase = db.parametrosdeautenticacao.FirstOrDefault();
 
-                response = await client.GetAsync(url);
+                if (metodo == "GET")
+                {
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AutBase.TokenOnPedido);
 
-                return response;
-            }
+                    response = await client.GetAsync(url);
 
-            if (metodo == "POST")
-            {
-                using HttpClient client = new HttpClient();
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AutBase.TokenOnPedido);
+                    return response;
+                }
 
-                StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
+                if (metodo == "POST")
+                {
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AutBase.TokenOnPedido);
 
-                response = await client.PostAsync(url, contentToPost);
+                    StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
-                return response;
+                    response = await client.PostAsync(url, contentToPost);
 
-            }
+                    return response;
 
-            if (metodo == "GetToken")
-            {
-                using HttpClient client = new HttpClient();
+                }
 
-                StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
+                if (metodo == "GetToken")
+                {
+                    using HttpClient client = new HttpClient();
 
-                response = await client.PostAsync(url, contentToPost);
+                    StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
-                return response;
+                    response = await client.PostAsync(url, contentToPost);
+
+                    return response;
+
+                }
             }
         }
         catch (Exception ex)

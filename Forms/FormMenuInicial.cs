@@ -29,6 +29,8 @@ using SysIntegradorApp.UserControls;
 using System.Security.Policy;
 using ExCSS;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using Microsoft.Web.WebView2.WinForms;
+using Microsoft.Web.WebView2.Core;
 
 namespace SysIntegradorApp;
 
@@ -39,6 +41,7 @@ public partial class FormMenuInicial : Form
 
     private System.Threading.Timer _timer;
     private System.Threading.Timer _timer2;
+    private WebView2 webViwer = new WebView2();
     public static int ContadorPooling { get; set; }
 
     public FormMenuInicial(ApplicationDbContext DB)
@@ -59,9 +62,11 @@ public partial class FormMenuInicial : Form
             SetRoundedRegion(panel1, 20);
         };
 
+        StartChat();
         SetarPanelPedidos();
         panelDetalhePedido.Controls.Clear();
         panelDetalhePedido.Controls.Add(labelDeAvisoPedidoDetalhe);
+
     }
 
     private void panelPedidos_Paint(object sender, PaintEventArgs e) { }
@@ -95,6 +100,8 @@ public partial class FormMenuInicial : Form
 
                 if (Configuracoes.IntegraOnOPedido)
                 {
+                    OnPedido OnPedido = new OnPedido(new MeuContexto());
+
                     IEnumerable<ParametrosDoPedido> PedidosONPedidos = await OnPedido.GetPedidoOnPedido(pesquisaDisplayId);
                     foreach (var item in PedidosONPedidos)
                     {
@@ -138,27 +145,27 @@ public partial class FormMenuInicial : Form
                     }
                 }
 
-                /*if (Configuracoes.IntegraCCM)
-                 {
-                     CCM CCMNEW = new CCM(_db);
-                     IEnumerable<ParametrosDoPedido> PedidosCCM = await CCMNEW.GetPedidos(pesquisaDisplayId);
-                     foreach (ParametrosDoPedido item in PedidosCCM)
-                     {
+                if (Configuracoes.IntegraCCM)
+                {
+                    CCM CCMNEW = new CCM(new MeuContexto());
+                    IEnumerable<ParametrosDoPedido> PedidosCCM = await CCMNEW.GetPedidos(pesquisaDisplayId);
+                    foreach (ParametrosDoPedido item in PedidosCCM)
+                    {
                         var pedidoXMl = await CCMNEW.RetornaPedido(item);
-                         if (pedidoXMl != null)
-                         {
-                             PedidoCompleto PedidoConvertido = await CCMNEW.CCMPedidoCompleto(pedidoXMl);
-                             PedidoConvertido.Situacao = item.Situacao;
-                             PedidoConvertido.NumConta = item.Conta;
-                             PedidoConvertido.CriadoPor = "CCM";
-                             pedidos.Add(PedidoConvertido);
+                        if (pedidoXMl != null)
+                        {
+                            PedidoCompleto PedidoConvertido = await CCMNEW.CCMPedidoCompleto(pedidoXMl);
+                            PedidoConvertido.Situacao = item.Situacao;
+                            PedidoConvertido.NumConta = item.Conta;
+                            PedidoConvertido.CriadoPor = "CCM";
+                            pedidos.Add(PedidoConvertido);
 
-                         }
-                     }
-                 }*/
+                        }
+                    }
+                }
 
                 panelPedidos.Controls.Clear();
-    
+
                 IEnumerable<PedidoCompleto> pedidosOrdenado = pedidos.OrderByDescending(p =>
                 {
                     DateTime.TryParse(p.createdAt, out DateTime result);
@@ -556,9 +563,8 @@ public partial class FormMenuInicial : Form
 
     private async void pollingManual_Click(object sender, EventArgs e)
     {
-
-
-        SetarPanelPedidos();
+        FormWebBrowser formChat = new FormWebBrowser();
+        formChat.ShowDialog();
     }
 
 
@@ -590,16 +596,35 @@ public partial class FormMenuInicial : Form
 
             if (Configuracoes.IntegraOnOPedido)
             {
+                OnPedido OnPedido = new OnPedido(new MeuContexto());
+
                 await OnPedido.Pooling();
             }
 
             if (Configuracoes.IntegraOnOPedido)
             {
-                //  await _ccm.Pooling();
+                CCM CCMNEW = new CCM(new MeuContexto());
+                await CCMNEW.Pooling();
             }
 
             if (ClsDeSuporteAtualizarPanel.MudouDataBase)
             {
+                if (ClsDeSuporteAtualizarPanel.MudouDataBasePedido) //entra aqui só se foi pedido novo
+                {
+                    if (this.WindowState == FormWindowState.Minimized)
+                    {
+                        notifyIcon1.Text = "Novo Pedido";
+                        notifyIcon1.Tag = "SyslogicaApp";
+                        notifyIcon1.Visible = true;
+                        notifyIcon1.BalloonTipTitle = "SysLogicaApp";
+                        notifyIcon1.BalloonTipText = "SysLogicaApp";
+                        notifyIcon1.ShowBalloonTip(3, "Novo Pedido", "Um novo pedido chegou para você!", ToolTipIcon.Info);
+
+                        ClsDeSuporteAtualizarPanel.MudouDataBasePedido = false;
+                    }
+                }
+
+
                 FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                 ClsDeSuporteAtualizarPanel.MudouDataBase = false;
             }
@@ -634,11 +659,11 @@ public partial class FormMenuInicial : Form
         }
     }
 
-    private void ChamaEntregaAutDelMatch() //Função que vai ser chamada para chamar os pedidos aut
+    private async void ChamaEntregaAutDelMatch() //Função que vai ser chamada para chamar os pedidos aut
     {
         DelMatch Delmatch = new DelMatch(new MeuContexto());
 
-        Delmatch.EnviaPedidosAut();
+        await Delmatch.EnviaPedidosAut();
     }
 
     private void pictureBoxDelivery_Click(object sender, EventArgs e)
@@ -655,7 +680,7 @@ public partial class FormMenuInicial : Form
 
     private void pictureBoxChat_Click(object sender, EventArgs e)
     {
-        string? urlVerificacao = "https://gestordepedidos.ifood.com.br/#/home/orders/now";
+        /*string? urlVerificacao = "https://gestordepedidos.ifood.com.br/#/home/orders/now";
 
         if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
         {
@@ -664,7 +689,13 @@ public partial class FormMenuInicial : Form
                 FileName = urlVerificacao,
                 UseShellExecute = true
             });
-        }
+        }*/
+        panelDetalhePedido.Controls.Clear();
+        webViwer.Size = new Size(panelDetalhePedido.Size.Width - 20, panelDetalhePedido.Size.Height - 20);
+
+        panelDetalhePedido.Controls.Add(webViwer);
+        panelDetalhePedido.PerformLayout();
+
     }
 
     private void pictureBoxLupa_Click(object sender, EventArgs e)
@@ -779,4 +810,119 @@ public partial class FormMenuInicial : Form
     {
         SetarPanelPedidos();
     }
+
+    private void notifyIcon1_Click(object sender, EventArgs e)
+    {
+
+        if (this.WindowState == FormWindowState.Minimized)
+        {
+            this.WindowState = FormWindowState.Normal;
+
+            this.Activate();
+        }
+
+        this.notifyIcon1.Dispose();
+
+    }
+
+    private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+    {
+        if (this.WindowState == FormWindowState.Minimized)
+        {
+            this.WindowState = FormWindowState.Maximized;
+
+            this.Activate();
+        }
+
+        this.notifyIcon1.Dispose();
+    }
+
+    private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
+    {
+        if (this.WindowState == FormWindowState.Minimized)
+        {
+            this.WindowState = FormWindowState.Maximized;
+
+            this.Activate();
+        }
+
+        this.notifyIcon1.Dispose();
+    }
+
+    private async void pictureBox3_Click(object sender, EventArgs e)
+    {
+        //FormChat formChat = new FormChat(); 
+        //formChat.ShowDialog();
+
+
+    }
+
+    private async void StartChat()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var dbConfigs = db.parametrosdosistema.FirstOrDefault();
+
+                if (dbConfigs.IntegraIfood)
+                {
+                    string userDataFolder = "C:\\SysLogicaLogs\\MyAppUserDataFolder";
+                    var environment = await CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
+
+                    await webViwer.EnsureCoreWebView2Async(environment);
+
+                    string htmlContent = @"<!DOCTYPE html>
+                                    <html lang='en'>
+
+                                    <head>
+                                        <meta charset='UTF-8'>
+                                        <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+                                        <title>Document</title>
+                                        <script async src='https://widgets.ifood.com.br/widget.js'></script>
+                                        <script>
+                                            window.addEventListener('load', () => {
+                                                iFoodWidget.init({
+                                                    widgetId: 'b1d473d7-d4b1-4ac8-a9ca-935686090095',
+                                                    merchantIds: [
+                                                        '9362018a-6ae2-439c-968b-a40177a085ea'
+                                                    ],
+                                                });
+                                            });
+                                        </script>
+                                    </head>
+
+                                    <body>
+                                    </body>
+
+                                    </html>";
+
+                    // webViwer.CoreWebView2.NavigateToString(htmlContent);
+                    webViwer.CoreWebView2.Navigate("https://gestordepedidos.ifood.com.br/#/home/orders/now");
+
+                    await Task.Delay(500);
+
+                    List<CoreWebView2Cookie> cookieList = await webViwer.CoreWebView2.CookieManager.GetCookiesAsync("https://widgets.ifood.com.br/widget.js");
+                    StringBuilder cookieResult = new StringBuilder(cookieList.Count + " cookie(s) received from https://widgets.ifood.com.br/widget.js\n");
+
+                    for (int i = 0; i < cookieList.Count; ++i)
+                    {
+                        CoreWebView2Cookie cookie = webViwer.CoreWebView2.CookieManager.CreateCookieWithSystemNetCookie(cookieList[i].ToSystemNetCookie());
+                        cookieResult.Append($"\n{cookie.Name} {cookie.Value} {(cookie.IsSession ? "[session cookie]" : cookie.Expires.ToString("G"))}");
+                    }
+
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+
+
+    }
+
+
 }

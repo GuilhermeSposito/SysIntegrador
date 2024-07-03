@@ -16,6 +16,7 @@ using System.Windows.Forms;
 using SysIntegradorApp.data;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using Newtonsoft.Json;
+using SysIntegradorApp.data.InterfaceDeContexto;
 
 namespace SysIntegradorApp.Forms.ONPEDIDO
 {
@@ -38,35 +39,39 @@ namespace SysIntegradorApp.Forms.ONPEDIDO
         {
             try
             {
-                ApplicationDbContext db = new ApplicationDbContext();
-                ParametrosDoPedido? PedidoDB = db.parametrosdopedido.Where(x => x.Id == IdPedido).FirstOrDefault();
-                PedidoOnPedido? Pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(PedidoDB.Json);
+                OnPedido OnPedido = new OnPedido(new MeuContexto());
 
-                string? motivo = motivoCancelamento.Text;
-
-                bool cancelou = await OnPedido.CancelaPedido(IdPedido, motivo);
-
-
-                if (cancelou && Pedido.Return.Type != "INDOOR")
+                using (ApplicationDbContext db = new ApplicationDbContext())
                 {
-                    ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(orderId: IdPedido);
+                    ParametrosDoPedido? PedidoDB = db.parametrosdopedido.Where(x => x.Id == IdPedido).FirstOrDefault();
+                    PedidoOnPedido? Pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(PedidoDB.Json);
 
-                }
+                    string? motivo = motivoCancelamento.Text;
 
-                if (cancelou && Pedido.Return.Type == "INDOOR")
-                {
-                    ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(orderId: IdPedido, mesa: true);
-
-                }
+                    bool cancelou = await OnPedido.CancelaPedido(IdPedido, motivo);
 
 
-                if (cancelou)
-                {
-                    this.Close();
-                }
-                else
-                {
-                    MessageBox.Show("Erro ao cancelar pedido", "Não Foi possivel");
+                    if (cancelou && Pedido.Return.Type != "INDOOR")
+                    {
+                        ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(orderId: IdPedido);
+
+                    }
+
+                    if (cancelou && Pedido.Return.Type == "INDOOR")
+                    {
+                        ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(orderId: IdPedido, mesa: true);
+
+                    }
+
+
+                    if (cancelou)
+                    {
+                        this.Close();
+                    }
+                    else
+                    {
+                        MessageBox.Show("Erro ao cancelar pedido", "Não Foi possivel");
+                    }
                 }
             }
             catch (Exception ex)

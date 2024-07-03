@@ -17,6 +17,9 @@ using SysIntegradorApp.Forms.ONPEDIDO;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.ComponentModel;
+using Microsoft.VisualBasic.Logging;
+using System.Configuration.Internal;
 
 
 namespace SysIntegradorApp
@@ -36,11 +39,13 @@ namespace SysIntegradorApp
             ClsEstiloComponentes.SetRoundedRegion(pictureBoxSysLogica, 24);
             ClsEstiloComponentes.SetRoundedRegion(CodeFromUser, 24);
 
+
             CodeFromUser.Height = 500;
             groupBoxAut.Visible = false;
             CodeFromUser.Visible = false;
             labelCodigo.Visible = false;
         }
+
 
         private async void BrnAutorizar_Click(object sender, EventArgs e)
         {
@@ -125,6 +130,11 @@ namespace SysIntegradorApp
         {
             try
             {
+                notifyIcon1.Visible = true;
+                notifyIcon1.Text = "Bem vindo ao sistema de integração de Aplicativos de delivery Syslogica!";
+                notifyIcon1.ShowBalloonTip(300, "Bem-Vindo", "Bem vindo ao sistema de integração de Aplicativos de delivery Syslogica!", ToolTipIcon.Info);
+                notifyIcon1.Dispose();
+
                 bool verificaInternet = true;//await VerificaInternet.InternetAtiva();
 
                 if (!verificaInternet)
@@ -140,6 +150,24 @@ namespace SysIntegradorApp
                     var AutenticacaoNaBase = db.parametrosdeautenticacao.FirstOrDefault();
                     var ConfigApp = db.parametrosdosistema.FirstOrDefault();
 
+                    if (ConfigApp.IntegraDelMatch)
+                    {
+                        DelMatch Delmatch = new DelMatch(new MeuContexto());
+
+                        await Delmatch.GetToken();
+                    }
+
+                    if (ConfigApp.IntegraOnOPedido)
+                    {
+                        OnPedido OnPedido = new OnPedido(new MeuContexto());
+
+                        DateTime HorarioAtualDoToken = DateTime.Parse(AutenticacaoNaBase.VenceEmOnPedido);
+
+                        if (DateTime.Now > HorarioAtualDoToken)
+                        {
+                            await OnPedido.GetToken();
+                        }
+                    }
 
                     if (ConfigApp.IntegraIfood)
                     {
@@ -174,29 +202,27 @@ namespace SysIntegradorApp
                         }
 
                     }
-                    else
+                    else if(!ConfigApp.IntegraIfood)
                     {
+                        if (ConfigApp.IntegracaoSysMenu)
+                        {
+                            bool CaixaAberto = await ClsDeIntegracaoSys.VerificaCaixaAberto();
+
+                            if (!CaixaAberto)
+                            {
+                                MessageBox.Show("Seu app está integrado com o SysMenu, Por favor abra o caixa antes de continuar", "Caixa Fechado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                this.Dispose();
+                            }
+
+                        }
+
                         FormMenuInicial menu = _formMenuInicial;
                         menu.Show();
-                        this.Hide();
+                        await EscondeForm1Async();
+                        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.MudaStatusMerchant()));
                     }
 
-                    if (ConfigApp.IntegraDelMatch)
-                    {
-                        DelMatch Delmatch = new DelMatch(new MeuContexto());
-
-                        await Delmatch.GetToken();
-                    }
-
-                    if (ConfigApp.IntegraOnOPedido)
-                    {
-                        DateTime HorarioAtualDoToken = DateTime.Parse(AutenticacaoNaBase.VenceEmOnPedido);
-
-                        if (DateTime.Now > HorarioAtualDoToken)
-                        {
-                            await OnPedido.GetToken();
-                        }
-                    }
+                   
                 }
 
             }
@@ -207,6 +233,20 @@ namespace SysIntegradorApp
             }
 
 
+        }
+
+        public async Task EscondeForm1Async()
+        {
+            try
+            {
+                await Task.Delay(100);
+
+                this.Hide();
+            }
+            catch (Exception ex)
+            {
+                Logs.CriaLogDeErro(ex.ToString());
+            }
         }
 
         private async void pictureBoxCadeado_Click(object sender, EventArgs e)
@@ -310,6 +350,15 @@ namespace SysIntegradorApp
             }
         }
 
+        private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            this.notifyIcon1.Dispose();
+        }
+
+        private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
+        {
+            this.notifyIcon1.Dispose();
+        }
     }
 
 

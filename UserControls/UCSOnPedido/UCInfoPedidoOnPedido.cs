@@ -1,8 +1,10 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.Forms.ONPEDIDO;
 using SysIntegradorApp.UserControls.UCSDelMatch;
 using System;
@@ -20,7 +22,7 @@ namespace SysIntegradorApp.UserControls.UCSOnPedido;
 public partial class UCInfoPedidoOnPedido : UserControl
 {
     public PedidoOnPedido Pedido { get; set; }
-    public string? Status { get; set; }
+    public string? StatusPedido { get; set; }
 
     public UCInfoPedidoOnPedido()
     {
@@ -194,7 +196,13 @@ public partial class UCInfoPedidoOnPedido : UserControl
     {
         try
         {
-            await OnPedido.DespachaPedido(Pedido.Return.Id);
+            await using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var ContextApoio = await db.apoioonpedido.AddAsync(new ApoioOnPedido { Id_Pedido = Convert.ToInt32(Pedido.Return.Id), Action = "DESPACHAR" });
+                await db.SaveChangesAsync();
+            }
+
+            MessageBox.Show($"Pedido de id {Pedido.Return.Id} Despachado com sucesso!", "Despachado");
         }
         catch (Exception ex)
         {
@@ -206,7 +214,14 @@ public partial class UCInfoPedidoOnPedido : UserControl
     {
         try
         {
-            await OnPedido.ConcluirPedido(Pedido.Return.Id);
+            await using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var ContextApoio = await db.apoioonpedido.AddAsync(new ApoioOnPedido { Id_Pedido = Convert.ToInt32(Pedido.Return.Id), Action = "CONCLUIR" });
+                await db.SaveChangesAsync();
+            }
+
+            MessageBox.Show($"Pedido de id {Pedido.Return.Id} Concluido com sucesso!", "Concluido");
+
         }
         catch (Exception ex)
         {
@@ -269,8 +284,32 @@ public partial class UCInfoPedidoOnPedido : UserControl
 
     private void button3_Click(object sender, EventArgs e)
     {
-        FormCancelamentoOnPedido formDeCancelamento = new FormCancelamentoOnPedido() { IdPedido = Pedido.Return.Id};
+        FormCancelamentoOnPedido formDeCancelamento = new FormCancelamentoOnPedido() { IdPedido = Pedido.Return.Id };
 
         formDeCancelamento.ShowDialog();
+    }
+
+    private async void UCInfoPedidoOnPedido_Load(object sender, EventArgs e)
+    {
+        try
+        {
+            if (StatusPedido == "CONCLUDED")
+            {
+                btnCancelar.Visible = false;
+                btnConcluido.Visible = false;
+                btnDespachar.Visible = false;
+                button3.Visible = false;    
+            }
+
+            if (StatusPedido == "DISPATCHED")
+            {
+                btnDespachar.Visible = false;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.Message);
+        }
     }
 }

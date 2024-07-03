@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualBasic.Logging;
+using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -23,19 +25,25 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
 public class CCM
 {
-    private readonly ApplicationDbContext _Db;
+    private readonly IMeuContexto _Db;
 
 
-    public CCM(ApplicationDbContext context)
+    public CCM(IMeuContexto context)
     {
         _Db = context;
     }
 
     public async Task Pooling()
     {
+        string? url = "https://api.ccmpedidoonline.com.br/wsccm_v2.php";
         try
         {
-            string? url = "https://api.ccmpedidoonline.com.br/wsccm_v2.php";
+            bool AceitaPedidoAut = false;
+
+            using (ApplicationDbContext db = await _Db.GetContextoAsync())
+            {
+                AceitaPedidoAut = db.parametrosdosistema.FirstOrDefault().AceitaPedidoAut;
+            }
 
             HttpResponseMessage response = await RequisicaoHttp(url, "GET");
 
@@ -56,7 +64,7 @@ public class CCM
                         foreach (var pedido in Pedidos.PedidoList)
                         {
                             await SetPedido(pedido);
-                            if (_Db.parametrosdosistema.FirstOrDefault().AceitaPedidoAut)
+                            if (AceitaPedidoAut)
                             {
                                 await AceitaPedido(pedido.NroPedido);
                             }
@@ -75,17 +83,70 @@ public class CCM
         }
     }
 
-    public async Task AtualizaStatus(int nmroPedido, string status = "CONFIRMED")
+    public async Task AtualizaStatus(int nmroPedido, string status = "CONFIRMED", bool manualmente = false)
     {
         try
         {
-            var Pedido = await _Db.parametrosdopedido.FirstOrDefaultAsync(x => x.PesquisaDisplayId == nmroPedido);
+            using (ApplicationDbContext db = await _Db.GetContextoAsync())
+            {
+                var Pedido = await db.parametrosdopedido.FirstOrDefaultAsync(x => x.PesquisaDisplayId == nmroPedido);
 
-            Pedido.Situacao = status;
+                if (!manualmente)
+                {
+                    Pedido.Situacao = status;
 
-            await _Db.SaveChangesAsync();
+                    await db.SaveChangesAsync();
 
-           // SetarPanelPedidos();
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                }
+                else
+                {
+                    var config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                    string newStatus = "";
+
+                    switch (status)
+                    {
+                        case "5":
+                            newStatus = "DISPATCHED";
+                            break;
+                        case "6":
+                            newStatus = "CONCLUDED";
+                            break;
+                        default:
+                            newStatus = status;
+                            break;
+                    }
+
+                    using HttpClient client = new HttpClient();
+                    string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token={config.TokenCCM}&funcao=updateStatus&pedido={nmroPedido}&valor={status}";
+
+                    StringContent contentToPost = new StringContent("", Encoding.UTF8, "application/json");
+
+                    HttpResponseMessage response = await client.PostAsync(Newurl, contentToPost);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        Pedido.Situacao = newStatus;
+
+                        await db.SaveChangesAsync();
+
+                        switch (status)
+                        {
+                            case "5":
+                                MessageBox.Show("Pedido Despachado", "Pedido Despachado com sucesso!");
+                                break;
+                            case "6":
+                                MessageBox.Show("Pedido concluido", "Pedido concluido com sucesso!");
+                                break;
+                        }
+
+                        ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                    }
+
+                }
+            }
+
         }
         catch (Exception ex)
         {
@@ -94,13 +155,14 @@ public class CCM
         }
     }
 
+
     public async Task AceitaPedido(int nmroPedido, string msg = "Seu pedido foi aceito e está em preparo, para mais informações contate-nos")
     {
         try
         {
             await RequisicaoHttp(metodo: "ACEITAPEDIDO", content: msg, numPedido: nmroPedido);
 
-           await this.AtualizaStatus(nmroPedido);
+            await this.AtualizaStatus(nmroPedido);
         }
         catch (Exception ex)
         {
@@ -109,50 +171,65 @@ public class CCM
         }
     }
 
+    public async Task RecusaPedido(int nmroPedido, string msg = "Infelizmente não poderemos aceitar seu pedido, para mais informações ligue-nos!")
+    {
+        try
+        {
+            await RequisicaoHttp(metodo: "RECUSAPEDIDO", content: msg, numPedido: nmroPedido);
+
+            await this.AtualizaStatus(nmroPedido, status: "CANCELLED");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show("Erro ao negar pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
     public async Task SetPedido(Pedido pedido)
     {
         try
         {
-            bool existePedido = _Db.parametrosdopedido.Any(x => x.Id == pedido.NroPedido.ToString());
-
-            if (!existePedido)
+            using (ApplicationDbContext db = await _Db.GetContextoAsync())
             {
-                string HorarioDoEntregarAte = " ";
+                bool existePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == pedido.NroPedido.ToString());
 
-                if (pedido.Retira != 1)
+                if (!existePedido)
                 {
+                    string HorarioDoEntregarAte = " ";
 
-                    HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(_Db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+                    if (pedido.Retira != 1)
+                    {
+
+                        HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+                    }
+
+                    if (pedido.Retira == 1)
+                    {
+                        HorarioDoEntregarAte = DateTime.Parse(pedido.HoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                    }
+
+                    pedido.EntregarAte = HorarioDoEntregarAte;
+
+                    string jsonContent = JsonConvert.SerializeObject(pedido);
+
+                    await db.parametrosdopedido.AddAsync(new ParametrosDoPedido()
+                    {
+                        Id = pedido.NroPedido.ToString(),
+                        Json = jsonContent,//serializedXml,
+                        Situacao = pedido.StatusAcompanhamento,
+                        Conta = 0,
+                        CriadoEm = DateTimeOffset.Now.ToString(),
+                        DisplayId = Convert.ToInt32(pedido.NroPedido),
+                        JsonPolling = "Sem Polling ID",
+                        CriadoPor = "CCM",
+                        PesquisaDisplayId = Convert.ToInt32(pedido.NroPedido)
+                    });
+
+                    await db.SaveChangesAsync();
+
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
                 }
-
-                if (pedido.Retira == 1)
-                {
-                    HorarioDoEntregarAte = DateTime.Parse(pedido.HoraAgendamento).AddMinutes(_Db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
-                }
-
-                pedido.EntregarAte = HorarioDoEntregarAte;
-
-                using var stringWriter = new StringWriter();
-                XmlSerializer serializer = new XmlSerializer(typeof(Pedido));
-                serializer.Serialize(stringWriter, pedido);
-
-                string serializedXml = stringWriter.ToString();
-
-                await _Db.parametrosdopedido.AddAsync(new ParametrosDoPedido()
-                {
-                    Id = pedido.NroPedido.ToString(),
-                    Json = serializedXml,
-                    Situacao = pedido.StatusAcompanhamento,
-                    Conta = 0,
-                    CriadoEm = DateTimeOffset.Now.ToString(),
-                    DisplayId = Convert.ToInt32(pedido.NroPedido),
-                    JsonPolling = "Sem Polling ID",
-                    CriadoPor = "CCM",
-                    PesquisaDisplayId = Convert.ToInt32(pedido.NroPedido)
-                });
-
-                await _Db.SaveChangesAsync();
-                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
             }
         }
         catch (Exception ex)
@@ -169,11 +246,17 @@ public class CCM
         {
             if (pesquisaID != null)
             {
-               pedidos =  await _Db.parametrosdopedido.Where(x => x.CriadoPor == "CCM" && x.PesquisaDisplayId == pesquisaID).ToListAsync();
+                using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                {
+                    pedidos = await db.parametrosdopedido.Where(x => x.CriadoPor == "CCM" && x.PesquisaDisplayId == pesquisaID).ToListAsync();
+                }
             }
             else
             {
-               pedidos = await _Db.parametrosdopedido.Where(x => x.CriadoPor == "CCM").ToListAsync();
+                using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                {
+                    pedidos = await db.parametrosdopedido.Where(x => x.CriadoPor == "CCM").ToListAsync();
+                }
 
             }
 
@@ -182,7 +265,7 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Erro ao buscar pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
 
         }
@@ -194,13 +277,7 @@ public class CCM
         Pedido pedido = new Pedido();
         try
         {
-            using var stringReader = new StringReader(pedidoParaDeserializar.Json);
-            var xmlReader = new ClsSuporteDeserializacaoXml(stringReader);
-
-            XmlSerializer serializer = new XmlSerializer(typeof(Pedido));
-            Pedido? PedidoDeserializado = (Pedido)serializer.Deserialize(xmlReader);
-
-
+            Pedido? PedidoDeserializado = JsonConvert.DeserializeObject<Pedido>(pedidoParaDeserializar.Json);
 
             return PedidoDeserializado;
         }
@@ -231,14 +308,22 @@ public class CCM
 
             if (p.Retira != 1)
             {
-                DeliveryBy = "MERCHANT";
-                dataLimite = DateTime.Parse(p.DataHoraPedido).AddMinutes(_Db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+                using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                {
+
+                    DeliveryBy = "MERCHANT";
+                    dataLimite = DateTime.Parse(p.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+
+                }
             }
 
             if (p.Retira == 1)
             {
-                DeliveryBy = "RETIRADA";
-                dataLimite = DateTime.Parse(p.HoraAgendamento).AddMinutes(_Db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                {
+                    DeliveryBy = "RETIRADA";
+                    dataLimite = DateTime.Parse(p.HoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                }
             }
 
             //if (p.Return.Type == "INDOOR")
@@ -273,10 +358,18 @@ public class CCM
         HttpResponseMessage response = new HttpResponseMessage();
         try
         {
+            string TokenCCM = "";
+
+            using (ApplicationDbContext db = await _Db.GetContextoAsync())
+            {
+                var Config = db.parametrosdosistema.FirstOrDefault();
+                TokenCCM = Config.TokenCCM;
+            }
+
             if (metodo == "GET")
             {
                 using HttpClient client = new HttpClient();
-                string Newurl = url += "?token=HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT";
+                string Newurl = url += $"?token={TokenCCM}";
 
                 response = await client.GetAsync(Newurl);
 
@@ -286,7 +379,7 @@ public class CCM
             if (metodo == "POST")
             {
                 using HttpClient client = new HttpClient();
-                string Newurl = url += "?token=HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT";
+                string Newurl = url += $"?token={TokenCCM}";
 
                 StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -298,7 +391,7 @@ public class CCM
             if (metodo == "LIMPAPEDIDO")
             {
                 using HttpClient client = new HttpClient();
-                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm_v2.php?token=HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT&import={numPedido}";
+                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm_v2.php?token={TokenCCM}&import={numPedido}";
 
                 StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -310,7 +403,7 @@ public class CCM
             if (metodo == "ACEITAPEDIDO")
             {
                 using HttpClient client = new HttpClient();
-                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token=HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT&funcao=aceitarPedido&pedido={numPedido}&msg={content}";
+                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token={TokenCCM}&funcao=aceitarPedido&pedido={numPedido}&msg={content}";
 
                 StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -322,7 +415,7 @@ public class CCM
             if (metodo == "RECUSAPEDIDO")
             {
                 using HttpClient client = new HttpClient();
-                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token=HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT&funcao=recusarPedido&pedido={numPedido}&msg={content}";
+                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token={TokenCCM}&funcao=recusarPedido&pedido={numPedido}&msg={content}";
 
                 StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
 
@@ -331,7 +424,7 @@ public class CCM
                 return response;
             }
 
-        }
+        }//HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());

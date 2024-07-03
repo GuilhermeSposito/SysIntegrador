@@ -403,6 +403,7 @@ public class Ifood
                     //await db.DisposeAsync();
 
                     ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                    ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
 
                     // FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
 
@@ -1130,25 +1131,29 @@ public class Ifood
         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
-            using (ApplicationDbContext db = await _db.GetContextoAsync())
+
+
+            if (display_ID != null)
             {
-
-                if (display_ID != null)
-                {
-                    pedidosFromDb = db.parametrosdopedido.Where(x => x.PesquisaDisplayId == display_ID && x.CriadoPor == "IFOOD" || x.Conta == display_ID && x.CriadoPor == "IFOOD").ToList();
-
-
-                    return pedidosFromDb;
-                }
-                else
+                using (ApplicationDbContext db = await _db.GetContextoAsync())
                 {
 
-                    pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "IFOOD").ToList();
+                    pedidosFromDb = db.parametrosdopedido.Where(x => x.PesquisaDisplayId == display_ID && x.CriadoPor == "IFOOD" || x.Conta == display_ID && x.CriadoPor == "IFOOD").AsNoTracking().ToList();
 
-                    return pedidosFromDb;
                 }
-
+                return pedidosFromDb;
             }
+            else
+            {
+                using (ApplicationDbContext db = await _db.GetContextoAsync())
+                {
+                    pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "IFOOD").AsNoTracking().ToList();
+                }
+
+                return pedidosFromDb;
+            }
+
+
         }
         catch (Exception ex)
         {

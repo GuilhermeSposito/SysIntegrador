@@ -25,6 +25,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<Token> parametrosdeautenticacao { get; set; }
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
     public DbSet<ParametrosDoSistema> parametrosdosistema {  get; set; }
+    public DbSet<ApoioOnPedido> apoioonpedido {  get; set; }
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)

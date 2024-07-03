@@ -21,6 +21,8 @@ public partial class UCItemCCM : UserControl
     {
         InitializeComponent();
         ClsEstiloComponentes.SetRoundedRegion(this, 24);
+        ClsEstiloComponentes.CustomizePanelBorder(panelValorDasOpcoes);
+        ClsEstiloComponentes.CustomizePanelBorder(panelValorTotal);
     }
 
     public void SetLabels(string nome, float quantity, float unitPrice, float optionsPrice, float totalPrice, List<Adicional> options , UCItemCCM instancia, Item itemCCM)
@@ -28,13 +30,13 @@ public partial class UCItemCCM : UserControl
         quantidadeItem.Text = $"{quantity.ToString()}X";
         nomeDoItem.Text = nome;
         valorDoItem.Text = itemCCM.ValorUnit.ToString("c");
-        valorDasOpcoes.Text = 5.5.ToString("c");
+        valorDasOpcoes.Text = 0.0.ToString("c");
         valorTotalDoItem.Text = itemCCM.ValorUnit.ToString("c");
 
         int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
         int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados
 
-        bool ePizza = false;//itemCCM.externalCode == "G" || itemCCM.externalCode == "M" || itemCCM.externalCode == "P" || itemCCM.externalCode == "B" || itemCCM.externalCode == "BB" ? true : false;
+        bool ePizza = itemCCM.CodPdvGrupo == "G" || itemCCM.CodPdvGrupo == "M" || itemCCM.CodPdvGrupo == "P" || itemCCM.CodPdvGrupo == "B" || itemCCM.CodPdvGrupo == "BB" ? true : false;
 
         if (!ePizza)
         {
@@ -66,16 +68,6 @@ public partial class UCItemCCM : UserControl
             panelParaLeyout.Controls.Add(ucComplemento);
             panelParaLeyout.Size = new Size(640, 64);
 
-            if (ePizza)
-            {
-                bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.CodPdv.ToString());
-
-                if (!ExisteExternalCode)
-                {
-                    instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
-                }
-            }
-
             ClsEstiloComponentes.CustomizePanelBorder(panelParaLeyout);
             panelDeComplementos.Controls.Add(panelParaLeyout);
 
@@ -86,8 +78,24 @@ public partial class UCItemCCM : UserControl
             panelValorTotal.Location = new Point(panelValorTotal.Location.X, panelValorTotal.Location.Y + 30);
         }
 
-    }
+        if(itemCCM.Parte.Count > 0)
+        {
+            foreach(var item in itemCCM.Parte)
+            {
+                if (ePizza)
+                {
+                    bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.CodPdvItem.ToString());
 
+                    if (!ExisteExternalCode)
+                    {
+                        instancia.MudaPictureBoxDeAvisoExternalCode(instancia);
+                    }
+                }
+            }
+        }
+
+
+    }
 
     public void MudaPictureBoxDeAvisoExternalCode(UCItemCCM instancia)
     {

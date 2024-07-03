@@ -28,11 +28,14 @@
         /// </summary>
         public void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormMenuInicial));
             panelPedidos = new FlowLayoutPanel();
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
+            ChatLabel = new Label();
+            pictureBox3 = new PictureBox();
             label7 = new Label();
             pictureBox2 = new PictureBox();
             progressBar1 = new ProgressBar();
@@ -46,7 +49,6 @@
             label2 = new Label();
             label1 = new Label();
             pictureBoxDelivery = new PictureBox();
-            pollingManual = new Button();
             pictureBoxConfig = new PictureBox();
             pictureBoxChat = new PictureBox();
             pictureBoxHome = new PictureBox();
@@ -55,12 +57,15 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
+            pollingManual = new Button();
             checkBoxConcluido = new CheckBox();
             panelDePaginas = new FlowLayoutPanel();
             checkBoxDespachados = new CheckBox();
             checkBoxConfirmados = new CheckBox();
+            notifyIcon1 = new NotifyIcon(components);
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
@@ -122,6 +127,8 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
+            panel1.Controls.Add(ChatLabel);
+            panel1.Controls.Add(pictureBox3);
             panel1.Controls.Add(label7);
             panel1.Controls.Add(pictureBox2);
             panel1.Controls.Add(progressBar1);
@@ -135,26 +142,50 @@
             panel1.Controls.Add(label2);
             panel1.Controls.Add(label1);
             panel1.Controls.Add(pictureBoxDelivery);
-            panel1.Controls.Add(pollingManual);
             panel1.Controls.Add(pictureBoxConfig);
             panel1.Controls.Add(pictureBoxChat);
             panel1.Controls.Add(pictureBoxHome);
             panel1.Controls.Add(pictureBox1);
             panel1.Controls.Add(panelStatusLoja);
+            panel1.Controls.Add(pollingManual);
             panel1.Location = new Point(10, 10);
             panel1.Name = "panel1";
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
             // 
+            // ChatLabel
+            // 
+            ChatLabel.AutoSize = true;
+            ChatLabel.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            ChatLabel.Location = new Point(1099, 52);
+            ChatLabel.Name = "ChatLabel";
+            ChatLabel.Size = new Size(36, 17);
+            ChatLabel.TabIndex = 24;
+            ChatLabel.Text = "Chat";
+            ChatLabel.Visible = false;
+            // 
+            // pictureBox3
+            // 
+            pictureBox3.Cursor = Cursors.Hand;
+            pictureBox3.Image = (Image)resources.GetObject("pictureBox3.Image");
+            pictureBox3.Location = new Point(1099, 6);
+            pictureBox3.Name = "pictureBox3";
+            pictureBox3.Size = new Size(51, 45);
+            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox3.TabIndex = 23;
+            pictureBox3.TabStop = false;
+            pictureBox3.Visible = false;
+            pictureBox3.Click += pictureBox3_Click;
+            // 
             // label7
             // 
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label7.Location = new Point(475, 49);
+            label7.Location = new Point(478, 49);
             label7.Name = "label7";
-            label7.Size = new Size(58, 17);
+            label7.Size = new Size(53, 17);
             label7.TabIndex = 22;
-            label7.Text = "Cronogr";
+            label7.Text = "Params";
             // 
             // pictureBox2
             // 
@@ -192,7 +223,7 @@
             BtnBuscar.Cursor = Cursors.Hand;
             BtnBuscar.FlatAppearance.MouseOverBackColor = Color.FromArgb(224, 224, 224);
             BtnBuscar.Font = new Font("Segoe UI", 12F);
-            BtnBuscar.Location = new Point(843, 13);
+            BtnBuscar.Location = new Point(843, 9);
             BtnBuscar.Name = "BtnBuscar";
             BtnBuscar.Size = new Size(104, 37);
             BtnBuscar.TabIndex = 17;
@@ -204,7 +235,7 @@
             // textBoxBuscarPedido
             // 
             textBoxBuscarPedido.Font = new Font("Segoe UI", 12F);
-            textBoxBuscarPedido.Location = new Point(593, 14);
+            textBoxBuscarPedido.Location = new Point(593, 12);
             textBoxBuscarPedido.Name = "textBoxBuscarPedido";
             textBoxBuscarPedido.PlaceholderText = "Digite o número do pedido";
             textBoxBuscarPedido.Size = new Size(244, 34);
@@ -287,21 +318,6 @@
             pictureBoxDelivery.TabIndex = 9;
             pictureBoxDelivery.TabStop = false;
             pictureBoxDelivery.Click += pictureBoxDelivery_Click;
-            // 
-            // pollingManual
-            // 
-            pollingManual.FlatAppearance.BorderColor = Color.Red;
-            pollingManual.FlatAppearance.BorderSize = 3;
-            pollingManual.FlatStyle = FlatStyle.Flat;
-            pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(1079, 8);
-            pollingManual.Name = "pollingManual";
-            pollingManual.Size = new Size(123, 39);
-            pollingManual.TabIndex = 8;
-            pollingManual.Text = "Polling";
-            pollingManual.UseVisualStyleBackColor = true;
-            pollingManual.Visible = false;
-            pollingManual.Click += pollingManual_Click;
             // 
             // pictureBoxConfig
             // 
@@ -392,6 +408,21 @@
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
             // 
+            // pollingManual
+            // 
+            pollingManual.FlatAppearance.BorderColor = Color.Red;
+            pollingManual.FlatAppearance.BorderSize = 3;
+            pollingManual.FlatStyle = FlatStyle.Flat;
+            pollingManual.ForeColor = Color.Red;
+            pollingManual.Location = new Point(1082, 10);
+            pollingManual.Name = "pollingManual";
+            pollingManual.Size = new Size(134, 40);
+            pollingManual.TabIndex = 8;
+            pollingManual.Text = "Polling";
+            pollingManual.UseVisualStyleBackColor = true;
+            pollingManual.Visible = false;
+            pollingManual.Click += pollingManual_Click;
+            // 
             // checkBoxConcluido
             // 
             checkBoxConcluido.AutoSize = true;
@@ -447,6 +478,19 @@
             checkBoxConfirmados.UseVisualStyleBackColor = true;
             checkBoxConfirmados.CheckedChanged += checkBoxConfirmados_CheckedChanged;
             // 
+            // notifyIcon1
+            // 
+            notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+            notifyIcon1.BalloonTipText = "SysIntegradorApp";
+            notifyIcon1.BalloonTipTitle = "SysIntegradorApp";
+            notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
+            notifyIcon1.Tag = "SysIntegradorApp";
+            notifyIcon1.Text = "SysIntegradorApp";
+            notifyIcon1.Visible = true;
+            notifyIcon1.BalloonTipClicked += notifyIcon1_BalloonTipClicked;
+            notifyIcon1.Click += notifyIcon1_Click;
+            notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
+            // 
             // FormMenuInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -474,6 +518,7 @@
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
@@ -512,6 +557,9 @@
         private Label label6;
         private Label label7;
         private PictureBox pictureBox2;
+        public NotifyIcon notifyIcon1;
+        private Label ChatLabel;
+        private PictureBox pictureBox3;
         private static CheckBox checkBoxConcluido;
         public static FlowLayoutPanel panelDePaginas;
         private static CheckBox checkBoxDespachados;

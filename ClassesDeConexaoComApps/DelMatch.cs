@@ -50,7 +50,6 @@ public class DelMatch
                 throw new Exception("Por favor verifique sua conexão com a internet");
             }
 
-
             await RefreshTokenDelMatch();
 
             using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
@@ -81,8 +80,6 @@ public class DelMatch
                                     await ConfirmaPedidoDelMatch(pedido);
                                     ClsSons.StopSom();
                                 }
-
-                                ClsDeSuporteAtualizarPanel.MudouDataBase = true;
                             }
 
                             /*if (ExistePedido && pedido.Type == "INDOOR")
@@ -411,6 +408,9 @@ public class DelMatch
                     }
                 }
 
+                ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
+                ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
 
                 if (opSistema.IntegracaoSysMenu)
                 {
@@ -591,7 +591,7 @@ public class DelMatch
                 using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
                 {
 
-                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").ToList();
+                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").AsNoTracking().ToList();
 
 
                 }
@@ -603,7 +603,7 @@ public class DelMatch
                 using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
                 {
 
-                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.CriadoPor == "DELMATCH").ToList();
+                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.CriadoPor == "DELMATCH").AsNoTracking().ToList();
 
                 }
                 return pedidosFromDb;
@@ -851,11 +851,28 @@ public class DelMatch
 
             if ((int)response.StatusCode != 200)
             {
+                string? jsonContentFromApi = await response.Content.ReadAsStringAsync();
+
+                ClsDeserializacaoPedidoFalho? reposta = JsonConvert.DeserializeObject<ClsDeserializacaoPedidoFalho>(jsonContentFromApi);
+
+                string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
+                string Erro = "";
+
+                foreach (var item in reposta.Response)
+                {
+                    Erro += item.Message;
+                }
+
+                Sequencia? Pedido = JsonConvert.DeserializeObject<Sequencia>(jsonContent);
+
+                ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido = true;
+                ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Add(Pedido.ShortReference);
+                ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Add($"\n{Erro}\n");
+
                 ClsSons.PlaySom2();
-                MessageBox.Show("Erro ao enviar pedido, Comunique a syslogica!", "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await Logs.CriaLogDeErro(await response.Content.ReadAsStringAsync());
                 ClsSons.StopSom();
             }
-
         }
         catch (Exception ex)
         {
@@ -1118,7 +1135,7 @@ public class DelMatch
                                 sequencia.DeliveryAddress.FormattedAddress = reader["ENDENTREGA"].ToString();
                                 sequencia.DeliveryAddress.Country = "BR";
                                 sequencia.DeliveryAddress.State = "SP";
-                                sequencia.DeliveryAddress.City = "São Carlos";
+                                sequencia.DeliveryAddress.City = opcSistema.Cidade;
                                 sequencia.DeliveryAddress.Neighborhood = reader["BAIENTREGA"].ToString();
                                 sequencia.DeliveryAddress.StreetName = reader["ENDENTREGA"].ToString();
                                 sequencia.DeliveryAddress.StreetNumber = "";
@@ -1144,7 +1161,7 @@ public class DelMatch
     }
 
 
-    public async void EnviaPedidosAut()
+    public async Task EnviaPedidosAut()
     {
         try
         {
@@ -1160,17 +1177,12 @@ public class DelMatch
 
                     if (contagemdepedidos > 0)
                     {
-                        foreach (var item in pedidosAbertos)
-                        {
-                            ItensAEnviarDelMach.Add(item);
-                        }
-
+                        ItensAEnviarDelMach.AddRange(pedidosAbertos);
                     }
 
                     if (ItensAEnviarDelMach.Count() > 0)
                     {
-
-                        foreach (var item in ItensAEnviarDelMach)
+                        foreach (var item in ItensAEnviarDelMach.ToList())
                         {
                             string jsonContent = JsonConvert.SerializeObject(item);
                             await GerarPedido(jsonContent);
@@ -1178,6 +1190,31 @@ public class DelMatch
                         }
 
                         ItensAEnviarDelMach.Clear();
+
+                        if (ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido)
+                        {
+                            string PedidosASerINformados = "Erro a enviar pedidos. Pedidos que não foram Enviados: ";
+
+                            foreach(string item in ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados)
+                            {
+                                string Motivos = "";
+
+                                foreach(var motivo in ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado)
+                                {
+                                    Motivos += motivo;
+                                }
+
+                                PedidosASerINformados += $"\n{item}\n {Motivos}";
+                            }
+
+                            ClsSons.PlaySom2();
+                            MessageBox.Show(PedidosASerINformados, "Erro ao enviar pedido automatico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            ClsSons.StopSom();
+
+                            ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido = false;
+                            ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Clear();
+                            ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Clear();    
+                        }
                     }
                 }
             }

@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
             BrnAutorizar = new Button();
             CodeFromUser = new TextBox();
@@ -49,6 +50,7 @@
             label3 = new Label();
             label2 = new Label();
             pictureBoxInfo = new PictureBox();
+            notifyIcon1 = new NotifyIcon(components);
             ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).BeginInit();
             majorPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).BeginInit();
@@ -294,6 +296,15 @@
             pictureBoxInfo.TabStop = false;
             pictureBoxInfo.Click += pictureBoxInfo_Click;
             // 
+            // notifyIcon1
+            // 
+            notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
+            notifyIcon1.Icon = (Icon)resources.GetObject("notifyIcon1.Icon");
+            notifyIcon1.Text = "notifyIcon1";
+            notifyIcon1.Visible = true;
+            notifyIcon1.BalloonTipClicked += notifyIcon1_BalloonTipClicked;
+            notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -347,5 +358,6 @@
         private Panel panelDeColar;
         private PictureBox pictureBoxDeColar;
         private LinkLabel linkLabel1;
+        public  NotifyIcon notifyIcon1;
     }
 }

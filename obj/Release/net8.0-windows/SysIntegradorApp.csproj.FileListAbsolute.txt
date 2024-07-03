@@ -64,3 +64,12 @@ C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Rel
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCNumPagina.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSccm.UCInfoPedidoCCM.resources
 C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.UCSccm.UCItemCCM.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\runtimes\win-x86\native\WebView2Loader.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\runtimes\win-x64\native\WebView2Loader.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\runtimes\win-arm64\native\WebView2Loader.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Core.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\Microsoft.Web.WebView2.WinForms.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\bin\Release\net8.0-windows\Microsoft.Web.WebView2.Wpf.dll
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.Forms.FormChat.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.Forms.FormWebBrowser.resources
+C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\obj\Release\net8.0-windows\SysIntegradorApp.Forms.CCM.FormDePedidoNaoAceito.resources

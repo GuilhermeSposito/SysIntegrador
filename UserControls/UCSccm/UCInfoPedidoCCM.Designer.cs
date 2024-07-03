@@ -41,8 +41,6 @@
             panel3 = new Panel();
             pictureBox2 = new PictureBox();
             numId = new Label();
-            labelIdPedidoNM = new Label();
-            labelNumIfood = new Label();
             pictureBox1 = new PictureBox();
             panel2 = new Panel();
             pictureBox6 = new PictureBox();
@@ -77,6 +75,16 @@
             labelCPF = new Label();
             label16 = new Label();
             dateFeitoAs = new Label();
+            panel9 = new Panel();
+            pictureBoxDois = new PictureBox();
+            pictureBoxUm = new PictureBox();
+            pictureBox15 = new PictureBox();
+            BtnAceitar = new Button();
+            BtnRejeitar = new Button();
+            buttonReadyToPickUp = new Button();
+            btnCancelar = new Button();
+            btnDespacharCCM = new Button();
+            btnImprimir = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
@@ -97,6 +105,10 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox8).BeginInit();
             panel8.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).BeginInit();
+            panel9.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDois).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxUm).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox15).BeginInit();
             SuspendLayout();
             // 
             // pictureBox7
@@ -200,8 +212,6 @@
             panel3.BorderStyle = BorderStyle.FixedSingle;
             panel3.Controls.Add(pictureBox2);
             panel3.Controls.Add(numId);
-            panel3.Controls.Add(labelIdPedidoNM);
-            panel3.Controls.Add(labelNumIfood);
             panel3.Location = new Point(309, 90);
             panel3.Margin = new Padding(10, 3, 3, 3);
             panel3.Name = "panel3";
@@ -222,31 +232,11 @@
             // 
             numId.AutoSize = true;
             numId.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            numId.Location = new Point(205, 5);
+            numId.Location = new Point(54, 5);
             numId.Name = "numId";
             numId.Size = new Size(90, 23);
             numId.TabIndex = 22;
             numId.Text = "15556486";
-            // 
-            // labelIdPedidoNM
-            // 
-            labelIdPedidoNM.AutoSize = true;
-            labelIdPedidoNM.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            labelIdPedidoNM.Location = new Point(176, 5);
-            labelIdPedidoNM.Name = "labelIdPedidoNM";
-            labelIdPedidoNM.Size = new Size(33, 23);
-            labelIdPedidoNM.TabIndex = 21;
-            labelIdPedidoNM.Text = "ID:";
-            // 
-            // labelNumIfood
-            // 
-            labelNumIfood.AutoSize = true;
-            labelNumIfood.Font = new Font("Segoe UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelNumIfood.Location = new Point(59, 6);
-            labelNumIfood.Name = "labelNumIfood";
-            labelNumIfood.Size = new Size(124, 23);
-            labelNumIfood.TabIndex = 20;
-            labelNumIfood.Text = "0800 711 8080 ";
             // 
             // pictureBox1
             // 
@@ -621,12 +611,196 @@
             dateFeitoAs.TabIndex = 38;
             dateFeitoAs.Text = "10:10";
             // 
+            // panel9
+            // 
+            panel9.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel9.AutoSize = true;
+            panel9.BackColor = SystemColors.ButtonHighlight;
+            panel9.BorderStyle = BorderStyle.FixedSingle;
+            panel9.Controls.Add(pictureBoxDois);
+            panel9.Controls.Add(pictureBoxUm);
+            panel9.Controls.Add(pictureBox15);
+            panel9.Controls.Add(BtnAceitar);
+            panel9.Controls.Add(BtnRejeitar);
+            panel9.Controls.Add(buttonReadyToPickUp);
+            panel9.Controls.Add(btnCancelar);
+            panel9.Controls.Add(btnDespacharCCM);
+            panel9.Controls.Add(btnImprimir);
+            panel9.Location = new Point(20, 1331);
+            panel9.Name = "panel9";
+            panel9.Padding = new Padding(0, 10, 0, 0);
+            panel9.Size = new Size(1006, 70);
+            panel9.TabIndex = 39;
+            // 
+            // pictureBoxDois
+            // 
+            pictureBoxDois.Cursor = Cursors.Hand;
+            pictureBoxDois.ErrorImage = (Image)resources.GetObject("pictureBoxDois.ErrorImage");
+            pictureBoxDois.Image = (Image)resources.GetObject("pictureBoxDois.Image");
+            pictureBoxDois.Location = new Point(137, 16);
+            pictureBoxDois.Name = "pictureBoxDois";
+            pictureBoxDois.Size = new Size(26, 30);
+            pictureBoxDois.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDois.TabIndex = 29;
+            pictureBoxDois.TabStop = false;
+            pictureBoxDois.Visible = false;
+            // 
+            // pictureBoxUm
+            // 
+            pictureBoxUm.Cursor = Cursors.Hand;
+            pictureBoxUm.ErrorImage = (Image)resources.GetObject("pictureBoxUm.ErrorImage");
+            pictureBoxUm.Image = (Image)resources.GetObject("pictureBoxUm.Image");
+            pictureBoxUm.Location = new Point(137, 16);
+            pictureBoxUm.Name = "pictureBoxUm";
+            pictureBoxUm.Size = new Size(26, 30);
+            pictureBoxUm.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxUm.TabIndex = 28;
+            pictureBoxUm.TabStop = false;
+            // 
+            // pictureBox15
+            // 
+            pictureBox15.Cursor = Cursors.Hand;
+            pictureBox15.ErrorImage = (Image)resources.GetObject("pictureBox15.ErrorImage");
+            pictureBox15.Image = (Image)resources.GetObject("pictureBox15.Image");
+            pictureBox15.Location = new Point(126, 12);
+            pictureBox15.Name = "pictureBox15";
+            pictureBox15.Size = new Size(50, 40);
+            pictureBox15.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox15.TabIndex = 27;
+            pictureBox15.TabStop = false;
+            // 
+            // BtnAceitar
+            // 
+            BtnAceitar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnAceitar.BackColor = Color.LimeGreen;
+            BtnAceitar.Cursor = Cursors.Hand;
+            BtnAceitar.FlatAppearance.BorderColor = Color.White;
+            BtnAceitar.FlatAppearance.BorderSize = 2;
+            BtnAceitar.FlatAppearance.MouseDownBackColor = Color.Green;
+            BtnAceitar.FlatAppearance.MouseOverBackColor = Color.Green;
+            BtnAceitar.FlatStyle = FlatStyle.Flat;
+            BtnAceitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
+            BtnAceitar.ForeColor = Color.White;
+            BtnAceitar.Location = new Point(494, 5);
+            BtnAceitar.Name = "BtnAceitar";
+            BtnAceitar.Size = new Size(125, 50);
+            BtnAceitar.TabIndex = 6;
+            BtnAceitar.TabStop = false;
+            BtnAceitar.Text = "Aceitar";
+            BtnAceitar.UseVisualStyleBackColor = false;
+            BtnAceitar.Visible = false;
+            BtnAceitar.Click += BtnAceitar_Click;
+            // 
+            // BtnRejeitar
+            // 
+            BtnRejeitar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            BtnRejeitar.BackColor = Color.Red;
+            BtnRejeitar.Cursor = Cursors.Hand;
+            BtnRejeitar.FlatAppearance.BorderColor = Color.White;
+            BtnRejeitar.FlatAppearance.BorderSize = 2;
+            BtnRejeitar.FlatAppearance.MouseDownBackColor = Color.Red;
+            BtnRejeitar.FlatAppearance.MouseOverBackColor = Color.Firebrick;
+            BtnRejeitar.FlatStyle = FlatStyle.Flat;
+            BtnRejeitar.Font = new Font("Segoe UI", 12.2F, FontStyle.Bold);
+            BtnRejeitar.ForeColor = Color.White;
+            BtnRejeitar.Location = new Point(641, 5);
+            BtnRejeitar.Name = "BtnRejeitar";
+            BtnRejeitar.Size = new Size(125, 50);
+            BtnRejeitar.TabIndex = 5;
+            BtnRejeitar.TabStop = false;
+            BtnRejeitar.Text = "Rejeitar";
+            BtnRejeitar.UseVisualStyleBackColor = false;
+            BtnRejeitar.Visible = false;
+            BtnRejeitar.Click += BtnRejeitar_Click;
+            // 
+            // buttonReadyToPickUp
+            // 
+            buttonReadyToPickUp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            buttonReadyToPickUp.AutoSize = true;
+            buttonReadyToPickUp.BackColor = SystemColors.ButtonHighlight;
+            buttonReadyToPickUp.Cursor = Cursors.Hand;
+            buttonReadyToPickUp.FlatAppearance.BorderColor = Color.Blue;
+            buttonReadyToPickUp.FlatAppearance.BorderSize = 2;
+            buttonReadyToPickUp.FlatAppearance.MouseDownBackColor = Color.Red;
+            buttonReadyToPickUp.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
+            buttonReadyToPickUp.FlatStyle = FlatStyle.Flat;
+            buttonReadyToPickUp.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            buttonReadyToPickUp.ForeColor = Color.Blue;
+            buttonReadyToPickUp.Location = new Point(337, 13);
+            buttonReadyToPickUp.Name = "buttonReadyToPickUp";
+            buttonReadyToPickUp.Size = new Size(107, 39);
+            buttonReadyToPickUp.TabIndex = 4;
+            buttonReadyToPickUp.Text = "Concluido";
+            buttonReadyToPickUp.UseVisualStyleBackColor = false;
+            buttonReadyToPickUp.Click += buttonReadyToPickUp_Click;
+            // 
+            // btnCancelar
+            // 
+            btnCancelar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnCancelar.BackColor = SystemColors.ButtonHighlight;
+            btnCancelar.Cursor = Cursors.Hand;
+            btnCancelar.FlatAppearance.BorderColor = Color.Red;
+            btnCancelar.FlatAppearance.BorderSize = 2;
+            btnCancelar.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnCancelar.FlatStyle = FlatStyle.Flat;
+            btnCancelar.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnCancelar.ForeColor = Color.Red;
+            btnCancelar.Location = new Point(846, 13);
+            btnCancelar.Name = "btnCancelar";
+            btnCancelar.Size = new Size(107, 39);
+            btnCancelar.TabIndex = 3;
+            btnCancelar.TabStop = false;
+            btnCancelar.Text = "Cancelar";
+            btnCancelar.UseVisualStyleBackColor = false;
+            btnCancelar.Visible = false;
+            btnCancelar.Click += btnCancelar_Click;
+            // 
+            // btnDespacharCCM
+            // 
+            btnDespacharCCM.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnDespacharCCM.BackColor = SystemColors.ButtonHighlight;
+            btnDespacharCCM.Cursor = Cursors.Hand;
+            btnDespacharCCM.FlatAppearance.BorderColor = Color.Blue;
+            btnDespacharCCM.FlatAppearance.BorderSize = 2;
+            btnDespacharCCM.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnDespacharCCM.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
+            btnDespacharCCM.FlatStyle = FlatStyle.Flat;
+            btnDespacharCCM.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnDespacharCCM.ForeColor = Color.Blue;
+            btnDespacharCCM.Location = new Point(213, 13);
+            btnDespacharCCM.Name = "btnDespacharCCM";
+            btnDespacharCCM.Size = new Size(107, 39);
+            btnDespacharCCM.TabIndex = 1;
+            btnDespacharCCM.Text = "Despachar";
+            btnDespacharCCM.UseVisualStyleBackColor = false;
+            btnDespacharCCM.Click += btnDespacharCCM_Click;
+            // 
+            // btnImprimir
+            // 
+            btnImprimir.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            btnImprimir.BackColor = SystemColors.ButtonHighlight;
+            btnImprimir.Cursor = Cursors.Hand;
+            btnImprimir.FlatAppearance.BorderColor = Color.Red;
+            btnImprimir.FlatAppearance.BorderSize = 2;
+            btnImprimir.FlatAppearance.MouseDownBackColor = Color.Red;
+            btnImprimir.FlatAppearance.MouseOverBackColor = Color.Gainsboro;
+            btnImprimir.FlatStyle = FlatStyle.Flat;
+            btnImprimir.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnImprimir.ForeColor = Color.Red;
+            btnImprimir.Location = new Point(13, 13);
+            btnImprimir.Name = "btnImprimir";
+            btnImprimir.Size = new Size(107, 39);
+            btnImprimir.TabIndex = 0;
+            btnImprimir.Text = "Imprimir";
+            btnImprimir.UseVisualStyleBackColor = false;
+            // 
             // UCInfoPedidoCCM
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
             BackColor = Color.DarkGray;
+            Controls.Add(panel9);
             Controls.Add(dateFeitoAs);
             Controls.Add(panel8);
             Controls.Add(panel7);
@@ -644,6 +818,7 @@
             Margin = new Padding(20, 0, 0, 0);
             Name = "UCInfoPedidoCCM";
             Size = new Size(1052, 1426);
+            Load += UCInfoPedidoCCM_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
@@ -670,6 +845,11 @@
             panel8.ResumeLayout(false);
             panel8.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox9).EndInit();
+            panel9.ResumeLayout(false);
+            panel9.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDois).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxUm).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox15).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -688,8 +868,6 @@
         private Panel panel3;
         private PictureBox pictureBox2;
         private Label numId;
-        private Label labelIdPedidoNM;
-        private Label labelNumIfood;
         private PictureBox pictureBox1;
         private Panel panel2;
         private PictureBox pictureBox6;
@@ -724,5 +902,15 @@
         private Label labelCPF;
         private Label label16;
         private Label dateFeitoAs;
+        private Panel panel9;
+        private PictureBox pictureBoxDois;
+        private PictureBox pictureBoxUm;
+        private PictureBox pictureBox15;
+        private Button BtnAceitar;
+        private Button BtnRejeitar;
+        private Button buttonReadyToPickUp;
+        private Button btnCancelar;
+        private Button btnDespacharCCM;
+        private Button btnImprimir;
     }
 }
