@@ -3,6 +3,7 @@ using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.Metrics;
 using System.Drawing.Printing;
 using System.Linq;
 using System.Text;
@@ -82,7 +83,8 @@ public class ParametrosDoSistema
     [Column("cardapiousando")] public string CardapioUsando { get; set; }
     [Column("empresadeentrega")] public string EmpresadeEntrega { get; set; }
     [Column("cidade")] public string Cidade { get; set; }
-
+    [Column("comandareduzida")] public bool ComandaReduzida { get; set; }
+    [Column("destacarobs")] public bool DestacarObs { get; set; }
     public ParametrosDoSistema() { }
 
 

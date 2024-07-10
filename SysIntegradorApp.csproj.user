@@ -28,6 +28,9 @@
     <Compile Update="Forms\FormLoginConfigs.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\FormMapaDelmatch.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Update="Forms\FormMenuInicial.cs">
       <SubType>Form</SubType>
     </Compile>

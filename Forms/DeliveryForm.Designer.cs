@@ -37,10 +37,13 @@ partial class DeliveryForm
         label3 = new Label();
         label4 = new Label();
         pictureBox1 = new PictureBox();
+        pictureBox2 = new PictureBox();
+        label6 = new Label();
         panelDeListarPedidos.SuspendLayout();
         panelDeIniciarEntrega.SuspendLayout();
         ((System.ComponentModel.ISupportInitialize)pictureBoxEmpresaDelivery).BeginInit();
         ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
         SuspendLayout();
         // 
         // panelDeListarPedidos
@@ -101,7 +104,7 @@ partial class DeliveryForm
         // 
         pictureBoxEmpresaDelivery.Cursor = Cursors.Hand;
         pictureBoxEmpresaDelivery.Image = (Image)resources.GetObject("pictureBoxEmpresaDelivery.Image");
-        pictureBoxEmpresaDelivery.Location = new Point(294, 563);
+        pictureBoxEmpresaDelivery.Location = new Point(112, 563);
         pictureBoxEmpresaDelivery.Name = "pictureBoxEmpresaDelivery";
         pictureBoxEmpresaDelivery.Size = new Size(262, 123);
         pictureBoxEmpresaDelivery.SizeMode = PictureBoxSizeMode.Zoom;
@@ -124,7 +127,7 @@ partial class DeliveryForm
         // 
         label4.AutoSize = true;
         label4.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
-        label4.Location = new Point(358, 540);
+        label4.Location = new Point(179, 540);
         label4.Name = "label4";
         label4.Size = new Size(145, 20);
         label4.TabIndex = 4;
@@ -140,12 +143,36 @@ partial class DeliveryForm
         pictureBox1.TabIndex = 5;
         pictureBox1.TabStop = false;
         // 
+        // pictureBox2
+        // 
+        pictureBox2.Cursor = Cursors.Hand;
+        pictureBox2.Image = (Image)resources.GetObject("pictureBox2.Image");
+        pictureBox2.Location = new Point(515, 563);
+        pictureBox2.Name = "pictureBox2";
+        pictureBox2.Size = new Size(138, 123);
+        pictureBox2.SizeMode = PictureBoxSizeMode.Zoom;
+        pictureBox2.TabIndex = 6;
+        pictureBox2.TabStop = false;
+        pictureBox2.Click += pictureBox2_Click;
+        // 
+        // label6
+        // 
+        label6.AutoSize = true;
+        label6.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
+        label6.Location = new Point(550, 540);
+        label6.Name = "label6";
+        label6.Size = new Size(53, 20);
+        label6.TabIndex = 8;
+        label6.Text = "MAPA";
+        // 
         // DeliveryForm
         // 
         AutoScaleDimensions = new SizeF(8F, 20F);
         AutoScaleMode = AutoScaleMode.Font;
         BackColor = Color.White;
         ClientSize = new Size(882, 682);
+        Controls.Add(label6);
+        Controls.Add(pictureBox2);
         Controls.Add(pictureBox1);
         Controls.Add(label4);
         Controls.Add(label3);
@@ -163,6 +190,7 @@ partial class DeliveryForm
         panelDeIniciarEntrega.ResumeLayout(false);
         ((System.ComponentModel.ISupportInitialize)pictureBoxEmpresaDelivery).EndInit();
         ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
+        ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
         ResumeLayout(false);
         PerformLayout();
     }
@@ -177,4 +205,6 @@ partial class DeliveryForm
     private Label label3;
     private Label label4;
     private PictureBox pictureBox1;
+    private PictureBox pictureBox2;
+    private Label label6;
 }

@@ -34,7 +34,6 @@ public partial class FormDePedidosAbertos : Form
     {
         ItensAEnviarDelMach.Clear();
         this.Close();
-
     }
 
     private async void btnEnviar_Click(object sender, EventArgs e)

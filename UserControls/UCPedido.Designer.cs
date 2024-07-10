@@ -44,6 +44,7 @@
             pictureBoxPedidoNaoEnviado = new PictureBox();
             pictureBoxAgendada = new PictureBox();
             pictureBoxCCM = new PictureBox();
+            pictureBoxDeMEsa = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
@@ -52,6 +53,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -217,11 +219,24 @@
             pictureBoxCCM.TabStop = false;
             pictureBoxCCM.Visible = false;
             // 
+            // pictureBoxDeMEsa
+            // 
+            pictureBoxDeMEsa.Image = (Image)resources.GetObject("pictureBoxDeMEsa.Image");
+            pictureBoxDeMEsa.Location = new Point(292, 60);
+            pictureBoxDeMEsa.Name = "pictureBoxDeMEsa";
+            pictureBoxDeMEsa.Size = new Size(58, 43);
+            pictureBoxDeMEsa.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxDeMEsa.TabIndex = 15;
+            pictureBoxDeMEsa.TabStop = false;
+            pictureBoxDeMEsa.Visible = false;
+            pictureBoxDeMEsa.Click += pictureBoxDeMEsa_Click;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxDeMEsa);
             Controls.Add(pictureBoxCCM);
             Controls.Add(pictureBoxAgendada);
             Controls.Add(pictureBoxPedidoNaoEnviado);
@@ -254,6 +269,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxPedidoNaoEnviado).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -275,5 +291,6 @@
         private PictureBox pictureBoxPedidoNaoEnviado;
         private PictureBox pictureBoxAgendada;
         private PictureBox pictureBoxCCM;
+        private PictureBox pictureBoxDeMEsa;
     }
 }

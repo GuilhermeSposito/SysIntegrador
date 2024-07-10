@@ -13,6 +13,8 @@ using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static System.Windows.Forms.LinkLabel;
 using Newtonsoft.Json;
+using SysIntegradorApp.ClassesAuxiliares.logs;
+using static SysIntegradorApp.ClassesAuxiliares.ImpressaoONPedido;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -78,86 +80,131 @@ public class ImpressaoDelMatch
     {
         try
         {
-            // Define o conteúdo a ser impresso
-
-            int Y = 0;
-
-
-            foreach (var item in conteudo)
+            using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                var tamanhoFrase = e.Graphics.MeasureString(item.Texto, item.Fonte).Width;
+                bool DestacaObs = db.parametrosdosistema.FirstOrDefault().DestacarObs;
 
-                if (tamanhoFrase < e.PageBounds.Width)
+
+                // Define o conteúdo a ser impresso
+
+                int Y = 0;
+
+
+                foreach (var item in conteudo)
                 {
-                    if (item.Alinhamento == AlinhamentosDelMatch.Centro)
-                    {
-                        e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                    }
-                    else
-                    {
-                        e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
-                        Y += separacao;
-                        continue;
-                    }
-                }
+                    var tamanhoFrase = e.Graphics.MeasureString(item.Texto, item.Fonte).Width;
 
-
-                var listPalavras = item.Texto.Split(" ").ToList();
-                string frase = "";
-
-                foreach (var palavra in listPalavras)
-                {
-
-                    frase += palavra + " ";
-
-                    tamanhoFrase = e.Graphics.MeasureString(frase, item.Fonte).Width;
-
-                    if (tamanhoFrase > e.PageBounds.Width - 70 && frase != "")
+                    if (tamanhoFrase < e.PageBounds.Width)
                     {
                         if (item.Alinhamento == AlinhamentosDelMatch.Centro)
                         {
-
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                            Y += separacao;
-                            frase = "";
-                            continue;
-
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
                         }
-                        else
+                        else if (!item.eObs || !DestacaObs)
                         {
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
                             Y += separacao;
-                            frase = "";
                             continue;
                         }
+                        else if (item.eObs && DestacaObs)
+                        {
+                            PointF ponto = new PointF(0, Y);
 
+                            SizeF tamanhoTexto = e.Graphics.MeasureString(item.Texto, item.Fonte);
+                            RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+                            e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
+
+                            Y += separacao;
+
+                            continue;
+                        }
                     }
 
-                    if (frase != "")
+
+                    var listPalavras = item.Texto.Split(" ").ToList();
+                    string frase = "";
+
+                    foreach (var palavra in listPalavras)
                     {
-                        if (item.Alinhamento == AlinhamentosDelMatch.Centro)
-                        {
 
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+                        frase += palavra + " ";
+
+                        tamanhoFrase = e.Graphics.MeasureString(frase, item.Fonte).Width;
+
+                        if (tamanhoFrase > e.PageBounds.Width - 70 && frase != "")
+                        {
+                            if (item.Alinhamento == AlinhamentosDelMatch.Centro)
+                            {
+
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+                                Y += separacao;
+                                frase = "";
+                                continue;
+
+                            }
+                            else if (!item.eObs || !DestacaObs)
+                            {
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+                                Y += separacao;
+                                frase = "";
+                                continue;
+                            }
+                            else if (item.eObs && DestacaObs)
+                            {
+                                PointF ponto = new PointF(0, Y);
+
+                                SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
+                                RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+                                e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                                Y += separacao;
+                                frase = "";
+
+                                continue;
+                            }
 
                         }
-                        else
+
+                        if (frase != "")
                         {
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+                            if (item.Alinhamento == AlinhamentosDelMatch.Centro)
+                            {
+
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+
+                            }
+                            else if (!item.eObs || !DestacaObs)
+                            {
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                            }
+                            else if (item.eObs && DestacaObs)
+                            {
+                                PointF ponto = new PointF(0, Y);
+
+                                SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
+                                RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+
+                                e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                                //continue;
+                            }
 
                         }
 
                     }
 
+                    frase = "";
+                    Y += separacao;
                 }
 
-                frase = "";
-                Y += separacao;
             }
-            // Desenhe o texto na área de impressão
-
-
-
         }
         catch (Exception ex)
         {
@@ -280,7 +327,7 @@ public class ImpressaoDelMatch
                     {
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
 
-                        AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
+                        AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
 
                         if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
                         {
@@ -463,7 +510,7 @@ public class ImpressaoDelMatch
                     {
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item);
 
-                        AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
+                        AdicionaConteudo($"{CaracteristicasPedido.NomeProduto} {item.TotalPrice.ToString("c")}\n\n", FonteItens);
 
                         if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
                         {
@@ -604,7 +651,7 @@ public class ImpressaoDelMatch
                         AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
                         ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item, true);
 
-                        AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                        AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
 
                         if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
                         {
@@ -634,12 +681,12 @@ public class ImpressaoDelMatch
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                             }
 
                             if (item.Observations != null && item.Observations.Length > 0)
                             {
-                                AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                                AdicionaConteudo($"Obs: {item.Observations}", FonteCPF, eObs: true);
                             }
 
                         }
@@ -666,6 +713,102 @@ public class ImpressaoDelMatch
             MessageBox.Show(ex.Message, "Ops");
         }
     }
+
+    public static void ImprimeComandaReduzida(int numConta, int displayId, string impressora1) //comanda
+    {
+        try
+        {
+            //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
+            PedidoDelMatch? pedidoCompleto = JsonConvert.DeserializeObject<PedidoDelMatch>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            string banco = opcSistema.CaminhodoBanco;
+            string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
+            string NumContaString = numConta.ToString();
+
+
+            string? defineEntrega = pedidoCompleto.Type == "TOGO" ? "Retirada" : "Entrega Propria";
+
+            AdicionaConteudo($"Pedido:   #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            if (pedidoCompleto.Type != "INDOOR")
+            {
+                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+            }
+            else
+            {
+                AdicionaConteudo($"Mesa: \t  Nº{pedidoCompleto.Indoor.table.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+            }
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+
+            foreach (var item in pedidoCompleto.Items)
+            {
+                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemDelMatch(item, true);
+
+                AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+
+                if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
+                {
+                    if (item.ExternalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.ExternalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.ExternalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.ExternalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
+                if (item.SubItems != null)
+                {
+                    foreach (var option in CaracteristicasPedido.Observações)
+                    {
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                    }
+
+                    if (item.Observations != null && item.Observations.Length > 0)
+                    {
+                        AdicionaConteudo($"Obs: {item.Observations}", FonteCPF, eObs: true);
+                    }
+
+                }
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            }
+
+            AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+            AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
+
+
+            Imprimir(Conteudo, impressora1, 17);
+            Conteudo.Clear();
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+
 
     public static void ImprimeComandaTipo2(int numConta, int displayId, string impressora1) //comanda
     {
@@ -725,7 +868,7 @@ public class ImpressaoDelMatch
                     }
                     else
                     {
-                        AdicionaConteudo($"{item.Quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                        AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                     }
 
                     if (item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode == "B")
@@ -756,12 +899,12 @@ public class ImpressaoDelMatch
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                         }
 
                         if (item.Observations != null && item.Observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                            AdicionaConteudo($"Obs: {item.Observations}", FonteCPF, eObs: true);
                         }
 
                     }
@@ -980,12 +1123,12 @@ public class ImpressaoDelMatch
                 {
                     foreach (var option in CaracteristicasPedido.Observações)
                     {
-                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                     }
 
                     if (item.Observations != null && item.Observations.Length > 0)
                     {
-                        AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                        AdicionaConteudo($"Obs: {item.Observations}", FonteCPF, eObs: true);
                     }
 
                 }
@@ -1098,12 +1241,12 @@ public class ImpressaoDelMatch
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                         }
 
                         if (item.Observations != null && item.Observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.Observations}", FonteCPF);
+                            AdicionaConteudo($"Obs: {item.Observations}", FonteCPF, eObs: true);
                         }
 
                     }
@@ -1153,48 +1296,75 @@ public class ImpressaoDelMatch
         SeparaItensParaImpressaoSeparada(numConta, displayId);
     }
 
-    public static void ChamaImpressoes(int numConta, int displayId, string? impressora)
+    public static async void ChamaImpressoes(int numConta, int displayId, string? impressora)
     {
-        ApplicationDbContext db = new ApplicationDbContext();
-        ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-        int ContagemDeImpressoes = 0;
-
-        if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
+        try
         {
-            if (opcSistema.ImpCompacta)
+            await using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                DefineImpressao2(numConta, displayId, impressora);
-            }
-            else
-            {
-                DefineImpressao(numConta, displayId, impressora);
-            }
-            ContagemDeImpressoes++;
-            if (opcSistema.ImprimirComandaNoCaixa)
-            {
-                if (opcSistema.TipoComanda == 2)
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                int ContagemDeImpressoes = 0;
+
+                ParametrosDoPedido? PedidoDb = db.parametrosdopedido.FirstOrDefault(x => x.DisplayId == displayId);
+                PedidoDelMatch? Pedido = JsonConvert.DeserializeObject<PedidoDelMatch>(PedidoDb.Json);
+
+                if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
                 {
-                    ImprimeComandaTipo2(numConta, displayId, impressora);
+                    if (opcSistema.ImpCompacta && Pedido.Type != "INDOOR")
+                    {
+                        DefineImpressao2(numConta, displayId, impressora);
+                    }
+                    else if (Pedido.Type != "INDOOR")
+                    {
+                        DefineImpressao(numConta, displayId, impressora);
+                    }
+                    ContagemDeImpressoes++;
+                    if (opcSistema.ImprimirComandaNoCaixa)
+                    {
+                        if (opcSistema.TipoComanda == 2)
+                        {
+                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                        }
+                        else
+                        {
+                            if (opcSistema.ComandaReduzida)
+                            {
+                                ImprimeComandaReduzida(numConta, displayId, impressora);
+                            }
+                            else
+                            {
+                                ImprimeComanda(numConta, displayId, impressora);
+                            }
+                        }
+                    }
                 }
-                else
+                if (ContagemDeImpressoes == 0)
                 {
-                    ImprimeComanda(numConta, displayId, impressora);
+                    if (opcSistema.TipoComanda == 2)
+                    {
+                        ImprimeComandaTipo2(numConta, displayId, impressora);
+                    }
+                    else
+                    {
+                        if (opcSistema.ComandaReduzida)
+                        {
+                            ImprimeComandaReduzida(numConta, displayId, impressora);
+                        }
+                        else
+                        {
+                            ImprimeComanda(numConta, displayId, impressora);
+                        }
+                    }
                 }
+
+                ContagemDeImpressoes = 0;
             }
         }
-        if (ContagemDeImpressoes == 0)
+        catch (Exception ex)
         {
-            if (opcSistema.TipoComanda == 2)
-            {
-                ImprimeComandaTipo2(numConta, displayId, impressora);
-            }
-            else
-            {
-                ImprimeComanda(numConta, displayId, impressora);
-            }
+            await Logs.CriaLogDeErro(ex.Message);
         }
 
-        ContagemDeImpressoes = 0;
     }
 
 
@@ -1205,9 +1375,9 @@ public class ImpressaoDelMatch
 
 
 
-    public static void AdicionaConteudo(string conteudo, Font fonte, AlinhamentosDelMatch alinhamento = AlinhamentosDelMatch.Esquerda)
+    public static void AdicionaConteudo(string conteudo, Font fonte, AlinhamentosDelMatch alinhamento = AlinhamentosDelMatch.Esquerda, bool eObs = false)
     {
-        Conteudo.Add(new ClsImpressaoDefinicoesDelMatch() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento });
+        Conteudo.Add(new ClsImpressaoDefinicoesDelMatch() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento, eObs = eObs });
     }
 
     public static void AdicionaConteudoParaImpSeparada(string impressora, string conteudo, Font fonte, AlinhamentosDelMatch alinhamento = AlinhamentosDelMatch.Esquerda)

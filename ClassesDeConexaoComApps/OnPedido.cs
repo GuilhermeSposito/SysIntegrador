@@ -135,7 +135,7 @@ public class OnPedido
 
                         TimeSpan intervalo = TimeSpan.Parse(tempoFormatado);
 
-                        var pedidosQuery = db.parametrosdopedido.AsQueryable();
+                        var pedidosQuery = await db.parametrosdopedido.ToListAsync();
 
                         List<ParametrosDoPedido> pedidos = pedidosQuery
                             .AsEnumerable()
@@ -151,7 +151,7 @@ public class OnPedido
                                 if (!ExistePedido)
                                 {
                                     db.apoioonpedido.Add(new ApoioOnPedido { Id_Pedido = Convert.ToInt32(pedido.Id), Action = "CONCLUIR" });
-                                    db.SaveChanges();
+                                    await db.SaveChangesAsync();
                                 }
                             }
                         }
@@ -206,7 +206,7 @@ public class OnPedido
                 {
                     ParametrosDoPedido? Pedido = await db.parametrosdopedido.FirstOrDefaultAsync(p => p.Id == PedidoApoio.Id_Pedido.ToString());
 
-                    if (Pedido.Situacao != "DISPATCHED")
+                    if (Pedido is not null && Pedido.Situacao != "DISPATCHED")
                     {
                         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{PedidoApoio.Id_Pedido.ToString()}/dispatch";
 
@@ -234,7 +234,12 @@ public class OnPedido
                     }
                     else
                     {
-                        MessageBox.Show("Pedido já Despachado", "Não é possivel!");
+                        if (!DispachaAut)
+                        {
+                            MessageBox.Show("Pedido já Despachado", "Não é possivel!");
+                        }
+                        db.apoioonpedido.Remove(PedidoApoio);
+                        await db.SaveChangesAsync();
                     }
                 }
             }
@@ -251,15 +256,15 @@ public class OnPedido
     {
         try
         {
-            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
-                ApoioOnPedido? PedidoApoio = db.apoioonpedido.FirstOrDefault(p => p.Action == "CONCLUIR");
+                ApoioOnPedido? PedidoApoio = await db.apoioonpedido.FirstOrDefaultAsync(p => p.Action == "CONCLUIR");
 
                 if (PedidoApoio is not null)
                 {
                     ParametrosDoPedido? Pedido = await db.parametrosdopedido.FirstOrDefaultAsync(p => p.Id == PedidoApoio.Id_Pedido.ToString());
 
-                    if (Pedido.Situacao != "CONCLUDED")
+                    if (Pedido is not null && Pedido.Situacao != "CONCLUDED")
                     {
                         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{PedidoApoio.Id_Pedido}/deliver";
 

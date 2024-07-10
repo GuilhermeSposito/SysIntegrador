@@ -16,6 +16,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace SysIntegradorApp.UserControls.UCSOnPedido;
 
@@ -27,12 +28,28 @@ public partial class UCInfoPedidoOnPedido : UserControl
     public UCInfoPedidoOnPedido()
     {
         InitializeComponent();
+
+            
+
     }
 
     public void SetLabels()
     {
         try
         {
+            this.toolTip1.SetToolTip(this.pictureBox3, "Copiar Endereço de entrega");
+
+
+            textBox1.BorderStyle = BorderStyle.None;
+            textBox1.ReadOnly = true;
+            textBox1.Multiline = false;
+            textBox1.BackColor = Color.White; // Define a cor de fundo igual ao UserControl
+            textBox1.TabStop = false; // Impede que o TextBox receba foco via Tab
+            textBox1.WordWrap = true;
+            // textBox1.Location = new Point(10, 10);// Altere conforme necessário
+            //textBox1.Width = 200; // Altere conforme necessário
+            //textBox1.Height = 30;// Altere conforme necessário
+
             string? TipoPedido = Pedido.Return.Type;
             string? TipoDaEntrega = "";
             string? EnderecoDaEntrega = "";
@@ -105,7 +122,7 @@ public partial class UCInfoPedidoOnPedido : UserControl
 
             horarioEntregaPrevista.Text = DataCorreta.Substring(11, 5);
 
-            labelEndereco.Text = EnderecoDaEntrega;
+            textBox1.Text = EnderecoDaEntrega;
 
             ValorTotalDosItens.Text = Pedido.Return.Total.ItemsPrice.value.ToString("c");
 
@@ -203,6 +220,13 @@ public partial class UCInfoPedidoOnPedido : UserControl
             }
 
             MessageBox.Show($"Pedido de id {Pedido.Return.Id} Despachado com sucesso!", "Despachado");
+
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe)));
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true));
+  
+        ;
         }
         catch (Exception ex)
         {
@@ -298,7 +322,7 @@ public partial class UCInfoPedidoOnPedido : UserControl
                 btnCancelar.Visible = false;
                 btnConcluido.Visible = false;
                 btnDespachar.Visible = false;
-                button3.Visible = false;    
+                button3.Visible = false;
             }
 
             if (StatusPedido == "DISPATCHED")
@@ -311,5 +335,10 @@ public partial class UCInfoPedidoOnPedido : UserControl
         {
             await Logs.CriaLogDeErro(ex.Message);
         }
+    }
+
+    private void pictureBox3_Click(object sender, EventArgs e)
+    {
+        Clipboard.SetText(this.textBox1.Text);
     }
 }

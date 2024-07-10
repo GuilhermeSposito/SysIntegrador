@@ -399,6 +399,34 @@ public partial class UCPedido : UserControl
 
                 impressoras.Clear();
             }
+
+            if (Pedido.CriadoPor == "CCM")
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
+                {
+                    foreach (string imp in impressoras)
+                    {
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            ImpressaoCCM.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
+                    }
+                }
+                else
+                {
+                    ImpressaoCCM.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
+
+
+
+                impressoras.Clear();
+            }
         }
         catch (Exception ex)
         {
@@ -485,4 +513,22 @@ public partial class UCPedido : UserControl
         }
     }
 
+    public async void MudaPictureBoxMesa(UCPedido instancia)
+    {
+        try
+        {
+            instancia.pictureBoxDeMEsa.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    private void pictureBoxDeMEsa_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
 }

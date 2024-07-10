@@ -75,91 +75,135 @@ public class Impressao
         printDocument.Print();
     }
 
-    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoes> conteudo, int espacamento)
+    public static void PrintPageHandler(object sender, PrintPageEventArgs e, List<ClsImpressaoDefinicoes> conteudo, int separacao)
     {
         try
         {
-            // Define o conteúdo a ser impresso
-
-            int Y = 0;
-
-
-            foreach (var item in conteudo)
+            using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                var tamanhoFrase = e.Graphics.MeasureString(item.Texto, item.Fonte).Width;
+                bool DestacaObs = db.parametrosdosistema.FirstOrDefault().DestacarObs;
 
-                if (tamanhoFrase < e.PageBounds.Width)
+
+                // Define o conteúdo a ser impresso
+
+                int Y = 0;
+
+
+                foreach (var item in conteudo)
                 {
-                    if (item.Alinhamento == Alinhamentos.Centro)
-                    {
-                        e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                    }
-                    else
-                    {
-                        e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
-                        Y += espacamento;
-                        continue;
-                    }
-                }
+                    var tamanhoFrase = e.Graphics.MeasureString(item.Texto, item.Fonte).Width;
 
-
-                var listPalavras = item.Texto.Split(" ").ToList();
-                string frase = "";
-
-                foreach (var palavra in listPalavras)
-                {
-
-                    frase += palavra + " ";
-
-                    tamanhoFrase = e.Graphics.MeasureString(frase, item.Fonte).Width;
-
-                    if (tamanhoFrase > e.PageBounds.Width - 70 && frase != "")
+                    if (tamanhoFrase < e.PageBounds.Width)
                     {
                         if (item.Alinhamento == Alinhamentos.Centro)
                         {
-
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
-                            Y += espacamento;
-                            frase = "";
-                            continue;
-
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
                         }
-                        else
+                        else if (!item.eObs || !DestacaObs)
                         {
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
-                            Y += espacamento;
-                            frase = "";
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
+                            Y += separacao;
                             continue;
                         }
+                        else if (item.eObs && DestacaObs)
+                        {
+                            PointF ponto = new PointF(0, Y);
 
+                            SizeF tamanhoTexto = e.Graphics.MeasureString(item.Texto, item.Fonte);
+                            RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+                            e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                            e.Graphics.DrawString(item.Texto, item.Fonte, Brushes.Black, 0, Y);
+
+                            Y += separacao;
+
+                            continue;
+                        }
                     }
 
 
+                    var listPalavras = item.Texto.Split(" ").ToList();
+                    string frase = "";
 
-                    if (frase != "")
+                    foreach (var palavra in listPalavras)
                     {
-                        if (item.Alinhamento == Alinhamentos.Centro)
-                        {
 
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+                        frase += palavra + " ";
+
+                        tamanhoFrase = e.Graphics.MeasureString(frase, item.Fonte).Width;
+
+                        if (tamanhoFrase > e.PageBounds.Width - 70 && frase != "")
+                        {
+                            if (item.Alinhamento == Alinhamentos.Centro)
+                            {
+
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+                                Y += separacao;
+                                frase = "";
+                                continue;
+
+                            }
+                            else if (!item.eObs || !DestacaObs)
+                            {
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+                                Y += separacao;
+                                frase = "";
+                                continue;
+                            }
+                            else if (item.eObs && DestacaObs)
+                            {
+                                PointF ponto = new PointF(0, Y);
+
+                                SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
+                                RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+                                e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                                Y += separacao;
+                                frase = "";
+
+                                continue;
+                            }
 
                         }
-                        else
+
+                        if (frase != "")
                         {
-                            e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+                            if (item.Alinhamento == Alinhamentos.Centro)
+                            {
+
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, Centro(item.Texto, item.Fonte, e), Y);
+
+                            }
+                            else if (!item.eObs || !DestacaObs)
+                            {
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                            }
+                            else if (item.eObs && DestacaObs)
+                            {
+                                PointF ponto = new PointF(0, Y);
+
+                                SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
+                                RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
+
+
+                                e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
+                                e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
+
+                                //continue;
+                            }
 
                         }
 
                     }
 
+                    frase = "";
+                    Y += separacao;
                 }
 
-                frase = "";
-                Y += espacamento;
             }
-            // Desenhe o texto na área de impressão
-
-
 
         }
         catch (Exception ex)
@@ -500,7 +544,7 @@ public class Impressao
                             }
                         }
 
-                        if(item.observations != null && item.observations.Length > 0)
+                        if (item.observations != null && item.observations.Length > 0)
                         {
                             AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
                         }
@@ -625,12 +669,12 @@ public class Impressao
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                             }
 
                             if (item.observations != null && item.observations.Length > 0)
                             {
-                                AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                                AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
                             }
 
                         }
@@ -652,6 +696,88 @@ public class Impressao
                 Imprimir(Conteudo, impressora1, 24);
                 Conteudo.Clear();
             }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Ops");
+        }
+    }
+
+    public static void ImprimeComandaReduzida(int numConta, int displayId, string impressora1) //comanda
+    {
+        try
+        {
+            //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
+            using ApplicationDbContext dbContext = new ApplicationDbContext();
+            ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
+            PedidoCompleto? pedidoCompleto = JsonConvert.DeserializeObject<PedidoCompleto>(pedidoPSQL.Json);
+            ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
+
+            string NumContaString = numConta.ToString();
+
+
+            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+
+            AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            foreach (var item in pedidoCompleto.items)
+            {
+                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
+
+                AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+
+                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                {
+                    if (item.externalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
+                if (item.options != null)
+                {
+                    foreach (var option in CaracteristicasPedido.Observações)
+                    {
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                    }
+
+                    if (item.observations != null && item.observations.Length > 0)
+                    {
+                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
+                    }
+
+                }
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            }
+
+            AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
+            AdicionaConteudo("www.syslogica.com.br", FonteGeral, Alinhamentos.Centro);
+
+
+            Imprimir(Conteudo, impressora1, 17);
+            Conteudo.Clear();
+
         }
         catch (Exception ex)
         {
@@ -738,12 +864,12 @@ public class Impressao
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                         }
 
                         if (item.observations != null && item.observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
                         }
 
                     }
@@ -952,12 +1078,12 @@ public class Impressao
                 {
                     foreach (var option in CaracteristicasPedido.Observações)
                     {
-                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                     }
 
                     if (item.observations != null && item.observations.Length > 0)
                     {
-                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
                     }
 
                 }
@@ -1060,12 +1186,12 @@ public class Impressao
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                         }
 
                         if (item.observations != null && item.observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
                         }
 
                     }
@@ -1140,7 +1266,16 @@ public class Impressao
                 }
                 else
                 {
-                    ImprimeComanda(numConta, displayId, impressora);
+                    if (opcSistema.ComandaReduzida)
+                    {
+                        ImprimeComandaReduzida(numConta, displayId, impressora);
+
+                    }
+                    else
+                    {
+                        ImprimeComanda(numConta, displayId, impressora);
+
+                    }
                 }
             }
         }
@@ -1152,7 +1287,16 @@ public class Impressao
             }
             else
             {
-                ImprimeComanda(numConta, displayId, impressora);
+                if (opcSistema.ComandaReduzida)
+                {
+                    ImprimeComandaReduzida(numConta, displayId, impressora);
+
+                }
+                else
+                {
+                    ImprimeComanda(numConta, displayId, impressora);
+
+                }
             }
         }
 
@@ -1225,9 +1369,9 @@ public class Impressao
         return infos;
     }
 
-    public static void AdicionaConteudo(string conteudo, Font fonte, Alinhamentos alinhamento = Alinhamentos.Esquerda)
+    public static void AdicionaConteudo(string conteudo, Font fonte, Alinhamentos alinhamento = Alinhamentos.Esquerda, bool eObs = false)
     {
-        Conteudo.Add(new ClsImpressaoDefinicoes() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento });
+        Conteudo.Add(new ClsImpressaoDefinicoes() { Texto = conteudo, Fonte = fonte, Alinhamento = alinhamento, eObs = eObs });
     }
 
     public static void AdicionaConteudoParaImpSeparada(string impressora, string conteudo, Font fonte, Alinhamentos alinhamento = Alinhamentos.Esquerda)

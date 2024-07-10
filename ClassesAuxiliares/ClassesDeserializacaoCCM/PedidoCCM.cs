@@ -103,6 +103,7 @@ namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM
          [XmlElement("NomeItem")] public string? NomeItem { get; set; }
          [XmlElement("Quantidade")] public int Quantidade { get; set; }
          [XmlElement("ValorUnit")] public float ValorUnit { get; set; }
+         [XmlElement("ObsItem")] public string ObsItem { get; set; }
          [XmlArray("adicionais"), XmlArrayItem("adicional")] public List<Adicional> Adicionais { get; set; } = new List<Adicional>();
 
          public Item()

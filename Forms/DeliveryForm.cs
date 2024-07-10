@@ -24,6 +24,7 @@ public partial class DeliveryForm : Form
         ClsEstiloComponentes.SetRoundedRegion(panelDeIniciarEntrega, 24);
         ClsEstiloComponentes.SetRoundedRegion(panelDeListarPedidos, 24);
         ClsEstiloComponentes.SetRoundedRegion(pictureBoxEmpresaDelivery, 50);
+        ClsEstiloComponentes.SetRoundedRegion(pictureBox2, 50);
     }
 
 
@@ -178,6 +179,13 @@ public partial class DeliveryForm : Form
                 UseShellExecute = true
             });
         }
+    }
+
+    private async void pictureBox2_Click(object sender, EventArgs e)
+    {
+        FormMapaDelmatch mapa = new FormMapaDelmatch();
+        await mapa.StartMapa();
+        mapa.Show();
     }
 }
 

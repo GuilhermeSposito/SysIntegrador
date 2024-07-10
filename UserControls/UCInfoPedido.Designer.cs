@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCInfoPedido));
             label1 = new Label();
             panel1 = new Panel();
@@ -40,6 +41,7 @@
             labelIdPedidoNM = new Label();
             labelNumIfood = new Label();
             panel2 = new Panel();
+            pictureBox16 = new PictureBox();
             pictureBox6 = new PictureBox();
             pictureBox5 = new PictureBox();
             tipoEntrega = new Label();
@@ -91,11 +93,13 @@
             pictureBox3 = new PictureBox();
             pictureBox7 = new PictureBox();
             pictureBox1 = new PictureBox();
+            toolTip1 = new ToolTip(components);
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox16).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             panel6.SuspendLayout();
@@ -231,6 +235,7 @@
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.BorderStyle = BorderStyle.FixedSingle;
+            panel2.Controls.Add(pictureBox16);
             panel2.Controls.Add(pictureBox6);
             panel2.Controls.Add(pictureBox5);
             panel2.Controls.Add(tipoEntrega);
@@ -240,6 +245,18 @@
             panel2.Name = "panel2";
             panel2.Size = new Size(1006, 68);
             panel2.TabIndex = 4;
+            // 
+            // pictureBox16
+            // 
+            pictureBox16.Cursor = Cursors.Hand;
+            pictureBox16.Image = (Image)resources.GetObject("pictureBox16.Image");
+            pictureBox16.Location = new Point(322, 18);
+            pictureBox16.Name = "pictureBox16";
+            pictureBox16.Size = new Size(45, 31);
+            pictureBox16.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox16.TabIndex = 29;
+            pictureBox16.TabStop = false;
+            pictureBox16.Click += pictureBox16_Click;
             // 
             // pictureBox6
             // 
@@ -913,6 +930,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox16).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
             panel6.ResumeLayout(false);
@@ -1004,5 +1022,7 @@
         private PictureBox pictureBox15;
         private PictureBox pictureBoxDois;
         private Button BtnChamaEntregador;
+        private PictureBox pictureBox16;
+        private ToolTip toolTip1;
     }
 }

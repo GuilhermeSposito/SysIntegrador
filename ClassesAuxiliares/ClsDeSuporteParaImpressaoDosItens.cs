@@ -87,3 +87,19 @@ public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasOnPedido
     }
 }
 
+public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasCCM
+{
+    public string? Impressora1 { get; set; }
+    public string? Impressora2 { get; set; }
+    public List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM.Item> Itens { get; set; } = new List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM.Item>();
+
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasCCM(string? impressora)
+    {
+        Impressora1 = impressora;
+        Itens = new List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM.Item>();
+    }
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasCCM()
+    {
+
+    }
+}

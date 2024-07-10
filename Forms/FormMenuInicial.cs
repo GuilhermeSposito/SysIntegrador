@@ -31,6 +31,7 @@ using ExCSS;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 
 namespace SysIntegradorApp;
 
@@ -71,9 +72,9 @@ public partial class FormMenuInicial : Form
 
     private void panelPedidos_Paint(object sender, PaintEventArgs e) { }
 
-    private void FormMenuInicial_Load(object sender, EventArgs e)
+    private async void FormMenuInicial_Load(object sender, EventArgs e)
     {
-        PostgresConfigs.LimpaPedidosACada8horas();
+         await PostgresConfigs.LimpaPedidosACada8horas();
 
         _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
@@ -91,6 +92,7 @@ public partial class FormMenuInicial : Form
     {
         try
         {
+
             using (ApplicationDbContext db = new ApplicationDbContext())
             {
                 ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
@@ -294,6 +296,12 @@ public partial class FormMenuInicial : Form
                                 UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
                             }
 
+                            if(item.orderType == "INDOOR")
+                            {
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);
+                            }
+
+
                             UserControlPedido.MudaParaLogoONPedido(UserControlPedido);
                             UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 
@@ -356,6 +364,7 @@ public partial class FormMenuInicial : Form
                             if (item.orderType == "INDOOR")
                             {
                                 UserControlPedido.MudaCasoSejaMesaDelMatch(UserControlPedido);
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);                              
                             }
 
                             panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
@@ -523,11 +532,11 @@ public partial class FormMenuInicial : Form
                 pedidos.Clear();
 
                 panelPedidos.ResumeLayout();
-
             }
         }
         catch (Exception ex)
         {
+            await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
     }
@@ -591,7 +600,7 @@ public partial class FormMenuInicial : Form
                 DelMatch Delmatch = new DelMatch(new MeuContexto());
 
                 await Delmatch.PoolingDelMatch();
-                // await DelMatch.FechaMesa();
+                //await Delmatch.FechaMesa();
             }
 
             if (Configuracoes.IntegraOnOPedido)
@@ -867,7 +876,12 @@ public partial class FormMenuInicial : Form
 
                 if (dbConfigs.IntegraIfood)
                 {
-                    string userDataFolder = "C:\\SysLogicaLogs\\MyAppUserDataFolder";
+                    string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                    string customFolderName = "SysLogicaLogs";
+
+                    string fullPath = Path.Combine(appDataPath, customFolderName);
+
+                    string userDataFolder = fullPath;
                     var environment = await CoreWebView2Environment.CreateAsync(null, userDataFolder, null);
 
                     await webViwer.EnsureCoreWebView2Async(environment);

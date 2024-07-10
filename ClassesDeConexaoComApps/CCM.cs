@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.VisualBasic.Logging;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
@@ -27,7 +28,6 @@ public class CCM
 {
     private readonly IMeuContexto _Db;
 
-
     public CCM(IMeuContexto context)
     {
         _Db = context;
@@ -38,7 +38,11 @@ public class CCM
         string? url = "https://api.ccmpedidoonline.com.br/wsccm_v2.php";
         try
         {
+            //await FechaMesas();
+
             bool AceitaPedidoAut = false;
+
+            var resposta = await RequisicaoHttp(metodo: "PING");
 
             using (ApplicationDbContext db = await _Db.GetContextoAsync())
             {
@@ -63,18 +67,17 @@ public class CCM
                     {
                         foreach (var pedido in Pedidos.PedidoList)
                         {
+                            ClsSons.PlaySom();
                             await SetPedido(pedido);
                             if (AceitaPedidoAut)
                             {
                                 await AceitaPedido(pedido.NroPedido);
                             }
-                            await RequisicaoHttp(metodo: "LIMPAPEDIDO", numPedido: pedido.NroPedido);
                         }
                     }
                 }
 
             }
-
         }
         catch (Exception ex)
         {
@@ -162,6 +165,25 @@ public class CCM
         {
             await RequisicaoHttp(metodo: "ACEITAPEDIDO", content: msg, numPedido: nmroPedido);
 
+            await RequisicaoHttp(metodo: "LIMPAPEDIDO", numPedido: nmroPedido);
+
+            await using (ApplicationDbContext db = await _Db.GetContextoAsync())
+            {
+                var PedidoDB = await db.parametrosdopedido.FirstOrDefaultAsync(x => x.Id == nmroPedido.ToString());
+
+                if (PedidoDB is not null)
+                {
+                    Pedido? Pedido = JsonConvert.DeserializeObject<Pedido>(PedidoDB.Json);
+
+                    var resposta = await RequisicaoHttp(url: Pedido.Cliente.Codigo.ToString(), metodo: "MSGCLIENTEACEITE", content: msg);
+
+                    // MessageBox.Show(resposta.ToString());
+                }
+
+            }
+
+            ClsSons.StopSom();
+
             await this.AtualizaStatus(nmroPedido);
         }
         catch (Exception ex)
@@ -196,29 +218,133 @@ public class CCM
 
                 if (!existePedido)
                 {
-                    string HorarioDoEntregarAte = " ";
+                    var ConfigSistema = await db.parametrosdosistema.FirstOrDefaultAsync();
 
-                    if (pedido.Retira != 1)
+                    int insertNoSysMenuConta = 0;
+                    string? mesa = " ";
+                    string? HorarioDoEntregarAte = " ";
+                    string? Complemento = " ";
+                    string? EndEntrega = " ";
+                    string? BairEntrega = " ";
+                    string? Entregador = " ";
+                    string? Status = " ";
+                    float ValorDescontosNum = 0.0f;
+                    float ValorEntrega = 0.0f;
+                    float ValorDeTroco = 0.0f;
+
+                    string? TipoPedido = pedido.Retira == 1 ? "TAKEOUT" : "DELIVERY";
+                    bool agendado = pedido.Agendamento == 1 ? true : false;
+                    bool PedidoMesa = pedido.NumeroMesa > 0 ? true : false;
+
+                    if (ConfigSistema.IntegracaoSysMenu)
                     {
+                        ValorEntrega = pedido.ValorTaxa;
+                        ValorDescontosNum = pedido.ValorCupom + pedido.CreditoUtilizado;
 
-                        HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
-                    }
+                        if (!agendado)
+                        {
+                            if (TipoPedido == "DELIVERY")
+                            {
+                                HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+                                mesa = "WEB";
+                                Complemento = pedido.Endereco.Complemento;
+                                EndEntrega = $"{pedido.Endereco.Rua}, {pedido.Endereco.Numero} - {pedido.Endereco.Bairro}";
+                                BairEntrega = pedido.Endereco.Bairro;
+                                Status = "P";
+                            }
 
-                    if (pedido.Retira == 1)
-                    {
-                        HorarioDoEntregarAte = DateTime.Parse(pedido.HoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                            if (TipoPedido == "TAKEOUT")
+                            {
+                                HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                                mesa = "WEBB";
+                                Status = "P";
+                            }
+                        }
+                        else
+                        {
+                            if (TipoPedido == "DELIVERY")
+                            {
+                                HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoEntrega).ToString();
+                                mesa = "WEB";
+                                Complemento = pedido.Endereco.Complemento;
+                                EndEntrega = $"{pedido.Endereco.Rua}, {pedido.Endereco.Numero} - {pedido.Endereco.Bairro}";
+                                BairEntrega = pedido.Endereco.Bairro;
+                                Status = "P";
+                            }
+
+                            if (TipoPedido == "TAKEOUT")
+                            {
+                                HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                                mesa = "WEBB";
+                                Status = "P";
+                            }
+                        }
+
+                        if (PedidoMesa)
+                        {
+                            mesa = pedido.NumeroMesa.ToString().ToString().PadLeft(4, '0');
+                            Status = "A";
+                        }
+
+                        if (!PedidoMesa)
+                        {
+                            insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                                           mesa: mesa,
+                                           cortesia: ValorDescontosNum,
+                                           taxaEntrega: ValorEntrega,
+                                           taxaMotoboy: 0.00f,
+                                           dtInicio: pedido.DataHoraPedido.ToString().Substring(0, 10),
+                                            hrInicio: pedido.DataHoraPedido.ToString().Substring(11, 5),
+                                            contatoNome: pedido.Cliente.Nome,
+                                            usuario: "CAIXA",
+                                            dataSaida: HorarioDoEntregarAte.ToString().Substring(0, 10),
+                                           hrSaida: HorarioDoEntregarAte.ToString().Substring(11, 5),
+                                            obsConta1: " ",
+                                           iFoodPedidoID: pedido.NroPedido.ToString(),
+                                           obsConta2: " ",
+                                           referencia: Complemento,
+                                            endEntrega: EndEntrega,
+                                            bairEntrega: BairEntrega,
+                                            entregador: Entregador,
+                                            eCCM: true
+                                            ); //fim dos parâmetros do método de integração
+
+                            string type = pedido.PagamentoOnline == 1 ? "ONLINE" : "OFFLINE";
+
+                            ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.DescricaoPagamento, insertNoSysMenuConta, pedido.ValorTotal, type, "CCM");
+
+                            SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
+
+                            if (pedido.DescricaoPagamento == "Dinheiro")
+                            {
+                                if (!String.IsNullOrEmpty(pedido.TrocoPara))
+                                {
+                                    var TrocoPara = float.Parse(pedido.TrocoPara.Replace(".", ","));
+                                    ValorDeTroco = TrocoPara;
+                                }
+                            }
+
+                            SysIntegradorApp.ClassesAuxiliares.Cash SeForPagamentoEmDinherio = new Cash() { changeFor = ValorDeTroco };
+                            payments.methods.Add(new Methods() { method = pedido.DescricaoPagamento, value = pedido.ValorTotal, cash = SeForPagamentoEmDinherio });
+
+
+                            ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                        }
                     }
 
                     pedido.EntregarAte = HorarioDoEntregarAte;
 
                     string jsonContent = JsonConvert.SerializeObject(pedido);
 
+                    if (PedidoMesa)
+                        insertNoSysMenuConta = 999;
+
                     await db.parametrosdopedido.AddAsync(new ParametrosDoPedido()
                     {
                         Id = pedido.NroPedido.ToString(),
                         Json = jsonContent,//serializedXml,
                         Situacao = pedido.StatusAcompanhamento,
-                        Conta = 0,
+                        Conta = insertNoSysMenuConta,
                         CriadoEm = DateTimeOffset.Now.ToString(),
                         DisplayId = Convert.ToInt32(pedido.NroPedido),
                         JsonPolling = "Sem Polling ID",
@@ -228,13 +354,141 @@ public class CCM
 
                     await db.SaveChangesAsync();
 
+                    if (PedidoMesa)
+                        insertNoSysMenuConta = 0;
+
+                    if (ConfigSistema.IntegracaoSysMenu)
+                    {
+
+                        if (TipoPedido == "DELIVERY")
+                        {
+                            bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente($"{pedido.Cliente.Telefone}");
+                            if (!existeCliente)
+                            {
+                                ClsDeIntegracaoSys.CadastraClienteCCM(pedido.Cliente, pedido.Endereco);
+                            }
+
+                        }
+
+                        foreach (var item in pedido.Itens)
+                        {
+                            var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemCCM(item);
+
+                            ClsDeIntegracaoSys.IntegracaoContas(
+                                      conta: insertNoSysMenuConta, //numero
+                                      mesa: mesa, //texto curto 
+                                      qtdade: 1, //numero
+                                      codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                      codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                      codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                      tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                      descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                      valorUnit: item.ValorUnit, //moeda
+                                      valorTotal: item.ValorUnit, //moeda
+                                      dataInicio: pedido.DataHoraPedido.Substring(0, 10).Replace("-", "/"), //data
+                                      horaInicio: pedido.DataHoraPedido.Substring(11, 5), //data
+                                      obs1: CaracteristicasPedido.Obs1,
+                                      obs2: CaracteristicasPedido.Obs2,
+                                      obs3: CaracteristicasPedido.Obs3,
+                                      obs4: CaracteristicasPedido.Obs4,
+                                      obs5: CaracteristicasPedido.Obs5,
+                                      obs6: CaracteristicasPedido.Obs6,
+                                      obs7: CaracteristicasPedido.Obs7,
+                                      obs8: CaracteristicasPedido.Obs8,
+                                      obs9: CaracteristicasPedido.Obs9,
+                                      obs10: CaracteristicasPedido.Obs10,
+                                      obs11: CaracteristicasPedido.Obs11,
+                                      obs12: CaracteristicasPedido.Obs12,
+                                      obs13: CaracteristicasPedido.Obs13,
+                                      obs14: CaracteristicasPedido.Obs14,
+                                      obs15: CaracteristicasPedido.ObsDoItem,
+                                      cliente: pedido.Cliente.Nome, // texto curto 80 letras
+                                      telefone: pedido.Cliente.Telefone, // texto curto 14 letras
+                                      impComanda: "Não",
+                                      ImpComanda2: "Não",
+                                      qtdComanda: 00f,//numero duplo 
+                                      status: Status
+                                 );//fim dos parâmetros
+
+                        }
+
+                    }
+
                     ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                    if (db.parametrosdosistema.FirstOrDefault().ImpressaoAut && db.parametrosdosistema.FirstOrDefault().AceitaPedidoAut)
+                    {
+                        ChamaImpressaoAutomatica(pedido);
+                    }
+
                 }
             }
         }
         catch (Exception ex)
         {
             MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+    public async Task FechaMesas()
+    {
+        try
+        {
+            bool ProcuraMesaFechada = ClsDeIntegracaoSys.ProcuraMesaFechada();
+
+            if (ProcuraMesaFechada)
+            {
+                ClsApoioFechamanetoDeMesa MesasFechadas = ClsDeIntegracaoSys.MesasFechadas();
+
+                foreach (var item in MesasFechadas.Mesas)
+                {
+                   await AtualizaStatus(Convert.ToInt32(item.PedidoID), status: "6", true);
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+
+            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await Logs.CriaLogDeErro(ex.ToString());
+
+        }
+    }
+
+    public async void ChamaImpressaoAutomatica(Pedido PedidoCCM)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Db.GetContextoAsync())
+            {
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == PedidoCCM.NroPedido.ToString()).FirstOrDefault();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (!opSistema.AgruparComandas)
+                {
+                    foreach (string imp in impressoras)
+                    {
+                        if (imp != "Sem Impressora" && imp != null)
+                        {
+                            ImpressaoCCM.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        }
+                    }
+                }
+                else
+                {
+                    ImpressaoCCM.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                }
+
+                impressoras.Clear();
+            }
+
+        }
+        catch (Exception ex)
+        {
             await Logs.CriaLogDeErro(ex.ToString());
         }
     }
@@ -322,7 +576,7 @@ public class CCM
                 using (ApplicationDbContext db = await _Db.GetContextoAsync())
                 {
                     DeliveryBy = "RETIRADA";
-                    dataLimite = DateTime.Parse(p.HoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
+                    dataLimite = DateTime.Parse(p.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
                 }
             }
 
@@ -422,6 +676,32 @@ public class CCM
                 response = await client.PostAsync(Newurl, contentToPost);
 
                 return response;
+            }
+
+            if (metodo == "PING")
+            {
+                using HttpClient client = new HttpClient();
+                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm.php?token={TokenCCM}&funcao=activePing&codFilial=1&primeiraVerificacao=1";
+
+                StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
+
+                response = await client.GetAsync(Newurl);
+
+                return response;
+
+            }
+
+            if (metodo == "MSGCLIENTEACEITE")
+            {
+                using HttpClient client = new HttpClient();
+                string Newurl = $"http://api.ccmpedidoonline.com.br/wsccm_v2.php?token={TokenCCM}&funcao=pushCliente&msgPush={content}&codCliente={url}";
+
+                StringContent contentToPost = new StringContent(content, Encoding.UTF8, "application/json");
+
+                response = await client.PostAsync(Newurl, contentToPost);
+
+                return response;
+
             }
 
         }//HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT

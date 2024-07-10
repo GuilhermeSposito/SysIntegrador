@@ -637,13 +637,14 @@
             pictureBoxDois.Cursor = Cursors.Hand;
             pictureBoxDois.ErrorImage = (Image)resources.GetObject("pictureBoxDois.ErrorImage");
             pictureBoxDois.Image = (Image)resources.GetObject("pictureBoxDois.Image");
-            pictureBoxDois.Location = new Point(137, 16);
+            pictureBoxDois.Location = new Point(138, 16);
             pictureBoxDois.Name = "pictureBoxDois";
             pictureBoxDois.Size = new Size(26, 30);
             pictureBoxDois.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxDois.TabIndex = 29;
             pictureBoxDois.TabStop = false;
             pictureBoxDois.Visible = false;
+            pictureBoxDois.Click += pictureBoxDois_Click;
             // 
             // pictureBoxUm
             // 
@@ -656,6 +657,7 @@
             pictureBoxUm.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxUm.TabIndex = 28;
             pictureBoxUm.TabStop = false;
+            pictureBoxUm.Click += pictureBoxUm_Click;
             // 
             // pictureBox15
             // 
@@ -793,6 +795,7 @@
             btnImprimir.TabIndex = 0;
             btnImprimir.Text = "Imprimir";
             btnImprimir.UseVisualStyleBackColor = false;
+            btnImprimir.Click += btnImprimir_Click;
             // 
             // UCInfoPedidoCCM
             // 

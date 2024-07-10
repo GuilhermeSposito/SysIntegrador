@@ -58,6 +58,9 @@ public partial class UCInfoPedido : UserControl
 
     public void SetLabels(string horarioEntrega, string localizadorPedido, string enderecoFormatado, string bairro, string TipoEntrega, float valorTotalItens, float valorTaxaDeentrega, float valortaxaadicional, float descontos, float total)
     {
+        this.toolTip1.SetToolTip(this.pictureBox16, "Copiar Endereço de entrega");
+
+
         string DefineEntrega = "";
         string DefineLocalEntrega = "";
 
@@ -332,5 +335,10 @@ public partial class UCInfoPedido : UserControl
         {
             Console.WriteLine(ex.ToString());
         }
+    }
+
+    private void pictureBox16_Click(object sender, EventArgs e)
+    {
+        Clipboard.SetText(this.labelEndereco.Text);
     }
 }

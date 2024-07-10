@@ -37,16 +37,18 @@ public partial class UCInfoPedidoCCM : UserControl
             {
                 var configs = db.parametrosdosistema.FirstOrDefault();
 
-                if (!configs.AceitaPedidoAut)
+                if (Status == "Aguardando")
                 {
-                    btnCancelar.Visible = false;
-                    btnDespacharCCM.Visible = false;
-                    buttonReadyToPickUp.Visible = false;
+                    if (!configs.AceitaPedidoAut)
+                    {
+                        btnCancelar.Visible = false;
+                        btnDespacharCCM.Visible = false;
+                        buttonReadyToPickUp.Visible = false;
 
-                    BtnAceitar.Visible = true;
-                    BtnRejeitar.Visible = true;
+                        BtnAceitar.Visible = true;
+                        BtnRejeitar.Visible = true;
+                    }
                 }
-
 
             }
         }
@@ -65,6 +67,9 @@ public partial class UCInfoPedidoCCM : UserControl
             string? EnderecoDaEntrega = "";
             var DataCorreta = " ";
 
+            bool PedidoMesa = Pedido.NumeroMesa > 0 ? true : false;
+
+
             if (TipoPedido == "DELIVERY")
             {
                 TipoDaEntrega = "Propria";
@@ -74,27 +79,23 @@ public partial class UCInfoPedidoCCM : UserControl
 
             if (TipoPedido == "TAKEOUT")
             {
-                TipoDaEntrega = "Retirada";
-                EnderecoDaEntrega = "RETIRADA NO LOCAL DO RESTAURANTE";
+                if (!PedidoMesa)
+                {
+                    TipoDaEntrega = "Retirada";
+                    EnderecoDaEntrega = "RETIRADA NO LOCAL DO RESTAURANTE";
 
-                DataCorreta = Pedido.EntregarAte;
+                    DataCorreta = Pedido.EntregarAte;
 
-                // btnDespachar.Text = "Pronto";
+                }
+                else
+                {
+                    TipoDaEntrega = "MESA";
+                    EnderecoDaEntrega = $"Entregar para a mesa: {Pedido.NumeroMesa}";
+
+                    DataCorreta = Pedido.EntregarAte;
+                }
 
             }
-
-            /*if (TipoPedido == "INDOOR")
-            {
-                TipoDaEntrega = Pedido.Return.Indoor.Place;
-                EnderecoDaEntrega = $"Entregar pedido na {Pedido.Return.Indoor.Place}";
-
-                labelTipoEntregaNM.Text = "Entregar para:";
-                tipoEntrega.Location = new Point(183, 23);
-
-                DataCorreta = Pedido.Return.Indoor.IndoorDateTime;
-
-
-            }*/
 
             if (Pedido.Agendamento == 1)
             {
@@ -104,12 +105,12 @@ public partial class UCInfoPedidoCCM : UserControl
 
                 if (TipoPedido == "DELIVERY")
                 {
-                    DataCorreta = Pedido.HoraAgendamento;
+                    DataCorreta = Pedido.DataHoraAgendamento;
                 }
 
                 if (TipoPedido == "TAKEOUT")
                 {
-                    DataCorreta = Pedido.HorarioRetirada;
+                    DataCorreta = Pedido.DataHoraAgendamento;
                 }
 
                 if (TipoPedido == "INDOOR")
@@ -124,7 +125,7 @@ public partial class UCInfoPedidoCCM : UserControl
 
             label1.Text = Pedido.Cliente.Nome;
 
-            dateFeitoAs.Text = Pedido.DataHoraPedido;
+            dateFeitoAs.Text = Pedido.DataHoraPedido.Substring(11, 5);
 
             tipoEntrega.Text = TipoDaEntrega;
 
@@ -133,7 +134,7 @@ public partial class UCInfoPedidoCCM : UserControl
 
             labelEndereco.Text = EnderecoDaEntrega;
 
-            ValorTotalDosItens.Text = Pedido.ValorTotal.ToString("c");
+            ValorTotalDosItens.Text = Pedido.ValorBruto.ToString("c");
 
             float ValorEntrega = 0.0f;
             ValorEntrega = Pedido.ValorTaxa;
@@ -143,7 +144,9 @@ public partial class UCInfoPedidoCCM : UserControl
 
             valorTaxaAdicional.Text = TaxaAdicional.ToString("c");//Pedido.ValorTaxa.ToString("c");
 
-            valorDescontos.Text = Pedido.ValorCupom.ToString("c");
+            float descontos = Pedido.ValorCupom + Pedido.CreditoUtilizado;
+
+            valorDescontos.Text = descontos.ToString("c");
             valorTotal.Text = Pedido.ValorTotal.ToString("c");
 
             string? defineTroco = "";
@@ -222,11 +225,74 @@ public partial class UCInfoPedidoCCM : UserControl
         CCM ccm = new CCM(new MeuContexto());
 
         await ccm.AceitaPedido(Pedido.NroPedido);
+
+        MessageBox.Show($"Pedido Aceito Com sucesso", "Aceito!");
+
+        ccm.ChamaImpressaoAutomatica(Pedido);
+
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe)));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true));
     }
 
     private async void BtnRejeitar_Click(object sender, EventArgs e)
     {
-        FormDePedidoNaoAceito recusa = new FormDePedidoNaoAceito() { NumeroPedido = Pedido.NroPedido};
-        recusa.ShowDialog();    
+        FormDePedidoNaoAceito recusa = new FormDePedidoNaoAceito() { NumeroPedido = Pedido.NroPedido };
+        recusa.ShowDialog();
+    }
+
+    private void btnImprimir_Click(object sender, EventArgs e)
+    {
+        using ApplicationDbContext db = new ApplicationDbContext();
+        ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Pedido.NroPedido.ToString()).FirstOrDefault();
+        ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+        List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+        bool ImprimeSoCaixa = pictureBoxDois.Visible == true && pictureBoxUm.Visible == false ? true : false;
+
+
+        if (!opSistema.AgruparComandas && !ImprimeSoCaixa)
+        {
+            foreach (string imp in impressoras)
+            {
+                if (imp != "Sem Impressora" && imp != null)
+                {
+                    ImpressaoCCM.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                }
+            }
+        }
+        else if (!ImprimeSoCaixa)
+        {
+            ImpressaoCCM.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+        }
+
+        if (ImprimeSoCaixa)
+        {
+            if (opSistema.ImpCompacta)
+            {
+                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+            }
+            else
+            {
+                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+            }
+        }
+
+
+        impressoras.Clear();
+    }
+
+    private void pictureBoxDois_Click(object sender, EventArgs e)
+    {
+        pictureBoxDois.Visible = false;
+        pictureBoxUm.Visible = true;
+    }
+
+    private void pictureBoxUm_Click(object sender, EventArgs e)
+    {
+        pictureBoxDois.Visible = true;
+        pictureBoxUm.Visible = false;
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -140,6 +141,7 @@ public class ClsInfosDePagamentosParaImpressaoONPedido
     {
 
     }
+
     public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido.Payments pagamentos)
     {
         ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
@@ -172,6 +174,59 @@ public class ClsInfosDePagamentosParaImpressaoONPedido
             }
 
         }
+
+        return infos;
+    }
+}
+
+public class ClsInfosDePagamentosParaImpressaoCCM
+{
+    public string? FormaPagamento { get; set; }
+    public string? TipoPagamento { get; set; }
+    public double valor { get; set; }
+
+    public ClsInfosDePagamentosParaImpressaoCCM()
+    {
+
+    }
+
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(int PagamentoOnline, string DescricaoPagamento, float ValorTotal, string trocoPara)
+    {
+        ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
+
+        bool PrePago = PagamentoOnline == 1 ? true: false;
+
+        
+            if (PrePago)
+            {
+                infos.FormaPagamento = $"Pedido pago online, Não é nescessario Receber do cliente";
+            }
+            else
+            {
+                infos.FormaPagamento = $"Pedido Deverá ser cobrado na entrega";
+            }
+
+            if (PrePago)
+            {
+                infos.TipoPagamento = $"";
+            }
+            else
+            {
+                infos.TipoPagamento = $"Pedido Será pago com ({DescricaoPagamento}) valor {ValorTotal.ToString("c")}";
+            }
+
+        if (!String.IsNullOrEmpty(trocoPara))
+        {
+            if (DescricaoPagamento == "Dinheiro")
+            {
+                var TrocoPara = float.Parse(trocoPara.Replace(".", ","));
+                var troco = TrocoPara - ValorTotal;
+
+                infos.TipoPagamento += $" Levar troco  {troco.ToString("c")}";
+            }
+        }
+
+       
 
         return infos;
     }

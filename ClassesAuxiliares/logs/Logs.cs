@@ -16,16 +16,22 @@ public class Logs
         {
             string Data = DateTime.Now.ToString().Substring(0,10).Replace("/", "_");
 
-            string Path = $"C:\\SysLogicaLogs\\logsDeErro_{Data}.txt";
+            string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string customFolderName = "SysLogicaLogs";
 
-            bool existeArquivo = File.Exists(Path);
+            string fullPath = Path.Combine(appDataPath, customFolderName);
+
+
+            string path = $"{fullPath}\\logsDeErro_{Data}.txt";
+
+            bool existeArquivo = File.Exists(path);
 
             if (!existeArquivo)
             {
-                File.Create(Path).Dispose();
+                File.Create(path).Dispose();
             }
 
-            using (FileStream fs = new FileStream(Path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
+            using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite))
             {
                 // Lê o conteúdo existente
                 using (StreamReader reader = new StreamReader(fs))

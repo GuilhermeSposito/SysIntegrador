@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UCInfoPedidoOnPedido));
             label1 = new Label();
             pictureBox7 = new PictureBox();
@@ -39,6 +40,8 @@
             pictureBox2 = new PictureBox();
             numId = new Label();
             panel2 = new Panel();
+            pictureBox3 = new PictureBox();
+            textBox1 = new TextBox();
             pictureBox6 = new PictureBox();
             pictureBox5 = new PictureBox();
             tipoEntrega = new Label();
@@ -90,12 +93,14 @@
             dateFeitoAs = new Label();
             labelLocalizadorNM = new Label();
             labelLocalizadorPedido = new Label();
+            toolTip1 = new ToolTip(components);
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).BeginInit();
             groupBoxDeItens.SuspendLayout();
@@ -218,6 +223,8 @@
             panel2.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel2.BackColor = SystemColors.ButtonHighlight;
             panel2.BorderStyle = BorderStyle.FixedSingle;
+            panel2.Controls.Add(pictureBox3);
+            panel2.Controls.Add(textBox1);
             panel2.Controls.Add(pictureBox6);
             panel2.Controls.Add(pictureBox5);
             panel2.Controls.Add(tipoEntrega);
@@ -227,6 +234,26 @@
             panel2.Name = "panel2";
             panel2.Size = new Size(1006, 68);
             panel2.TabIndex = 28;
+            // 
+            // pictureBox3
+            // 
+            pictureBox3.Cursor = Cursors.Hand;
+            pictureBox3.Image = (Image)resources.GetObject("pictureBox3.Image");
+            pictureBox3.Location = new Point(322, 18);
+            pictureBox3.Name = "pictureBox3";
+            pictureBox3.Size = new Size(45, 31);
+            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox3.TabIndex = 28;
+            pictureBox3.TabStop = false;
+            pictureBox3.Click += pictureBox3_Click;
+            // 
+            // textBox1
+            // 
+            textBox1.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            textBox1.Location = new Point(411, 18);
+            textBox1.Name = "textBox1";
+            textBox1.Size = new Size(565, 34);
+            textBox1.TabIndex = 27;
             // 
             // pictureBox6
             // 
@@ -915,6 +942,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox5).EndInit();
             groupBoxDeItens.ResumeLayout(false);
@@ -1004,5 +1032,8 @@
         private PictureBox pictureBoxDois;
         private PictureBox pictureBoxUm;
         private PictureBox pictureBox15;
+        private TextBox textBox1;
+        private PictureBox pictureBox3;
+        private ToolTip toolTip1;
     }
 }
