@@ -153,13 +153,13 @@ public partial class UCInfoPedidosDelMatch : UserControl
                 {
                     if (imp != "Sem Impressora" && imp != null)
                     {
-                        ImpressaoDelMatch.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        ImpressaoDelMatch.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp, true);
                     }
                 }
             }
             else
             {
-                ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras, true);
             }
             impressoras.Clear();
 
@@ -349,10 +349,9 @@ public partial class UCInfoPedidosDelMatch : UserControl
                         string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
                         string Erro = "";
 
-                        foreach (var item in reposta.Response)
-                        {
-                            Erro += item.Message;
-                        }
+
+                        Erro += reposta.Response;
+
 
                         MessageBox.Show(Erro, Titulo);
                     }

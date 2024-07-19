@@ -11,7 +11,7 @@ public class ClsDeserializacaoPedidoFalho
 {
 
     [JsonProperty("success")] public bool Success { get; set; }
-    [JsonProperty("response")] public List<Response> Response { get; set; }
+    [JsonProperty("response")] public string Response { get; set; }
 
     public ClsDeserializacaoPedidoFalho()
     {

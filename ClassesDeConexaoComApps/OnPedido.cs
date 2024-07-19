@@ -514,7 +514,8 @@ public class OnPedido
                             DisplayId = Convert.ToInt32(pedido.Return.DisplayId),
                             JsonPolling = "Sem Polling ID",
                             CriadoPor = "ONPEDIDO",
-                            PesquisaDisplayId = Convert.ToInt32(pedido.Return.DisplayId)
+                            PesquisaDisplayId = Convert.ToInt32(pedido.Return.DisplayId),
+                            PesquisaNome = pedido.Return.Customer.Name
                         });
 
                         db.SaveChanges();
@@ -658,22 +659,37 @@ public class OnPedido
         }
     }
 
-    public async Task<List<ParametrosDoPedido>> GetPedidoOnPedido(int? display_ID = null)
+    public async Task<List<ParametrosDoPedido>> GetPedidoOnPedido(int? display_ID = null, string? pesquisaNome = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
-            if (display_ID != null)
+            if (display_ID != null || pesquisaNome != null)
             {
-                using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                if (display_ID != null)
                 {
+                    using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                    {
 
-                    pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "ONPEDIDO" || x.Conta == display_ID && x.CriadoPor == "ONPEDIDO").AsNoTracking().ToList();
+                        pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "ONPEDIDO" || x.Conta == display_ID && x.CriadoPor == "ONPEDIDO").AsNoTracking().ToList();
 
 
-                    return pedidosFromDb;
+                        return pedidosFromDb;
+                    }
+                }
+
+                if (pesquisaNome != null)
+                {
+                    using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                    {
+
+                        pedidosFromDb = db.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "ONPEDIDO").AsNoTracking().ToList();
+
+
+                        return pedidosFromDb;
+                    }
                 }
             }
             else

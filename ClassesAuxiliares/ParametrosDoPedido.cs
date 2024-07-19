@@ -16,12 +16,13 @@ public class ParametrosDoPedido
     [Column("json")] public string? Json { get; set; }
     [Column("situacao")] public string? Situacao { get; set; }
     [Column("conta")] public int Conta { get; set; }
-    [Column("criadoem")] public string CriadoEm { get; set; }
-    [Column("displayid")] public int DisplayId {  get; set; }  
-    [Column("jsonpolling")] public string JsonPolling {  get; set; }  
-    [Column("criadopor")] public string CriadoPor {  get; set; }  
-    [Column("pesquisadisplayid")] public int PesquisaDisplayId {  get; set; }  
-    
+    [Column("criadoem")] public string? CriadoEm { get; set; }
+    [Column("displayid")] public int DisplayId { get; set; }
+    [Column("jsonpolling")] public string JsonPolling { get; set; }
+    [Column("criadopor")] public string CriadoPor { get; set; }
+    [Column("pesquisadisplayid")] public int PesquisaDisplayId { get; set; }
+    [Column("pesquisanome")] public string? PesquisaNome { get; set; }
+
     public ParametrosDoPedido() { }
 
 

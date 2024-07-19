@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
+﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -194,26 +195,26 @@ public class ClsInfosDePagamentosParaImpressaoCCM
     {
         ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
 
-        bool PrePago = PagamentoOnline == 1 ? true: false;
+        bool PrePago = PagamentoOnline == 1 ? true : false;
 
-        
-            if (PrePago)
-            {
-                infos.FormaPagamento = $"Pedido pago online, Não é nescessario Receber do cliente";
-            }
-            else
-            {
-                infos.FormaPagamento = $"Pedido Deverá ser cobrado na entrega";
-            }
 
-            if (PrePago)
-            {
-                infos.TipoPagamento = $"";
-            }
-            else
-            {
-                infos.TipoPagamento = $"Pedido Será pago com ({DescricaoPagamento}) valor {ValorTotal.ToString("c")}";
-            }
+        if (PrePago)
+        {
+            infos.FormaPagamento = $"Pedido pago online, Não é nescessario Receber do cliente";
+        }
+        else
+        {
+            infos.FormaPagamento = $"Pedido Deverá ser cobrado na entrega";
+        }
+
+        if (PrePago)
+        {
+            infos.TipoPagamento = $"";
+        }
+        else
+        {
+            infos.TipoPagamento = $"Pedido Será pago com ({DescricaoPagamento}) valor {ValorTotal.ToString("c")}";
+        }
 
         if (!String.IsNullOrEmpty(trocoPara))
         {
@@ -226,9 +227,75 @@ public class ClsInfosDePagamentosParaImpressaoCCM
             }
         }
 
-       
+
 
         return infos;
     }
 }
 
+public class ClsInfosDePagamentosParaImpressaoAnotaAi
+{
+    public string? FormaPagamento { get; set; }
+    public string? TipoPagamento { get; set; }
+    public double valor { get; set; }
+
+    public ClsInfosDePagamentosParaImpressaoAnotaAi()
+    {
+
+    }
+
+    public static ClsInfosDePagamentosParaImpressao DefineTipoDePagamento(List<Pagamentos> pagamentos)
+    {
+        ClsInfosDePagamentosParaImpressao infos = new ClsInfosDePagamentosParaImpressao();
+
+        foreach (var info in pagamentos)
+        {
+            switch (info.Prepaid)
+            {
+                case true:
+                    infos.TipoPagamento = "Pedido pago online, Não é nescessario Receber do cliente na entrega";
+                    break;
+                case false:
+                    infos.TipoPagamento = "Pedido Deverá ser cobrado na entrega";
+                    break;
+            }
+
+            switch (info.Prepaid)
+            {
+                case true:
+                    infos.FormaPagamento = "ONLINE";
+                    break;
+                case false:
+                    string? NomeDoMetodo = "";
+
+                    switch (info.Nome)
+                    {
+                        case "card":
+                            NomeDoMetodo = "Cartão";
+                            break;
+                        case "money":
+                            NomeDoMetodo = "Dinheiro";
+                            break;
+                        default:
+                            NomeDoMetodo = info.Nome;
+                            break;
+                    }
+
+                    infos.FormaPagamento = $"Pedido Será pago com ({NomeDoMetodo}) valor R$ {info.value}";
+                    break;
+            }
+
+            if (info.ChangeFor > 0)
+            {
+                var ValorConvertido = float.Parse(info.value.Replace(".", ","));
+                var troco =info.ChangeFor - ValorConvertido ;
+
+                infos.TipoPagamento += $", Levar troco  {troco.ToString("c")}";
+            }
+        }
+
+
+
+        return infos;
+    }
+}

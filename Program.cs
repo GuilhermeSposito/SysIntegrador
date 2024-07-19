@@ -22,6 +22,8 @@ namespace SysIntegradorApp
             // ApplicationConfiguration.Initialize();
             // Application.Run(new Form1());
 
+            MigrationManager.ApplyMigrations(new ApplicationDbContext());
+
             Application.SetHighDpiMode(HighDpiMode.SystemAware);
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -35,7 +37,7 @@ namespace SysIntegradorApp
         private static void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql("Host=localhost;Port=5432;Database=ifood;Username=postgres;Password=69063360"));
+                options.UseNpgsql("Host=localhost;Port=5432;Database=integrador;Username=postgres;Password=69063360"));
 
             services.AddScoped<FormMenuInicial>();
             services.AddScoped<Ifood>();

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "d3WCFNBgEGKVZdGPtiIVfy1gspGjgSCiVk5jnq98eIFnvSli25lhwiH9d2iBxSFFi9DK2p6H/gFEiLpi4+XnVA==",
+  "dgSpecHash": "ITi0YJl0VD5xdvyWxjawvnfI7dmPuDDvlW3Ke4k8tqJJZL6IemAuyG3TSQ5F+QL9CqNhkTn5gXySxhXm9KDHjg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj",
+  "projectFilePath": "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\gui-c\\.nuget\\packages\\entity\\1.0.0\\entity.1.0.0.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\excss\\4.2.3\\excss.4.2.3.nupkg.sha512",
@@ -34,8 +34,8 @@
     "C:\\Users\\gui-c\\.nuget\\packages\\microsoft.win32.systemevents\\5.0.0\\microsoft.win32.systemevents.5.0.0.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\mono.texttemplating\\2.2.1\\mono.texttemplating.2.2.1.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\newtonsoft.json\\13.0.3\\newtonsoft.json.13.0.3.nupkg.sha512",
-    "C:\\Users\\gui-c\\.nuget\\packages\\npgsql\\8.0.2\\npgsql.8.0.2.nupkg.sha512",
-    "C:\\Users\\gui-c\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.2\\npgsql.entityframeworkcore.postgresql.8.0.2.nupkg.sha512",
+    "C:\\Users\\gui-c\\.nuget\\packages\\npgsql\\8.0.3\\npgsql.8.0.3.nupkg.sha512",
+    "C:\\Users\\gui-c\\.nuget\\packages\\npgsql.entityframeworkcore.postgresql\\8.0.4\\npgsql.entityframeworkcore.postgresql.8.0.4.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\svg\\3.4.7\\svg.3.4.7.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\system.codedom\\4.4.0\\system.codedom.4.4.0.nupkg.sha512",
     "C:\\Users\\gui-c\\.nuget\\packages\\system.collections.immutable\\6.0.0\\system.collections.immutable.6.0.0.nupkg.sha512",

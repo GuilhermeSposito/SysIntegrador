@@ -96,7 +96,7 @@ public class items
     [JsonProperty("totalPrice")] public float TotalPrice { get; set; }
     [JsonProperty("discount")] public double Discount { get; set; }
     [JsonProperty("addition")] public double Addition { get; set; }
-    [JsonProperty("is_read")] public bool Is_Read { get; set; }
+    [JsonProperty("is_read")] public bool Is_Read { get; set; } = false;
     [JsonProperty("externalCode")] public string? ExternalCode { get; set; }
     [JsonProperty("observations")] public string? Observations { get; set; }
     [JsonProperty("subItems")] public List<SubItens> SubItems { get; set; } = new List<SubItens>(); 

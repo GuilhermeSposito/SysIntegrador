@@ -473,6 +473,7 @@ public class Impressao
 
                     AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
                     AdicionaConteudo($"Localizador: {pedidoCompleto.customer.phone.localizer}", FonteItens);
+                    AdicionaConteudo($"Fone: 0800-711-8080 ", FonteItens);
 
                     if (pedidoCompleto.orderType == "DELIVERY")
                     {
@@ -1262,18 +1263,27 @@ public class Impressao
             {
                 if (opcSistema.TipoComanda == 2)
                 {
-                    ImprimeComandaTipo2(numConta, displayId, impressora);
+                    for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                    {
+                        ImprimeComandaTipo2(numConta, displayId, impressora);
+                    }
                 }
                 else
                 {
                     if (opcSistema.ComandaReduzida)
                     {
-                        ImprimeComandaReduzida(numConta, displayId, impressora);
+                        for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                        {
+                            ImprimeComandaReduzida(numConta, displayId, impressora);
+                        }
 
                     }
                     else
                     {
-                        ImprimeComanda(numConta, displayId, impressora);
+                        for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                        {
+                            ImprimeComanda(numConta, displayId, impressora);
+                        }
 
                     }
                 }
@@ -1283,18 +1293,27 @@ public class Impressao
         {
             if (opcSistema.TipoComanda == 2)
             {
-                ImprimeComandaTipo2(numConta, displayId, impressora);
+                for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                {
+                    ImprimeComandaTipo2(numConta, displayId, impressora);
+                }
             }
             else
             {
                 if (opcSistema.ComandaReduzida)
                 {
-                    ImprimeComandaReduzida(numConta, displayId, impressora);
+                    for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                    {
+                        ImprimeComandaReduzida(numConta, displayId, impressora);
+                    }
 
                 }
                 else
                 {
-                    ImprimeComanda(numConta, displayId, impressora);
+                    for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                    {
+                        ImprimeComanda(numConta, displayId, impressora);
+                    }
 
                 }
             }

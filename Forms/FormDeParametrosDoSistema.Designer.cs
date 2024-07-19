@@ -81,6 +81,8 @@
             label12 = new Label();
             textBoxClientSecret = new TextBox();
             panel8 = new Panel();
+            textBoxTokenCCM = new TextBox();
+            label38 = new Label();
             label13 = new Label();
             textBoxMarchantId = new TextBox();
             panel9 = new Panel();
@@ -111,6 +113,9 @@
             label27 = new Label();
             textBoxSenhaDelMatch = new TextBox();
             panel14 = new Panel();
+            pictureBoxOffCCM = new PictureBox();
+            pictureBoxOnCCM = new PictureBox();
+            label37 = new Label();
             pictureBoxONIntegracaoOnPedido = new PictureBox();
             pictureBoxOFFIntegracaoOnPedido = new PictureBox();
             label33 = new Label();
@@ -153,6 +158,8 @@
             panel5.SuspendLayout();
             panel13.SuspendLayout();
             panel14.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOffCCM).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoOnPedido).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).BeginInit();
@@ -212,6 +219,7 @@
             // 
             // panelmpressoras
             // 
+            panelmpressoras.AutoSize = true;
             panelmpressoras.BackColor = SystemColors.ButtonFace;
             panelmpressoras.Controls.Add(pictureBoxOFFRemoveOpcoes);
             panelmpressoras.Controls.Add(pictureBoxONRemoveOpcoes);
@@ -250,6 +258,7 @@
             // 
             // pictureBoxOFFRemoveOpcoes
             // 
+            pictureBoxOFFRemoveOpcoes.Anchor = AnchorStyles.None;
             pictureBoxOFFRemoveOpcoes.Cursor = Cursors.Hand;
             pictureBoxOFFRemoveOpcoes.Image = (Image)resources.GetObject("pictureBoxOFFRemoveOpcoes.Image");
             pictureBoxOFFRemoveOpcoes.Location = new Point(213, 686);
@@ -262,6 +271,7 @@
             // 
             // pictureBoxONRemoveOpcoes
             // 
+            pictureBoxONRemoveOpcoes.Anchor = AnchorStyles.None;
             pictureBoxONRemoveOpcoes.Cursor = Cursors.Hand;
             pictureBoxONRemoveOpcoes.Image = (Image)resources.GetObject("pictureBoxONRemoveOpcoes.Image");
             pictureBoxONRemoveOpcoes.Location = new Point(213, 686);
@@ -275,19 +285,21 @@
             // 
             // label32
             // 
+            label32.Anchor = AnchorStyles.None;
             label32.AutoSize = true;
             label32.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label32.Location = new Point(8, 688);
             label32.Name = "label32";
-            label32.Size = new Size(159, 28);
+            label32.Size = new Size(194, 28);
             label32.TabIndex = 27;
-            label32.Text = "Remove Opções";
+            label32.Text = "Comanda Compacta";
             // 
             // pictureBoxONImpressaoCompacta
             // 
+            pictureBoxONImpressaoCompacta.Anchor = AnchorStyles.None;
             pictureBoxONImpressaoCompacta.Cursor = Cursors.Hand;
             pictureBoxONImpressaoCompacta.Image = (Image)resources.GetObject("pictureBoxONImpressaoCompacta.Image");
-            pictureBoxONImpressaoCompacta.Location = new Point(213, 628);
+            pictureBoxONImpressaoCompacta.Location = new Point(213, 634);
             pictureBoxONImpressaoCompacta.Name = "pictureBoxONImpressaoCompacta";
             pictureBoxONImpressaoCompacta.Size = new Size(84, 45);
             pictureBoxONImpressaoCompacta.SizeMode = PictureBoxSizeMode.Zoom;
@@ -298,6 +310,7 @@
             // 
             // pictureBoxOFFImpressãoCompacta
             // 
+            pictureBoxOFFImpressãoCompacta.Anchor = AnchorStyles.None;
             pictureBoxOFFImpressãoCompacta.Cursor = Cursors.Hand;
             pictureBoxOFFImpressãoCompacta.Image = (Image)resources.GetObject("pictureBoxOFFImpressãoCompacta.Image");
             pictureBoxOFFImpressãoCompacta.Location = new Point(213, 628);
@@ -310,6 +323,7 @@
             // 
             // label31
             // 
+            label31.Anchor = AnchorStyles.None;
             label31.AutoSize = true;
             label31.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label31.Location = new Point(8, 637);
@@ -320,9 +334,10 @@
             // 
             // pictureBoxOFF3
             // 
+            pictureBoxOFF3.Anchor = AnchorStyles.None;
             pictureBoxOFF3.Cursor = Cursors.Hand;
             pictureBoxOFF3.Image = (Image)resources.GetObject("pictureBoxOFF3.Image");
-            pictureBoxOFF3.Location = new Point(215, 563);
+            pictureBoxOFF3.Location = new Point(213, 563);
             pictureBoxOFF3.Name = "pictureBoxOFF3";
             pictureBoxOFF3.Size = new Size(84, 43);
             pictureBoxOFF3.SizeMode = PictureBoxSizeMode.Zoom;
@@ -332,6 +347,7 @@
             // 
             // pictureBoxON3
             // 
+            pictureBoxON3.Anchor = AnchorStyles.None;
             pictureBoxON3.Cursor = Cursors.Hand;
             pictureBoxON3.Image = (Image)resources.GetObject("pictureBoxON3.Image");
             pictureBoxON3.Location = new Point(215, 561);
@@ -345,6 +361,7 @@
             // 
             // label23
             // 
+            label23.Anchor = AnchorStyles.None;
             label23.AutoSize = true;
             label23.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label23.Location = new Point(30, 578);
@@ -355,6 +372,7 @@
             // 
             // label22
             // 
+            label22.Anchor = AnchorStyles.None;
             label22.AutoSize = true;
             label22.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label22.Location = new Point(8, 550);
@@ -365,6 +383,7 @@
             // 
             // comboBoxImpressora5
             // 
+            comboBoxImpressora5.Anchor = AnchorStyles.None;
             comboBoxImpressora5.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora5.FormattingEnabled = true;
             comboBoxImpressora5.Items.AddRange(new object[] { "Sem Impressora" });
@@ -376,6 +395,7 @@
             // 
             // label21
             // 
+            label21.Anchor = AnchorStyles.None;
             label21.AutoSize = true;
             label21.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label21.Location = new Point(36, 507);
@@ -386,6 +406,7 @@
             // 
             // label20
             // 
+            label20.Anchor = AnchorStyles.None;
             label20.AutoSize = true;
             label20.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label20.Location = new Point(8, 482);
@@ -396,9 +417,10 @@
             // 
             // pictureBoxOn2
             // 
+            pictureBoxOn2.Anchor = AnchorStyles.None;
             pictureBoxOn2.Cursor = Cursors.Hand;
             pictureBoxOn2.Image = (Image)resources.GetObject("pictureBoxOn2.Image");
-            pictureBoxOn2.Location = new Point(215, 492);
+            pictureBoxOn2.Location = new Point(215, 490);
             pictureBoxOn2.Name = "pictureBoxOn2";
             pictureBoxOn2.Size = new Size(84, 45);
             pictureBoxOn2.SizeMode = PictureBoxSizeMode.Zoom;
@@ -409,6 +431,7 @@
             // 
             // pictureBoxOFF2
             // 
+            pictureBoxOFF2.Anchor = AnchorStyles.None;
             pictureBoxOFF2.Cursor = Cursors.Hand;
             pictureBoxOFF2.Image = (Image)resources.GetObject("pictureBoxOFF2.Image");
             pictureBoxOFF2.Location = new Point(215, 492);
@@ -431,6 +454,7 @@
             // 
             // comboBoxImpressoraAuxiliar
             // 
+            comboBoxImpressoraAuxiliar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpressoraAuxiliar.Font = new Font("Segoe UI", 12F);
             comboBoxImpressoraAuxiliar.FormattingEnabled = true;
             comboBoxImpressoraAuxiliar.Items.AddRange(new object[] { "Sem Impressora" });
@@ -442,6 +466,7 @@
             // 
             // label18
             // 
+            label18.Anchor = AnchorStyles.None;
             label18.AutoSize = true;
             label18.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label18.Location = new Point(8, 434);
@@ -452,9 +477,10 @@
             // 
             // pictureBoxOFF
             // 
+            pictureBoxOFF.Anchor = AnchorStyles.None;
             pictureBoxOFF.Cursor = Cursors.Hand;
             pictureBoxOFF.Image = (Image)resources.GetObject("pictureBoxOFF.Image");
-            pictureBoxOFF.Location = new Point(218, 430);
+            pictureBoxOFF.Location = new Point(218, 434);
             pictureBoxOFF.Name = "pictureBoxOFF";
             pictureBoxOFF.Size = new Size(84, 43);
             pictureBoxOFF.SizeMode = PictureBoxSizeMode.Zoom;
@@ -464,6 +490,7 @@
             // 
             // pictureBoxON
             // 
+            pictureBoxON.Anchor = AnchorStyles.None;
             pictureBoxON.Cursor = Cursors.Hand;
             pictureBoxON.Image = (Image)resources.GetObject("pictureBoxON.Image");
             pictureBoxON.Location = new Point(218, 430);
@@ -497,6 +524,7 @@
             // 
             // comboBoxImpressora4
             // 
+            comboBoxImpressora4.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpressora4.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora4.FormattingEnabled = true;
             comboBoxImpressora4.Items.AddRange(new object[] { "Sem Impressora" });
@@ -518,6 +546,7 @@
             // 
             // comboBoxImpressora3
             // 
+            comboBoxImpressora3.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpressora3.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora3.FormattingEnabled = true;
             comboBoxImpressora3.Items.AddRange(new object[] { "Sem Impressora" });
@@ -539,6 +568,7 @@
             // 
             // comboBoxImpressora2
             // 
+            comboBoxImpressora2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpressora2.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora2.FormattingEnabled = true;
             comboBoxImpressora2.Items.AddRange(new object[] { "Sem Impressora" });
@@ -560,6 +590,7 @@
             // 
             // comboBoxImpressora1
             // 
+            comboBoxImpressora1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpressora1.Font = new Font("Segoe UI", 12F);
             comboBoxImpressora1.FormattingEnabled = true;
             comboBoxImpressora1.Items.AddRange(new object[] { "Sem Impressora" });
@@ -581,6 +612,7 @@
             // 
             // panel2
             // 
+            panel2.AutoSize = true;
             panel2.BackColor = SystemColors.ButtonFace;
             panel2.Controls.Add(label7);
             panel2.Controls.Add(textBoxCaminhoBanco);
@@ -591,6 +623,7 @@
             // 
             // label7
             // 
+            label7.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label7.AutoSize = true;
             label7.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label7.Location = new Point(19, 22);
@@ -601,6 +634,7 @@
             // 
             // textBoxCaminhoBanco
             // 
+            textBoxCaminhoBanco.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxCaminhoBanco.BackColor = SystemColors.ButtonShadow;
             textBoxCaminhoBanco.Font = new Font("Segoe UI", 12F);
             textBoxCaminhoBanco.ForeColor = SystemColors.ButtonFace;
@@ -612,6 +646,7 @@
             // 
             // panel3
             // 
+            panel3.AutoSize = true;
             panel3.BackColor = SystemColors.ButtonFace;
             panel3.Controls.Add(comboBoxAceitaPedidoAut);
             panel3.Controls.Add(comboBoxImpAut);
@@ -626,6 +661,7 @@
             // 
             // comboBoxAceitaPedidoAut
             // 
+            comboBoxAceitaPedidoAut.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxAceitaPedidoAut.Font = new Font("Segoe UI", 12F);
             comboBoxAceitaPedidoAut.FormattingEnabled = true;
             comboBoxAceitaPedidoAut.Items.AddRange(new object[] { "true", "false" });
@@ -637,6 +673,7 @@
             // 
             // comboBoxImpAut
             // 
+            comboBoxImpAut.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxImpAut.Font = new Font("Segoe UI", 12F);
             comboBoxImpAut.FormattingEnabled = true;
             comboBoxImpAut.Items.AddRange(new object[] { "true", "false" });
@@ -648,6 +685,7 @@
             // 
             // label10
             // 
+            label10.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label10.AutoSize = true;
             label10.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label10.Location = new Point(13, 233);
@@ -658,6 +696,7 @@
             // 
             // comboBoxIntegraSys
             // 
+            comboBoxIntegraSys.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             comboBoxIntegraSys.Font = new Font("Segoe UI", 12F);
             comboBoxIntegraSys.FormattingEnabled = true;
             comboBoxIntegraSys.Items.AddRange(new object[] { "true", "false" });
@@ -669,6 +708,7 @@
             // 
             // label9
             // 
+            label9.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label9.AutoSize = true;
             label9.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label9.Location = new Point(10, 126);
@@ -679,6 +719,7 @@
             // 
             // label8
             // 
+            label8.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label8.AutoSize = true;
             label8.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label8.Location = new Point(10, 25);
@@ -689,16 +730,18 @@
             // 
             // panel6
             // 
+            panel6.AutoSize = true;
             panel6.BackColor = SystemColors.ButtonFace;
             panel6.Controls.Add(label11);
             panel6.Controls.Add(textBoxClientId);
             panel6.Location = new Point(811, 101);
             panel6.Name = "panel6";
-            panel6.Size = new Size(468, 112);
-            panel6.TabIndex = 6;
+            panel6.Size = new Size(462, 112);
+            panel6.TabIndex = 3;
             // 
             // label11
             // 
+            label11.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label11.AutoSize = true;
             label11.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label11.Location = new Point(29, 15);
@@ -709,6 +752,7 @@
             // 
             // textBoxClientId
             // 
+            textBoxClientId.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxClientId.BackColor = SystemColors.ButtonShadow;
             textBoxClientId.Font = new Font("Segoe UI", 12F);
             textBoxClientId.ForeColor = SystemColors.InactiveBorder;
@@ -720,16 +764,18 @@
             // 
             // panel7
             // 
+            panel7.AutoSize = true;
             panel7.BackColor = SystemColors.ButtonFace;
             panel7.Controls.Add(label12);
             panel7.Controls.Add(textBoxClientSecret);
             panel7.Location = new Point(811, 229);
             panel7.Name = "panel7";
-            panel7.Size = new Size(468, 159);
-            panel7.TabIndex = 7;
+            panel7.Size = new Size(460, 154);
+            panel7.TabIndex = 3;
             // 
             // label12
             // 
+            label12.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label12.AutoSize = true;
             label12.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label12.Location = new Point(16, 45);
@@ -740,6 +786,7 @@
             // 
             // textBoxClientSecret
             // 
+            textBoxClientSecret.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxClientSecret.BackColor = SystemColors.ButtonShadow;
             textBoxClientSecret.Font = new Font("Segoe UI", 12F);
             textBoxClientSecret.ForeColor = SystemColors.ButtonFace;
@@ -751,19 +798,45 @@
             // 
             // panel8
             // 
+            panel8.AutoSize = true;
             panel8.BackColor = SystemColors.ButtonFace;
+            panel8.Controls.Add(textBoxTokenCCM);
+            panel8.Controls.Add(label38);
             panel8.Controls.Add(label13);
             panel8.Controls.Add(textBoxMarchantId);
             panel8.Location = new Point(811, 394);
             panel8.Name = "panel8";
-            panel8.Size = new Size(468, 174);
-            panel8.TabIndex = 8;
+            panel8.Size = new Size(459, 174);
+            panel8.TabIndex = 3;
+            // 
+            // textBoxTokenCCM
+            // 
+            textBoxTokenCCM.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxTokenCCM.BackColor = SystemColors.ButtonShadow;
+            textBoxTokenCCM.Font = new Font("Segoe UI", 12F);
+            textBoxTokenCCM.ForeColor = SystemColors.ButtonFace;
+            textBoxTokenCCM.Location = new Point(13, 113);
+            textBoxTokenCCM.Name = "textBoxTokenCCM";
+            textBoxTokenCCM.PlaceholderText = "Caminho Banco De Dados";
+            textBoxTokenCCM.Size = new Size(443, 34);
+            textBoxTokenCCM.TabIndex = 3;
+            // 
+            // label38
+            // 
+            label38.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label38.AutoSize = true;
+            label38.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label38.Location = new Point(13, 82);
+            label38.Name = "label38";
+            label38.Size = new Size(121, 28);
+            label38.TabIndex = 2;
+            label38.Text = "Token CCM:";
             // 
             // label13
             // 
             label13.AutoSize = true;
             label13.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label13.Location = new Point(13, 37);
+            label13.Location = new Point(13, 15);
             label13.Name = "label13";
             label13.Size = new Size(132, 28);
             label13.TabIndex = 1;
@@ -771,10 +844,11 @@
             // 
             // textBoxMarchantId
             // 
+            textBoxMarchantId.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxMarchantId.BackColor = SystemColors.ButtonShadow;
             textBoxMarchantId.Font = new Font("Segoe UI", 12F);
             textBoxMarchantId.ForeColor = SystemColors.ButtonFace;
-            textBoxMarchantId.Location = new Point(16, 71);
+            textBoxMarchantId.Location = new Point(13, 45);
             textBoxMarchantId.Name = "textBoxMarchantId";
             textBoxMarchantId.PlaceholderText = "Caminho Banco De Dados";
             textBoxMarchantId.Size = new Size(443, 34);
@@ -782,16 +856,18 @@
             // 
             // panel9
             // 
+            panel9.AutoSize = true;
             panel9.BackColor = SystemColors.ButtonFace;
             panel9.Controls.Add(label14);
             panel9.Controls.Add(textBoxNomeFantasia);
             panel9.Location = new Point(811, 574);
             panel9.Name = "panel9";
             panel9.Size = new Size(465, 149);
-            panel9.TabIndex = 9;
+            panel9.TabIndex = 3;
             // 
             // label14
             // 
+            label14.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label14.AutoSize = true;
             label14.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label14.Location = new Point(16, 34);
@@ -802,6 +878,7 @@
             // 
             // textBoxNomeFantasia
             // 
+            textBoxNomeFantasia.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxNomeFantasia.BackColor = SystemColors.ButtonShadow;
             textBoxNomeFantasia.Font = new Font("Segoe UI", 12F);
             textBoxNomeFantasia.ForeColor = SystemColors.ButtonFace;
@@ -813,6 +890,7 @@
             // 
             // label15
             // 
+            label15.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label15.AutoSize = true;
             label15.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label15.Location = new Point(16, 77);
@@ -823,6 +901,7 @@
             // 
             // textBoxNumeroTelefone
             // 
+            textBoxNumeroTelefone.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxNumeroTelefone.BackColor = SystemColors.ButtonShadow;
             textBoxNumeroTelefone.Font = new Font("Segoe UI", 12F);
             textBoxNumeroTelefone.Location = new Point(16, 108);
@@ -833,6 +912,7 @@
             // 
             // panel11
             // 
+            panel11.AutoSize = true;
             panel11.BackColor = SystemColors.ButtonFace;
             panel11.Controls.Add(textBoxNumeroTelefone);
             panel11.Controls.Add(label15);
@@ -845,6 +925,7 @@
             // 
             // label16
             // 
+            label16.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label16.AutoSize = true;
             label16.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label16.Location = new Point(16, 9);
@@ -855,6 +936,7 @@
             // 
             // textBoxEndLoja
             // 
+            textBoxEndLoja.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxEndLoja.BackColor = SystemColors.ButtonShadow;
             textBoxEndLoja.Font = new Font("Segoe UI", 12F);
             textBoxEndLoja.Location = new Point(16, 40);
@@ -865,6 +947,7 @@
             // 
             // panel12
             // 
+            panel12.AutoSize = true;
             panel12.BackColor = SystemColors.ButtonFace;
             panel12.Controls.Add(btnNao);
             panel12.Controls.Add(btnSim);
@@ -876,6 +959,7 @@
             // 
             // btnNao
             // 
+            btnNao.Anchor = AnchorStyles.None;
             btnNao.BackColor = Color.Red;
             btnNao.Cursor = Cursors.Hand;
             btnNao.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -890,6 +974,7 @@
             // 
             // btnSim
             // 
+            btnSim.Anchor = AnchorStyles.None;
             btnSim.BackColor = Color.Red;
             btnSim.Cursor = Cursors.Hand;
             btnSim.Font = new Font("Segoe UI", 9F, FontStyle.Bold, GraphicsUnit.Point, 0);
@@ -904,6 +989,7 @@
             // 
             // label17
             // 
+            label17.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label17.AutoSize = true;
             label17.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label17.Location = new Point(16, 9);
@@ -914,6 +1000,7 @@
             // 
             // textBoxDelMatchId
             // 
+            textBoxDelMatchId.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxDelMatchId.BackColor = SystemColors.ButtonShadow;
             textBoxDelMatchId.Font = new Font("Segoe UI", 12F);
             textBoxDelMatchId.ForeColor = SystemColors.ButtonFace;
@@ -925,6 +1012,7 @@
             // 
             // label25
             // 
+            label25.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label25.AutoSize = true;
             label25.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label25.Location = new Point(10, 6);
@@ -935,6 +1023,7 @@
             // 
             // pictureBoxOFFDELMATCH
             // 
+            pictureBoxOFFDELMATCH.Anchor = AnchorStyles.None;
             pictureBoxOFFDELMATCH.Cursor = Cursors.Hand;
             pictureBoxOFFDELMATCH.Image = (Image)resources.GetObject("pictureBoxOFFDELMATCH.Image");
             pictureBoxOFFDELMATCH.Location = new Point(190, 90);
@@ -947,6 +1036,7 @@
             // 
             // panel4
             // 
+            panel4.AutoSize = true;
             panel4.BackColor = SystemColors.ButtonFace;
             panel4.Controls.Add(LimparPedidosDelMatchBtn);
             panel4.Controls.Add(label24);
@@ -976,6 +1066,7 @@
             // 
             // label24
             // 
+            label24.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label24.AutoSize = true;
             label24.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             label24.Location = new Point(16, 86);
@@ -986,6 +1077,7 @@
             // 
             // pictureBoxONDELMATCH
             // 
+            pictureBoxONDELMATCH.Anchor = AnchorStyles.None;
             pictureBoxONDELMATCH.Cursor = Cursors.Hand;
             pictureBoxONDELMATCH.Image = (Image)resources.GetObject("pictureBoxONDELMATCH.Image");
             pictureBoxONDELMATCH.Location = new Point(190, 90);
@@ -999,6 +1091,7 @@
             // 
             // panel5
             // 
+            panel5.AutoSize = true;
             panel5.BackColor = SystemColors.ButtonFace;
             panel5.Controls.Add(label36);
             panel5.Controls.Add(textBoxTokenDeIntegracaoOnPedido);
@@ -1009,6 +1102,7 @@
             // 
             // label36
             // 
+            label36.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label36.AutoSize = true;
             label36.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label36.Location = new Point(19, 21);
@@ -1019,6 +1113,7 @@
             // 
             // textBoxTokenDeIntegracaoOnPedido
             // 
+            textBoxTokenDeIntegracaoOnPedido.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxTokenDeIntegracaoOnPedido.BackColor = SystemColors.ButtonShadow;
             textBoxTokenDeIntegracaoOnPedido.Font = new Font("Segoe UI", 12F);
             textBoxTokenDeIntegracaoOnPedido.ForeColor = SystemColors.InactiveBorder;
@@ -1030,6 +1125,7 @@
             // 
             // label26
             // 
+            label26.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label26.AutoSize = true;
             label26.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label26.Location = new Point(16, 10);
@@ -1040,6 +1136,7 @@
             // 
             // textBoxUserDelMatch
             // 
+            textBoxUserDelMatch.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxUserDelMatch.BackColor = SystemColors.ButtonShadow;
             textBoxUserDelMatch.Font = new Font("Segoe UI", 12F);
             textBoxUserDelMatch.ForeColor = SystemColors.InactiveBorder;
@@ -1051,6 +1148,7 @@
             // 
             // panel13
             // 
+            panel13.AutoSize = true;
             panel13.BackColor = SystemColors.ButtonFace;
             panel13.Controls.Add(label26);
             panel13.Controls.Add(label27);
@@ -1063,6 +1161,7 @@
             // 
             // label27
             // 
+            label27.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label27.AutoSize = true;
             label27.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label27.Location = new Point(16, 89);
@@ -1073,6 +1172,7 @@
             // 
             // textBoxSenhaDelMatch
             // 
+            textBoxSenhaDelMatch.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxSenhaDelMatch.BackColor = SystemColors.ButtonShadow;
             textBoxSenhaDelMatch.Font = new Font("Segoe UI", 12F);
             textBoxSenhaDelMatch.ForeColor = SystemColors.ButtonFace;
@@ -1085,7 +1185,11 @@
             // 
             // panel14
             // 
+            panel14.AutoSize = true;
             panel14.BackColor = SystemColors.ButtonFace;
+            panel14.Controls.Add(pictureBoxOffCCM);
+            panel14.Controls.Add(pictureBoxOnCCM);
+            panel14.Controls.Add(label37);
             panel14.Controls.Add(pictureBoxONIntegracaoOnPedido);
             panel14.Controls.Add(pictureBoxOFFIntegracaoOnPedido);
             panel14.Controls.Add(label33);
@@ -1100,6 +1204,41 @@
             panel14.Name = "panel14";
             panel14.Size = new Size(468, 174);
             panel14.TabIndex = 8;
+            // 
+            // pictureBoxOffCCM
+            // 
+            pictureBoxOffCCM.Cursor = Cursors.Hand;
+            pictureBoxOffCCM.Image = (Image)resources.GetObject("pictureBoxOffCCM.Image");
+            pictureBoxOffCCM.Location = new Point(373, 96);
+            pictureBoxOffCCM.Name = "pictureBoxOffCCM";
+            pictureBoxOffCCM.Size = new Size(84, 43);
+            pictureBoxOffCCM.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOffCCM.TabIndex = 30;
+            pictureBoxOffCCM.TabStop = false;
+            pictureBoxOffCCM.Click += pictureBoxOffCCM_Click;
+            // 
+            // pictureBoxOnCCM
+            // 
+            pictureBoxOnCCM.Cursor = Cursors.Hand;
+            pictureBoxOnCCM.Image = (Image)resources.GetObject("pictureBoxOnCCM.Image");
+            pictureBoxOnCCM.Location = new Point(373, 96);
+            pictureBoxOnCCM.Name = "pictureBoxOnCCM";
+            pictureBoxOnCCM.Size = new Size(84, 45);
+            pictureBoxOnCCM.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOnCCM.TabIndex = 29;
+            pictureBoxOnCCM.TabStop = false;
+            pictureBoxOnCCM.Visible = false;
+            pictureBoxOnCCM.Click += pictureBoxOnCCM_Click;
+            // 
+            // label37
+            // 
+            label37.AutoSize = true;
+            label37.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label37.Location = new Point(246, 102);
+            label37.Name = "label37";
+            label37.Size = new Size(53, 28);
+            label37.TabIndex = 28;
+            label37.Text = "CCM";
             // 
             // pictureBoxONIntegracaoOnPedido
             // 
@@ -1196,6 +1335,7 @@
             // 
             // label28
             // 
+            label28.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label28.AutoSize = true;
             label28.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label28.Location = new Point(3, 0);
@@ -1218,6 +1358,7 @@
             // 
             // panel10
             // 
+            panel10.AutoSize = true;
             panel10.BackColor = SystemColors.ButtonFace;
             panel10.Controls.Add(label35);
             panel10.Controls.Add(textBoxsenhaOnPedido);
@@ -1230,6 +1371,7 @@
             // 
             // label35
             // 
+            label35.Anchor = AnchorStyles.None;
             label35.AutoSize = true;
             label35.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label35.Location = new Point(478, 17);
@@ -1240,6 +1382,7 @@
             // 
             // textBoxsenhaOnPedido
             // 
+            textBoxsenhaOnPedido.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxsenhaOnPedido.BackColor = SystemColors.ButtonShadow;
             textBoxsenhaOnPedido.Font = new Font("Segoe UI", 12F);
             textBoxsenhaOnPedido.ForeColor = SystemColors.ButtonFace;
@@ -1252,6 +1395,7 @@
             // 
             // label34
             // 
+            label34.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label34.AutoSize = true;
             label34.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
             label34.Location = new Point(16, 23);
@@ -1262,6 +1406,7 @@
             // 
             // textBoxuserOnPedido
             // 
+            textBoxuserOnPedido.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             textBoxuserOnPedido.BackColor = SystemColors.ButtonShadow;
             textBoxuserOnPedido.Font = new Font("Segoe UI", 12F);
             textBoxuserOnPedido.ForeColor = SystemColors.InactiveBorder;
@@ -1294,8 +1439,6 @@
             Controls.Add(panelmpressoras);
             Controls.Add(panel1);
             Icon = (Icon)resources.GetObject("$this.Icon");
-            MaximizeBox = false;
-            MinimizeBox = false;
             Name = "FormDeParametrosDoSistema";
             StartPosition = FormStartPosition.CenterParent;
             Text = "Configurações do sistema";
@@ -1341,6 +1484,8 @@
             panel13.PerformLayout();
             panel14.ResumeLayout(false);
             panel14.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOffCCM).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOFFIntegracaoOnPedido).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnIntegracaoDelMatch).EndInit();
@@ -1350,6 +1495,7 @@
             panel10.ResumeLayout(false);
             panel10.PerformLayout();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         #endregion
@@ -1440,7 +1586,6 @@
         private Label label31;
         private PictureBox pictureBoxOFFRemoveOpcoes;
         private PictureBox pictureBoxONRemoveOpcoes;
-        private Label label32;
         private PictureBox pictureBoxOFFIntegracaoOnPedido;
         private Label label33;
         private PictureBox pictureBoxONIntegracaoOnPedido;
@@ -1451,5 +1596,11 @@
         private TextBox textBoxsenhaOnPedido;
         private Label label34;
         private TextBox textBoxuserOnPedido;
+        private PictureBox pictureBoxOffCCM;
+        private PictureBox pictureBoxOnCCM;
+        private Label label37;
+        private TextBox textBoxTokenCCM;
+        private Label label38;
+        private Label label32;
     }
 }

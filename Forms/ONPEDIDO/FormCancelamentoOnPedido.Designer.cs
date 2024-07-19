@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormCancelamentoOnPedido));
             btnCancelar = new Button();
             btnEnvir = new Button();
             motivoCancelamento = new TextBox();
@@ -96,6 +97,7 @@
             Controls.Add(btnEnvir);
             Controls.Add(btnCancelar);
             FormBorderStyle = FormBorderStyle.None;
+            Icon = (Icon)resources.GetObject("$this.Icon");
             MinimizeBox = false;
             Name = "FormCancelamentoOnPedido";
             StartPosition = FormStartPosition.CenterParent;

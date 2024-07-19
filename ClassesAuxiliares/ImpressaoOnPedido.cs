@@ -158,7 +158,7 @@ public class ImpressaoONPedido
 
                                 SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
                                 RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
-   
+
                                 e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
                                 e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
 
@@ -190,7 +190,7 @@ public class ImpressaoONPedido
                                 SizeF tamanhoTexto = e.Graphics.MeasureString(frase, item.Fonte);
                                 RectangleF retanguloTexto = new RectangleF(ponto, new SizeF(e.PageBounds.Width, tamanhoTexto.Height));
 
-                               
+
                                 e.Graphics.FillRectangle(Brushes.LightSlateGray, retanguloTexto);
                                 e.Graphics.DrawString(frase, item.Fonte, Brushes.Black, 0, Y);
 
@@ -804,101 +804,96 @@ public class ImpressaoONPedido
             string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
             string NumContaString = numConta.ToString();
 
-            using (OleDbConnection connection = new OleDbConnection(banco))
+
+            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+
+
+            AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+
+            AdicionaConteudo($"Pedido:   #{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido);
+            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            if (pedidoCompleto.Return.Type == "INDOOR")
             {
-                connection.Open();
-                string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+                AdicionaConteudo($"{pedidoCompleto.Return.Indoor.Place}\n", FonteNomeDoCliente);
+            }
+            else
+            {
+                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
 
-                using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
-                using (OleDbDataReader reader = comando.ExecuteReader())
+            }
+
+            int qtdItens = pedidoCompleto.Return.ItemsOn.Count();
+            int contagemItemAtual = 1;
+
+            foreach (var item in pedidoCompleto.Return.ItemsOn)
+            {
+                AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
+                ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item, true);
+
+                if (item.externalCode == "BB" || item.externalCode == "LAN" || item.externalCode == "PRC")
                 {
-
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
-
-                    AdicionaConteudo($"Pedido:   #{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido);
-                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                    if (pedidoCompleto.Return.Type == "INDOOR")
-                    {
-                        AdicionaConteudo($"{pedidoCompleto.Return.Indoor.Place}\n", FonteNomeDoCliente);
-                    }
-                    else
-                    {
-                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
-
-                    }
-
-                    int qtdItens = pedidoCompleto.Return.ItemsOn.Count();
-                    int contagemItemAtual = 1;
-
-                    foreach (var item in pedidoCompleto.Return.ItemsOn)
-                    {
-                        AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
-                        ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item, true);
-
-                        if (item.externalCode == "BB" || item.externalCode == "LAN" || item.externalCode == "PRC")
-                        {
-                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
-                        }
-                        else
-                        {
-                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
-                        }
-
-                        if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
-                        {
-                            if (item.externalCode == "G")
-                            {
-                                AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
-                            }
-
-                            if (item.externalCode == "M")
-                            {
-                                AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
-                            }
-
-                            if (item.externalCode == "P")
-                            {
-                                AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
-                            }
-
-                            if (item.externalCode == "B")
-                            {
-                                AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
-                            }
-
-                        }
-
-                        if (item.Options != null || item.Options.Count > 0)
-                        {
-                            foreach (var option in CaracteristicasPedido.Observações)
-                            {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
-                            }
-
-                            if (item.observations != null && item.observations.Length > 0)
-                            {
-                                AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
-                            }
-
-                        }
-                        contagemItemAtual++;
-                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                    }
-                    contagemItemAtual = 0;
-
-                    AdicionaConteudo("Impresso por:", FonteGeral);
-                    AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
-                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
-                    AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                }
+                else
+                {
+                    AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 }
 
-                Imprimir(Conteudo, impressora1, 24);
-                Conteudo.Clear();
+                if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
+                {
+                    if (item.externalCode == "G")
+                    {
+                        AdicionaConteudo(TamanhoPizza.GRANDE.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "M")
+                    {
+                        AdicionaConteudo(TamanhoPizza.MÉDIA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "P")
+                    {
+                        AdicionaConteudo(TamanhoPizza.PEQUENA.ToString(), FonteSeparadores);
+                    }
+
+                    if (item.externalCode == "B")
+                    {
+                        AdicionaConteudo(TamanhoPizza.BROTINHO.ToString(), FonteSeparadores);
+                    }
+
+                }
+
+                if (item.Options != null || item.Options.Count > 0)
+                {
+                    foreach (var option in CaracteristicasPedido.Observações)
+                    {
+                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                    }
+
+                    if (item.observations != null && item.observations.Length > 0)
+                    {
+                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
+                    }
+
+                }
+                contagemItemAtual++;
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+
+                contagemItemAtual = 0;
+
+                AdicionaConteudo("Impresso por:", FonteGeral);
+                AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
             }
+
+            Imprimir(Conteudo, impressora1, 24);
+            Conteudo.Clear();
+
         }
         catch (Exception ex)
         {
@@ -1019,9 +1014,9 @@ public class ImpressaoONPedido
                     AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
+
                     Imprimir(Conteudo, impressora1, 24);
                     Conteudo.Clear();
-
 
                 }
             }
@@ -1427,18 +1422,27 @@ public class ImpressaoONPedido
                     {
                         if (opcSistema.TipoComanda == 2)
                         {
-                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComandaTipo2(numConta, displayId, impressora);
+                            }
                         }
                         else
                         {
                             if (opcSistema.ComandaReduzida)
                             {
-                                ImprimeComandaReduzida(numConta, displayId, impressora);
+                                for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                                {
+                                    ImprimeComandaReduzida(numConta, displayId, impressora);
+                                }
 
                             }
                             else
                             {
-                                ImprimeComanda(numConta, displayId, impressora);
+                                for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                                {
+                                    ImprimeComanda(numConta, displayId, impressora);
+                                }
                             }
 
                         }
@@ -1448,19 +1452,28 @@ public class ImpressaoONPedido
                 {
                     if (opcSistema.TipoComanda == 2)
                     {
-                        ImprimeComandaTipo2(numConta, displayId, impressora);
+                        for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                        {
+                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                        }
 
                     }
                     else
                     {
                         if (opcSistema.ComandaReduzida)
                         {
-                            ImprimeComandaReduzida(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComandaReduzida(numConta, displayId, impressora);
+                            }
 
                         }
                         else
                         {
-                            ImprimeComanda(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComanda(numConta, displayId, impressora);
+                            }
                         }
 
 

@@ -1,11 +1,13 @@
 ﻿using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.UserControls.UCSAnotaAi;
 using SysIntegradorApp.UserControls.UCSccm;
 using SysIntegradorApp.UserControls.UCSDelMatch;
 using SysIntegradorApp.UserControls.UCSOnPedido;
@@ -91,6 +93,31 @@ public partial class UCPedido : UserControl
     {
         try
         {
+
+            if (Pedido.CriadoPor == "ANOTAAI")
+            {
+                using (ApplicationDbContext db = new ApplicationDbContext())
+                {
+                    ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).ToList().FirstOrDefault();
+
+                    PedidoAnotaAi? PedidoDeserializado = JsonConvert.DeserializeObject<PedidoAnotaAi>(Pedido.Json);
+
+                    FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                    FormMenuInicial.panelDetalhePedido.PerformLayout();
+                    UCInfoPedidoAnotaAi infoPedido = new UCInfoPedidoAnotaAi() { Pedido = PedidoDeserializado, StatusPedido = Pedido.Situacao };
+                    infoPedido.SetLabels(PedidoDeserializado);
+
+                    int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+
+                    infoPedido.Width = tamanhoPanel - 50;//1707;
+                    infoPedido.Height = 1200;
+
+                    infoPedido.InsereItemNoPedido(PedidoDeserializado.InfoDoPedido.Items);
+                    FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
+                    FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+                }
+            }
+
             if (Pedido.CriadoPor == "ONPEDIDO")
             {
                 try
@@ -357,16 +384,14 @@ public partial class UCPedido : UserControl
                     {
                         if (imp != "Sem Impressora" && imp != null)
                         {
-                            ImpressaoDelMatch.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                            ImpressaoDelMatch.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp, true);
                         }
                     }
                 }
                 else
                 {
-                    ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
+                    ImpressaoDelMatch.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras, true);
                 }
-
-
 
                 impressoras.Clear();
             }
@@ -506,6 +531,18 @@ public partial class UCPedido : UserControl
         try
         {
             instancia.pictureBoxCCM.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
+    public async void MudaPictureBoxANOTAAI(UCPedido instancia)
+    {
+        try
+        {
+            instancia.pictureBoxAnotaAi.Visible = true;
         }
         catch (Exception ex)
         {

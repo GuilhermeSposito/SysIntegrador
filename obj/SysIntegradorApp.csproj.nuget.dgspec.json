@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj": {}
+    "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj": {
+    "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj",
+        "projectUniqueName": "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj",
         "projectName": "SysIntegradorApp",
-        "projectPath": "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\SysIntegradorApp.csproj",
+        "projectPath": "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj",
         "packagesPath": "C:\\Users\\gui-c\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gui-c\\OneDrive\\Área de Trabalho\\SysIntegrador\\SysIntegradorApp\\obj\\",
+        "outputPath": "C:\\integrador\\SysIntegrador\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -80,7 +80,7 @@
             },
             "Npgsql.EntityFrameworkCore.PostgreSQL": {
               "target": "Package",
-              "version": "[8.0.2, )"
+              "version": "[8.0.4, )"
             },
             "Svg": {
               "target": "Package",

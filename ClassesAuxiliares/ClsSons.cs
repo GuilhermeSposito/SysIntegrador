@@ -4,6 +4,7 @@ using System.Linq;
 using System.Media;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 internal class ClsSons
@@ -13,8 +14,14 @@ internal class ClsSons
     public static void PlaySom()
     {
         //C:\Program Files\SysLogica\SysIntegradorSetup\
+        string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string customFolderName = "SysLogicaLogs";
 
-        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\UCT-24Horas.wav";
+        string fullPath = Path.Combine(appDataPath, customFolderName);
+
+        string path = $"{fullPath}\\SOMS\\UCT-24Horas.wav";
+
+        string caminhoDoArquivo = path;
 
         if (File.Exists(caminhoDoArquivo))
         {
@@ -26,9 +33,14 @@ internal class ClsSons
 
     public static void PlaySom2()
     {
-        //C:\Program Files\SysLogica\SysIntegradorSetup\
+        string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string customFolderName = "SysLogicaLogs";
 
-        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\IFoodCancel.wav";
+        string fullPath = Path.Combine(appDataPath, customFolderName);
+
+        string path = $"{fullPath}\\SOMS\\IFoodCancel.wav";
+
+        string caminhoDoArquivo = path;
 
         if (File.Exists(caminhoDoArquivo))
         {
@@ -41,8 +53,14 @@ internal class ClsSons
     public static async Task PlaySomAsync()
     {
         //C:\Program Files\SysLogica\SysIntegradorSetup\
+        string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string customFolderName = "SysLogicaLogs";
 
-        string caminhoDoArquivo = @"C:\Program Files\SysLogica\SysIntegradorSetup\SOMS\UCT-24Horas.wav";
+        string fullPath = Path.Combine(appDataPath, customFolderName);
+
+        string path = $"{fullPath}\\SOMS\\UCT-24Horas.wav";
+
+        string caminhoDoArquivo = path;
 
         if (File.Exists(caminhoDoArquivo))
         {

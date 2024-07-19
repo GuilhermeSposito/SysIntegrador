@@ -406,7 +406,7 @@ public class ImpressaoCCM
 
                 if (!String.IsNullOrEmpty(pedidoCompleto.ObsGeraisPedido))
                 {
-                    AdicionaConteudo($"{pedidoCompleto.ObsGeraisPedido}", FonteObservaçõesItem, eObs:true);
+                    AdicionaConteudo($"{pedidoCompleto.ObsGeraisPedido}", FonteObservaçõesItem, eObs: true);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                 }
 
@@ -448,7 +448,7 @@ public class ImpressaoCCM
                 Pedido? pedidoCompleto = JsonConvert.DeserializeObject<Pedido>(pedidoPSQL.Json);
                 ParametrosDoSistema? opcDoSistema = db.parametrosdosistema.FirstOrDefault();
 
-                bool eMesa = pedidoCompleto.NumeroMesa > 0 ? true : false;  
+                bool eMesa = pedidoCompleto.NumeroMesa > 0 ? true : false;
                 string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
                 string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega Propria";
 
@@ -1193,7 +1193,7 @@ public class ImpressaoCCM
             {
                 Pedido? PedidoCCM = JsonConvert.DeserializeObject<Pedido>(Pedido.Json);
 
-                bool eMesa = PedidoCCM.NumeroMesa > 0 ? true : false;   
+                bool eMesa = PedidoCCM.NumeroMesa > 0 ? true : false;
 
                 if (impressora == opcSistema.Impressora1 || impressora == opcSistema.ImpressoraAux)
                 {
@@ -1210,18 +1210,27 @@ public class ImpressaoCCM
                     {
                         if (opcSistema.TipoComanda == 2)
                         {
-                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComandaTipo2(numConta, displayId, impressora);
+                            }
                         }
                         else
                         {
                             if (opcSistema.ComandaReduzida)
                             {
-                                ImprimeComandaReduzida(numConta, displayId, impressora);
+                                for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                                {
+                                    ImprimeComandaReduzida(numConta, displayId, impressora);
+                                }
 
                             }
                             else
                             {
-                                ImprimeComanda(numConta, displayId, impressora);
+                                for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                                {
+                                    ImprimeComanda(numConta, displayId, impressora);
+                                }
                             }
 
                         }
@@ -1231,19 +1240,27 @@ public class ImpressaoCCM
                 {
                     if (opcSistema.TipoComanda == 2)
                     {
-                        ImprimeComandaTipo2(numConta, displayId, impressora);
-
+                        for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                        {
+                            ImprimeComandaTipo2(numConta, displayId, impressora);
+                        }
                     }
                     else
                     {
                         if (opcSistema.ComandaReduzida)
                         {
-                            ImprimeComandaReduzida(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComandaReduzida(numConta, displayId, impressora);
+                            }
 
                         }
                         else
                         {
-                            ImprimeComanda(numConta, displayId, impressora);
+                            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                            {
+                                ImprimeComanda(numConta, displayId, impressora);
+                            }
                         }
                     }
                 }

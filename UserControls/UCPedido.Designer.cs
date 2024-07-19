@@ -45,6 +45,7 @@
             pictureBoxAgendada = new PictureBox();
             pictureBoxCCM = new PictureBox();
             pictureBoxDeMEsa = new PictureBox();
+            pictureBoxAnotaAi = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
@@ -54,6 +55,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAnotaAi).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -231,11 +233,23 @@
             pictureBoxDeMEsa.Visible = false;
             pictureBoxDeMEsa.Click += pictureBoxDeMEsa_Click;
             // 
+            // pictureBoxAnotaAi
+            // 
+            pictureBoxAnotaAi.Image = (Image)resources.GetObject("pictureBoxAnotaAi.Image");
+            pictureBoxAnotaAi.Location = new Point(0, -9);
+            pictureBoxAnotaAi.Name = "pictureBoxAnotaAi";
+            pictureBoxAnotaAi.Size = new Size(126, 137);
+            pictureBoxAnotaAi.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAnotaAi.TabIndex = 16;
+            pictureBoxAnotaAi.TabStop = false;
+            pictureBoxAnotaAi.Visible = false;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxAnotaAi);
             Controls.Add(pictureBoxDeMEsa);
             Controls.Add(pictureBoxCCM);
             Controls.Add(pictureBoxAgendada);
@@ -270,6 +284,7 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxAgendada).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAnotaAi).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -292,5 +307,6 @@
         private PictureBox pictureBoxAgendada;
         private PictureBox pictureBoxCCM;
         private PictureBox pictureBoxDeMEsa;
+        private PictureBox pictureBoxAnotaAi;
     }
 }

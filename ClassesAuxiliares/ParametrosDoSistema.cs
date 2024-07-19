@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+﻿using Microsoft.EntityFrameworkCore;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.data;
 using System;
 using System.Collections.Generic;
@@ -85,6 +86,12 @@ public class ParametrosDoSistema
     [Column("cidade")] public string Cidade { get; set; }
     [Column("comandareduzida")] public bool ComandaReduzida { get; set; }
     [Column("destacarobs")] public bool DestacarObs { get; set; }
+    [Column("numviascomanda")] public int NumDeViasDeComanda { get; set; }
+    [Column("apikeytaxymachine")] public string ApiKeyTaxyMachine { get; set; }
+    [Column("usernametaxymachine")] public string UserNameTaxyMachine { get; set; }
+    [Column("passwordtaxymachine")] public string PasswordTaxyMachine { get; set; }
+    [Column("tokenanotaai")] public string TokenAnotaAi { get; set; }
+    [Column("integraanotaai")] public bool IntegraAnotaAi { get; set; }
     public ParametrosDoSistema() { }
 
 
@@ -101,16 +108,17 @@ public class ParametrosDoSistema
         return listaImpressoras;
     }
 
-    public static ParametrosDoSistema GetInfosSistema()
+    public static async Task<ParametrosDoSistema> GetInfosSistema()
     {
-        ParametrosDoSistema Configuracoes = new ParametrosDoSistema();
+        ParametrosDoSistema? Configuracoes = new ParametrosDoSistema();
         try
         {
-            ApplicationDbContext dbContext = new ApplicationDbContext();
+            await using (ApplicationDbContext dbContext = new ApplicationDbContext())
+            {
+                Configuracoes = await dbContext.parametrosdosistema.FirstOrDefaultAsync();
 
-            Configuracoes = dbContext.parametrosdosistema.ToList().FirstOrDefault();
-
-            return Configuracoes;
+                return Configuracoes;
+            }
         }
         catch (Exception ex)
         {
@@ -151,7 +159,9 @@ public class ParametrosDoSistema
      bool integraOnPedido,
      string tokenOnPedido,
      string userOnPedido,
-     string senhaOnPedido
+     string senhaOnPedido,
+     bool integraCCM,
+     string tokenCCM
      )
     {
         try
@@ -186,11 +196,13 @@ public class ParametrosDoSistema
                 configuracoes.IntegraDelMatch = integraDelMatch;
                 configuracoes.IntegraIfood = integraIfood;
                 configuracoes.ImpCompacta = impCompacta;
-                configuracoes.RemoveComplementos = removeComplementos;
+                configuracoes.ComandaReduzida = removeComplementos;
                 configuracoes.IntegraOnOPedido = integraOnPedido;
                 configuracoes.TokenOnPedido = tokenOnPedido;
                 configuracoes.UserOnPedido = userOnPedido;
                 configuracoes.SenhaOnPedido = senhaOnPedido;
+                configuracoes.IntegraCCM = integraCCM;
+                configuracoes.TokenCCM = tokenCCM;
 
                 dbContext.SaveChanges();
             }

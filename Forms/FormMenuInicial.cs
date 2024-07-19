@@ -32,6 +32,7 @@ using SysIntegradorApp.data.InterfaceDeContexto;
 using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 
 namespace SysIntegradorApp;
 
@@ -44,6 +45,8 @@ public partial class FormMenuInicial : Form
     private System.Threading.Timer _timer2;
     private WebView2 webViwer = new WebView2();
     public static int ContadorPooling { get; set; }
+
+    public AnotaAi AnotaAi { get; set; } = new AnotaAi(new MeuContexto());
 
     public FormMenuInicial(ApplicationDbContext DB)
     {
@@ -74,7 +77,7 @@ public partial class FormMenuInicial : Form
 
     private async void FormMenuInicial_Load(object sender, EventArgs e)
     {
-         await PostgresConfigs.LimpaPedidosACada8horas();
+        await PostgresConfigs.LimpaPedidosACada8horas();
 
         _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
         SetarPanelPedidos();
@@ -88,7 +91,7 @@ public partial class FormMenuInicial : Form
     private void FormMenuInicial_Shown(object sender, EventArgs e) { }
 
 
-    public static async void SetarPanelPedidos(int? pesquisaDisplayId = null)
+    public static async void SetarPanelPedidos(int? pesquisaDisplayId = null, string? pesquisaNome = null)
     {
         try
         {
@@ -104,7 +107,7 @@ public partial class FormMenuInicial : Form
                 {
                     OnPedido OnPedido = new OnPedido(new MeuContexto());
 
-                    IEnumerable<ParametrosDoPedido> PedidosONPedidos = await OnPedido.GetPedidoOnPedido(pesquisaDisplayId);
+                    IEnumerable<ParametrosDoPedido> PedidosONPedidos = await OnPedido.GetPedidoOnPedido(pesquisaDisplayId, pesquisaNome);
                     foreach (var item in PedidosONPedidos)
                     {
                         var pedidoJsonConvertido = JsonConvert.DeserializeObject<PedidoOnPedido>(item.Json);
@@ -120,7 +123,7 @@ public partial class FormMenuInicial : Form
                 {
                     DelMatch Delmatch = new DelMatch(new MeuContexto());
 
-                    IEnumerable<ParametrosDoPedido> DelMatchPedidos = await Delmatch.GetPedidoDelMatch(pesquisaDisplayId);
+                    IEnumerable<ParametrosDoPedido> DelMatchPedidos = await Delmatch.GetPedidoDelMatch(pesquisaDisplayId, pesquisaNome);
                     foreach (var item in DelMatchPedidos)
                     {
                         var pedidoJsonConvertido = JsonConvert.DeserializeObject<PedidoDelMatch>(item.Json);
@@ -135,7 +138,7 @@ public partial class FormMenuInicial : Form
                 if (Configuracoes.IntegraIfood)
                 {
                     Ifood Ifood = new Ifood(new MeuContexto());
-                    IEnumerable<ParametrosDoPedido> IfoodPedidos = await Ifood.GetPedido(pesquisaDisplayId);
+                    IEnumerable<ParametrosDoPedido> IfoodPedidos = await Ifood.GetPedido(pesquisaDisplayId, pesquisaNome);
                     foreach (ParametrosDoPedido item in IfoodPedidos)
                     {
                         PedidoCompleto? pedido = JsonConvert.DeserializeObject<PedidoCompleto>(item.Json);
@@ -150,7 +153,7 @@ public partial class FormMenuInicial : Form
                 if (Configuracoes.IntegraCCM)
                 {
                     CCM CCMNEW = new CCM(new MeuContexto());
-                    IEnumerable<ParametrosDoPedido> PedidosCCM = await CCMNEW.GetPedidos(pesquisaDisplayId);
+                    IEnumerable<ParametrosDoPedido> PedidosCCM = await CCMNEW.GetPedidos(pesquisaDisplayId, pesquisaNome);
                     foreach (ParametrosDoPedido item in PedidosCCM)
                     {
                         var pedidoXMl = await CCMNEW.RetornaPedido(item);
@@ -164,6 +167,28 @@ public partial class FormMenuInicial : Form
 
                         }
                     }
+                }
+
+                if (Configuracoes.IntegraAnotaAi)
+                {
+                    AnotaAi AnotaAiInstancia = new AnotaAi(new MeuContexto());
+                    IEnumerable<ParametrosDoPedido?> PedidosAnotaAi = await AnotaAiInstancia.GetPedidosAsync(pesquisaDisplayId, pesquisaNome);
+
+                    if (PedidosAnotaAi != null && PedidosAnotaAi.Count() > 0)
+                        foreach (var pedido in PedidosAnotaAi)
+                        {
+                            PedidoAnotaAi? PedidoAnotaAi = JsonConvert.DeserializeObject<PedidoAnotaAi>(pedido.Json);
+
+                            if (PedidoAnotaAi != null)
+                            {
+                                PedidoCompleto? PedidoConvertido = await AnotaAiInstancia.AnotaAiPedidoCompleto(PedidoAnotaAi);
+                                PedidoConvertido.Situacao = pedido.Situacao;
+                                PedidoConvertido.NumConta = pedido.Conta;
+                                PedidoConvertido.CriadoPor = "ANOTAAI";
+                                pedidos.Add(PedidoConvertido);
+                            }
+                        }
+
                 }
 
                 panelPedidos.Controls.Clear();
@@ -196,6 +221,69 @@ public partial class FormMenuInicial : Form
                     {
                         continue;
                     }
+
+                    if (item.CriadoPor == "ANOTAAI")
+                    {
+                        if (Configuracoes.IntegraAnotaAi)
+                        {
+                            string horarioCorrigido = "";
+
+                            if (item.orderType == "DELIVERY")
+                            {
+                                DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime);
+                                horarioCorrigido = HorarioMudado.ToString();
+                            }
+                            else if (item.orderType == "TAKEOUT")
+                            {
+                                DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime);
+                                horarioCorrigido = HorarioMudado.ToString();
+                            }
+                            else
+                            {
+                                DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime);
+                                horarioCorrigido = HorarioMudado.ToString();
+                            }
+
+                            UCPedido UserControlPedido = new UCPedido()
+                            {
+                                Pedido = item,
+                                Id_pedido = item.id,
+                                OrderType = item.orderType,
+                                Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                NomePedido = item.customer.name,
+                                DeliveryBy = "RETIRADA",
+                                FeitoAs = item.createdAt,
+                                HorarioEntrega = horarioCorrigido,//item.delivery.deliveryDateTime,
+                                LocalizadorPedido = "RETIRADA",
+                                EnderecoFormatado = "RETIRADA",
+                                Bairro = "RETIRADA",
+                                TipoDaEntrega = "RETIRADA",
+                                ValorTotalItens = item.total.subTotal,
+                                ValorTaxaDeentrega = item.total.deliveryFee,
+                                Valortaxaadicional = item.total.additionalFees,
+                                Descontos = item.total.benefits,
+                                TotalDoPedido = item.total.orderAmount,
+                                // Observations = item.delivery.observations,
+                                items = item.items,
+                            };
+
+                            if (item.orderType == "PLACE")
+                            {
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);
+                            }
+
+                            if (item.orderTiming == "SCHEDULED")
+                            {
+                                UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
+                            }
+
+                            UserControlPedido.MudaPictureBoxANOTAAI(UserControlPedido);
+                            UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
+
+                            panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                        }
+                    }
+
 
                     if (item.CriadoPor == "CCM")
                     {
@@ -296,7 +384,7 @@ public partial class FormMenuInicial : Form
                                 UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
                             }
 
-                            if(item.orderType == "INDOOR")
+                            if (item.orderType == "INDOOR")
                             {
                                 UserControlPedido.MudaPictureBoxMesa(UserControlPedido);
                             }
@@ -364,7 +452,7 @@ public partial class FormMenuInicial : Form
                             if (item.orderType == "INDOOR")
                             {
                                 UserControlPedido.MudaCasoSejaMesaDelMatch(UserControlPedido);
-                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);                              
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);
                             }
 
                             panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
@@ -600,7 +688,7 @@ public partial class FormMenuInicial : Form
                 DelMatch Delmatch = new DelMatch(new MeuContexto());
 
                 await Delmatch.PoolingDelMatch();
-                //await Delmatch.FechaMesa();
+                await Delmatch.FechaMesa();
             }
 
             if (Configuracoes.IntegraOnOPedido)
@@ -615,6 +703,13 @@ public partial class FormMenuInicial : Form
                 CCM CCMNEW = new CCM(new MeuContexto());
                 await CCMNEW.Pooling();
             }
+
+            // TaxyMachine taxyMachine = new TaxyMachine(new MeuContexto());
+            // await taxyMachine.GetInfosEmpresa();
+
+            if (Configuracoes.IntegraAnotaAi)
+                await AnotaAi.Pooling();
+
 
             if (ClsDeSuporteAtualizarPanel.MudouDataBase)
             {
@@ -731,7 +826,9 @@ public partial class FormMenuInicial : Form
         }
         catch (Exception ex) when (ex.Message.Contains("format"))
         {
-            MessageBox.Show("Formato de pesquisa errado, pode ser pesquisado apenas números!", "Ops");
+            string? pesquisaPorNome = textBoxBuscarPedido.Text;
+
+            SetarPanelPedidos(pesquisaNome: pesquisaPorNome);
         }
         catch (Exception exm)
         {

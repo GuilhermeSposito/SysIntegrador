@@ -38,7 +38,7 @@ public class CCM
         string? url = "https://api.ccmpedidoonline.com.br/wsccm_v2.php";
         try
         {
-            //await FechaMesas();
+            // await FechaMesas();
 
             bool AceitaPedidoAut = false;
 
@@ -231,6 +231,7 @@ public class CCM
                     float ValorDescontosNum = 0.0f;
                     float ValorEntrega = 0.0f;
                     float ValorDeTroco = 0.0f;
+                    bool pedidoOnLineMesa = false;
 
                     string? TipoPedido = pedido.Retira == 1 ? "TAKEOUT" : "DELIVERY";
                     bool agendado = pedido.Agendamento == 1 ? true : false;
@@ -349,13 +350,17 @@ public class CCM
                         DisplayId = Convert.ToInt32(pedido.NroPedido),
                         JsonPolling = "Sem Polling ID",
                         CriadoPor = "CCM",
-                        PesquisaDisplayId = Convert.ToInt32(pedido.NroPedido)
+                        PesquisaDisplayId = Convert.ToInt32(pedido.NroPedido),
+                        PesquisaNome = pedido.Cliente.Nome
                     });
 
                     await db.SaveChangesAsync();
 
                     if (PedidoMesa)
+                    {
                         insertNoSysMenuConta = 0;
+                        pedidoOnLineMesa = true;
+                    }
 
                     if (ConfigSistema.IntegracaoSysMenu)
                     {
@@ -407,7 +412,9 @@ public class CCM
                                       impComanda: "Não",
                                       ImpComanda2: "Não",
                                       qtdComanda: 00f,//numero duplo 
-                                      status: Status
+                                      status: Status,
+                                      pedidoOnLineMesa: pedidoOnLineMesa,
+                                      idPedido: pedido.NroPedido.ToString()
                                  );//fim dos parâmetros
 
                         }
@@ -443,7 +450,7 @@ public class CCM
 
                 foreach (var item in MesasFechadas.Mesas)
                 {
-                   await AtualizaStatus(Convert.ToInt32(item.PedidoID), status: "6", true);
+                    await AtualizaStatus(Convert.ToInt32(item.PedidoID), status: "6", true);
                 }
 
             }
@@ -493,16 +500,28 @@ public class CCM
         }
     }
 
-    public async Task<IEnumerable<ParametrosDoPedido>> GetPedidos(int? pesquisaID = null)
+    public async Task<IEnumerable<ParametrosDoPedido>> GetPedidos(int? pesquisaID = null, string? pesquisaNome = null)
     {
         IEnumerable<ParametrosDoPedido> pedidos = new List<ParametrosDoPedido>();
         try
         {
-            if (pesquisaID != null)
+            if (pesquisaID != null || pesquisaNome != null)
             {
-                using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                if (pesquisaID != null)
                 {
-                    pedidos = await db.parametrosdopedido.Where(x => x.CriadoPor == "CCM" && x.PesquisaDisplayId == pesquisaID).ToListAsync();
+                    using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                    {
+                        pedidos = await db.parametrosdopedido.Where(x => x.CriadoPor == "CCM" && x.PesquisaDisplayId == pesquisaID).ToListAsync();
+                    }
+                }
+
+                if(pesquisaNome != null)
+                {
+
+                    using (ApplicationDbContext db = await _Db.GetContextoAsync())
+                    {
+                        pedidos = await db.parametrosdopedido.Where(x => (x.CriadoPor == "CCM" && (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)))).ToListAsync();
+                    }
                 }
             }
             else
@@ -598,7 +617,7 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Erro ao Converter Pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
 
         }
@@ -704,7 +723,7 @@ public class CCM
 
             }
 
-        }//HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT
+        }//HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT  //uhux4nqnp-89p3p4o4n0a3n2j7a2q8r5n0q1o881 /on
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());

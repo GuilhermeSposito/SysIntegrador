@@ -41,7 +41,7 @@ namespace SysIntegradorApp.Forms
             };
         }
 
-        private void FormDeParametrosDoSistema_Load(object sender, EventArgs e)
+        private async void FormDeParametrosDoSistema_Load(object sender, EventArgs e)
         {
             FormLoginConfigs login = new FormLoginConfigs();
             login.ShowDialog();
@@ -50,7 +50,7 @@ namespace SysIntegradorApp.Forms
             instAtual.AlimentaComboBoxDeImpressoras(this);
             instAtual.DefineValoresDasConfigVindaDoBanco(this);
 
-            ParametrosDoSistema Configuracoes = ParametrosDoSistema.GetInfosSistema();
+            ParametrosDoSistema Configuracoes = await ParametrosDoSistema.GetInfosSistema();
 
             if (Configuracoes.AgruparComandas)
             {
@@ -131,7 +131,7 @@ namespace SysIntegradorApp.Forms
                 pictureBoxONImpressaoCompacta.Visible = false;
             }
 
-            if (Configuracoes.RemoveComplementos)
+            if (Configuracoes.ComandaReduzida)
             {
                 pictureBoxOFFRemoveOpcoes.Visible = false;
                 pictureBoxONRemoveOpcoes.Visible = true;
@@ -153,6 +153,17 @@ namespace SysIntegradorApp.Forms
                 pictureBoxONIntegracaoOnPedido.Visible = false;
             }
 
+            if (Configuracoes.IntegraCCM)
+            {
+                pictureBoxOnCCM.Visible = true;
+                pictureBoxOffCCM.Visible = false;
+            }
+            else
+            {
+                pictureBoxOnCCM.Visible = false;
+                pictureBoxOffCCM.Visible = true;
+            }
+
         }
 
         public void AlimentaComboBoxDeImpressoras(FormDeParametrosDoSistema instancia)
@@ -170,9 +181,9 @@ namespace SysIntegradorApp.Forms
             }
         }
 
-        public void DefineValoresDasConfigVindaDoBanco(FormDeParametrosDoSistema instancia)
+        public async void DefineValoresDasConfigVindaDoBanco(FormDeParametrosDoSistema instancia)
         {
-            ParametrosDoSistema Configuracoes = ParametrosDoSistema.GetInfosSistema();
+            ParametrosDoSistema Configuracoes = await ParametrosDoSistema.GetInfosSistema();
 
             instancia.textBoxCaminhoBanco.Text = Configuracoes.CaminhodoBanco;
             instancia.comboBoxIntegraSys.Text = Configuracoes.IntegracaoSysMenu.ToString();
@@ -196,6 +207,7 @@ namespace SysIntegradorApp.Forms
             instancia.textBoxTokenDeIntegracaoOnPedido.Text = Configuracoes.TokenOnPedido;
             instancia.textBoxuserOnPedido.Text = Configuracoes.UserOnPedido;
             instancia.textBoxsenhaOnPedido.Text = Configuracoes.SenhaOnPedido;
+            instancia.textBoxTokenCCM.Text = Configuracoes.TokenCCM;
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -243,9 +255,11 @@ namespace SysIntegradorApp.Forms
                     bool impCompacta = false;
                     bool removeComplementos = false;
                     bool integraOnPedido = false;
-                    string? tokenOnPedido = textBoxTokenDeIntegracaoOnPedido.Text;  
-                    string? userOnPedido = textBoxuserOnPedido.Text;  
-                    string? senhaOnPedido = textBoxsenhaOnPedido.Text;  
+                    string? tokenOnPedido = textBoxTokenDeIntegracaoOnPedido.Text;
+                    string? userOnPedido = textBoxuserOnPedido.Text;
+                    string? senhaOnPedido = textBoxsenhaOnPedido.Text;
+                    bool integraCCM = false;
+                    string tokenCCM = textBoxTokenCCM.Text; 
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -337,6 +351,16 @@ namespace SysIntegradorApp.Forms
                         integraOnPedido = true;
                     }
 
+                    if (pictureBoxOnCCM.Visible == true)
+                    {
+                        integraCCM = true; 
+                    }
+
+                    if (pictureBoxOffCCM.Visible == true)
+                    {
+                        integraCCM = false;
+                    }
+
                     // Chamando o método SetInfosSistema com os valores obtidos
                     ParametrosDoSistema.SetInfosSistema(
                          nomeFantasia,
@@ -369,7 +393,9 @@ namespace SysIntegradorApp.Forms
                          integraOnPedido,
                          tokenOnPedido,
                          userOnPedido,
-                         senhaOnPedido
+                         senhaOnPedido,
+                         integraCCM,
+                         tokenCCM
                      );
 
                     this.Close();
@@ -514,6 +540,19 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxOFFIntegracaoOnPedido.Visible = true;
             pictureBoxONIntegracaoOnPedido.Visible = false;
+        }
+
+        private void pictureBoxOnCCM_Click(object sender, EventArgs e)
+        {
+            pictureBoxOnCCM.Visible = false;
+            pictureBoxOffCCM.Visible = true;
+
+        }
+
+        private void pictureBoxOffCCM_Click(object sender, EventArgs e)
+        {
+            pictureBoxOnCCM.Visible = true;
+            pictureBoxOffCCM.Visible = false;
         }
     }
 }

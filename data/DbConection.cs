@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SysIntegradorApp.ClassesAuxiliares;
 using System.Data.OleDb;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SysIntegradorApp.data;
 
@@ -19,19 +21,19 @@ public class ApplicationDbContext : DbContext
 
     public ApplicationDbContext()
     {
-            
+
     }
 
     public DbSet<Token> parametrosdeautenticacao { get; set; }
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
-    public DbSet<ParametrosDoSistema> parametrosdosistema {  get; set; }
-    public DbSet<ApoioOnPedido> apoioonpedido {  get; set; }
+    public DbSet<ParametrosDoSistema> parametrosdosistema { get; set; }
+    public DbSet<ApoioOnPedido> apoioonpedido { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         if (!optionsBuilder.IsConfigured)
         {
-            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=ifood;Username=postgres;Password=69063360");
+            optionsBuilder.UseNpgsql("Host=localhost;Port=5432;Database=integrador;Username=postgres;Password=69063360");
         }
     }
 
@@ -54,3 +56,20 @@ public class ApplicationDbContext : DbContext
 }
 
 
+public static class MigrationManager
+{
+    public static void ApplyMigrations(ApplicationDbContext dbContext)
+    {
+        // Cria e aplica migrações pendentes
+        var migrator = dbContext.GetService<IMigrator>();
+        var pendingMigrations = dbContext.Database.GetPendingMigrations();
+
+        if (pendingMigrations.Any())
+        {
+            foreach (var migration in pendingMigrations)
+            {
+                migrator.Migrate(migration);
+            }
+        }
+    }
+}

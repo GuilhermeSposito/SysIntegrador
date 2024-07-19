@@ -82,11 +82,11 @@ public class DelMatch
                                 }
                             }
 
-                            /*if (ExistePedido && pedido.Type == "INDOOR")
-                             {
-                                 ClsSons.PlaySom();
-                                 await SetPedidoDelMatch(pedido, true);
-                             }*/
+                            if (ExistePedido && pedido.Type == "INDOOR")
+                            {
+                                ClsSons.PlaySom();
+                                await SetPedidoDelMatch(pedido, true);
+                            }
                         }
 
                     }
@@ -368,7 +368,8 @@ public class DelMatch
                             DisplayId = displayId,
                             JsonPolling = "Sem Polling ID",
                             CriadoPor = "DELMATCH",
-                            PesquisaDisplayId = displayId
+                            PesquisaDisplayId = displayId,
+                            PesquisaNome = pedido.Customer.Name
                         });
                         await db.SaveChangesAsync();
                     }
@@ -388,7 +389,8 @@ public class DelMatch
                             DisplayId = displayId,
                             JsonPolling = "Sem Polling ID",
                             CriadoPor = "DELMATCH",
-                            PesquisaDisplayId = displayId
+                            PesquisaDisplayId = displayId,
+                            PesquisaNome = pedido.Customer.Name
                         });
                         await db.SaveChangesAsync();
 
@@ -579,23 +581,38 @@ public class DelMatch
         }
     }
 
-    public async Task<List<ParametrosDoPedido>> GetPedidoDelMatch(int? display_ID = null)
+    public async Task<List<ParametrosDoPedido>> GetPedidoDelMatch(int? display_ID = null, string? pesquisaNome = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
         List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
         try
         {
-            if (display_ID != null)
+            if (display_ID != null || pesquisaNome != null)
             {
-                using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
+                if (display_ID != null)
                 {
+                    using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
+                    {
 
-                    pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").AsNoTracking().ToList();
+                        pedidosFromDb = dataBase.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "DELMATCH" || x.Conta == display_ID && x.CriadoPor == "DELMATCH").AsNoTracking().ToList();
 
 
+                    }
+                    return pedidosFromDb;
                 }
-                return pedidosFromDb;
+
+                if(pesquisaNome != null)
+                {
+                    using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
+                    {
+
+                        pedidosFromDb = dataBase.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "DELMATCH" ).AsNoTracking().ToList();
+
+
+                    }
+                    return pedidosFromDb;
+                }
 
             }
             else
@@ -858,10 +875,9 @@ public class DelMatch
                 string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
                 string Erro = "";
 
-                foreach (var item in reposta.Response)
-                {
-                    Erro += item.Message;
-                }
+
+                Erro += reposta.Response;
+
 
                 Sequencia? Pedido = JsonConvert.DeserializeObject<Sequencia>(jsonContent);
 
@@ -962,25 +978,28 @@ public class DelMatch
 
                 var response = await client.GetAsync(apiUrl);
 
-                string responseString = await response.Content.ReadAsStringAsync();
-
-                string responseJson = await response.Content.ReadAsStringAsync();
-                var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
-
-                foreach (string PedidoRef in pedidosId)
+                if (response.IsSuccessStatusCode)
                 {
-                    var pedidosValidos = pedidos.Where(x => x.IdOrder == PedidoRef).ToList();
+                    string responseString = await response.Content.ReadAsStringAsync();
 
-                    if (pedidosValidos.Count > 0)
+                    string responseJson = await response.Content.ReadAsStringAsync();
+                    var pedidos = JsonConvert.DeserializeObject<List<ClsDeserializacaoDelMatchEntrega>>(responseJson);
+
+                    foreach (string PedidoRef in pedidosId)
                     {
-                        bool ExistePedidoENviado = pedidosValidos.Any(x => x.Status != "Created");
+                        var pedidosValidos = pedidos.Where(x => x.IdOrder == PedidoRef).ToList();
 
-                        if (ExistePedidoENviado)
+                        if (pedidosValidos.Count > 0)
                         {
-                            ExistePedido = true;
-                        }
-                    }
+                            bool ExistePedidoENviado = pedidosValidos.Any(x => x.Status != "Created");
 
+                            if (ExistePedidoENviado)
+                            {
+                                ExistePedido = true;
+                            }
+                        }
+
+                    }
                 }
             }
 
@@ -1030,7 +1049,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "ERRO NO UPDATE DELMATCHID");
+            MessageBox.Show("Erro ao encontra Id. Por favor comuniquw o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -1195,11 +1214,11 @@ public class DelMatch
                         {
                             string PedidosASerINformados = "Erro a enviar pedidos. Pedidos que não foram Enviados: ";
 
-                            foreach(string item in ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados)
+                            foreach (string item in ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados)
                             {
                                 string Motivos = "";
 
-                                foreach(var motivo in ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado)
+                                foreach (var motivo in ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado)
                                 {
                                     Motivos += motivo;
                                 }
@@ -1213,7 +1232,7 @@ public class DelMatch
 
                             ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido = false;
                             ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Clear();
-                            ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Clear();    
+                            ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Clear();
                         }
                     }
                 }

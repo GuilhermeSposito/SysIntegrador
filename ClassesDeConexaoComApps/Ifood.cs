@@ -21,6 +21,7 @@ using System.Runtime.CompilerServices;
 using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -395,7 +396,8 @@ public class Ifood
                         DisplayId = DisplayId,
                         JsonPolling = jsonDoPolling,
                         CriadoPor = "IFOOD",
-                        PesquisaDisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId)
+                        PesquisaDisplayId = Convert.ToInt32(pedidoCompletoDeserialiado.displayId),
+                        PesquisaNome = pedidoCompletoDeserialiado.customer.name
                     }
                     );
 
@@ -1123,7 +1125,7 @@ public class Ifood
     }
 
     //função que está retornando os pedidos para setar os pedidos no panel
-    public async Task<List<ParametrosDoPedido>> GetPedido(int? display_ID = null)
+    public async Task<List<ParametrosDoPedido>> GetPedido(int? display_ID = null, string? pesquisaNome = null)
     {
         List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
 
@@ -1133,15 +1135,30 @@ public class Ifood
         {
 
 
-            if (display_ID != null)
+            if (display_ID != null || pesquisaNome != null)
             {
-                using (ApplicationDbContext db = await _db.GetContextoAsync())
+                if (display_ID != null)
+                {
+                    using (ApplicationDbContext db = await _db.GetContextoAsync())
+                    {
+
+                        pedidosFromDb = db.parametrosdopedido.Where(x => x.PesquisaDisplayId == display_ID && x.CriadoPor == "IFOOD" || x.Conta == display_ID && x.CriadoPor == "IFOOD").AsNoTracking().ToList();
+
+                    }
+                    return pedidosFromDb;
+                }
+
+                if(pesquisaNome != null)
                 {
 
-                    pedidosFromDb = db.parametrosdopedido.Where(x => x.PesquisaDisplayId == display_ID && x.CriadoPor == "IFOOD" || x.Conta == display_ID && x.CriadoPor == "IFOOD").AsNoTracking().ToList();
+                    using (ApplicationDbContext db = await _db.GetContextoAsync())
+                    {
 
+                        pedidosFromDb = db.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "IFOOD").AsNoTracking().ToList();
+
+                    }
+                    return pedidosFromDb;
                 }
-                return pedidosFromDb;
             }
             else
             {

@@ -14,6 +14,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = SysIntegradorApp
-build_property.ProjectDir = C:\Users\gui-c\OneDrive\Área de Trabalho\SysIntegrador\SysIntegradorApp\
+build_property.ProjectDir = C:\integrador\SysIntegrador\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
