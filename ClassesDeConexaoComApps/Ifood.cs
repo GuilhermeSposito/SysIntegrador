@@ -456,7 +456,7 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            NomeProduto += $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(option.externalCode)}";
+                                            NomeProduto += ClsDeIntegracaoSys.NomeProdutoCardapio(option.externalCode);
                                         }
                                         else
                                         {
@@ -744,13 +744,13 @@ public class Ifood
                                 ClsDeIntegracaoSys.IntegracaoContas(
                                            conta: insertNoSysMenuConta, //numero
                                            mesa: mesa, //texto curto 
-                                           qtdade: 1, //numero
+                                           qtdade: item.quantity, //numero
                                            codCarda1: ePizza1 != null ? ePizza1 : externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
                                            codCarda2: ePizza2 != null ? ePizza2 : externalCode, //texto curto 4 letras
                                            codCarda3: ePizza3 != null ? ePizza3 : externalCode, //texto curto 4 letras
                                            tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
                                            descarda: NomeProduto == "" ? $"{item.quantity}X - {item.name}" : NomeProduto, // texto curto 31 letras
-                                           valorUnit: item.totalPrice, //moeda
+                                           valorUnit: item.totalPrice / item.quantity, //moeda
                                            valorTotal: item.totalPrice, //moeda
                                            dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
                                            horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
@@ -786,7 +786,7 @@ public class Ifood
 
                                 if (existeProduto)
                                 {
-                                    nomeProduto = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode)}";
+                                    nomeProduto = ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode);
                                 }
 
                                 string? obs1 = " ";
@@ -1050,13 +1050,13 @@ public class Ifood
                                 ClsDeIntegracaoSys.IntegracaoContas(
                                            conta: insertNoSysMenuConta, //numero
                                            mesa: mesa, //texto curto 
-                                           qtdade: 1, //numero
+                                           qtdade: item.quantity, //numero
                                            codCarda1: externalCode, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
                                            codCarda2: " ", //texto curto 4 letras
                                            codCarda3: " ",//texto curto 4 letras
                                            tamanho: item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" ? item.externalCode : "U", ////texto curto 1 letra
                                            descarda: nomeProduto != null ? nomeProduto : $"{item.quantity}X - {item.name}", // texto curto 31 letras
-                                           valorUnit: item.price, //moeda
+                                           valorUnit: item.totalPrice / item.quantity, //moeda
                                            valorTotal: item.totalPrice, //moeda
                                            dataInicio: pedidoCompletoDeserialiado.createdAt.Substring(0, 10).Replace("-", "/"), //data
                                            horaInicio: pedidoCompletoDeserialiado.createdAt.Substring(11, 5), //data
@@ -1148,7 +1148,7 @@ public class Ifood
                     return pedidosFromDb;
                 }
 
-                if(pesquisaNome != null)
+                if (pesquisaNome != null)
                 {
 
                     using (ApplicationDbContext db = await _db.GetContextoAsync())

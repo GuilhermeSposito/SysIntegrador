@@ -151,6 +151,19 @@ namespace SysIntegradorApp.UserControls.UCSAnotaAi
                     {
                         labelCPF.Text = p.InfoDoPedido.Customer.CPF;
                     }
+
+                    if (StatusPedido == "DISPATCHED")
+                    {
+                        btnDespacharIfood.Visible = false;
+                    }
+
+                    if (StatusPedido == "CONCLUDED")
+                    {
+                        btnDespacharIfood.Visible = false;
+                        btnCancelar.Visible = false;
+                        buttonReadyToPickUp.Visible = false;
+                    }
+
                 }
             }
             catch (Exception ex)
@@ -167,7 +180,7 @@ namespace SysIntegradorApp.UserControls.UCSAnotaAi
             foreach (var item in items)
             {
                 UCItemANotaAI uCItem = new UCItemANotaAI();
-                uCItem.SetLabels(item.Nome, item.Quantity, item.Price, item.Total, item.SubItens, uCItem, item);
+                uCItem.SetLabels(item.Name, item.quantity, item.Price, item.Total, item.SubItens, uCItem, item);
                 panelDeItens.Controls.Add(uCItem);
             }
 
@@ -223,6 +236,25 @@ namespace SysIntegradorApp.UserControls.UCSAnotaAi
             FormDeCancelamentoAnotaAi formDeCancelamentoAnotaAi = new FormDeCancelamentoAnotaAi() { IdPedido = Pedido.InfoDoPedido.IdPedido };
 
             formDeCancelamentoAnotaAi.ShowDialog();
+        }
+
+        private void btnImprimir_Click(object sender, EventArgs e)
+        {
+            int numDaVia = pictureBoxUm.Visible == true ? 1 : 2;
+
+            ImpressaoAnotaAi.ChamaImpressoes(Pedido.InfoDoPedido.IdPedido, numDaVia);
+        }
+
+        private void pictureBoxDois_Click(object sender, EventArgs e)
+        {
+            pictureBoxDois.Visible = false;
+            pictureBoxUm.Visible = true;
+        }
+
+        private void pictureBoxUm_Click(object sender, EventArgs e)
+        {
+            pictureBoxDois.Visible = true;
+            pictureBoxUm.Visible = false;
         }
     }
 }

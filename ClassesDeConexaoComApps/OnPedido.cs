@@ -538,18 +538,18 @@ public class OnPedido
 
                             foreach (var item in pedido.Return.ItemsOn)
                             {
-                                var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item);
+                                var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item, eIntegracao: true);
 
                                 ClsDeIntegracaoSys.IntegracaoContas(
                                           conta: insertNoSysMenuConta, //numero
                                           mesa: mesa, //texto curto 
-                                          qtdade: 1, //numero
+                                          qtdade: item.quantity, //numero
                                           codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
                                           codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
                                           codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
                                           tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
                                           descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
-                                          valorUnit: item.TotalPrice.Value, //moeda
+                                          valorUnit: item.TotalPrice.Value / item.quantity, //moeda
                                           valorTotal: item.TotalPrice.Value, //moeda
                                           dataInicio: pedido.Return.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
                                           horaInicio: pedido.Return.CreatedAt.Substring(11, 5), //data
@@ -778,8 +778,8 @@ public class OnPedido
                 ClsPedirToken InfosParaOToken = new ClsPedirToken();
                 InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
                 InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
-                InfosParaOToken.MerchantUsername = configs.UserOnPedido;//"syslogica";
-                InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; //"69063360";
+                InfosParaOToken.MerchantUsername = configs.UserOnPedido;
+                InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; 
                 InfosParaOToken.ClearAnotherTokens = true;
 
                 string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);
@@ -827,8 +827,8 @@ public class OnPedido
                     ClsPedirToken InfosParaOToken = new ClsPedirToken();
                     InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
                     InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
-                    InfosParaOToken.MerchantUsername = configs.UserOnPedido;//"syslogica";
-                    InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; //"69063360";
+                    InfosParaOToken.MerchantUsername = configs.UserOnPedido;
+                    InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; 
                     InfosParaOToken.ClearAnotherTokens = true;
 
                     string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);

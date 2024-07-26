@@ -218,6 +218,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("integradelmatch");
 
+                    b.Property<bool>("IntegraDelmatchEntregas")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integradelmatchentregas");
+
                     b.Property<bool>("IntegraIfood")
                         .HasColumnType("boolean")
                         .HasColumnName("integraifood");
@@ -225,6 +229,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<bool>("IntegraOnOPedido")
                         .HasColumnType("boolean")
                         .HasColumnName("integraonpedido");
+
+                    b.Property<bool>("IntegraOttoEntregas")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integraottoentregas");
 
                     b.Property<bool>("IntegracaoSysMenu")
                         .HasColumnType("boolean")

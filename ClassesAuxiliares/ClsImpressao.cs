@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using static SysIntegradorApp.ClassesAuxiliares.Impressao;
+using static SysIntegradorApp.ClassesAuxiliares.ImpressaoAnotaAi;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoCCM;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoDelMatch;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoONPedido;
@@ -52,4 +53,14 @@ public class ClsImpressaoDefinicoesCMM
     public bool eObs { get; set; }
 
     public ClsImpressaoDefinicoesCMM() { }
+}
+
+public class ClsImpressaoDefinicoesAnotaAi
+{
+    public string Texto { get; set; }
+    public Font Fonte { get; set; }
+    public AlinhamentosAnotaAi Alinhamento { get; set; }
+    public bool eObs { get; set; }
+
+    public ClsImpressaoDefinicoesAnotaAi() { }
 }

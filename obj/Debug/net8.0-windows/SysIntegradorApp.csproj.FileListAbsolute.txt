@@ -221,3 +221,5 @@ C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\zh-Hant\Microsoft.CodeAnaly
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSAnotaAi.UCInfoPedidoAnotaAi.resources
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSAnotaAi.UCItemANotaAI.resources
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.ANOTAAI.FormDeCancelamentoAnotaAi.resources
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.TaxyMachine.EnvioDePedidos.resources
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.TaxyMachine.UCPedidoTaxyMachine.resources

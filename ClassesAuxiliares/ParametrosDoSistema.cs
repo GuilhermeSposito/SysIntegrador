@@ -92,6 +92,8 @@ public class ParametrosDoSistema
     [Column("passwordtaxymachine")] public string PasswordTaxyMachine { get; set; }
     [Column("tokenanotaai")] public string TokenAnotaAi { get; set; }
     [Column("integraanotaai")] public bool IntegraAnotaAi { get; set; }
+    [Column("integradelmatchentregas")] public bool IntegraDelmatchEntregas { get; set; }
+    [Column("integraottoentregas")] public bool IntegraOttoEntregas { get; set; }
     public ParametrosDoSistema() { }
 
 

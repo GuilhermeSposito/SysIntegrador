@@ -145,3 +145,6 @@ C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\refint\SysIntegradorApp.dll
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.pdb
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\ref\SysIntegradorApp.dll
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.Forms.ANOTAAI.FormDeCancelamentoAnotaAi.resources
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.UserControls.UCSAnotaAi.UCInfoPedidoAnotaAi.resources
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.UserControls.UCSAnotaAi.UCItemANotaAI.resources

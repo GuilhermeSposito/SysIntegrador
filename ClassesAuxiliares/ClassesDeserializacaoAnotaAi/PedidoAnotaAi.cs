@@ -53,9 +53,10 @@ public class ItemAnotaAi
 {
     [JsonProperty("_id")] public string? _Id { get; set; }
     [JsonProperty("id")] public int Id { get; set; }
-    [JsonProperty("name")] public string? Nome { get; set; }
-    [JsonProperty("quantity")] public int Quantity { get; set; }
-    [JsonProperty("externalId")] public string? ExternalId { get; set; }
+    [JsonProperty("name")] public string? Name { get; set; }
+    [JsonProperty("quantity")] public int quantity { get; set; }
+    [JsonProperty("observation")] public string? observation { get; set; }
+    [JsonProperty("externalId")] public string? externalCode { get; set; }
     [JsonProperty("internalId")] public string? InternalId { get; set; }
     [JsonProperty("price")] public float Price { get; set; }
     [JsonProperty("total")] public float Total { get; set; }
@@ -66,12 +67,12 @@ public class ItemAnotaAi
 public class SubItensAnotaAi
 {
     [JsonProperty("_id")] public string? _Id { get; set; }
-    [JsonProperty("name")] public string? Nome { get; set; }
-    [JsonProperty("quantity")] public int Quantity { get; set; }
+    [JsonProperty("name")] public string? name { get; set; }
+    [JsonProperty("quantity")] public int quantity { get; set; }
     [JsonProperty("internalId")] public string? InternalId { get; set; }
     [JsonProperty("price")] public float Price { get; set; }
-    [JsonProperty("total")] public float Total { get; set; }
-    [JsonProperty("externalCode")] public string? ExternalCode { get; set; }
+    [JsonProperty("total")] public float TotalPrice { get; set; }
+    [JsonProperty("externalCode")] public string? externalCode { get; set; }
     [JsonProperty("id")] public int Id { get; set; }
     [JsonProperty("id_parent")] public int IdParent { get; set; }
 
@@ -84,7 +85,7 @@ public class Pagamentos
     [JsonProperty("value")] public string? value { get; set; }
     [JsonProperty("cardSelected")] public string? CardSelected { get; set; }
     [JsonProperty("externalId")] public string? ExternalId { get; set; }
-    [JsonProperty("changeFor")] public float ChangeFor { get; set; }
+    [JsonProperty("changeFor")] public double? ChangeFor { get; set; }
     [JsonProperty("prepaid")] public bool Prepaid { get; set; }
 
 }

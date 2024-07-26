@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
@@ -110,7 +111,17 @@ public class AnotaAi
                 {
                     using (HttpResponseMessage? SolicitaPedido = await ReqConstructor(metodo: "GET", endpoint: $"/ping/get/{idPedido}"))
                     {
+                        ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
                         int insertNoSysMenuConta = 0;
+                        string? mesa = " ";
+                        string? DataCertaEntregarEm = " ";
+                        string? Complemento = " ";
+                        string? EndEntrega = " ";
+                        string? BairEntrega = " ";
+                        string? Entregador = " ";
+                        string? Status = " ";
+                        float valorEntrega = 0.0f;
 
                         if (SolicitaPedido is null)
                             throw new NullReferenceException("Erro ao encontrar pedido");
@@ -118,17 +129,102 @@ public class AnotaAi
                         if ((int)SolicitaPedido.StatusCode != 200)
                             throw new Exception($"Erro ao solicitar pedido, Stataus: {(int)SolicitaPedido.StatusCode}");
 
-                        PedidoAnotaAi? Pedido = JsonConvert.DeserializeObject<PedidoAnotaAi>(await SolicitaPedido.Content.ReadAsStringAsync());
+                        var teste = await SolicitaPedido.Content.ReadAsStringAsync();
 
-                        if (Pedido.InfoDoPedido.Type == "LOCAL")
-                            insertNoSysMenuConta = 999;
+                        PedidoAnotaAi? Pedido = JsonConvert.DeserializeObject<PedidoAnotaAi>(await SolicitaPedido.Content.ReadAsStringAsync());
+                        if (Configs.IntegracaoSysMenu)
+                        {
+                            if (Pedido.InfoDoPedido.Type == "DELIVERY")
+                            {
+                                mesa = "WEB";
+                                DataCertaEntregarEm = DateTime.Parse(Pedido.InfoDoPedido.CreatedAt).AddMinutes(Configs.TempoEntrega).ToString();
+                                Complemento = Pedido.InfoDoPedido.deliveryAddress.Complement is not null && Pedido.InfoDoPedido.deliveryAddress.Complement.Length > 0 ? Pedido.InfoDoPedido.deliveryAddress.Complement : " ";
+                                EndEntrega = Pedido.InfoDoPedido.deliveryAddress.FormattedAddress;
+                                BairEntrega = Pedido.InfoDoPedido.deliveryAddress.Neighborhood;
+                                Status = "P";
+                                valorEntrega = Pedido.InfoDoPedido.DeliveryFee;
+                            }
+
+                            if (Pedido.InfoDoPedido.Type == "TAKE")
+                            {
+                                mesa = "WEBB";
+                                DataCertaEntregarEm = DateTime.Parse(Pedido.InfoDoPedido.CreatedAt).AddMinutes(Configs.TempoRetirada).ToString();
+                                Entregador = "RETIRADA";
+                                Status = "P";
+                            }
+
+                            if (Pedido.InfoDoPedido.Type == "LOCAL")
+                            {
+                                mesa = await RetiraNumeroDeMesa(Pedido.InfoDoPedido.Pdv.Table);
+                                DataCertaEntregarEm = DateTime.Parse(Pedido.InfoDoPedido.CreatedAt).AddMinutes(Configs.TempoRetirada).ToString();
+                                Status = "A";
+                                insertNoSysMenuConta = 999;
+                            }
+
+                            float ValorDescontosNum = 0.0f;
+                            foreach (var item in Pedido.InfoDoPedido.Descontos)
+                            {
+                                ValorDescontosNum += item.Total;
+                            }
+
+                            if (Pedido.InfoDoPedido.Type != "LOCAL")
+                            {
+                                insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                                       mesa: mesa,
+                                       cortesia: ValorDescontosNum,
+                                       taxaEntrega: valorEntrega,
+                                       taxaMotoboy: 0.00f,
+                                       dtInicio: Pedido.InfoDoPedido.CreatedAt.ToString().Substring(0, 10),
+                                        hrInicio: Pedido.InfoDoPedido.CreatedAt.ToString().Substring(11, 5),
+                                        contatoNome: Pedido.InfoDoPedido.Customer.Nome,
+                                        usuario: "CAIXA",
+                                        dataSaida: DataCertaEntregarEm.ToString().Substring(0, 10),
+                                       hrSaida: DataCertaEntregarEm.ToString().Substring(11, 5),
+                                        obsConta1: " ",
+                                       iFoodPedidoID: Pedido.InfoDoPedido.Id,
+                                       obsConta2: " ",
+                                       referencia: Complemento,
+                                        endEntrega: EndEntrega,
+                                        bairEntrega: BairEntrega,
+                                        entregador: Entregador,
+                                        eAnotaAi: true
+                                        ); //fim dos parâmetros do método de integração
+
+                                foreach (var pagamento in Pedido.InfoDoPedido.Payments)
+                                {
+                                    string type = Pedido.InfoDoPedido.Payments[0].Prepaid ? "ONLINE" : "OFFLINE";
+
+                                    if (pagamento.Nome != "money")
+                                        ClsDeIntegracaoSys.IntegracaoPagCartao(Pedido.InfoDoPedido.Payments[0].Nome, insertNoSysMenuConta, Pedido.InfoDoPedido.Total, type, "ANOTAAI");
+                                }
+
+                                SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
+
+                                foreach (var item in Pedido.InfoDoPedido.Payments)
+                                {
+                                    float changeForNovo = 0.0f;
+
+                                    if (item.ChangeFor is not null)
+                                    {
+                                        changeForNovo = (float)item.ChangeFor;
+                                    }
+
+                                    float valor = float.Parse(item.value.Replace('.', ','));
+
+                                    Cash SeForPagamentoEmDinherio = new Cash() { changeFor = changeForNovo };
+                                    payments.methods.Add(new Methods() { method = item.Nome, value = valor, cash = SeForPagamentoEmDinherio });
+                                }
+
+                                ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                            }
+                        }
 
                         db.parametrosdopedido.Add(new ParametrosDoPedido()
                         {
                             Id = idPedido,
                             Json = await SolicitaPedido.Content.ReadAsStringAsync(),
                             Situacao = "CONFIRMED",
-                            Conta = 0,
+                            Conta = insertNoSysMenuConta,
                             CriadoEm = DateTimeOffset.Now.ToString(),
                             DisplayId = Pedido.InfoDoPedido.ShortReference,
                             JsonPolling = "Sem Pooling",
@@ -137,12 +233,75 @@ public class AnotaAi
                             PesquisaNome = Pedido.InfoDoPedido.Customer.Nome
                         });
 
+                        if (Pedido.InfoDoPedido.Type == "LOCAL")
+                        {
+                            insertNoSysMenuConta = 0;
+                        }
+
+                        if (Configs.IntegracaoSysMenu)
+                        {
+                            string? NumeroCorrigido = RetornaNumeroDeTelefoneCorrigido(Pedido.InfoDoPedido.Customer.Phone); //telefone convertido para o padrão sysmenu
+
+                            if (Pedido.InfoDoPedido.Type == "DELIVERY")
+                            {
+                                bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente(NumeroCorrigido);
+                                if (!existeCliente)
+                                    ClsDeIntegracaoSys.CadastraClienteAnotaAi(Pedido.InfoDoPedido.Customer, Pedido.InfoDoPedido.deliveryAddress, TelefoneCliente: NumeroCorrigido);
+                            }
+
+                            foreach (var item in Pedido.InfoDoPedido.Items)
+                            {
+                                var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemAnotaAi(item, eIntegracao: true);
+
+                                ClsDeIntegracaoSys.IntegracaoContas(
+                                          conta: insertNoSysMenuConta, //numero
+                                          mesa: mesa, //texto curto 
+                                          qtdade: item.quantity, //numero
+                                          codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                          codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                          codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                          tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                          descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                          valorUnit: item.Total / item.quantity, //moeda
+                                          valorTotal: item.Total, //moeda
+                                          dataInicio: Pedido.InfoDoPedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
+                                          horaInicio: Pedido.InfoDoPedido.CreatedAt.Substring(11, 5), //data
+                                          obs1: CaracteristicasPedido.Obs1,
+                                          obs2: CaracteristicasPedido.Obs2,
+                                          obs3: CaracteristicasPedido.Obs3,
+                                          obs4: CaracteristicasPedido.Obs4,
+                                          obs5: CaracteristicasPedido.Obs5,
+                                          obs6: CaracteristicasPedido.Obs6,
+                                          obs7: CaracteristicasPedido.Obs7,
+                                          obs8: CaracteristicasPedido.Obs8,
+                                          obs9: CaracteristicasPedido.Obs9,
+                                          obs10: CaracteristicasPedido.Obs10,
+                                          obs11: CaracteristicasPedido.Obs11,
+                                          obs12: CaracteristicasPedido.Obs12,
+                                          obs13: CaracteristicasPedido.Obs13,
+                                          obs14: CaracteristicasPedido.Obs14,
+                                          obs15: CaracteristicasPedido.ObsDoItem,
+                                          cliente: Pedido.InfoDoPedido.Customer.Phone is not null && Pedido.InfoDoPedido.Customer.Phone.Length > 0 ? Pedido.InfoDoPedido.Customer.Phone : " ", // texto curto 80 letras
+                                          telefone: NumeroCorrigido,
+                                          impComanda: "Não",
+                                          ImpComanda2: "Não",
+                                          qtdComanda: 00f,//numero duplo 
+                                          status: Status
+                                     );//fim dos parâmetros
+
+                            }
+
+                        }
+
                         await db.SaveChangesAsync();
 
                         await ConfirmaPedido(idPedido);
 
                         ClsSons.PlaySom();
                         ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                        if (Configs.ImpressaoAut)
+                            ImpressaoAnotaAi.ChamaImpressoes(idPedido);
                     }
                 }
             }
@@ -152,6 +311,39 @@ public class AnotaAi
             await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
+    }
+
+    public string? RetornaNumeroDeTelefoneCorrigido(string? telefone)
+    {
+        if (telefone is not null && telefone.Length > 0)
+        {
+            string? CodArea = telefone.Substring(0, 2); //16
+            string? Primeironumero = telefone.Substring(2, 5);
+            string? SegundoNumero = telefone.Substring(7);
+
+            return $"({CodArea}){Primeironumero}-{SegundoNumero}";
+        }
+
+        return " ";
+    }
+
+    public async Task<string> RetiraNumeroDeMesa(string? place)
+    {
+        string? numeroMesa = " ";
+        try
+        {
+            numeroMesa = place.Substring(4, 2).Trim();
+
+            numeroMesa = numeroMesa.PadLeft(4, '0');
+
+            return numeroMesa;
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+        return numeroMesa;
     }
 
     public async Task ConfirmaPedido(string? orderId)
@@ -209,10 +401,12 @@ public class AnotaAi
     {
         try
         {
-            HttpResponseMessage? reponse = await ReqConstructor(metodo: "POST", endpoint: $"/order/cancel/{orderId}", content: motivoCancelamento);
+            HttpResponseMessage? response = await ReqConstructor(metodo: "POST", endpoint: $"/order/cancel/{orderId}", content: motivoCancelamento);
 
-            if (reponse is null || !reponse.IsSuccessStatusCode)
-                throw new HttpRequestException($"Erro Ao Cancelar Pedido, Status: {(int)reponse.StatusCode}");
+            if (response is null || !response.IsSuccessStatusCode)
+                throw new HttpRequestException($"Erro Ao Cancelar Pedido, Status: {(int)response.StatusCode}");
+
+            MessageBox.Show(await response.Content.ReadAsStringAsync());
 
             return true;
         }
@@ -220,7 +414,7 @@ public class AnotaAi
         {
             await Logs.CriaLogDeErro(ex.ToString());
         }
-        return false;   
+        return false;
     }
 
     public async Task<IEnumerable<ParametrosDoPedido?>> GetPedidosAsync(int? display_ID = null, string? pesquisaNome = null)
@@ -331,7 +525,7 @@ public class AnotaAi
             pedidoCompleto.orderType = TipoDoPedido;
             pedidoCompleto.delivery.deliveredBy = DeliveryBy;
             pedidoCompleto.delivery.deliveryDateTime = dataLimite;
-            pedidoCompleto.customer.id = p.InfoDoPedido.Customer.id.ToString();
+            pedidoCompleto.customer.id = p.InfoDoPedido.Customer.id is not null ? p.InfoDoPedido.Customer.id.ToString() : "";
             pedidoCompleto.customer.name = p.InfoDoPedido.Customer.Nome;
             pedidoCompleto.customer.documentNumber = p.InfoDoPedido.Customer.Phone;
             pedidoCompleto.salesChannel = "ANOTAAI"; // Valor fixo de exemplo

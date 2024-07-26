@@ -51,7 +51,7 @@ public class ClsInfosDePagamentosParaImpressao
                 case "CASH":
                     if (metodo.cash.changeFor > 0)
                     {
-                        double totalTroco = metodo.cash.changeFor - metodo.value;
+                        float totalTroco = metodo.cash.changeFor - metodo.value;
                         infos.FormaPagamento = $"(Dinheiro) Levar troco para {metodo.cash.changeFor.ToString("c")} Total Troco: {totalTroco.ToString("c")}";
                     }
                     else
@@ -281,17 +281,19 @@ public class ClsInfosDePagamentosParaImpressaoAnotaAi
                             break;
                     }
 
-                    infos.FormaPagamento = $"Pedido Será pago com ({NomeDoMetodo}) valor R$ {info.value}";
+                    infos.FormaPagamento = $"Será pago com ({NomeDoMetodo}) valor R$ {info.value}";
                     break;
             }
 
-            if (info.ChangeFor > 0)
-            {
-                var ValorConvertido = float.Parse(info.value.Replace(".", ","));
-                var troco =info.ChangeFor - ValorConvertido ;
+            if (info.ChangeFor is not null)
+                if (info.ChangeFor > 0)
+                {
+                    var ValorConvertido = float.Parse(info.value.Replace(".", ","));
 
-                infos.TipoPagamento += $", Levar troco  {troco.ToString("c")}";
-            }
+                    var troco = (float)info.ChangeFor - ValorConvertido;
+
+                    infos.FormaPagamento += $", Levar troco  {troco.ToString("c")}";
+                }
         }
 
 

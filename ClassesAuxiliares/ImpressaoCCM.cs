@@ -364,12 +364,15 @@ public class ImpressaoCCM
                             {
                                 AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
                             }
-
+                        }
+                        else
+                        {
                             if (item.ObsItem != null && item.ObsItem.Length > 0)
                             {
                                 AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
                             }
                         }
+
                     }
 
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

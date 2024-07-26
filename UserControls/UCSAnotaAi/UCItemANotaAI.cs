@@ -31,7 +31,7 @@ public partial class UCItemANotaAI : UserControl
         float valorDasOpcoesNumero = 0.0f;
         foreach(var item in options)
         {
-            valorDasOpcoesNumero += item.Total;
+            valorDasOpcoesNumero += item.TotalPrice;
         }
 
         valorDasOpcoes.Text = valorDasOpcoesNumero.ToString("c");
@@ -40,11 +40,11 @@ public partial class UCItemANotaAI : UserControl
         int currentY = 0; // Variável para controlar a posição Y dos controles adicionados
         int maxHeight = 0; // Variável para armazenar a altura máxima dos controles adicionados
 
-        bool ePizza = ItemAnotaAi.InternalId == "G" || ItemAnotaAi.InternalId == "M" || ItemAnotaAi.InternalId == "P" || ItemAnotaAi.InternalId == "B" ? true : false;
+        bool ePizza = ItemAnotaAi.externalCode == "G" || ItemAnotaAi.externalCode == "M" || ItemAnotaAi.externalCode == "P" || ItemAnotaAi.externalCode == "B" ? true : false;
 
         if (!ePizza)
         {
-            bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(ItemAnotaAi.InternalId);
+            bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(ItemAnotaAi.externalCode);
 
             if (!ExisteExternalCode)
             {
@@ -64,13 +64,13 @@ public partial class UCItemANotaAI : UserControl
         foreach (var item in options)
         {
             UCComplementoDoItem ucComplemento = new UCComplementoDoItem();
-            ucComplemento.SetLabels(item.Nome, item.Price);
+            ucComplemento.SetLabels(item.name, item.Price);
             ucComplemento.Size = new Size(600, 60);
 
-            if (!item.InternalId.Contains("m") && ePizza)
+            if (!item.externalCode.Contains("m") && ePizza)
             {
-                bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.InternalId);
-
+                bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.externalCode);
+                
                 if (!ExisteExternalCode)
                 {
                     instancia.MudaPictureBoxDeAvisoExternalCode(instancia);

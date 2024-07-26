@@ -33,6 +33,7 @@ using Microsoft.Web.WebView2.WinForms;
 using Microsoft.Web.WebView2.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using SysIntegradorApp.Forms.TaxyMachine;
 
 namespace SysIntegradorApp;
 
@@ -95,6 +96,9 @@ public partial class FormMenuInicial : Form
     {
         try
         {
+            checkBoxConcluido.Enabled = false;
+            checkBoxConfirmados.Enabled = false;
+            checkBoxDespachados.Enabled = false;
 
             using (ApplicationDbContext db = new ApplicationDbContext())
             {
@@ -287,7 +291,7 @@ public partial class FormMenuInicial : Form
 
                     if (item.CriadoPor == "CCM")
                     {
-                        if (Configuracoes.IntegraOnOPedido)
+                        if (Configuracoes.IntegraCCM)
                         {
                             string horarioCorrigido = "";
 
@@ -620,6 +624,11 @@ public partial class FormMenuInicial : Form
                 pedidos.Clear();
 
                 panelPedidos.ResumeLayout();
+
+
+                checkBoxConcluido.Enabled = true;
+                checkBoxConfirmados.Enabled = true;
+                checkBoxDespachados.Enabled = true;
             }
         }
         catch (Exception ex)
@@ -678,9 +687,12 @@ public partial class FormMenuInicial : Form
                 await Ifood.Polling();
             }
 
-            if (Configuracoes.EnviaPedidoAut)
+            if (Configuracoes.IntegraDelmatchEntregas)
             {
-                ChamaEntregaAutDelMatch();
+                if (Configuracoes.EnviaPedidoAut)
+                {
+                    ChamaEntregaAutDelMatch();
+                }
             }
 
             if (Configuracoes.IntegraDelMatch)
@@ -698,14 +710,21 @@ public partial class FormMenuInicial : Form
                 await OnPedido.Pooling();
             }
 
-            if (Configuracoes.IntegraOnOPedido)
+            if (Configuracoes.IntegraCCM)
             {
                 CCM CCMNEW = new CCM(new MeuContexto());
                 await CCMNEW.Pooling();
             }
 
-            // TaxyMachine taxyMachine = new TaxyMachine(new MeuContexto());
-            // await taxyMachine.GetInfosEmpresa();
+            if (Configuracoes.IntegraOttoEntregas)
+            {
+                OTTO Otto = new OTTO(new MeuContexto());
+
+                if (Configuracoes.EnviaPedidoAut)
+                {
+                    await Otto.EnviaPedidosAutomaticamente(codEntregador: "66");
+                }
+            }
 
             if (Configuracoes.IntegraAnotaAi)
                 await AnotaAi.Pooling();
@@ -770,10 +789,33 @@ public partial class FormMenuInicial : Form
         await Delmatch.EnviaPedidosAut();
     }
 
-    private void pictureBoxDelivery_Click(object sender, EventArgs e)
+    private async void pictureBoxDelivery_Click(object sender, EventArgs e)
     {
-        DeliveryForm deliveryForm = new DeliveryForm();
-        deliveryForm.ShowDialog();
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var Configs = db.parametrosdosistema.FirstOrDefault();
+
+                if (Configs.IntegraDelmatchEntregas)
+                {
+                    DeliveryForm deliveryForm = new DeliveryForm();
+                    deliveryForm.ShowDialog();
+                }
+                else
+                {
+                    EnvioDePedidos FormDePedidos = new EnvioDePedidos(new MeuContexto());
+                    FormDePedidos.ShowDialog();
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+      
     }
 
     private void pictureBoxConfig_Click(object sender, EventArgs e)

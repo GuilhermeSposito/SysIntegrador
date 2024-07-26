@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using System;
 using System.Collections.Generic;
@@ -99,6 +100,24 @@ public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasCCM
         Itens = new List<SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM.Item>();
     }
     public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasCCM()
+    {
+
+    }
+}
+
+
+public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasAnotaAi
+{
+    public string? Impressora1 { get; set; }
+    public string? Impressora2 { get; set; }
+    public List<ItemAnotaAi> Itens { get; set; } = new List<ItemAnotaAi>();
+
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasAnotaAi(string? impressora)
+    {
+        Impressora1 = impressora;
+        Itens = new List<ItemAnotaAi>();
+    }
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasAnotaAi()
     {
 
     }

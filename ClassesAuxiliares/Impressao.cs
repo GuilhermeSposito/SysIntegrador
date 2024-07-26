@@ -56,22 +56,17 @@ public class Impressao
 
     public static void Imprimir(List<ClsImpressaoDefinicoes> conteudo, string impressora1, int espacamento)
     {
-        // Defina o nome da impressora específica que você deseja usar
+
         string printerName = impressora1;
-        string texto = "";
-        // Crie uma instância de PrintDocument
+
         PrintDocument printDocument = new PrintDocument();
         printDocument.PrinterSettings.PrinterName = printerName;
 
         printDocument.DefaultPageSettings.PaperSize = new PaperSize("Custom", 280, 500000);
         printDocument.DefaultPageSettings.Margins = new Margins(10, 10, 10, 10);
 
-
-
-        // Atribua um manipulador de evento para o evento PrintPage
         printDocument.PrintPage += (sender, e) => PrintPageHandler(sender, e, conteudo, espacamento);
 
-        // Inicie o processo de impressão
         printDocument.Print();
     }
 
@@ -365,11 +360,14 @@ public class Impressao
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
-                    AdicionaConteudo($"Valor dos itens: \t   {valorDosItens.ToString("c")} ", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Taxa De Entrega: \t   {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Taxa Adicional:  \t   {pedidoCompleto.total.additionalFees.ToString("c")} ", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Descontos:      \t   {pedidoCompleto.total.benefits.ToString("c")}", FonteTotaisDoPedido);
-                    AdicionaConteudo($"Valor Total:   \t   {pedidoCompleto.total.orderAmount.ToString("c")}", FonteTotaisDoPedido);
+                    AdicionaConteudo($"Valor dos itens:    \t {pedidoCompleto.total.subTotal.ToString("c")} ", FonteGeral);
+                    if (pedidoCompleto.total.deliveryFee > 0)
+                        AdicionaConteudo($"Taxa De Entrega:  \t {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteGeral);
+                    if (pedidoCompleto.total.additionalFees > 0)
+                        AdicionaConteudo($"Taxa Adicional:   \t {pedidoCompleto.total.additionalFees.ToString("c")} ", FonteGeral);
+                    if (pedidoCompleto.total.benefits > 0)
+                        AdicionaConteudo($"Descontos:        \t\t {pedidoCompleto.total.benefits.ToString("c")}", FonteGeral);
+                    AdicionaConteudo($"Valor Total:      \t\t {pedidoCompleto.total.orderAmount.ToString("c")}", FonteGeral);
                     valorDosItens = 0f;
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
@@ -554,9 +552,12 @@ public class Impressao
                     }
 
                     AdicionaConteudo($"Valor dos itens:    \t {pedidoCompleto.total.subTotal.ToString("c")} ", FonteGeral);
-                    AdicionaConteudo($"Taxa De Entrega:  \t {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteGeral);
-                    AdicionaConteudo($"Taxa Adicional:   \t {pedidoCompleto.total.additionalFees.ToString("c")} ", FonteGeral);
-                    AdicionaConteudo($"Descontos:        \t\t {pedidoCompleto.total.benefits.ToString("c")}", FonteGeral);
+                    if (pedidoCompleto.total.deliveryFee > 0)
+                        AdicionaConteudo($"Taxa De Entrega:  \t {pedidoCompleto.total.deliveryFee.ToString("c")}", FonteGeral);
+                    if (pedidoCompleto.total.additionalFees > 0)
+                        AdicionaConteudo($"Taxa Adicional:   \t {pedidoCompleto.total.additionalFees.ToString("c")} ", FonteGeral);
+                    if (pedidoCompleto.total.benefits > 0)
+                        AdicionaConteudo($"Descontos:        \t\t {pedidoCompleto.total.benefits.ToString("c")}", FonteGeral);
                     AdicionaConteudo($"Valor Total:      \t\t {pedidoCompleto.total.orderAmount.ToString("c")}", FonteGeral);
                     valorDosItens = 0f;
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

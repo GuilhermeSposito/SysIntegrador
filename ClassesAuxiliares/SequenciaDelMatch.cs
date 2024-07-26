@@ -11,7 +11,10 @@ namespace SysIntegradorApp.ClassesAuxiliares;
 
 public class Sequencia
 {
-    [JsonIgnore]public int numConta {  get; set; } 
+    [JsonIgnore]public int numConta {  get; set; }
+    [JsonIgnore] public bool Retorno { get; set; } = false;
+    [JsonIgnore] public string? Machine_ID { get; set; }
+    
     [JsonIgnore]public decimal ValorConta {  get; set; }
     [JsonIgnore] public string? DelMatchId { get; set; }
  

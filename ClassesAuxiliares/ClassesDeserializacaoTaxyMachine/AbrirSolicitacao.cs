@@ -9,13 +9,14 @@ namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
 
 public class AbrirSolicitacao
 {
+    [JsonIgnore] public int numConta { get; set; }
     [JsonProperty("forma_pagamento")] public string? FormaDePagamento { get; set; }
     [JsonProperty("empresa_id")] public string? EmpresaId { get; set; }
     [JsonProperty("condutor")] public Condutor Condutor { get; set; } = new Condutor();
     [JsonProperty("categoria_id")] public string? CategoriaId { get; set; }
     [JsonProperty("categoria_nome")] public string? CategoriaNome { get; set; }
     [JsonProperty("partida")] public Partida Partida { get; set; } = new Partida();
-    [JsonProperty("paradas")] public List<Paradas> Paradas { get; set; } = new List<Paradas>();    
+    [JsonProperty("paradas")] public List<Paradas> Paradas { get; set; } = new List<Paradas>();
     [JsonProperty("retorno")] public bool Retorno { get; set; }
     [JsonProperty("data")] public string? Data { get; set; }
     [JsonProperty("hora")] public string? Hora { get; set; }

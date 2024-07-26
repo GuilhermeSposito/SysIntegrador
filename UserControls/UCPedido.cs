@@ -452,6 +452,9 @@ public partial class UCPedido : UserControl
 
                 impressoras.Clear();
             }
+
+            if (Pedido.CriadoPor == "ANOTAAI")
+                ImpressaoAnotaAi.ChamaImpressoes(Id_pedido);
         }
         catch (Exception ex)
         {

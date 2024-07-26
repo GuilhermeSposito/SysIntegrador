@@ -661,6 +661,7 @@
             pictureBoxDois.TabIndex = 29;
             pictureBoxDois.TabStop = false;
             pictureBoxDois.Visible = false;
+            pictureBoxDois.Click += pictureBoxDois_Click;
             // 
             // pictureBoxUm
             // 
@@ -673,6 +674,7 @@
             pictureBoxUm.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxUm.TabIndex = 28;
             pictureBoxUm.TabStop = false;
+            pictureBoxUm.Click += pictureBoxUm_Click;
             // 
             // pictureBox15
             // 
@@ -807,6 +809,7 @@
             btnImprimir.TabIndex = 0;
             btnImprimir.Text = "Imprimir";
             btnImprimir.UseVisualStyleBackColor = false;
+            btnImprimir.Click += btnImprimir_Click;
             // 
             // UCInfoPedidoAnotaAi
             // 

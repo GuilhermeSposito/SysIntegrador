@@ -55,6 +55,12 @@
     <Compile Update="Forms\ONPEDIDO\FormDeCronograma.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="Forms\TaxyMachine\EnvioDePedidos.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="UserControls\TaxyMachine\UCPedidoTaxyMachine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\UCComplementoDoItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
