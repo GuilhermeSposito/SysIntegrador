@@ -349,9 +349,7 @@ public partial class UCInfoPedidosDelMatch : UserControl
                         string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
                         string Erro = "";
 
-
                         Erro += reposta.Response;
-
 
                         MessageBox.Show(Erro, Titulo);
                     }

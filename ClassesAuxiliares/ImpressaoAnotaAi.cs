@@ -387,9 +387,12 @@ public class ImpressaoAnotaAi
 
 
             AdicionaConteudo($"Valor dos itens: \t                  {valorDosItens.ToString("c")} ", FonteGeral);
-            AdicionaConteudo($"Taxa De Entrega: \t   {pedidoCompleto.InfoDoPedido.DeliveryFee.ToString("c")}", FonteGeral);
-            AdicionaConteudo($"Taxa Adicional:  \t                  {ValorTaxasAdicionais.ToString("c")} ", FonteGeral);
-            AdicionaConteudo($"Descontos:      \t                  {ValorDescontosNum.ToString("c")}", FonteGeral);
+            if (pedidoCompleto.InfoDoPedido.DeliveryFee > 0)
+                AdicionaConteudo($"Taxa De Entrega: \t   {pedidoCompleto.InfoDoPedido.DeliveryFee.ToString("c")}", FonteGeral);
+            if (ValorTaxasAdicionais > 0)
+                AdicionaConteudo($"Taxa Adicional:  \t                  {ValorTaxasAdicionais.ToString("c")} ", FonteGeral);
+            if (ValorDescontosNum > 0)
+                AdicionaConteudo($"Descontos:      \t                  {ValorDescontosNum.ToString("c")}", FonteGeral);
             AdicionaConteudo($"Valor Total:   \t                  {pedidoCompleto.InfoDoPedido.Total.ToString("c")}", FonteGeral);
             valorDosItens = 0f;
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

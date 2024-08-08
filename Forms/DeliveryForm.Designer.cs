@@ -51,7 +51,7 @@ partial class DeliveryForm
         panelDeListarPedidos.BackColor = Color.FromArgb(219, 95, 7);
         panelDeListarPedidos.Controls.Add(label1);
         panelDeListarPedidos.Cursor = Cursors.Hand;
-        panelDeListarPedidos.Location = new Point(75, 103);
+        panelDeListarPedidos.Location = new Point(59, 323);
         panelDeListarPedidos.Name = "panelDeListarPedidos";
         panelDeListarPedidos.Size = new Size(726, 179);
         panelDeListarPedidos.TabIndex = 0;
@@ -91,7 +91,7 @@ partial class DeliveryForm
         panelDeIniciarEntrega.BackColor = Color.FromArgb(219, 95, 7);
         panelDeIniciarEntrega.Controls.Add(label2);
         panelDeIniciarEntrega.Cursor = Cursors.Hand;
-        panelDeIniciarEntrega.Location = new Point(75, 306);
+        panelDeIniciarEntrega.Location = new Point(59, 125);
         panelDeIniciarEntrega.Name = "panelDeIniciarEntrega";
         panelDeIniciarEntrega.Size = new Size(726, 179);
         panelDeIniciarEntrega.TabIndex = 1;

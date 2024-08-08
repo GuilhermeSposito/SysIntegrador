@@ -696,7 +696,7 @@ public class DelMatch
                 string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
 
                 string entregador = "99";
-                string SqlSelectIntoCadastros = $"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NULL";
+                string SqlSelectIntoCadastros = "SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NULL AND (MESA = 'WEB' OR MESA LIKE '%E%');";  //$"SELECT * FROM Sequencia WHERE TRIM(ENTREGADOR) = @ENTREGADOR AND DelMatchId IS NULL AND MESA = WEB";
 
                 using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {
@@ -1024,7 +1024,7 @@ public class DelMatch
 
                 string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
 
-                string updateQuery = "UPDATE Sequencia SET DelMatchId = @NovoValor WHERE CONTA = @CONDICAO;";
+                string updateQuery = "UPDATE Sequencia SET DelMatchId = @NovoValor WHERE CONTA = @CONDICAO AND (MESA = 'WEB' OR MESA LIKE '%E%');";
 
                 string DelMatchId = delmatchId;
 
@@ -1049,7 +1049,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao encontra Id. Por favor comuniquw o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Erro ao encontra Id. Por favor comunique o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

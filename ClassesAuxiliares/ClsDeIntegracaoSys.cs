@@ -6398,7 +6398,7 @@ public class ClsDeIntegracaoSys
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao encontra Id. Por favor comuniquw o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show("Erro ao encontra Id. Por favor comunique o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

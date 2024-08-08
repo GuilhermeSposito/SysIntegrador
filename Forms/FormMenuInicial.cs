@@ -802,10 +802,14 @@ public partial class FormMenuInicial : Form
                     DeliveryForm deliveryForm = new DeliveryForm();
                     deliveryForm.ShowDialog();
                 }
-                else
+                else if(Configs.IntegraOttoEntregas)
                 {
                     EnvioDePedidos FormDePedidos = new EnvioDePedidos(new MeuContexto());
                     FormDePedidos.ShowDialog();
+                }
+                else
+                {
+                    MessageBox.Show("Você não tem nenhuma integração com aplicativos de entrega", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 }
             }
 

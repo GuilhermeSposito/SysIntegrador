@@ -164,6 +164,17 @@ namespace SysIntegradorApp.Forms
                 pictureBoxOffCCM.Visible = true;
             }
 
+            if (Configuracoes.IntegraAnotaAi)
+            {
+                pictureBoxOffAnotaAi.Visible = false;
+                pictureBoxOnAnotaAi.Visible = true;
+            }
+            else
+            {
+                pictureBoxOffAnotaAi.Visible = true;
+                pictureBoxOnAnotaAi.Visible = false;
+            }
+
         }
 
         public void AlimentaComboBoxDeImpressoras(FormDeParametrosDoSistema instancia)
@@ -259,7 +270,8 @@ namespace SysIntegradorApp.Forms
                     string? userOnPedido = textBoxuserOnPedido.Text;
                     string? senhaOnPedido = textBoxsenhaOnPedido.Text;
                     bool integraCCM = false;
-                    string tokenCCM = textBoxTokenCCM.Text; 
+                    string tokenCCM = textBoxTokenCCM.Text;
+                    bool integraAnotaAi = false;
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -353,13 +365,19 @@ namespace SysIntegradorApp.Forms
 
                     if (pictureBoxOnCCM.Visible == true)
                     {
-                        integraCCM = true; 
+                        integraCCM = true;
                     }
 
                     if (pictureBoxOffCCM.Visible == true)
                     {
                         integraCCM = false;
                     }
+
+                    if (pictureBoxOffAnotaAi.Visible)
+                        integraAnotaAi = false;
+
+                    if (pictureBoxOnAnotaAi.Visible)
+                        integraAnotaAi = true;
 
                     // Chamando o método SetInfosSistema com os valores obtidos
                     ParametrosDoSistema.SetInfosSistema(
@@ -395,7 +413,8 @@ namespace SysIntegradorApp.Forms
                          userOnPedido,
                          senhaOnPedido,
                          integraCCM,
-                         tokenCCM
+                         tokenCCM,
+                         integraAnotaAi
                      );
 
                     this.Close();
@@ -553,6 +572,18 @@ namespace SysIntegradorApp.Forms
         {
             pictureBoxOnCCM.Visible = true;
             pictureBoxOffCCM.Visible = false;
+        }
+
+        private void pictureBoxOnAnotaAi_Click(object sender, EventArgs e)
+        {
+            pictureBoxOnAnotaAi.Visible = false;
+            pictureBoxOffAnotaAi.Visible = true;
+        }
+
+        private void pictureBoxOffAnotaAi_Click(object sender, EventArgs e)
+        {
+            pictureBoxOnAnotaAi.Visible = true;
+            pictureBoxOffAnotaAi.Visible = false;
         }
     }
 }

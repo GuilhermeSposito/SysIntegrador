@@ -124,6 +124,7 @@
             textBoxUser.Name = "textBoxUser";
             textBoxUser.Size = new Size(272, 34);
             textBoxUser.TabIndex = 0;
+            textBoxUser.Text = "admin";
             // 
             // FormLoginConfigs
             // 
@@ -133,6 +134,7 @@
             ClientSize = new Size(484, 381);
             Controls.Add(groupBox1);
             Controls.Add(pictureBox1);
+            FormBorderStyle = FormBorderStyle.None;
             Icon = (Icon)resources.GetObject("$this.Icon");
             MaximizeBox = false;
             MinimizeBox = false;
@@ -141,6 +143,7 @@
             Text = "Login";
             FormClosing += FormLoginConfigs_FormClosing;
             FormClosed += FormLoginConfigs_FormClosed;
+            Load += FormLoginConfigs_Load;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();

@@ -57,6 +57,11 @@ public partial class FormDeCronograma : Form
                     instancia.OnCardapio.Visible = configuracoes.IntegraOnOPedido;
                 }
 
+                if (configuracoes.CardapioUsando == "ANOTAAI")
+                {
+                    instancia.OnCardapio.Visible = configuracoes.IntegraAnotaAi;
+                }
+
                 if (String.IsNullOrEmpty(configuracoes.CardapioUsando))
                 {
                     instancia.OnCardapio.Visible = false;

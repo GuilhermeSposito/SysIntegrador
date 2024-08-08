@@ -36,7 +36,7 @@ public class Impressao
     public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteItens = new Font("DejaVu sans mono", 12, FontStyle.Bold);
     public static Font FonteOpcionais = new Font("DejaVu sans mono", 11, FontStyle.Regular);
-    public static Font FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
+    public static Font FonteObservaçõesItem = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteTotaisDoPedido = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteCPF = new Font("DejaVu sans mono", 8, FontStyle.Bold);
 
@@ -531,21 +531,14 @@ public class Impressao
                             {
                                 foreach (var option in CaracteristicasPedido.Observações)
                                 {
-                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                    AdicionaConteudo($"{option}", FonteObservaçõesItem);
                                 }
-
-
-                                if (item.observations != null && item.observations.Length > 0)
-                                {
-                                    AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
-                                }
-
                             }
                         }
 
                         if (item.observations != null && item.observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                            AdicionaConteudo($"Obs: {item.observations}", FonteObservaçõesItem);
                         }
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

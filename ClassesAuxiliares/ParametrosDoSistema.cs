@@ -163,7 +163,8 @@ public class ParametrosDoSistema
      string userOnPedido,
      string senhaOnPedido,
      bool integraCCM,
-     string tokenCCM
+     string tokenCCM,
+     bool integraAnotaAi
      )
     {
         try
@@ -205,6 +206,7 @@ public class ParametrosDoSistema
                 configuracoes.SenhaOnPedido = senhaOnPedido;
                 configuracoes.IntegraCCM = integraCCM;
                 configuracoes.TokenCCM = tokenCCM;
+                configuracoes.IntegraAnotaAi = integraAnotaAi;
 
                 dbContext.SaveChanges();
             }
@@ -243,6 +245,11 @@ public class ParametrosDoSistema
                 if (configuracoes.CardapioUsando == "ONPEDIDO")
                 {
                     configuracoes.IntegraOnOPedido = integraCardapio;
+                }
+
+                if (configuracoes.CardapioUsando == "ANOTAAI")
+                {
+                    configuracoes.IntegraAnotaAi = integraCardapio;
                 }
 
 

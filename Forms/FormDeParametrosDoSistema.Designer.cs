@@ -113,6 +113,9 @@
             label27 = new Label();
             textBoxSenhaDelMatch = new TextBox();
             panel14 = new Panel();
+            label39 = new Label();
+            pictureBoxOffAnotaAi = new PictureBox();
+            pictureBoxOnAnotaAi = new PictureBox();
             pictureBoxOffCCM = new PictureBox();
             pictureBoxOnCCM = new PictureBox();
             label37 = new Label();
@@ -158,6 +161,8 @@
             panel5.SuspendLayout();
             panel13.SuspendLayout();
             panel14.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOffAnotaAi).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnAnotaAi).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).BeginInit();
@@ -1187,6 +1192,9 @@
             // 
             panel14.AutoSize = true;
             panel14.BackColor = SystemColors.ButtonFace;
+            panel14.Controls.Add(label39);
+            panel14.Controls.Add(pictureBoxOffAnotaAi);
+            panel14.Controls.Add(pictureBoxOnAnotaAi);
             panel14.Controls.Add(pictureBoxOffCCM);
             panel14.Controls.Add(pictureBoxOnCCM);
             panel14.Controls.Add(label37);
@@ -1205,13 +1213,48 @@
             panel14.Size = new Size(468, 174);
             panel14.TabIndex = 8;
             // 
+            // label39
+            // 
+            label39.AutoSize = true;
+            label39.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label39.Location = new Point(7, 122);
+            label39.Name = "label39";
+            label39.Size = new Size(90, 28);
+            label39.TabIndex = 33;
+            label39.Text = "Anota Aí";
+            // 
+            // pictureBoxOffAnotaAi
+            // 
+            pictureBoxOffAnotaAi.Cursor = Cursors.Hand;
+            pictureBoxOffAnotaAi.Image = (Image)resources.GetObject("pictureBoxOffAnotaAi.Image");
+            pictureBoxOffAnotaAi.Location = new Point(148, 122);
+            pictureBoxOffAnotaAi.Name = "pictureBoxOffAnotaAi";
+            pictureBoxOffAnotaAi.Size = new Size(72, 35);
+            pictureBoxOffAnotaAi.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOffAnotaAi.TabIndex = 32;
+            pictureBoxOffAnotaAi.TabStop = false;
+            pictureBoxOffAnotaAi.Click += pictureBoxOffAnotaAi_Click;
+            // 
+            // pictureBoxOnAnotaAi
+            // 
+            pictureBoxOnAnotaAi.Cursor = Cursors.Hand;
+            pictureBoxOnAnotaAi.Image = (Image)resources.GetObject("pictureBoxOnAnotaAi.Image");
+            pictureBoxOnAnotaAi.Location = new Point(148, 122);
+            pictureBoxOnAnotaAi.Name = "pictureBoxOnAnotaAi";
+            pictureBoxOnAnotaAi.Size = new Size(72, 35);
+            pictureBoxOnAnotaAi.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxOnAnotaAi.TabIndex = 31;
+            pictureBoxOnAnotaAi.TabStop = false;
+            pictureBoxOnAnotaAi.Visible = false;
+            pictureBoxOnAnotaAi.Click += pictureBoxOnAnotaAi_Click;
+            // 
             // pictureBoxOffCCM
             // 
             pictureBoxOffCCM.Cursor = Cursors.Hand;
             pictureBoxOffCCM.Image = (Image)resources.GetObject("pictureBoxOffCCM.Image");
-            pictureBoxOffCCM.Location = new Point(373, 96);
+            pictureBoxOffCCM.Location = new Point(373, 75);
             pictureBoxOffCCM.Name = "pictureBoxOffCCM";
-            pictureBoxOffCCM.Size = new Size(84, 43);
+            pictureBoxOffCCM.Size = new Size(72, 35);
             pictureBoxOffCCM.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOffCCM.TabIndex = 30;
             pictureBoxOffCCM.TabStop = false;
@@ -1221,9 +1264,9 @@
             // 
             pictureBoxOnCCM.Cursor = Cursors.Hand;
             pictureBoxOnCCM.Image = (Image)resources.GetObject("pictureBoxOnCCM.Image");
-            pictureBoxOnCCM.Location = new Point(373, 96);
+            pictureBoxOnCCM.Location = new Point(373, 75);
             pictureBoxOnCCM.Name = "pictureBoxOnCCM";
-            pictureBoxOnCCM.Size = new Size(84, 45);
+            pictureBoxOnCCM.Size = new Size(72, 35);
             pictureBoxOnCCM.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOnCCM.TabIndex = 29;
             pictureBoxOnCCM.TabStop = false;
@@ -1234,7 +1277,7 @@
             // 
             label37.AutoSize = true;
             label37.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label37.Location = new Point(246, 102);
+            label37.Location = new Point(246, 75);
             label37.Name = "label37";
             label37.Size = new Size(53, 28);
             label37.TabIndex = 28;
@@ -1244,9 +1287,9 @@
             // 
             pictureBoxONIntegracaoOnPedido.Cursor = Cursors.Hand;
             pictureBoxONIntegracaoOnPedido.Image = (Image)resources.GetObject("pictureBoxONIntegracaoOnPedido.Image");
-            pictureBoxONIntegracaoOnPedido.Location = new Point(373, 45);
+            pictureBoxONIntegracaoOnPedido.Location = new Point(373, 28);
             pictureBoxONIntegracaoOnPedido.Name = "pictureBoxONIntegracaoOnPedido";
-            pictureBoxONIntegracaoOnPedido.Size = new Size(84, 45);
+            pictureBoxONIntegracaoOnPedido.Size = new Size(72, 35);
             pictureBoxONIntegracaoOnPedido.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxONIntegracaoOnPedido.TabIndex = 27;
             pictureBoxONIntegracaoOnPedido.TabStop = false;
@@ -1257,9 +1300,9 @@
             // 
             pictureBoxOFFIntegracaoOnPedido.Cursor = Cursors.Hand;
             pictureBoxOFFIntegracaoOnPedido.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoOnPedido.Image");
-            pictureBoxOFFIntegracaoOnPedido.Location = new Point(373, 47);
+            pictureBoxOFFIntegracaoOnPedido.Location = new Point(373, 28);
             pictureBoxOFFIntegracaoOnPedido.Name = "pictureBoxOFFIntegracaoOnPedido";
-            pictureBoxOFFIntegracaoOnPedido.Size = new Size(84, 43);
+            pictureBoxOFFIntegracaoOnPedido.Size = new Size(72, 35);
             pictureBoxOFFIntegracaoOnPedido.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOFFIntegracaoOnPedido.TabIndex = 26;
             pictureBoxOFFIntegracaoOnPedido.TabStop = false;
@@ -1269,7 +1312,7 @@
             // 
             label33.AutoSize = true;
             label33.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label33.Location = new Point(246, 55);
+            label33.Location = new Point(246, 35);
             label33.Name = "label33";
             label33.Size = new Size(102, 28);
             label33.TabIndex = 25;
@@ -1279,7 +1322,7 @@
             // 
             pictureBoxOnIntegracaoDelMatch.Cursor = Cursors.Hand;
             pictureBoxOnIntegracaoDelMatch.Image = (Image)resources.GetObject("pictureBoxOnIntegracaoDelMatch.Image");
-            pictureBoxOnIntegracaoDelMatch.Location = new Point(148, 102);
+            pictureBoxOnIntegracaoDelMatch.Location = new Point(148, 75);
             pictureBoxOnIntegracaoDelMatch.Name = "pictureBoxOnIntegracaoDelMatch";
             pictureBoxOnIntegracaoDelMatch.Size = new Size(72, 35);
             pictureBoxOnIntegracaoDelMatch.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1292,7 +1335,7 @@
             // 
             pictureBoxOFFIntegracaoDelMatch.Cursor = Cursors.Hand;
             pictureBoxOFFIntegracaoDelMatch.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoDelMatch.Image");
-            pictureBoxOFFIntegracaoDelMatch.Location = new Point(148, 102);
+            pictureBoxOFFIntegracaoDelMatch.Location = new Point(148, 75);
             pictureBoxOFFIntegracaoDelMatch.Name = "pictureBoxOFFIntegracaoDelMatch";
             pictureBoxOFFIntegracaoDelMatch.Size = new Size(72, 35);
             pictureBoxOFFIntegracaoDelMatch.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1304,7 +1347,7 @@
             // 
             label30.AutoSize = true;
             label30.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label30.Location = new Point(7, 102);
+            label30.Location = new Point(7, 82);
             label30.Name = "label30";
             label30.Size = new Size(113, 28);
             label30.TabIndex = 22;
@@ -1314,7 +1357,7 @@
             // 
             label29.AutoSize = true;
             label29.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label29.Location = new Point(7, 55);
+            label29.Location = new Point(7, 35);
             label29.Name = "label29";
             label29.Size = new Size(61, 28);
             label29.TabIndex = 21;
@@ -1324,7 +1367,7 @@
             // 
             pictureBoxONIntegracaoIfood.Cursor = Cursors.Hand;
             pictureBoxONIntegracaoIfood.Image = (Image)resources.GetObject("pictureBoxONIntegracaoIfood.Image");
-            pictureBoxONIntegracaoIfood.Location = new Point(148, 55);
+            pictureBoxONIntegracaoIfood.Location = new Point(148, 28);
             pictureBoxONIntegracaoIfood.Name = "pictureBoxONIntegracaoIfood";
             pictureBoxONIntegracaoIfood.Size = new Size(72, 35);
             pictureBoxONIntegracaoIfood.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1348,7 +1391,7 @@
             // 
             pictureBoxOFFIntegracaoIfood.Cursor = Cursors.Hand;
             pictureBoxOFFIntegracaoIfood.Image = (Image)resources.GetObject("pictureBoxOFFIntegracaoIfood.Image");
-            pictureBoxOFFIntegracaoIfood.Location = new Point(148, 55);
+            pictureBoxOFFIntegracaoIfood.Location = new Point(148, 28);
             pictureBoxOFFIntegracaoIfood.Name = "pictureBoxOFFIntegracaoIfood";
             pictureBoxOFFIntegracaoIfood.Size = new Size(72, 35);
             pictureBoxOFFIntegracaoIfood.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1484,6 +1527,8 @@
             panel13.PerformLayout();
             panel14.ResumeLayout(false);
             panel14.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOffAnotaAi).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxOnAnotaAi).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxONIntegracaoOnPedido).EndInit();
@@ -1602,5 +1647,8 @@
         private TextBox textBoxTokenCCM;
         private Label label38;
         private Label label32;
+        private Label label39;
+        private PictureBox pictureBoxOffAnotaAi;
+        private PictureBox pictureBoxOnAnotaAi;
     }
 }

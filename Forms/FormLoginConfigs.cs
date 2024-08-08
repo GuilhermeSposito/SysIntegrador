@@ -21,6 +21,7 @@ namespace SysIntegradorApp.Forms
         {
             InitializeComponent();
             NaoPermiteFecharForm = true;
+
         }
 
         public static void ValidaLogin(string? user, string? senha)
@@ -62,7 +63,7 @@ namespace SysIntegradorApp.Forms
         {
             string user = textBoxUser.Text;
             string senha = textSenha.Text;
-           
+
 
             ValidaLogin(user, senha);
         }
@@ -80,6 +81,11 @@ namespace SysIntegradorApp.Forms
             {
                 btnEntrar_Click(sender, e);
             }
+        }
+
+        private void FormLoginConfigs_Load(object sender, EventArgs e)
+        {
+            textSenha.Focus();
         }
     }
 }
