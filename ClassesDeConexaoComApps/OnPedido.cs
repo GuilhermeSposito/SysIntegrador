@@ -747,6 +747,11 @@ public class OnPedido
                 dataLimite = p.Return.Indoor.IndoorDateTime;
             }
 
+            if (p.Return.OrderTiming == "SCHEDULED")
+            {
+                dataLimite = p.Return.Schedule.ScheduledDateTimeEnd;
+            }
+
             PedidoCompletoConvertido.delivery.deliveredBy = DeliveryBy;
             PedidoCompletoConvertido.delivery.deliveryDateTime = dataLimite;
             PedidoCompletoConvertido.customer.id = p.Return.Customer.Id;
@@ -779,7 +784,7 @@ public class OnPedido
                 InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
                 InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
                 InfosParaOToken.MerchantUsername = configs.UserOnPedido;
-                InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; 
+                InfosParaOToken.MerchantPassword = configs.SenhaOnPedido;
                 InfosParaOToken.ClearAnotherTokens = true;
 
                 string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);
@@ -828,7 +833,7 @@ public class OnPedido
                     InfosParaOToken.MerchantOAuthToken = configs.TokenOnPedido;
                     InfosParaOToken.SoftwareOAuthToken = "2361jmm-62a7m0p5o5r6m2j6q4n5j3q4k8a5k152";
                     InfosParaOToken.MerchantUsername = configs.UserOnPedido;
-                    InfosParaOToken.MerchantPassword = configs.SenhaOnPedido; 
+                    InfosParaOToken.MerchantPassword = configs.SenhaOnPedido;
                     InfosParaOToken.ClearAnotherTokens = true;
 
                     string? JsonContent = JsonConvert.SerializeObject(InfosParaOToken);

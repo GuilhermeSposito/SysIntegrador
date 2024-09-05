@@ -72,7 +72,7 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES ( ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, CLIENTE ,ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -90,6 +90,7 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@BAIENTREGA", bairEntrega);//se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@REFENTREGA", referencia);//se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@CONTATO", contatoNome);
+                    command.Parameters.AddWithValue("@CLIENTE", contatoNome);
                     command.Parameters.AddWithValue("@ENTREGADOR", entregador); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@USUARIO", usuario);
                     command.Parameters.AddWithValue("@DTSAIDA", dataSaida.Replace("-", "/"));
@@ -235,7 +236,7 @@ public class ClsDeIntegracaoSys
         return ultimoNumeroConta;
     }
 
-    public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta)
+    public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta, float desconto = 0.0f, float acrecimo = 0.0f)
     {
         try
         {
@@ -243,7 +244,6 @@ public class ClsDeIntegracaoSys
             ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
 
             string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
-
 
             foreach (Methods pagamentoAtual in pagamento.methods)
             {
@@ -253,14 +253,13 @@ public class ClsDeIntegracaoSys
                     connection.Open();
                     string? tipoPagamento = "PAGCRT";
 
-
                     switch (pagamentoAtual.method)
                     {
                         case "CREDIT":
                             tipoPagamento = "PAGCRT";
                             break;
                         case "MEAL_VOUCHER":
-                            tipoPagamento = "VOUCHER";
+                            tipoPagamento = "PAGCRT";
                             break;
                         case "DEBIT":
                             tipoPagamento = "PAGCRT";
@@ -301,7 +300,6 @@ public class ClsDeIntegracaoSys
 
                         using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
                         {
-
                             // Definindo os parâmetros para a instrução SQL
                             command.Parameters.AddWithValue($"@NovoValor", valor);
                             command.Parameters.AddWithValue("@CONDICAO", numConta);
@@ -309,6 +307,22 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
+                      
+
+                        if(acrecimo > 0)
+                        {
+                            string QueryDeAdicionarDesconto = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
                         continue;
                     }
 
@@ -328,6 +342,22 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
+                     
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
                         continue;
                     }
 
@@ -356,6 +386,22 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
+                      
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
                         continue;
                     }
 
@@ -384,7 +430,23 @@ public class ClsDeIntegracaoSys
 
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
+                        }             
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
                         }
+
+
                         continue;
                     }
 
@@ -413,6 +475,21 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
+                      
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
                         continue;
                     }
 
@@ -441,27 +518,26 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                        continue;
-                    }
+                       
 
-
-                    if (tipoPagamento == "VOUCHER")
-                    {
-                        string updateQuery = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
-                        double valor = pagamentoAtual.value;
-
-                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        if (acrecimo > 0)
                         {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
 
-                            // Definindo os parâmetros para a instrução SQL
-                            command.Parameters.AddWithValue($"@NovoValor", valor);
-                            command.Parameters.AddWithValue("@CONDICAO", numConta);
-
-                            // Executando o comando UPDATE
-                            command.ExecuteNonQuery();
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
                         }
+
+
                         continue;
                     }
+
 
 
                 }
@@ -615,9 +691,7 @@ public class ClsDeIntegracaoSys
 
                 string? tipoPagamento = DefinePagamento(metodo, app);//pedidoCompleto.payments.methods[0].method);
 
-
-                string SqlSelectIntoCadastros = $"SELECT * FROM CARTAO WHERE NOME = {tipoPagamento}";
-
+                string SqlSelectIntoCadastros = $"SELECT * FROM CARTAO WHERE NOME like '%{tipoPagamento}%'";
 
                 using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
                 {
@@ -635,7 +709,7 @@ public class ClsDeIntegracaoSys
                 }
             }
 
-            if (type != "ONLINE" || type != "online")
+            if (type != "ONLINE" && type != "online" && metodo != "CASH" && metodo != "DIN" && metodo != "Dinheiro" && metodo != "money")
             {
                 using (OleDbConnection connection = new OleDbConnection(banco))
                 {
@@ -6374,8 +6448,8 @@ public class ClsDeIntegracaoSys
                                 command.ExecuteNonQuery();
                             }
 
-                        if(apoio.EPedidoAgrupado)
-                            foreach(var pedido in apoio.NumerosDeConta)
+                        if (apoio.EPedidoAgrupado)
+                            foreach (var pedido in apoio.NumerosDeConta)
                             {
                                 using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
                                 {

@@ -16,6 +16,7 @@ using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.ClassesAuxiliares.logs;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -491,27 +492,53 @@ public class ImpressaoONPedido
                     AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteItens);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Pedido:                           #{pedidoCompleto.Return.Id}", FonteGeral);
+                    if (pedidoCompleto.Return.OrderTiming == "SCHEDULED")
+                    {
+                        AdicionaConteudo("*** PEDIDO AGENDADO ***", FonteGeral, AlinhamentosOnPedido.Centro);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    AdicionaConteudo($"Pedido:                                     #{pedidoCompleto.Return.Id}", FonteGeral);
 
                     DateTime DataCertaCriadoEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.CreatedAt);
                     var DataCertaCriadoEm = DataCertaCriadoEmTimeStamp.ToString();
 
                     AdicionaConteudo($"Realizado: \t {DataCertaCriadoEm.Substring(0, 10)} {DataCertaCriadoEm.Substring(11, 5)}", FonteGeral);
 
-                    if (defineEntrega == "Retirada")
+                    if (pedidoCompleto.Return.Type == "TAKEOUT")
                     {
+                        if (pedidoCompleto.Return.OrderTiming != "SCHEDULED")
+                        {
+                            DateTime DataCertaTerminarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.TakeOut.TakeoutDateTime);
+                            var DataCertaTerminarEm = DataCertaTerminarEmTimeStamp;
 
-                        DateTime DataCertaTerminarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.CreatedAt);
-                        var DataCertaTerminarEm = DataCertaTerminarEmTimeStamp;
+                            AdicionaConteudo($"Terminar Até: \t {DataCertaTerminarEm.ToString().Substring(0, 10)} {DataCertaTerminarEm.ToString().Substring(11, 5)}", FonteGeral);
+                        }
+                        else
+                        {
+                            DateTime DataCertaTerminarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.Schedule.ScheduledDateTimeEnd);
+                            var DataCertaTerminarEm = DataCertaTerminarEmTimeStamp;
 
-                        AdicionaConteudo($"Terminar Até: \t {DataCertaTerminarEm.ToString().Substring(0, 10)} {DataCertaTerminarEm.ToString().Substring(11, 5)}", FonteGeral);
+                            AdicionaConteudo($"Terminar Até: \t {DataCertaTerminarEm.ToString().Substring(0, 10)} {DataCertaTerminarEm.ToString().Substring(11, 5)}", FonteGeral);
+                        }
                     }
                     else
                     {
-                        DateTime DataCertaEntregarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.CreatedAt);
-                        var DataCertaEntregarEm = DataCertaEntregarEmTimeStamp;
+                        if (pedidoCompleto.Return.OrderTiming != "SCHEDULED")
+                        {
+                            DateTime DataCertaEntregarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.Delivery.DeliveryDateTime);
+                            var DataCertaEntregarEm = DataCertaEntregarEmTimeStamp;
+                            AdicionaConteudo($"Entregar Até: \t {DataCertaEntregarEm.ToString().Substring(0, 10)} {DataCertaEntregarEm.ToString().Substring(11, 5)}", FonteGeral);
 
-                        AdicionaConteudo($"Entregar Até: \t {DataCertaEntregarEm.ToString().Substring(0, 10)} {DataCertaEntregarEm.ToString().Substring(11, 5)}", FonteGeral);
+                        }
+                        else
+                        {
+                            DateTime DataCertaEntregarEmTimeStamp = DateTime.Parse(pedidoCompleto.Return.Schedule.ScheduledDateTimeEnd);
+                            var DataCertaEntregarEm = DataCertaEntregarEmTimeStamp;
+                            AdicionaConteudo($"Entregar Até: \t {DataCertaEntregarEm.ToString().Substring(0, 10)} {DataCertaEntregarEm.ToString().Substring(11, 5)}", FonteGeral);
+                        }
+
+
                     }
 
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

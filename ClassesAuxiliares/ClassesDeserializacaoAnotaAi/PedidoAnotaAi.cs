@@ -29,6 +29,7 @@ public class InfoDoPedido
     [JsonProperty("preparationStartDateTime")] public string? PreparationStartDateTime { get; set; }
     [JsonProperty("salesChannel")] public string? SalesChannel { get; set; }
     [JsonProperty("shortReference")] public int ShortReference { get; set; }
+    [JsonProperty("schedule_order")] public ScheduleOrder? Schedule_Order { get; set; }
     [JsonProperty("table")] public string? Table { get; set; }
     [JsonProperty("time_max")] public string? TimeMax { get; set; }
     [JsonProperty("total")] public float Total { get; set; }
@@ -39,6 +40,14 @@ public class InfoDoPedido
     [JsonProperty("deliveryAddress")] public EnderecoDeDelivery deliveryAddress { get; set; } = new EnderecoDeDelivery();
     [JsonProperty("pdv")] public Pdv Pdv { get; set; } = new Pdv();
 
+}
+
+public class ScheduleOrder
+{
+    [JsonProperty("date")] public string? Date {  get; set; }
+    [JsonProperty("start")] public string? Start {  get; set; }
+    [JsonProperty("end")] public string? End {  get; set; }
+    [JsonProperty("timezone")] public string? Timezone {  get; set; }
 }
 
 public class CustomerAnotaAi

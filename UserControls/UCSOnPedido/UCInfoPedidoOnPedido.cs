@@ -29,7 +29,7 @@ public partial class UCInfoPedidoOnPedido : UserControl
     {
         InitializeComponent();
 
-            
+
 
     }
 
@@ -57,20 +57,40 @@ public partial class UCInfoPedidoOnPedido : UserControl
 
             if (TipoPedido == "DELIVERY")
             {
-                TipoDaEntrega = "Propria";
-                EnderecoDaEntrega = Pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
-                DataCorreta = Pedido.Return.Delivery.DeliveryDateTime;
+                if (Pedido.Return.OrderTiming == "SCHEDULED")
+                {
+                    TipoDaEntrega = "Propria";
+                    EnderecoDaEntrega = Pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
+                    DataCorreta = Pedido.Return.Schedule.ScheduledDateTimeEnd;
+                }
+                else
+                {
+                    TipoDaEntrega = "Propria";
+                    EnderecoDaEntrega = Pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
+                    DataCorreta = Pedido.Return.Delivery.DeliveryDateTime;
+                }
+
             }
 
             if (TipoPedido == "TAKEOUT")
             {
-                TipoDaEntrega = "Retirada";
-                EnderecoDaEntrega = "RETIRADA NO LOCAL DO RESTAURANTE";
+                if (Pedido.Return.OrderTiming == "SCHEDULED")
+                {
+                    TipoDaEntrega = "Retirada";
+                    EnderecoDaEntrega = "RETIRADA NO LOCAL DO RESTAURANTE";
 
-                DataCorreta = Pedido.Return.TakeOut.TakeoutDateTime;
+                    DataCorreta = Pedido.Return.Schedule.ScheduledDateTimeEnd;
 
+                }
+                else
+                {
+                    TipoDaEntrega = "Retirada";
+                    EnderecoDaEntrega = "RETIRADA NO LOCAL DO RESTAURANTE";
+
+                    DataCorreta = Pedido.Return.TakeOut.TakeoutDateTime;
+
+                }
                 btnDespachar.Text = "Pronto";
-
             }
 
             if (TipoPedido == "INDOOR")
@@ -94,12 +114,12 @@ public partial class UCInfoPedidoOnPedido : UserControl
 
                 if (TipoPedido == "DELIVERY")
                 {
-                    DataCorreta = Pedido.Return.Delivery.DeliveryDateTime;
+                    DataCorreta = Pedido.Return.Schedule.ScheduledDateTimeEnd;
                 }
 
                 if (TipoPedido == "TAKEOUT")
                 {
-                    DataCorreta = Pedido.Return.TakeOut.TakeoutDateTime;
+                    DataCorreta = Pedido.Return.Schedule.ScheduledDateTimeEnd;
                 }
 
                 if (TipoPedido == "INDOOR")
@@ -225,8 +245,8 @@ public partial class UCInfoPedidoOnPedido : UserControl
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe)));
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true));
-  
-        ;
+
+            ;
         }
         catch (Exception ex)
         {

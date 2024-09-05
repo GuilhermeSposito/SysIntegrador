@@ -311,6 +311,10 @@ public class DelMatch
 
                     if (pedido.Type != "INDOOR")
                     {
+                        if (pedido.Customer.Name.Length > 50)
+                        {
+                            pedido.Customer.Name = pedido.Customer.Name.Substring(0, 50);
+                        }
 
                         insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
                            mesa: mesa,
@@ -544,7 +548,7 @@ public class DelMatch
 
 
                         pedidoJaExistenteDB.Json = JsonConvert.SerializeObject(pedido);
-                        db.SaveChanges();
+                        await db.SaveChangesAsync();
                     }
                 }
 

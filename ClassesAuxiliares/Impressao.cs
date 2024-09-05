@@ -442,11 +442,19 @@ public class Impressao
 
                     AdicionaConteudo($"Pedido:                                    #{pedidoCompleto.displayId}", FonteGeral);
                     AdicionaConteudo($"Conta Nº:                                     {NumContaString.PadLeft(3, '0')}\n", FonteGeral);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     DateTime DataCertaDaFeitoEmTimeStamp = DateTime.ParseExact(pedidoCompleto.createdAt, "yyyy-MM-ddTHH:mm:ss.fffZ",
                           System.Globalization.CultureInfo.InvariantCulture,
                           System.Globalization.DateTimeStyles.AssumeUniversal);
                     DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
+
+
+                    if (pedidoCompleto.orderTiming == "SCHEDULED")
+                    {
+                        AdicionaConteudo("*** PEDIDO AGENDADO ***", FonteGeral, Alinhamentos.Centro);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
 
                     AdicionaConteudo($"Realizado: \t {DataCertaDaFeitoEm.ToString().Substring(0, 10)} {DataCertaDaFeitoEm.ToString().Substring(11, 5)}", FonteGeral);
 
@@ -460,11 +468,22 @@ public class Impressao
                     }
                     else
                     {
-                        DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(pedidoCompleto.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                        if (pedidoCompleto.orderTiming == "SCHEDULED")
+                        {
+                            DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(pedidoCompleto.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
                                                  System.Globalization.CultureInfo.InvariantCulture,
                                                  System.Globalization.DateTimeStyles.AssumeUniversal);
-                        DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
-                        AdicionaConteudo($"Entregar Até: \t {DataCertaDaEntrega.ToString().Substring(0, 10)} {DataCertaDaEntrega.ToString().Substring(11, 5)}", FonteGeral);
+                            DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
+                            AdicionaConteudo($"Entregar Até: \t {DataCertaDaEntrega.ToString().Substring(0, 10)} {DataCertaDaEntrega.ToString().Substring(11, 5)}", FonteGeral);
+                        }
+                        else
+                        {
+                            DateTime DataCertaDaEntregaemTimeStamp = DateTime.ParseExact(pedidoCompleto.delivery.deliveryDateTime, "yyyy-MM-ddTHH:mm:ss.fffZ",
+                                                 System.Globalization.CultureInfo.InvariantCulture,
+                                                 System.Globalization.DateTimeStyles.AssumeUniversal);
+                            DateTime DataCertaDaEntrega = DataCertaDaEntregaemTimeStamp.ToLocalTime();
+                            AdicionaConteudo($"Entregar Até: \t {DataCertaDaEntrega.ToString().Substring(0, 10)} {DataCertaDaEntrega.ToString().Substring(11, 5)}", FonteGeral);
+                        }
                     }
 
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

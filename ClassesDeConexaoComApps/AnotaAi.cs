@@ -479,6 +479,10 @@ public class AnotaAi
             pedidoCompleto.createdAt = p.InfoDoPedido.CreatedAt;
             pedidoCompleto.orderTiming = "IMMEDIATE"; // Valor fixo de exemplo
 
+            if (p.InfoDoPedido.Schedule_Order is not null)
+            {
+                pedidoCompleto.orderTiming = "SCHEDULED";
+            }
 
             string? dataLimite = "";
             string? DeliveryBy = "";

@@ -135,7 +135,7 @@ namespace SysIntegradorApp
                 notifyIcon1.ShowBalloonTip(300, "Bem-Vindo", "Bem vindo ao sistema de integração de Aplicativos de delivery Syslogica!", ToolTipIcon.Info);
                 notifyIcon1.Dispose();
 
-                bool verificaInternet = true;//await VerificaInternet.InternetAtiva();
+                bool verificaInternet = await VerificaInternet.InternetAtiva();
 
                 if (!verificaInternet)
                 {

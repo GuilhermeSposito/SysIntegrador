@@ -48,13 +48,6 @@ public class Ifood
                 ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
                 var authBase = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
 
-                bool verificaInternet = true; //await VerificaInternet.InternetAtiva();
-
-                if (!verificaInternet)
-                {
-                    throw new Exception("Por favor verifique sua conexão com a internet");
-                }
-
                 if (opcSistema.IntegracaoSysMenu)
                 {
                     bool CaixaAberto = await ClsDeIntegracaoSys.VerificaCaixaAberto();
@@ -350,6 +343,11 @@ public class Ifood
                             complementoDaEntrega = pedidoCompletoDeserialiado.delivery.deliveryAddress.complement;
                         }
 
+                        if(pedidoCompletoDeserialiado.customer.name.Length > 50)
+                        {
+                            pedidoCompletoDeserialiado.customer.name = pedidoCompletoDeserialiado.customer.name.Substring(0, 50);
+                        }
+
                         DateTime DataCertaDaFeitoEmTimeStamp = DateTime.Parse(pedidoCompletoDeserialiado.createdAt);
                         DateTime DataCertaDaFeitoEm = DataCertaDaFeitoEmTimeStamp.ToLocalTime();
 
@@ -378,7 +376,7 @@ public class Ifood
                            eIfood: true); //fim dos parâmetros do método de integração
 
                         ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado.payments.methods[0].method, insertNoSysMenuConta, pedidoCompletoDeserialiado.payments.methods[0].value, pedidoCompletoDeserialiado.payments.methods[0].type, "IFOOD");
-                        ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta);
+                        ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta, desconto: pedidoCompletoDeserialiado.total.benefits, acrecimo: pedidoCompletoDeserialiado.total.additionalFees);
                     }
 
                     //serializar o polling para inserir no banco

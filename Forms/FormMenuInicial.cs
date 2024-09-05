@@ -34,6 +34,7 @@ using Microsoft.Web.WebView2.Core;
 using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.Forms.TaxyMachine;
+using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 
 namespace SysIntegradorApp;
 
@@ -681,6 +682,13 @@ public partial class FormMenuInicial : Form
             ApplicationDbContext db = new ApplicationDbContext();
             ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
 
+            bool verificaInternet = await VerificaInternet.InternetAtiva();
+
+            if (!verificaInternet)
+            {
+                throw new Exception("Por favor verifique sua conexão com a internet");
+            }
+
             if (Configuracoes.IntegraIfood)
             {
                 var Ifood = new Ifood(new MeuContexto());
@@ -757,7 +765,7 @@ public partial class FormMenuInicial : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString(), "OPS");
+            MessageBox.Show(ex.Message, "OPS");
         }
     }
 
@@ -802,7 +810,7 @@ public partial class FormMenuInicial : Form
                     DeliveryForm deliveryForm = new DeliveryForm();
                     deliveryForm.ShowDialog();
                 }
-                else if(Configs.IntegraOttoEntregas)
+                else if (Configs.IntegraOttoEntregas)
                 {
                     EnvioDePedidos FormDePedidos = new EnvioDePedidos(new MeuContexto());
                     FormDePedidos.ShowDialog();
@@ -819,7 +827,7 @@ public partial class FormMenuInicial : Form
         {
             await Logs.CriaLogDeErro(ex.ToString());
         }
-      
+
     }
 
     private void pictureBoxConfig_Click(object sender, EventArgs e)
