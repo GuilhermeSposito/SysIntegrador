@@ -9,6 +9,7 @@ using SysIntegradorApp.ClassesAuxiliares;
 using System.Data.OleDb;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
+using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 
 namespace SysIntegradorApp.data;
 
@@ -28,6 +29,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<ParametrosDoPedido> parametrosdopedido { get; set; }
     public DbSet<ParametrosDoSistema> parametrosdosistema { get; set; }
     public DbSet<ApoioOnPedido> apoioonpedido { get; set; }
+    public DbSet<Garcom> garcons { get; set; }
+    public DbSet<Produto> cardapio { get; set; }
+    public DbSet<Mesa> mesas { get; set; }
+    public DbSet<Grupo> grupos { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

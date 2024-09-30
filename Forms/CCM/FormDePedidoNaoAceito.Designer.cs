@@ -77,7 +77,7 @@
             btnEnvir.FlatAppearance.BorderSize = 2;
             btnEnvir.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnEnvir.ForeColor = SystemColors.ButtonHighlight;
-            btnEnvir.Location = new Point(485, 145);
+            btnEnvir.Location = new Point(477, 145);
             btnEnvir.Name = "btnEnvir";
             btnEnvir.Size = new Size(158, 59);
             btnEnvir.TabIndex = 10;

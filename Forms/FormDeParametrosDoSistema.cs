@@ -219,6 +219,7 @@ namespace SysIntegradorApp.Forms
             instancia.textBoxuserOnPedido.Text = Configuracoes.UserOnPedido;
             instancia.textBoxsenhaOnPedido.Text = Configuracoes.SenhaOnPedido;
             instancia.textBoxTokenCCM.Text = Configuracoes.TokenCCM;
+            instancia.textBoxNumeroLoja.Text = Configuracoes.CodFilialCCM;
         }
 
         private void btnNao_Click(object sender, EventArgs e)
@@ -272,6 +273,7 @@ namespace SysIntegradorApp.Forms
                     bool integraCCM = false;
                     string tokenCCM = textBoxTokenCCM.Text;
                     bool integraAnotaAi = false;
+                    string? numeroLoja = textBoxNumeroLoja.Text;
 
                     if (pictureBoxOFF.Visible == false)
                     {
@@ -414,7 +416,8 @@ namespace SysIntegradorApp.Forms
                          senhaOnPedido,
                          integraCCM,
                          tokenCCM,
-                         integraAnotaAi
+                         integraAnotaAi,
+                         numeroLoja
                      );
 
                     this.Close();

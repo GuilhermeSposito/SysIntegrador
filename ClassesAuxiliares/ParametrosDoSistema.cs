@@ -94,6 +94,10 @@ public class ParametrosDoSistema
     [Column("integraanotaai")] public bool IntegraAnotaAi { get; set; }
     [Column("integradelmatchentregas")] public bool IntegraDelmatchEntregas { get; set; }
     [Column("integraottoentregas")] public bool IntegraOttoEntregas { get; set; }
+    [Column("tipodepagamentotaxymachine")] public string TipoPagamentoTaxyMachine { get; set; }
+    [Column("usarnomenacomanda")] public bool UsarNomeNaComanda { get; set; }
+    [Column("codfilialccm")] public string? CodFilialCCM { get; set; }
+    [Column("integragarcom")] public bool IntegraGarcom { get; set; }
     public ParametrosDoSistema() { }
 
 
@@ -164,7 +168,8 @@ public class ParametrosDoSistema
      string senhaOnPedido,
      bool integraCCM,
      string tokenCCM,
-     bool integraAnotaAi
+     bool integraAnotaAi,
+     string? numeroLoja
      )
     {
         try
@@ -207,6 +212,7 @@ public class ParametrosDoSistema
                 configuracoes.IntegraCCM = integraCCM;
                 configuracoes.TokenCCM = tokenCCM;
                 configuracoes.IntegraAnotaAi = integraAnotaAi;
+                configuracoes.CodFilialCCM = numeroLoja;
 
                 dbContext.SaveChanges();
             }

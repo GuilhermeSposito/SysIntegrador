@@ -43,6 +43,126 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("apoioonpedido");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Garcom", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("text")
+                        .HasColumnName("codigo");
+
+                    b.Property<string>("Nome")
+                        .HasColumnType("text")
+                        .HasColumnName("nome");
+
+                    b.Property<string>("Senha")
+                        .HasColumnType("text")
+                        .HasColumnName("senha");
+
+                    b.Property<double>("Valor")
+                        .HasColumnType("double precision")
+                        .HasColumnName("valor");
+
+                    b.HasKey("Codigo");
+
+                    b.ToTable("garcons");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Grupo", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("text")
+                        .HasColumnName("codigo");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Familia")
+                        .HasColumnType("text")
+                        .HasColumnName("familia");
+
+                    b.Property<bool>("Oculta")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ocultatablet");
+
+                    b.Property<double>("TOTGRUPO")
+                        .HasColumnType("double precision")
+                        .HasColumnName("totgrupo");
+
+                    b.HasKey("Codigo");
+
+                    b.ToTable("grupos");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Mesa", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("text")
+                        .HasColumnName("codigo");
+
+                    b.Property<bool>("Bloqueado")
+                        .HasColumnType("boolean")
+                        .HasColumnName("bloqueado");
+
+                    b.Property<double>("Consumacao")
+                        .HasColumnType("double precision")
+                        .HasColumnName("consumacao");
+
+                    b.Property<string>("Praca")
+                        .HasColumnType("text")
+                        .HasColumnName("praca");
+
+                    b.Property<string>("Tipo")
+                        .HasColumnType("text")
+                        .HasColumnName("tipo");
+
+                    b.Property<bool>("Vip")
+                        .HasColumnType("boolean")
+                        .HasColumnName("vip");
+
+                    b.Property<string>("status")
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.HasKey("Codigo");
+
+                    b.ToTable("mesas");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Produto", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("text")
+                        .HasColumnName("codigo");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Grupo")
+                        .HasColumnType("text")
+                        .HasColumnName("grupo");
+
+                    b.Property<bool>("OcultaTablet")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ocultatablet");
+
+                    b.Property<double>("Preco1")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("pvenda1");
+
+                    b.Property<double>("Preco2")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("pvenda2");
+
+                    b.Property<double>("Preco3")
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("pvenda3");
+
+                    b.HasKey("Codigo");
+
+                    b.ToTable("cardapio");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ParametrosDoPedido", b =>
                 {
                     b.Property<string>("Id")
@@ -140,6 +260,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("text")
                         .HasColumnName("clientsecret");
 
+                    b.Property<string>("CodFilialCCM")
+                        .HasColumnType("text")
+                        .HasColumnName("codfilialccm");
+
                     b.Property<bool>("ComandaReduzida")
                         .HasColumnType("boolean")
                         .HasColumnName("comandareduzida");
@@ -222,6 +346,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("integradelmatchentregas");
 
+                    b.Property<bool>("IntegraGarcom")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integragarcom");
+
                     b.Property<bool>("IntegraIfood")
                         .HasColumnType("boolean")
                         .HasColumnName("integraifood");
@@ -287,6 +415,11 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("tipocomanda");
 
+                    b.Property<string>("TipoPagamentoTaxyMachine")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("tipodepagamentotaxymachine");
+
                     b.Property<string>("TokenAnotaAi")
                         .IsRequired()
                         .HasColumnType("text")
@@ -300,6 +433,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<string>("TokenOnPedido")
                         .HasColumnType("text")
                         .HasColumnName("tokenonpedido");
+
+                    b.Property<bool>("UsarNomeNaComanda")
+                        .HasColumnType("boolean")
+                        .HasColumnName("usarnomenacomanda");
 
                     b.Property<string>("UserDelMatch")
                         .HasColumnType("text")

@@ -1439,7 +1439,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro ao enviar Req DelMatch");
+            MessageBox.Show("Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+
         }
         return response;
     }

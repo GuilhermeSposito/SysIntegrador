@@ -87,9 +87,13 @@ public class TaxyMachine
     {
         try
         {
+            string? TipoPagamento = "";
+
             using (ApplicationDbContext Db = await _Context.GetContextoAsync())
             {
                 ParametrosDoSistema? Config = await Db.parametrosdosistema.FirstOrDefaultAsync();
+
+                TipoPagamento = Config.TipoPagamentoTaxyMachine;
 
                 if (Config is not null)
                 {
@@ -124,7 +128,7 @@ public class TaxyMachine
                 Solicitacoes.Add(new AbrirSolicitacao()
                 {
                     numConta = pedido.numConta,
-                    FormaDePagamento = "D",
+                    FormaDePagamento = TipoPagamento,
                     EmpresaId = Empresa.Infos.Id,
                     Partida = new Partida()
                     {
@@ -220,6 +224,16 @@ public class TaxyMachine
     {
         try
         {
+            string? TipoPagamento = "";
+
+            using (ApplicationDbContext Db = await _Context.GetContextoAsync())
+            {
+                ParametrosDoSistema? Config = await Db.parametrosdosistema.FirstOrDefaultAsync();
+
+                TipoPagamento = Config.TipoPagamentoTaxyMachine;
+            }
+
+
             EmpresaInfos? Empresa = await GetInfosEmpresa();
 
             string? Data = null;
@@ -247,7 +261,7 @@ public class TaxyMachine
                     Solicitacoes.Add(new AbrirSolicitacao()
                     {
                         numConta = pedido.numConta,
-                        FormaDePagamento = "D",
+                        FormaDePagamento = TipoPagamento,
                         EmpresaId = Empresa.Infos.Id,
                         Partida = new Partida()
                         {

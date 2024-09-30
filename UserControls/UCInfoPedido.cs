@@ -238,7 +238,7 @@ public partial class UCInfoPedido : UserControl
 
                     btnCancelar.Visible = true;
                     btnCancelar.Size = new Size(125, 51);
-                    btnCancelar.Location = new Point(682, 5);
+                    btnCancelar.Location = new Point(696, 2);
                     btnCancelar.ForeColor = Color.White;
                     btnCancelar.BackColor = Color.Red;
                     btnCancelar.ForeColor = Color.White;

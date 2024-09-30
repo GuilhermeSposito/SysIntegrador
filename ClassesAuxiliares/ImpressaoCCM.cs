@@ -452,7 +452,7 @@ public class ImpressaoCCM
 
                 bool eMesa = pedidoCompleto.NumeroMesa > 0 ? true : false;
                 string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
-                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega";
 
                 string NumContaString = numConta.ToString();
                 AdicionaConteudo($"Pedido:   #{pedidoCompleto.NroPedido}", FonteNúmeroDoPedido);
@@ -465,9 +465,15 @@ public class ImpressaoCCM
                 }
                 else
                 {
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
+                    if (opcDoSistema.UsarNomeNaComanda)
+                    {
+                        AdicionaConteudo($"Cliente: {pedidoCompleto.Cliente.Nome}", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
                 }
 
                 foreach (var item in pedidoCompleto.Itens)
@@ -558,7 +564,7 @@ public class ImpressaoCCM
                 string NumContaString = numConta.ToString();
 
                 string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
-                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega";
 
 
                 AdicionaConteudo("CCM", FonteNomeDoCliente, AlinhamentosCCM.Centro);
@@ -572,7 +578,13 @@ public class ImpressaoCCM
                 }
                 else
                 {
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                    if (opcDoSistema.UsarNomeNaComanda)
+                    {
+                        AdicionaConteudo($"Cliente: {pedidoCompleto.Cliente.Nome}", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
 
                 }
 
@@ -677,7 +689,7 @@ public class ImpressaoCCM
                 string NumContaString = numConta.ToString();
 
                 string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
-                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+                string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega";
 
                 int contagemItemAtual = 1;
 
@@ -705,7 +717,13 @@ public class ImpressaoCCM
                         }
                         else
                         {
-                            AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                            AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+
+                            if (opcDoSistema.UsarNomeNaComanda)
+                            {
+                                AdicionaConteudo($"Cliente: {pedidoCompleto.Cliente.Nome}", FonteItens);
+                                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                            }
 
                         }
 

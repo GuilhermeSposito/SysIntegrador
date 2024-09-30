@@ -632,7 +632,7 @@ public class Impressao
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
                 connection.Open();
-                string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+                string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega";
 
                 using (OleDbCommand comando = new OleDbCommand(sqlQuery, connection))
                 using (OleDbDataReader reader = comando.ExecuteReader())
@@ -642,8 +642,14 @@ public class Impressao
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    if (opcSistema.UsarNomeNaComanda)
+                    {
+                        AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
 
                     int qtdItens = pedidoCompleto.items.Count();
                     int contagemItemAtual = 1;
@@ -730,13 +736,19 @@ public class Impressao
             string NumContaString = numConta.ToString();
 
 
-            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega";
 
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-            AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+            AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            if (opcSistema.UsarNomeNaComanda)
+            {
+                AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+            }
 
             foreach (var item in pedidoCompleto.items)
             {
@@ -815,7 +827,7 @@ public class Impressao
             string NumContaString = numConta.ToString();
 
 
-            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega";
             int contagemItemAtual = 1;
 
             int qtdItens = 0;
@@ -835,8 +847,14 @@ public class Impressao
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                    AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                    if (opcSistema.UsarNomeNaComanda)
+                    {
+                        AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
 
                     AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
                     ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItem(item, true);
@@ -1035,17 +1053,19 @@ public class Impressao
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string NumContaString = numConta.ToString();
 
-            //List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> itemsSeparadosPorImpressao = SeparaItensParaImpressaoSeparada();
-            //string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
-
-            //nome do restaurante estatico por enquanto
             AdicionaConteudo("IFOOD", FonteNomeDoCliente, Alinhamentos.Centro);
 
-            AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
+            AdicionaConteudo($"Pedido: \t#{pedidoCompleto.displayId}", FonteNúmeroDoPedido);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            if (opcSistema.UsarNomeNaComanda)
+            {
+                AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
+                AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+            }
 
             int qtdItens = pedidoCompleto.items.Count();
             int contagemItemAtual = 1;

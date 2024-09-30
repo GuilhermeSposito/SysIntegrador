@@ -78,11 +78,13 @@
             label11 = new Label();
             textBoxClientId = new TextBox();
             panel7 = new Panel();
+            textBoxNumeroLoja = new TextBox();
+            label40 = new Label();
+            textBoxTokenCCM = new TextBox();
             label12 = new Label();
+            label38 = new Label();
             textBoxClientSecret = new TextBox();
             panel8 = new Panel();
-            textBoxTokenCCM = new TextBox();
-            label38 = new Label();
             label13 = new Label();
             textBoxMarchantId = new TextBox();
             panel9 = new Panel();
@@ -769,50 +771,40 @@
             // 
             // panel7
             // 
-            panel7.AutoSize = true;
             panel7.BackColor = SystemColors.ButtonFace;
+            panel7.Controls.Add(textBoxNumeroLoja);
+            panel7.Controls.Add(label40);
+            panel7.Controls.Add(textBoxTokenCCM);
             panel7.Controls.Add(label12);
+            panel7.Controls.Add(label38);
             panel7.Controls.Add(textBoxClientSecret);
             panel7.Location = new Point(811, 229);
             panel7.Name = "panel7";
-            panel7.Size = new Size(460, 154);
+            panel7.Size = new Size(465, 154);
             panel7.TabIndex = 3;
             // 
-            // label12
+            // textBoxNumeroLoja
             // 
-            label12.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            label12.AutoSize = true;
-            label12.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label12.Location = new Point(16, 45);
-            label12.Name = "label12";
-            label12.Size = new Size(137, 28);
-            label12.TabIndex = 1;
-            label12.Text = "Client Secret:";
+            textBoxNumeroLoja.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxNumeroLoja.BackColor = SystemColors.ButtonShadow;
+            textBoxNumeroLoja.Font = new Font("Segoe UI", 12F);
+            textBoxNumeroLoja.ForeColor = SystemColors.ButtonFace;
+            textBoxNumeroLoja.Location = new Point(247, 109);
+            textBoxNumeroLoja.Name = "textBoxNumeroLoja";
+            textBoxNumeroLoja.PlaceholderText = "Caminho Banco De Dados";
+            textBoxNumeroLoja.Size = new Size(74, 34);
+            textBoxNumeroLoja.TabIndex = 5;
             // 
-            // textBoxClientSecret
+            // label40
             // 
-            textBoxClientSecret.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-            textBoxClientSecret.BackColor = SystemColors.ButtonShadow;
-            textBoxClientSecret.Font = new Font("Segoe UI", 12F);
-            textBoxClientSecret.ForeColor = SystemColors.ButtonFace;
-            textBoxClientSecret.Location = new Point(14, 76);
-            textBoxClientSecret.Name = "textBoxClientSecret";
-            textBoxClientSecret.PlaceholderText = "Caminho Banco De Dados";
-            textBoxClientSecret.Size = new Size(443, 34);
-            textBoxClientSecret.TabIndex = 0;
-            // 
-            // panel8
-            // 
-            panel8.AutoSize = true;
-            panel8.BackColor = SystemColors.ButtonFace;
-            panel8.Controls.Add(textBoxTokenCCM);
-            panel8.Controls.Add(label38);
-            panel8.Controls.Add(label13);
-            panel8.Controls.Add(textBoxMarchantId);
-            panel8.Location = new Point(811, 394);
-            panel8.Name = "panel8";
-            panel8.Size = new Size(459, 174);
-            panel8.TabIndex = 3;
+            label40.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label40.AutoSize = true;
+            label40.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label40.Location = new Point(249, 78);
+            label40.Name = "label40";
+            label40.Size = new Size(104, 28);
+            label40.TabIndex = 4;
+            label40.Text = "Nmr Loja:";
             // 
             // textBoxTokenCCM
             // 
@@ -820,22 +812,56 @@
             textBoxTokenCCM.BackColor = SystemColors.ButtonShadow;
             textBoxTokenCCM.Font = new Font("Segoe UI", 12F);
             textBoxTokenCCM.ForeColor = SystemColors.ButtonFace;
-            textBoxTokenCCM.Location = new Point(13, 113);
+            textBoxTokenCCM.Location = new Point(16, 109);
             textBoxTokenCCM.Name = "textBoxTokenCCM";
             textBoxTokenCCM.PlaceholderText = "Caminho Banco De Dados";
-            textBoxTokenCCM.Size = new Size(443, 34);
+            textBoxTokenCCM.Size = new Size(225, 34);
             textBoxTokenCCM.TabIndex = 3;
+            // 
+            // label12
+            // 
+            label12.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label12.AutoSize = true;
+            label12.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            label12.Location = new Point(13, 10);
+            label12.Name = "label12";
+            label12.Size = new Size(137, 28);
+            label12.TabIndex = 1;
+            label12.Text = "Client Secret:";
             // 
             // label38
             // 
             label38.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             label38.AutoSize = true;
             label38.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
-            label38.Location = new Point(13, 82);
+            label38.Location = new Point(14, 78);
             label38.Name = "label38";
             label38.Size = new Size(121, 28);
             label38.TabIndex = 2;
             label38.Text = "Token CCM:";
+            // 
+            // textBoxClientSecret
+            // 
+            textBoxClientSecret.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxClientSecret.BackColor = SystemColors.ButtonShadow;
+            textBoxClientSecret.Font = new Font("Segoe UI", 12F);
+            textBoxClientSecret.ForeColor = SystemColors.ButtonFace;
+            textBoxClientSecret.Location = new Point(14, 41);
+            textBoxClientSecret.Name = "textBoxClientSecret";
+            textBoxClientSecret.PlaceholderText = "Caminho Banco De Dados";
+            textBoxClientSecret.Size = new Size(365, 34);
+            textBoxClientSecret.TabIndex = 0;
+            // 
+            // panel8
+            // 
+            panel8.AutoSize = true;
+            panel8.BackColor = SystemColors.ButtonFace;
+            panel8.Controls.Add(label13);
+            panel8.Controls.Add(textBoxMarchantId);
+            panel8.Location = new Point(811, 394);
+            panel8.Name = "panel8";
+            panel8.Size = new Size(459, 174);
+            panel8.TabIndex = 3;
             // 
             // label13
             // 
@@ -1650,5 +1676,7 @@
         private Label label39;
         private PictureBox pictureBoxOffAnotaAi;
         private PictureBox pictureBoxOnAnotaAi;
+        private TextBox textBoxNumeroLoja;
+        private Label label40;
     }
 }

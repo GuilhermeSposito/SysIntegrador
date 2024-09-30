@@ -455,7 +455,7 @@ public class ImpressaoAnotaAi
             string banco = opcDoSistema.CaminhodoBanco;
             string NumContaString = numConta.ToString();
 
-            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega";
 
             AdicionaConteudo($"Pedido:        #{pedidoCompleto.InfoDoPedido.ShortReference}", FonteNúmeroDoPedido);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -467,7 +467,7 @@ public class ImpressaoAnotaAi
             }
             else
             {
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             }
@@ -559,7 +559,7 @@ public class ImpressaoAnotaAi
             string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
             string NumContaString = numConta.ToString();
 
-            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega";
 
             AdicionaConteudo("Anota Ai", FonteNomeDoCliente, AlinhamentosAnotaAi.Centro);
 
@@ -573,7 +573,7 @@ public class ImpressaoAnotaAi
             }
             else
             {
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
 
             }
 
@@ -671,7 +671,7 @@ public class ImpressaoAnotaAi
             string NumContaString = numConta.ToString();
 
 
-            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega";
             int contagemItemAtual = 1;
 
             int qtdItens = 0;
@@ -698,7 +698,7 @@ public class ImpressaoAnotaAi
                     }
                     else
                     {
-                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                        AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
 
                     }
 
@@ -909,10 +909,8 @@ public class ImpressaoAnotaAi
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
             string NumContaString = numConta.ToString();
 
-            //List<ClsDeSuporteParaImpressaoDosItensEmComandasSeparadas> itemsSeparadosPorImpressao = SeparaItensParaImpressaoSeparada();
-            //string? defineEntrega = pedidoCompleto.delivery.deliveredBy == null ? "Retirada" : "Entrega Propria";
 
-            //nome do restaurante estatico por enquanto
+            //string? defineEntrega = pedidoCompleto.InfoDoPedido.Type == "TAKE" ? "Retirada" : "Entrega";
 
 
             AdicionaConteudo("Anota Ai", FonteNomeDoCliente, AlinhamentosAnotaAi.Centro);

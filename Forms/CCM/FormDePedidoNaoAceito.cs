@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.data.InterfaceDeContexto;
+﻿using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -30,6 +31,8 @@ namespace SysIntegradorApp.Forms.CCM
             SysIntegradorApp.ClassesDeConexaoComApps.CCM ccm = new ClassesDeConexaoComApps.CCM(new MeuContexto());
 
             await ccm.RecusaPedido(NumeroPedido, msg: motivoCancelamento.Text);
+            await ccm.RequisicaoHttp(metodo: "LIMPAPEDIDO", numPedido: NumeroPedido);
+            ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(NumeroPedido.ToString());
 
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));

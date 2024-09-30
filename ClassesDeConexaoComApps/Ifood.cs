@@ -359,7 +359,7 @@ public class Ifood
                            mesa: mesa,
                            cortesia: pedidoCompletoDeserialiado.total.benefits,
                            taxaEntrega: pedidoCompletoDeserialiado.total.deliveryFee,
-                           taxaMotoboy: 0.00f,
+                           taxaMotoboy: pedidoCompletoDeserialiado.total.deliveryFee,
                            dtInicio: DataCertaDaFeitoEm.ToString().Substring(0, 10),
                            hrInicio: DataCertaDaFeitoEm.ToString().Substring(11, 5),
                            contatoNome: pedidoCompletoDeserialiado.customer.name,
@@ -376,7 +376,7 @@ public class Ifood
                            eIfood: true); //fim dos parâmetros do método de integração
 
                         ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado.payments.methods[0].method, insertNoSysMenuConta, pedidoCompletoDeserialiado.payments.methods[0].value, pedidoCompletoDeserialiado.payments.methods[0].type, "IFOOD");
-                        ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta, desconto: pedidoCompletoDeserialiado.total.benefits, acrecimo: pedidoCompletoDeserialiado.total.additionalFees);
+                        ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta, desconto: pedidoCompletoDeserialiado.total.benefits, acrecimo: pedidoCompletoDeserialiado.total.additionalFees, pedidoCompletoDeserialiado.benefits);
                     }
 
                     //serializar o polling para inserir no banco

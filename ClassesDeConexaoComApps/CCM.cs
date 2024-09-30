@@ -49,7 +49,7 @@ public class CCM
                 AceitaPedidoAut = db.parametrosdosistema.FirstOrDefault().AceitaPedidoAut;
             }
 
-            HttpResponseMessage response = await RequisicaoHttp(url, "GET");
+            HttpResponseMessage response = await RequisicaoHttp(url, "POLLING");
 
             if (response.IsSuccessStatusCode)
             {
@@ -326,7 +326,7 @@ public class CCM
                             }
 
                             SysIntegradorApp.ClassesAuxiliares.Cash SeForPagamentoEmDinherio = new Cash() { changeFor = ValorDeTroco };
-                            payments.methods.Add(new Methods() { method = pedido.DescricaoPagamento, value = pedido.ValorTotal, cash = SeForPagamentoEmDinherio });
+                            payments.methods.Add(new Methods() { method = pedido.DescricaoPagamento, value = pedido.ValorBruto, cash = SeForPagamentoEmDinherio });
 
 
                             ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
@@ -379,17 +379,33 @@ public class CCM
                         {
                             var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemCCM(item);
 
+                            //Corrreção na questão do ccm não somar os adicionais no valor total do produto
+                            float ValorTotalDoProduto = item.ValorUnit;
+                            if(item.Adicionais is not null || item.Adicionais!.Any())
+                            {
+                                foreach (var adicional in item.Adicionais)
+                                {
+                                    ValorTotalDoProduto += adicional.ValorUnit; 
+                                }   
+
+                                ValorTotalDoProduto *= item.Quantidade; 
+                            }
+                            else
+                            {
+                                ValorTotalDoProduto = item.ValorUnit * item.Quantidade;
+                            }
+
                             ClsDeIntegracaoSys.IntegracaoContas(
                                       conta: insertNoSysMenuConta, //numero
                                       mesa: mesa, //texto curto 
-                                      qtdade: 1, //numero
+                                      qtdade: item.Quantidade, //numero
                                       codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
                                       codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
                                       codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
                                       tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
                                       descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
                                       valorUnit: item.ValorUnit, //moeda
-                                      valorTotal: item.ValorUnit, //moeda
+                                      valorTotal: ValorTotalDoProduto, //moeda
                                       dataInicio: pedido.DataHoraPedido.Substring(0, 10).Replace("-", "/"), //data
                                       horaInicio: pedido.DataHoraPedido.Substring(11, 5), //data
                                       obs1: CaracteristicasPedido.Obs1,
@@ -515,7 +531,7 @@ public class CCM
                     }
                 }
 
-                if(pesquisaNome != null)
+                if (pesquisaNome != null)
                 {
 
                     using (ApplicationDbContext db = await _Db.GetContextoAsync())
@@ -574,7 +590,27 @@ public class CCM
             pedidoCompleto.displayId = p.NroPedido.ToString();
             pedidoCompleto.createdAt = p.DataHoraPedido;
             pedidoCompleto.orderTiming = p.Agendamento == 1 ? "SCHEDULED" : "IMMEDIATE"; // Valor fixo de exemplo
-            pedidoCompleto.orderType = p.Retira == 1 ? "TAKEOUT" : "DELIVERY";
+
+            if (p.Retira == 1)
+            {
+                if (p.NumeroMesa > 0)
+                {
+                    pedidoCompleto.orderType = "INDOOR";
+
+                }
+                else
+                {
+                    pedidoCompleto.orderType = "TAKEOUT";
+                }
+
+            }
+            else
+            {
+                pedidoCompleto.orderType = "DELIVERY";
+
+            }
+
+
 
             string? dataLimite = "";
             string? DeliveryBy = "";
@@ -632,17 +668,29 @@ public class CCM
         try
         {
             string TokenCCM = "";
+            string? CodFilialCCM = "1";
 
             using (ApplicationDbContext db = await _Db.GetContextoAsync())
             {
                 var Config = db.parametrosdosistema.FirstOrDefault();
                 TokenCCM = Config.TokenCCM;
+                CodFilialCCM = Config.CodFilialCCM;
             }
 
             if (metodo == "GET")
             {
                 using HttpClient client = new HttpClient();
                 string Newurl = url += $"?token={TokenCCM}";
+
+                response = await client.GetAsync(Newurl);
+
+                return response;
+            }
+
+            if (metodo == "POLLING")
+            {
+                using HttpClient client = new HttpClient();
+                string Newurl = url += $"?token={TokenCCM}&codFilial={CodFilialCCM}";
 
                 response = await client.GetAsync(Newurl);
 
@@ -733,3 +781,6 @@ public class CCM
     }
 
 }
+
+
+//gURLCCM = "http://api.ccmpedidoonline.com.br/wsccm_v2.php?token=" + Trim(gTokenCCM) + "&codFilial=" + gNroLojaCCM

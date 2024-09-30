@@ -129,8 +129,6 @@ public class AnotaAi
                         if ((int)SolicitaPedido.StatusCode != 200)
                             throw new Exception($"Erro ao solicitar pedido, Stataus: {(int)SolicitaPedido.StatusCode}");
 
-                        var teste = await SolicitaPedido.Content.ReadAsStringAsync();
-
                         PedidoAnotaAi? Pedido = JsonConvert.DeserializeObject<PedidoAnotaAi>(await SolicitaPedido.Content.ReadAsStringAsync());
                         if (Configs.IntegracaoSysMenu)
                         {
@@ -219,7 +217,7 @@ public class AnotaAi
                             }
                         }
 
-                        db.parametrosdopedido.Add(new ParametrosDoPedido()
+                        await db.parametrosdopedido.AddAsync(new ParametrosDoPedido()
                         {
                             Id = idPedido,
                             Json = await SolicitaPedido.Content.ReadAsStringAsync(),
@@ -309,7 +307,6 @@ public class AnotaAi
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 

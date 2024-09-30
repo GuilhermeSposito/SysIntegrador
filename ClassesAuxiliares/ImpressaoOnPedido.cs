@@ -728,7 +728,7 @@ public class ImpressaoONPedido
             string sqlQuery = $"SELECT * FROM Contas where CONTA = {numConta}";
             string NumContaString = numConta.ToString();
 
-            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega";
 
             AdicionaConteudo($"Pedido:   #{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -740,7 +740,7 @@ public class ImpressaoONPedido
             }
             else
             {
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
             }
@@ -832,7 +832,7 @@ public class ImpressaoONPedido
             string NumContaString = numConta.ToString();
 
 
-            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega";
 
 
             AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
@@ -846,7 +846,7 @@ public class ImpressaoONPedido
             }
             else
             {
-                AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
 
             }
 
@@ -944,7 +944,7 @@ public class ImpressaoONPedido
             string NumContaString = numConta.ToString();
 
 
-            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega Propria";
+            string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega";
             int contagemItemAtual = 1;
 
             int qtdItens = 0;
@@ -971,7 +971,7 @@ public class ImpressaoONPedido
                     }
                     else
                     {
-                        AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
+                        AdicionaConteudo($"{defineEntrega}: Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
 
                     }
 

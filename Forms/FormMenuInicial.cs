@@ -335,6 +335,12 @@ public partial class FormMenuInicial : Form
                                 UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
                             }
 
+                            if(item.orderType == "INDOOR")
+                            {
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);    
+                            }
+
+
                             UserControlPedido.MudaPictureBoxCCM(UserControlPedido);
                             UserControlPedido.SetLabels(item.id, item.displayId, item.customer.name, horarioCorrigido, item.Situacao); // aqui muda as labels do user control para cada pedido em questão
 

@@ -51,15 +51,14 @@ public class OnPedido
 
                     PollingOnPedido? pooling = JsonConvert.DeserializeObject<PollingOnPedido>(responseString);
 
-                    foreach (var item in pooling.Return)
+                    foreach (var item in pooling?.Return)
                     {
                         switch (item.EventId)
                         {
                             case "0":
                                 //Set Pedido
                                 await SetPedido(item.OrderURL, item.orderId);
-                                // FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-                                if (Configs.AceitaPedidoAut)
+                                if (Configs!.AceitaPedidoAut)
                                 {
                                     await AceitaPedido(item.orderId.ToString(), item.OrderURL);
                                 }
@@ -68,7 +67,7 @@ public class OnPedido
                                 //Set Pedido
                                 await SetPedido(item.OrderURL, item.orderId);
                                 ClsSons.StopSom();
-                                if (Configs.AceitaPedidoAut)
+                                if (Configs!.AceitaPedidoAut)
                                 {
                                     await AceitaPedido(item.orderId.ToString(), item.OrderURL);
                                 }
@@ -100,7 +99,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            MessageBox.Show("Erro ao enviar requisição de pedidos!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -182,7 +181,6 @@ public class OnPedido
                         Pedido.Situacao = Status;
                         await db.SaveChangesAsync();
                         ClsDeSuporteAtualizarPanel.MudouDataBase = true;
-                        //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                     }
                 }
             }
@@ -799,7 +797,7 @@ public class OnPedido
 
                     TokenOnPedido.TokenDaSessao = TokenOnP.AccessOAuthToken;
 
-                    string? HorarioDeVencimento = DateTime.Now.AddHours(5).ToString();
+                    string? HorarioDeVencimento = DateTime.Now.AddHours(4).ToString();
 
                     AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
                     AutBase.VenceEmOnPedido = HorarioDeVencimento;
@@ -848,7 +846,7 @@ public class OnPedido
 
                         TokenOnPedido.TokenDaSessao = TokenOnP.AccessOAuthToken;
 
-                        string? HorarioDeVencimento = DateTime.Now.AddHours(5).ToString();
+                        string? HorarioDeVencimento = DateTime.Now.AddHours(4).ToString();
 
                         AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
                         AutBase.VenceEmOnPedido = HorarioDeVencimento;
@@ -916,7 +914,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao enviar Requisição HTTPS OnPedido");
+            MessageBox.Show("Erro ao enviar Requisição HTTPS OnPedido", "ERRO");
         }
         return response;
     }

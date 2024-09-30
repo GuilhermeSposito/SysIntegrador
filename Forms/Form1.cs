@@ -150,6 +150,15 @@ namespace SysIntegradorApp
                     var AutenticacaoNaBase = db.parametrosdeautenticacao.FirstOrDefault();
                     var ConfigApp = db.parametrosdosistema.FirstOrDefault();
 
+                    if (ConfigApp.IntegraGarcom)
+                    {
+                        //se integrar garçom chama a função para atualizar banco de dados
+                        GarcomSysMenu garcomSysMenu = new GarcomSysMenu(new MeuContexto());
+
+                        await garcomSysMenu.AtualizarBancoDeDadosParaOGarcon();
+
+                    }
+
                     if (ConfigApp.IntegraDelMatch)
                     {
                         DelMatch Delmatch = new DelMatch(new MeuContexto());

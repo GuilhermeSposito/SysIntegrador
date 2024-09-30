@@ -31,11 +31,27 @@ public class PedidoCompleto
     public Merchant merchant { get; set; } = new Merchant(); //tabela nova //não inserir no banco inicialmente
     public Customer customer { get; set; } = new Customer(); //tabela nova //não inserir no banco inicialmente
     public List<Items> items { get; set; } = new List<Items>(); // tabela nova  //não inserir no banco inicialmente
+    public List<Benefits> benefits { get; set; } = new List<Benefits>(); // tabela nova //não inserir no banco inicialmente    
     public Total total { get; set; } = new Total();  // tabela nova //não inserir no banco inicialmente
     public Payments payments { get; set; } = new Payments(); // tabela nova //não inserir no banco inicialmente
     public AdditionalInfo additionalInfo { get; set; } = new AdditionalInfo(); // tabela nova //não inserir no banco inicialmente
 
     public PedidoCompleto() { }
+}
+
+public class Benefits
+{
+    public string? target { get; set; }
+    public float? value { get; set; }
+    public List<SponsorshipValues> sponsorshipValues { get; set; } = new List<SponsorshipValues>();
+
+}
+
+public class SponsorshipValues
+{
+    public string? name { get; set; }
+    public float value { get; set; }
+    public string? description { get; set; }
 }
 
 

@@ -81,7 +81,12 @@ public class ClsDeIntegracaoSys
                     // Parâmetros para a consulta SQL
                     command.Parameters.AddWithValue("@MESA", mesa);
                     command.Parameters.AddWithValue("@STATUS", "P");
-                    command.Parameters.AddWithValue("@CORTESIA", cortesia);
+
+                    if (!eIfood)
+                        command.Parameters.AddWithValue("@CORTESIA", cortesia);
+                    else
+                        command.Parameters.AddWithValue("@CORTESIA", 0.0f);
+
                     command.Parameters.AddWithValue("@TAXAENTREGA", taxaEntrega);
                     command.Parameters.AddWithValue("@TAXAMOTOBOY", taxaMotoboy);
                     command.Parameters.AddWithValue("@DTINICIO", dtInicio.Replace("-", "/"));
@@ -236,7 +241,7 @@ public class ClsDeIntegracaoSys
         return ultimoNumeroConta;
     }
 
-    public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta, float desconto = 0.0f, float acrecimo = 0.0f)
+    public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta, float desconto = 0.0f, float acrecimo = 0.0f, List<Benefits>? benefits = null)
     {
         try
         {
@@ -307,9 +312,9 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                      
 
-                        if(acrecimo > 0)
+
+                        if (acrecimo > 0)
                         {
                             string QueryDeAdicionarDesconto = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
                             using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
@@ -320,6 +325,69 @@ public class ClsDeIntegracaoSys
 
                                 // Executando o comando UPDATE
                                 command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach(var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -342,7 +410,7 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                     
+
 
                         if (acrecimo > 0)
                         {
@@ -355,6 +423,69 @@ public class ClsDeIntegracaoSys
 
                                 // Executando o comando UPDATE
                                 command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -386,7 +517,7 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                      
+
 
                         if (acrecimo > 0)
                         {
@@ -399,6 +530,69 @@ public class ClsDeIntegracaoSys
 
                                 // Executando o comando UPDATE
                                 command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -430,7 +624,7 @@ public class ClsDeIntegracaoSys
 
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
-                        }             
+                        }
 
                         if (acrecimo > 0)
                         {
@@ -475,7 +669,7 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                      
+
                         if (acrecimo > 0)
                         {
                             string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
@@ -487,6 +681,69 @@ public class ClsDeIntegracaoSys
 
                                 // Executando o comando UPDATE
                                 command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
                             }
                         }
 
@@ -518,7 +775,7 @@ public class ClsDeIntegracaoSys
                             // Executando o comando UPDATE
                             command.ExecuteNonQuery();
                         }
-                       
+
 
                         if (acrecimo > 0)
                         {
@@ -2319,7 +2576,8 @@ public class ClsDeIntegracaoSys
 
             }
 
-
+            if(ObsDoItem.Length > 80)
+                ObsDoItem = ObsDoItem.Substring(0, 80); 
 
             ClasseDeSuporte.ObsDoItem = ObsDoItem;
 
@@ -2732,6 +2990,9 @@ public class ClsDeIntegracaoSys
             {
                 ObsDoItem = item.ObsItem;
             }
+
+            if(ObsDoItem.Length > 80)
+                ObsDoItem = ObsDoItem.Substring(0, 80);
 
             ClasseDeSuporte.ObsDoItem = ObsDoItem;
             ClasseDeSuporte.NomeProduto = NomeProduto;
