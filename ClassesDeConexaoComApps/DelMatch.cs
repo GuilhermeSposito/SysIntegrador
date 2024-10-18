@@ -334,7 +334,8 @@ public class DelMatch
                            endEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.StreetName + ", " + pedido.deliveryAddress.StreetNumber,
                            bairEntrega: mesa == "WEBB" ? "RETIRADA" : pedido.deliveryAddress.Neighboardhood,
                            entregador: mesa == "WEBB" ? "RETIRADA" : "99",
-                           eDelMatch: true
+                           eDelMatch: true,
+                           telefone: pedido.Customer.Phone
                            );//mesa == "WEBB" ? "RETIRADA" : " ") ; //fim dos parâmetros do método de integração
 
                         ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments[0].Code, insertNoSysMenuConta, pedido.Payments[0].Value, pedido.Payments[0].Code, "DELMATCH");//por enquanto tudo esta caindo debito

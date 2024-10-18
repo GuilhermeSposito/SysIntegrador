@@ -373,7 +373,8 @@ public class Ifood
                            endEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.formattedAddress,
                            bairEntrega: pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood == null ? "RETIRADA" : pedidoCompletoDeserialiado.delivery.deliveryAddress.neighborhood,
                            entregador: pedidoCompletoDeserialiado.delivery.deliveredBy == null ? "RETIRADA" : "00",
-                           eIfood: true); //fim dos parâmetros do método de integração
+                           eIfood: true,
+                           telefone: pedidoCompletoDeserialiado.customer.phone!.localizer); //fim dos parâmetros do método de integração
 
                         ClsDeIntegracaoSys.IntegracaoPagCartao(pedidoCompletoDeserialiado.payments.methods[0].method, insertNoSysMenuConta, pedidoCompletoDeserialiado.payments.methods[0].value, pedidoCompletoDeserialiado.payments.methods[0].type, "IFOOD");
                         ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(pedidoCompletoDeserialiado.payments, insertNoSysMenuConta, desconto: pedidoCompletoDeserialiado.total.benefits, acrecimo: pedidoCompletoDeserialiado.total.additionalFees, pedidoCompletoDeserialiado.benefits);

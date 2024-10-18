@@ -723,6 +723,7 @@
             BtnAceitar.Text = "Aceitar";
             BtnAceitar.UseVisualStyleBackColor = false;
             BtnAceitar.Visible = false;
+            BtnAceitar.Click += BtnAceitar_Click;
             // 
             // BtnRejeitar
             // 
@@ -744,6 +745,7 @@
             BtnRejeitar.Text = "Rejeitar";
             BtnRejeitar.UseVisualStyleBackColor = false;
             BtnRejeitar.Visible = false;
+            BtnRejeitar.Click += BtnRejeitar_Click;
             // 
             // btnConcluido
             // 

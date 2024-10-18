@@ -52,12 +52,13 @@ public class ClsDeIntegracaoSys
      string? referencia,
      string? endEntrega = "RETIRADA",
      string? bairEntrega = "RETIRADA",
-     string? entregador = "RETIRADA",
+     string? entregador = "0",
      bool eIfood = false,
      bool eDelMatch = false,
      bool eOnpedido = false,
      bool eCCM = false,
-     bool eAnotaAi = false
+     bool eAnotaAi = false,
+     string? telefone = " "
      ) //método que está sendo usado para integrar a tabela contas do banco de dados com a tabela de pedido do SysIntegrador
     {
 
@@ -70,9 +71,17 @@ public class ClsDeIntegracaoSys
 
             using (OleDbConnection connection = new OleDbConnection(banco))
             {
+                if (telefone.Length > 14)
+                {
+                    telefone = telefone.Replace(" ", "");
+                }
+
+                if(telefone is null)
+                    telefone = " ";
+
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO, ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, CLIENTE ,ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES (?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO,TELEFONE,FONEPEDIDO ,ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, CLIENTE ,ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES (?,?,?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -87,10 +96,13 @@ public class ClsDeIntegracaoSys
                     else
                         command.Parameters.AddWithValue("@CORTESIA", 0.0f);
 
+
                     command.Parameters.AddWithValue("@TAXAENTREGA", taxaEntrega);
                     command.Parameters.AddWithValue("@TAXAMOTOBOY", taxaMotoboy);
                     command.Parameters.AddWithValue("@DTINICIO", dtInicio.Replace("-", "/"));
                     command.Parameters.AddWithValue("@HRINICIO", hrInicio);
+                    command.Parameters.AddWithValue("@TELEFONE", telefone.Length > 14 ? telefone.Substring(0, 14) : telefone);
+                    command.Parameters.AddWithValue("@FONEPEDIDO", telefone.Length > 14 ? telefone.Substring(0, 14) : telefone);
                     command.Parameters.AddWithValue("@ENDENTREGA", endEntrega); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@BAIENTREGA", bairEntrega);//se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@REFENTREGA", referencia);//se vier WEBB aqui vai ser null
@@ -330,7 +342,7 @@ public class ClsDeIntegracaoSys
 
                         if (benefits is not null)
                         {
-                            foreach(var benefitMajor in benefits)
+                            foreach (var benefitMajor in benefits)
                             {
                                 if (benefitMajor.value > 0)
                                 {
@@ -2576,8 +2588,8 @@ public class ClsDeIntegracaoSys
 
             }
 
-            if(ObsDoItem.Length > 80)
-                ObsDoItem = ObsDoItem.Substring(0, 80); 
+            if (ObsDoItem.Length > 80)
+                ObsDoItem = ObsDoItem.Substring(0, 80);
 
             ClasseDeSuporte.ObsDoItem = ObsDoItem;
 
@@ -2991,7 +3003,7 @@ public class ClsDeIntegracaoSys
                 ObsDoItem = item.ObsItem;
             }
 
-            if(ObsDoItem.Length > 80)
+            if (ObsDoItem.Length > 80)
                 ObsDoItem = ObsDoItem.Substring(0, 80);
 
             ClasseDeSuporte.ObsDoItem = ObsDoItem;

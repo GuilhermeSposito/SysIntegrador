@@ -16,6 +16,14 @@ public class PedidoOnPedido
     public PedidoOnPedido() { }
 }
 
+public class PedidoOnPedido2
+{
+    [JsonProperty("status")] public bool Status { get; set; }
+    [JsonProperty("return")] public List<Return> Return { get; set; } = new List<Return>();
+
+    public PedidoOnPedido2() { }
+}
+
 public class Return
 {
     [JsonProperty("id")] public string? Id { get; set; }

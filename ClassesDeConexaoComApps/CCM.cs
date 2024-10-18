@@ -252,6 +252,7 @@ public class CCM
                                 EndEntrega = $"{pedido.Endereco.Rua}, {pedido.Endereco.Numero} - {pedido.Endereco.Bairro}";
                                 BairEntrega = pedido.Endereco.Bairro;
                                 Status = "P";
+                                Entregador = "00";
                             }
 
                             if (TipoPedido == "TAKEOUT")
@@ -259,6 +260,7 @@ public class CCM
                                 HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraPedido).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
                                 mesa = "WEBB";
                                 Status = "P";
+                                Entregador = "Retirada";
                             }
                         }
                         else
@@ -271,6 +273,7 @@ public class CCM
                                 EndEntrega = $"{pedido.Endereco.Rua}, {pedido.Endereco.Numero} - {pedido.Endereco.Bairro}";
                                 BairEntrega = pedido.Endereco.Bairro;
                                 Status = "P";
+                                Entregador = "00";
                             }
 
                             if (TipoPedido == "TAKEOUT")
@@ -278,6 +281,7 @@ public class CCM
                                 HorarioDoEntregarAte = DateTime.Parse(pedido.DataHoraAgendamento).AddMinutes(db.parametrosdosistema.FirstOrDefault().TempoRetirada).ToString();
                                 mesa = "WEBB";
                                 Status = "P";
+                                Entregador = "Retirada";
                             }
                         }
 
@@ -295,19 +299,20 @@ public class CCM
                                            taxaEntrega: ValorEntrega,
                                            taxaMotoboy: 0.00f,
                                            dtInicio: pedido.DataHoraPedido.ToString().Substring(0, 10),
-                                            hrInicio: pedido.DataHoraPedido.ToString().Substring(11, 5),
-                                            contatoNome: pedido.Cliente.Nome,
-                                            usuario: "CAIXA",
-                                            dataSaida: HorarioDoEntregarAte.ToString().Substring(0, 10),
+                                           hrInicio: pedido.DataHoraPedido.ToString().Substring(11, 5),
+                                           contatoNome: pedido.Cliente.Nome,
+                                           usuario: "CAIXA",
+                                           dataSaida: HorarioDoEntregarAte.ToString().Substring(0, 10),
                                            hrSaida: HorarioDoEntregarAte.ToString().Substring(11, 5),
-                                            obsConta1: " ",
+                                           obsConta1: " ",
                                            iFoodPedidoID: pedido.NroPedido.ToString(),
                                            obsConta2: " ",
                                            referencia: Complemento,
-                                            endEntrega: EndEntrega,
-                                            bairEntrega: BairEntrega,
-                                            entregador: Entregador,
-                                            eCCM: true
+                                           endEntrega: EndEntrega,
+                                           bairEntrega: BairEntrega,
+                                           entregador: Entregador,
+                                           eCCM: true,
+                                           telefone: pedido.Cliente.Telefone
                                             ); //fim dos parâmetros do método de integração
 
                             string type = pedido.PagamentoOnline == 1 ? "ONLINE" : "OFFLINE";
@@ -381,14 +386,16 @@ public class CCM
 
                             //Corrreção na questão do ccm não somar os adicionais no valor total do produto
                             float ValorTotalDoProduto = item.ValorUnit;
-                            if(item.Adicionais is not null || item.Adicionais!.Any())
+                            float ValorUnitarioDoProduto = item.ValorUnit;
+                            if (item.Adicionais is not null || item.Adicionais!.Any())
                             {
-                                foreach (var adicional in item.Adicionais)
+                                foreach (var adicional in item.Adicionais!)
                                 {
-                                    ValorTotalDoProduto += adicional.ValorUnit; 
-                                }   
+                                    ValorTotalDoProduto += adicional.ValorUnit;
+                                    ValorUnitarioDoProduto += adicional.ValorUnit;
+                                }
 
-                                ValorTotalDoProduto *= item.Quantidade; 
+                                ValorTotalDoProduto *= item.Quantidade;
                             }
                             else
                             {
@@ -404,7 +411,7 @@ public class CCM
                                       codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
                                       tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
                                       descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
-                                      valorUnit: item.ValorUnit, //moeda
+                                      valorUnit: ValorUnitarioDoProduto, //moeda
                                       valorTotal: ValorTotalDoProduto, //moeda
                                       dataInicio: pedido.DataHoraPedido.Substring(0, 10).Replace("-", "/"), //data
                                       horaInicio: pedido.DataHoraPedido.Substring(11, 5), //data

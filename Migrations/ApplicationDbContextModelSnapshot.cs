@@ -43,6 +43,202 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("apoioonpedido");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.ConfigAppGarcom", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("BuscaDeItens")
+                        .HasColumnType("boolean")
+                        .HasColumnName("buscadeitens");
+
+                    b.Property<bool>("Comanda")
+                        .HasColumnType("boolean")
+                        .HasColumnName("comanda");
+
+                    b.Property<bool>("ListaDeItens")
+                        .HasColumnType("boolean")
+                        .HasColumnName("listadeitens");
+
+                    b.Property<bool>("ListaPorGrupo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("listaporgrupo");
+
+                    b.Property<bool>("Mesa")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mesa");
+
+                    b.Property<bool>("RequisicaoAlfaNumerica")
+                        .HasColumnType("boolean")
+                        .HasColumnName("requisicaoalfanumerica");
+
+                    b.Property<bool>("RequisicaoNumerica")
+                        .HasColumnType("boolean")
+                        .HasColumnName("requisicaonumerica");
+
+                    b.Property<bool>("SemRequisicao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("semrequisicao");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("configappgarcom");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Contas", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Cliente")
+                        .HasColumnType("text")
+                        .HasColumnName("cliente");
+
+                    b.Property<string>("CodCarda1")
+                        .HasColumnType("text")
+                        .HasColumnName("codcarda1");
+
+                    b.Property<string>("CodCarda2")
+                        .HasColumnType("text")
+                        .HasColumnName("codcarda2");
+
+                    b.Property<string>("CodCarda3")
+                        .HasColumnType("text")
+                        .HasColumnName("codcarda3");
+
+                    b.Property<string>("Conta")
+                        .HasColumnType("text")
+                        .HasColumnName("conta");
+
+                    b.Property<string>("DataInicio")
+                        .HasColumnType("text")
+                        .HasColumnName("datainicio");
+
+                    b.Property<string>("Descarda")
+                        .HasColumnType("text")
+                        .HasColumnName("descarda");
+
+                    b.Property<string>("HoraInicio")
+                        .HasColumnType("text")
+                        .HasColumnName("horainicio");
+
+                    b.Property<string>("ImpComanda")
+                        .HasColumnType("text")
+                        .HasColumnName("impcomanda");
+
+                    b.Property<string>("ImpComanda2")
+                        .HasColumnType("text")
+                        .HasColumnName("impcomanda2");
+
+                    b.Property<string>("Mesa")
+                        .HasColumnType("text")
+                        .HasColumnName("mesa");
+
+                    b.Property<string>("Obs1")
+                        .HasColumnType("text")
+                        .HasColumnName("obs1");
+
+                    b.Property<string>("Obs10")
+                        .HasColumnType("text")
+                        .HasColumnName("obs10");
+
+                    b.Property<string>("Obs11")
+                        .HasColumnType("text")
+                        .HasColumnName("obs11");
+
+                    b.Property<string>("Obs12")
+                        .HasColumnType("text")
+                        .HasColumnName("obs12");
+
+                    b.Property<string>("Obs13")
+                        .HasColumnType("text")
+                        .HasColumnName("obs13");
+
+                    b.Property<string>("Obs14")
+                        .HasColumnType("text")
+                        .HasColumnName("obs14");
+
+                    b.Property<string>("Obs15")
+                        .HasColumnType("text")
+                        .HasColumnName("obs15");
+
+                    b.Property<string>("Obs2")
+                        .HasColumnType("text")
+                        .HasColumnName("obs2");
+
+                    b.Property<string>("Obs3")
+                        .HasColumnType("text")
+                        .HasColumnName("obs3");
+
+                    b.Property<string>("Obs4")
+                        .HasColumnType("text")
+                        .HasColumnName("obs4");
+
+                    b.Property<string>("Obs5")
+                        .HasColumnType("text")
+                        .HasColumnName("obs5");
+
+                    b.Property<string>("Obs6")
+                        .HasColumnType("text")
+                        .HasColumnName("obs6");
+
+                    b.Property<string>("Obs7")
+                        .HasColumnType("text")
+                        .HasColumnName("obs7");
+
+                    b.Property<string>("Obs8")
+                        .HasColumnType("text")
+                        .HasColumnName("obs8");
+
+                    b.Property<string>("Obs9")
+                        .HasColumnType("text")
+                        .HasColumnName("obs9");
+
+                    b.Property<float>("QtdComanda")
+                        .HasColumnType("real")
+                        .HasColumnName("qtdcomanda");
+
+                    b.Property<int>("Qtdade")
+                        .HasColumnType("integer")
+                        .HasColumnName("qtdade");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("text")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Tamanho")
+                        .HasColumnType("text")
+                        .HasColumnName("tamanho");
+
+                    b.Property<string>("Telefone")
+                        .HasColumnType("text")
+                        .HasColumnName("telefone");
+
+                    b.Property<string>("Usuario")
+                        .HasColumnType("text")
+                        .HasColumnName("usuario");
+
+                    b.Property<string>("ValorTotal")
+                        .HasColumnType("text")
+                        .HasColumnName("valortotal");
+
+                    b.Property<string>("ValorUnit")
+                        .HasColumnType("text")
+                        .HasColumnName("valorunit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("contas");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Garcom", b =>
                 {
                     b.Property<string>("Codigo")
@@ -93,6 +289,55 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("grupos");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Incremento", b =>
+                {
+                    b.Property<string>("Codigo")
+                        .HasColumnType("text")
+                        .HasColumnName("codigo");
+
+                    b.Property<string>("Descricao")
+                        .HasColumnType("text")
+                        .HasColumnName("descricao");
+
+                    b.Property<string>("Tipo")
+                        .HasColumnType("text")
+                        .HasColumnName("tipo");
+
+                    b.Property<double>("Valor")
+                        .HasColumnType("double precision")
+                        .HasColumnName("valor");
+
+                    b.Property<bool>("VendaInternet")
+                        .HasColumnType("boolean")
+                        .HasColumnName("vendainternet");
+
+                    b.HasKey("Codigo");
+
+                    b.ToTable("incrementos");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.IncrementoCardapio", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodCardapio")
+                        .HasColumnType("text")
+                        .HasColumnName("codcarda");
+
+                    b.Property<string>("Incremento")
+                        .HasColumnType("text")
+                        .HasColumnName("incremento");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("incrementocardapio");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Mesa", b =>
                 {
                     b.Property<string>("Codigo")
@@ -138,6 +383,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("text")
                         .HasColumnName("descricao");
 
+                    b.Property<string>("Fracionado")
+                        .HasColumnType("text")
+                        .HasColumnName("fracionado");
+
                     b.Property<string>("Grupo")
                         .HasColumnType("text")
                         .HasColumnName("grupo");
@@ -157,6 +406,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<double>("Preco3")
                         .HasColumnType("decimal(10,2)")
                         .HasColumnName("pvenda3");
+
+                    b.Property<string>("TamanhoUnico")
+                        .HasColumnType("text")
+                        .HasColumnName("tamanhounico");
 
                     b.HasKey("Codigo");
 

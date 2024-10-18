@@ -695,6 +695,13 @@ public partial class FormMenuInicial : Form
                 throw new Exception("Por favor verifique sua conexão com a internet");
             }
 
+            if (Configuracoes.IntegraGarcom)
+            {
+                GarcomSysMenu garcomSysMenu = new GarcomSysMenu(new MeuContexto());
+
+                await garcomSysMenu.AtualizarContas();
+            }
+
             if (Configuracoes.IntegraIfood)
             {
                 var Ifood = new Ifood(new MeuContexto());
@@ -721,7 +728,8 @@ public partial class FormMenuInicial : Form
             {
                 OnPedido OnPedido = new OnPedido(new MeuContexto());
 
-                await OnPedido.Pooling();
+               // await OnPedido.Pooling();
+                await OnPedido.Pooling2();
             }
 
             if (Configuracoes.IntegraCCM)

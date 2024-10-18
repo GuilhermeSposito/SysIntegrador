@@ -535,19 +535,18 @@ public class ImpressaoDelMatch
 
                             if (!opcDoSistema.RemoveComplementos)
                             {
-                                if (item.SubItems.Count > 0)
+
+                                foreach (var option in CaracteristicasPedido.Observações)
                                 {
-                                    foreach (var option in CaracteristicasPedido.Observações)
-                                    {
-                                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
-                                    }
-
-                                    if (item.Observations != null && item.Observations.Length > 0)
-                                    {
-                                        AdicionaConteudo($"Obs: {item.Observations}", FonteGeral);
-                                    }
-
+                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
                                 }
+
+                                if (item.Observations != null && item.Observations.Length > 0)
+                                {
+                                    AdicionaConteudo($"Obs: {item.Observations}", FonteGeral);
+                                }
+
+
                             }
 
                             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

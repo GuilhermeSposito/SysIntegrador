@@ -141,6 +141,7 @@ public class AnotaAi
                                 BairEntrega = Pedido.InfoDoPedido.deliveryAddress.Neighborhood;
                                 Status = "P";
                                 valorEntrega = Pedido.InfoDoPedido.DeliveryFee;
+                                Entregador = "00";
                             }
 
                             if (Pedido.InfoDoPedido.Type == "TAKE")
@@ -185,7 +186,8 @@ public class AnotaAi
                                         endEntrega: EndEntrega,
                                         bairEntrega: BairEntrega,
                                         entregador: Entregador,
-                                        eAnotaAi: true
+                                        eAnotaAi: true,
+                                        telefone: Pedido.InfoDoPedido.Customer.Phone is not null && Pedido.InfoDoPedido.Customer.Phone.Length > 0 ? Pedido.InfoDoPedido.Customer.Phone : " "
                                         ); //fim dos parâmetros do método de integração
 
                                 foreach (var pagamento in Pedido.InfoDoPedido.Payments)

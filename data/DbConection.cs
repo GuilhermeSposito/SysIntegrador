@@ -33,6 +33,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Produto> cardapio { get; set; }
     public DbSet<Mesa> mesas { get; set; }
     public DbSet<Grupo> grupos { get; set; }
+    public DbSet<Contas> contas{ get; set; }
+    public DbSet<Incremento> incrementos { get; set; }
+    public DbSet<IncrementoCardapio> incrementocardapio { get; set; }
+    public DbSet<ConfigAppGarcom> configappgarcom { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

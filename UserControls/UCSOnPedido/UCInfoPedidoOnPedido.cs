@@ -337,19 +337,34 @@ public partial class UCInfoPedidoOnPedido : UserControl
     {
         try
         {
-            if (StatusPedido == "CONCLUDED")
+            await using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                btnCancelar.Visible = false;
-                btnConcluido.Visible = false;
-                btnDespachar.Visible = false;
-                button3.Visible = false;
-            }
+                var ConfigApp = db.parametrosdosistema.ToList().FirstOrDefault();
 
-            if (StatusPedido == "DISPATCHED")
-            {
-                btnDespachar.Visible = false;
-            }
 
+                if (StatusPedido == "CONCLUDED")
+                {
+                    btnCancelar.Visible = false;
+                    btnConcluido.Visible = false;
+                    btnDespachar.Visible = false;
+                    button3.Visible = false;
+                }
+
+                if (StatusPedido == "DISPATCHED")
+                {
+                    btnDespachar.Visible = false;
+                }
+
+                if (StatusPedido == "Novo" && !ConfigApp!.AceitaPedidoAut)
+                {
+                    BtnAceitar.Visible = true;
+                    BtnRejeitar.Visible = true;
+                    btnDespachar.Visible = false;
+                    btnConcluido.Visible = false;
+                    btnCancelar.Visible = false;
+                    button3.Visible = false;
+                }
+            }
         }
         catch (Exception ex)
         {
@@ -360,5 +375,27 @@ public partial class UCInfoPedidoOnPedido : UserControl
     private void pictureBox3_Click(object sender, EventArgs e)
     {
         Clipboard.SetText(this.textBox1.Text);
+    }
+
+    private async void BtnAceitar_Click(object sender, EventArgs e)
+    {
+        OnPedido onPedido = new OnPedido(new MeuContexto());
+
+        await onPedido.AceitaPedido(Pedido.Return.Id);
+        onPedido.ImprimeAutomatico(Pedido);
+
+        MessageBox.Show($"Pedido de id {Pedido.Return.Id} aceito com sucesso!", "Aceito");
+
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Add(FormMenuInicial.labelDeAvisoPedidoDetalhe)));
+        FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = true));
+    }
+
+    private void BtnRejeitar_Click(object sender, EventArgs e)
+    {
+        FormCancelamentoOnPedido formDeCancelamento = new FormCancelamentoOnPedido() { IdPedido = Pedido.Return.Id };
+
+        formDeCancelamento.ShowDialog();
     }
 }

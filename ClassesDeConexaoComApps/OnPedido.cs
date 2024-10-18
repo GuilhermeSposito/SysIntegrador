@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesAuxiliares.logs;
@@ -40,7 +41,7 @@ public class OnPedido
                 // await PostgresConfigs.ConcluiPedidoOnPedido();
                 await RefreshTokenOnPedidos();
                 await ConcluirPedido(concluiuAut: true);
-                await DespachaPedido(DispachaAut: true);
+                await DespachaPedido2(DispachaAut: true);
                 ConcluiPedidosAutomatico();
 
                 HttpResponseMessage response = await EnviaReq(url, "GET");
@@ -58,18 +59,19 @@ public class OnPedido
                             case "0":
                                 //Set Pedido
                                 await SetPedido(item.OrderURL, item.orderId);
+                                ClsSons.PlaySom();
                                 if (Configs!.AceitaPedidoAut)
                                 {
-                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL);
+                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL!);
                                 }
                                 break;
                             case "1":
                                 //Set Pedido
                                 await SetPedido(item.OrderURL, item.orderId);
-                                ClsSons.StopSom();
+                                ClsSons.PlaySom();
                                 if (Configs!.AceitaPedidoAut)
                                 {
-                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL);
+                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL!);
                                 }
                                 break;
                             case "2":
@@ -100,6 +102,306 @@ public class OnPedido
         {
             await Logs.CriaLogDeErro(ex.ToString());
             MessageBox.Show("Erro ao enviar requisição de pedidos!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    public async Task Pooling2()
+    {
+        string url = @"https://merchant-api.onpedido.com.br/v1/events:polling";
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
+
+                // await PostgresConfigs.ConcluiPedidoOnPedido();
+                await RefreshTokenOnPedidos();
+                await ConcluirPedido(concluiuAut: true);
+                await DespachaPedido2(DispachaAut: true);
+                ConcluiPedidosAutomatico();
+
+                HttpResponseMessage response = await EnviaReq(url, "GET");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    string responseString = await response.Content.ReadAsStringAsync();
+
+                    PollingOnPedido? pooling = JsonConvert.DeserializeObject<PollingOnPedido>(responseString);
+
+                    List<string> NumerosDosPedidosASerAdicionadoNoBancoDeDados = new List<string>();
+
+                    foreach (var item in pooling!.Return)
+                    {
+                        switch (item.EventId)
+                        {
+                            case "0":
+                                NumerosDosPedidosASerAdicionadoNoBancoDeDados.Add(item.orderId.ToString());
+                                break;
+                            case "1":
+                                NumerosDosPedidosASerAdicionadoNoBancoDeDados.Add(item.orderId.ToString());
+                                break;
+                            case "2":
+                                NumerosDosPedidosASerAdicionadoNoBancoDeDados.Add(item.orderId.ToString());
+                                await MudaStatusPedido(item.orderId, "CONFIRMED");
+                                break;
+                            case "3":
+                                await MudaStatusPedido(item.orderId, "DISPATCHED");
+                                //muda status
+                                ClsSons.StopSom();
+                                break;
+                            case "4":
+                                await MudaStatusPedido(item.orderId, "CONCLUDED");
+                                //muda status
+                                ClsSons.StopSom();
+                                break;
+                            case "5":
+                                await MudaStatusPedido(item.orderId, "CANCELLED");
+                                ClsSons.StopSom();
+                                break;
+                        }
+                    }
+
+                    if (NumerosDosPedidosASerAdicionadoNoBancoDeDados.Count > 0)
+                        await SetPedido2(NumerosDosPedidosASerAdicionadoNoBancoDeDados);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show("Erro ao enviar requisição de pedidos!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+    }
+
+    public async Task SetPedido2(List<string> NumerosDosPedidos)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                string? NumerosDosPedidosString = string.Join("-", NumerosDosPedidos);
+                string? Url = $"https://merchant-api.onpedido.com.br/v1/orders/{NumerosDosPedidosString}";
+
+                HttpResponseMessage response = await EnviaReq(Url, "GET");
+
+                if (response.IsSuccessStatusCode)
+                {
+                    PedidoOnPedido2? Pedidos;
+                    var jsonContent = await response.Content.ReadAsStringAsync();
+
+                    if (NumerosDosPedidos.Count > 1)
+                        Pedidos = JsonConvert.DeserializeObject<PedidoOnPedido2>(jsonContent);
+                    else
+                    {
+                        PedidoOnPedido pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(jsonContent)!; 
+
+                        Pedidos = new PedidoOnPedido2() { Status = pedido.Status, Return = new List<Return>() { pedido.Return } };
+                    }
+
+                    foreach (var pedido in Pedidos!.Return)
+                    {
+                        bool existePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == pedido.Id!.ToString());
+                        if (!existePedido)
+                        {
+                            ClsSons.PlaySom();
+
+                            ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+
+
+                            int insertNoSysMenuConta = 0;
+                            string? mesa = " ";
+                            string? DataCertaEntregarEm = " ";
+                            string? Complemento = " ";
+                            string? EndEntrega = " ";
+                            string? BairEntrega = " ";
+                            string? Entregador = " ";
+                            string? Status = " ";
+
+                            if (Configs.IntegracaoSysMenu)
+                            {
+                                if (pedido.Type == "DELIVERY")
+                                {
+                                    mesa = "WEB";
+                                    DataCertaEntregarEm = pedido.Delivery.DeliveryDateTime;
+                                    Complemento = pedido.Delivery.DeliveryAddressON.Complement;
+                                    EndEntrega = pedido.Delivery.DeliveryAddressON.FormattedAddress;
+                                    BairEntrega = pedido.Delivery.DeliveryAddressON.District;
+                                    Status = "P";
+                                    Entregador = "00";
+                                }
+
+                                if (pedido.Type == "TAKEOUT")
+                                {
+                                    mesa = "WEBB";
+                                    DataCertaEntregarEm = pedido.TakeOut.TakeoutDateTime;
+                                    Entregador = "RETIRADA";
+                                    Status = "P";
+                                }
+
+                                if (pedido.Type == "INDOOR")
+                                {
+                                    mesa = await RetiraNumeroDeMesa(pedido.Indoor.Place);
+                                    DataCertaEntregarEm = pedido.Indoor.IndoorDateTime;
+                                    Status = "A";
+                                }
+
+                                float ValorDescontosNum = 0.0f;
+
+                                foreach (var item in pedido.Discounts)
+                                {
+                                    ValorDescontosNum += item.Amount.value;
+                                }
+
+                                float ValorEntrega = 0.0f;
+
+                                var EntregaObj = pedido.OtherFees.Where(x => x.Type == "DELIVERY_FEE").FirstOrDefault();
+                                ValorEntrega = EntregaObj.Price.Value;
+
+                                if (pedido.Type != "INDOOR")
+                                {
+                                    insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                                            mesa: mesa,
+                                            cortesia: ValorDescontosNum,
+                                            taxaEntrega: ValorEntrega,
+                                            taxaMotoboy: 0.00f,
+                                            dtInicio: pedido.CreatedAt.ToString().Substring(0, 10),
+                                             hrInicio: pedido.CreatedAt.ToString().Substring(11, 5),
+                                             contatoNome: pedido.Customer.Name,
+                                             usuario: "CAIXA",
+                                             dataSaida: DataCertaEntregarEm.ToString().Substring(0, 10),
+                                            hrSaida: DataCertaEntregarEm.ToString().Substring(11, 5),
+                                             obsConta1: " ",
+                                            iFoodPedidoID: pedido.Id,
+                                            obsConta2: " ",
+                                            referencia: Complemento,
+                                             endEntrega: EndEntrega,
+                                             bairEntrega: BairEntrega,
+                                             entregador: Entregador,
+                                             eOnpedido: true,
+                                             telefone: pedido.Customer.PhoneOn?.Extension != null ? $"({pedido.Customer.PhoneOn.Extension}){pedido.Customer.PhoneOn.Number}" : " "
+                                             ); //fim dos parâmetros do método de integração
+
+                                    string type = pedido.Payments.Prepaid > 0 && pedido.Payments.Pending == 0 ? "ONLINE" : "OFFLINE";
+
+                                    ClsDeIntegracaoSys.IntegracaoPagCartao(pedido.Payments.Methods[0].Method, insertNoSysMenuConta, pedido.Total.OrderAmount.value, type, "ONPEDIDO");
+
+                                    SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
+
+                                    foreach (var item in pedido.Payments.Methods)
+                                    {
+                                        Cash SeForPagamentoEmDinherio = new Cash() { changeFor = item.ChangeFor };
+                                        payments.methods.Add(new Methods() { method = item.Method, value = item.value, cash = SeForPagamentoEmDinherio });
+                                    }
+
+                                    ClsDeIntegracaoSys.UpdateMeiosDePagamentosSequencia(payments, insertNoSysMenuConta);
+                                }
+                            }
+
+                            if (pedido.Type == "INDOOR")
+                            {
+                                insertNoSysMenuConta = 999;
+                            }
+
+                            db.parametrosdopedido.Add(new ParametrosDoPedido()
+                            {
+                                Id = pedido.Id,
+                                Json = JsonConvert.SerializeObject(new PedidoOnPedido { Status = true, Return = pedido }),
+                                Situacao = "Novo",
+                                Conta = insertNoSysMenuConta,
+                                CriadoEm = DateTime.Now.ToString(),
+                                DisplayId = Convert.ToInt32(pedido.DisplayId),
+                                JsonPolling = "Sem Polling ID",
+                                CriadoPor = "ONPEDIDO",
+                                PesquisaDisplayId = Convert.ToInt32(pedido.DisplayId),
+                                PesquisaNome = pedido.Customer.Name
+                            });
+
+                            db.SaveChanges();
+
+
+                            if (pedido.Type == "INDOOR")
+                            {
+                                insertNoSysMenuConta = 0;
+                            }
+
+
+                            if (Configs.IntegracaoSysMenu)
+                            {
+                                bool existeCliente = ClsDeIntegracaoSys.ProcuraCliente($"({pedido.Customer.PhoneOn.Extension}){pedido.Customer.PhoneOn.Number}");
+
+                                if (!existeCliente && pedido.Type == "DELIVERY")
+                                {
+                                    ClsDeIntegracaoSys.CadastraClienteOnPedido(pedido.Customer, pedido.Delivery);
+                                }
+
+                                foreach (var item in pedido.ItemsOn)
+                                {
+                                    var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemOnPedido(item, eIntegracao: true);
+
+                                    ClsDeIntegracaoSys.IntegracaoContas(
+                                              conta: insertNoSysMenuConta, //numero
+                                              mesa: mesa, //texto curto 
+                                              qtdade: item.quantity, //numero
+                                              codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                              codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                              codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                              tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                              descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                              valorUnit: item.TotalPrice.Value / item.quantity, //moeda
+                                              valorTotal: item.TotalPrice.Value, //moeda
+                                              dataInicio: pedido.CreatedAt.Substring(0, 10).Replace("-", "/"), //data
+                                              horaInicio: pedido.CreatedAt.Substring(11, 5), //data
+                                              obs1: CaracteristicasPedido.Obs1,
+                                              obs2: CaracteristicasPedido.Obs2,
+                                              obs3: CaracteristicasPedido.Obs3,
+                                              obs4: CaracteristicasPedido.Obs4,
+                                              obs5: CaracteristicasPedido.Obs5,
+                                              obs6: CaracteristicasPedido.Obs6,
+                                              obs7: CaracteristicasPedido.Obs7,
+                                              obs8: CaracteristicasPedido.Obs8,
+                                              obs9: CaracteristicasPedido.Obs9,
+                                              obs10: CaracteristicasPedido.Obs10,
+                                              obs11: CaracteristicasPedido.Obs11,
+                                              obs12: CaracteristicasPedido.Obs12,
+                                              obs13: CaracteristicasPedido.Obs13,
+                                              obs14: CaracteristicasPedido.Obs14,
+                                              obs15: item.observations != null && item.observations.Length > 0 ? item.observations : " ",
+                                              cliente: pedido.Customer.Name, // texto curto 80 letras
+                                              telefone: pedido.Customer.PhoneOn.Extension != null ? $"({pedido.Customer.PhoneOn.Extension}){pedido.Customer.PhoneOn.Number}" : " ", // texto curto 14 letras
+                                              impComanda: "Não",
+                                              ImpComanda2: "Não",
+                                              qtdComanda: 00f,//numero duplo 
+                                              status: Status
+                                         );//fim dos parâmetros
+
+                                }
+
+                            }
+
+                            ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                            if (opSistema.ImpressaoAut && opSistema.AceitaPedidoAut)
+                            {
+                                ImprimeAutomatico(new PedidoOnPedido { Status = true, Return = pedido });
+                            }
+
+                            if (pedido.Type == "INDOOR")
+                            {
+                                await ConcluirPedido(pedido.Id!.ToString(), concluiuAut: true);
+
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
         }
     }
 
@@ -250,7 +552,111 @@ public class OnPedido
         }
     }
 
+    public async Task DespachaPedido2(string? orderId = "DEFAULT", bool DispachaAut = false)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                List<ApoioOnPedido>? PedidosApoio = await db.apoioonpedido.Where(p => p.Action == "DESPACHAR").ToListAsync();
+
+                if (PedidosApoio is not null)
+                {
+                    List<string> NumerosDoPedido = new List<string>();
+                    foreach (var pedido in PedidosApoio)
+                        NumerosDoPedido.Add(pedido.Id_Pedido.ToString());
+
+
+                    string? NumerosDosPedidosString = string.Join("-", NumerosDoPedido);
+
+
+                    string url = $"https://merchant-api.onpedido.com.br/v1/orders/{NumerosDosPedidosString}/dispatch";
+
+                    var response = await EnviaReq(url, "POST");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (!DispachaAut)
+                        {
+                            MessageBox.Show($"Pedido de id: {orderId} Despachado com sucesso!");
+                        }
+
+                        db.apoioonpedido.RemoveRange(PedidosApoio);
+                        await db.SaveChangesAsync();
+                    }
+                    else
+                    {
+                        if (!DispachaAut)
+                        {
+                            MessageBox.Show("Não foi possivel despachar pedido", "Não foi possivel!");
+                        }
+
+                    }
+
+
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
     public async Task ConcluirPedido(string? orderId = "Default", bool concluiuAut = false)
+    {
+        try
+        {
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                List<ApoioOnPedido>? PedidoApoio = await db.apoioonpedido.Where(p => p.Action == "CONCLUIR").ToListAsync();
+
+                if (PedidoApoio is not null)
+                {
+                    List<string> NumerosDosPedidos = new List<string>();
+                    foreach (var pedido in PedidoApoio)
+                        NumerosDosPedidos.Add(pedido.Id_Pedido.ToString());
+
+                    string? NumerosDosPedidosString = string.Join("-", NumerosDosPedidos);
+
+                    string url = $"https://merchant-api.onpedido.com.br/v1/orders/{NumerosDosPedidosString}/deliver";
+
+                    var response = await EnviaReq(url, "POST");
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        if (!concluiuAut)
+                        {
+                            MessageBox.Show($"Pedido de id {orderId} Concluido com sucesso!");
+                        }
+
+                        db.apoioonpedido.RemoveRange(PedidoApoio);
+                        await db.SaveChangesAsync();
+
+                    }
+                    else
+                    {
+                        if (!concluiuAut)
+                        {
+                            MessageBox.Show(await response.Content.ReadAsStringAsync(), "Não foi possivel!");
+                        }
+                    }
+
+
+
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
+    public async Task ConcluirPedido2(string? orderId = "Default", bool concluiuAut = false)
     {
         try
         {
@@ -313,7 +719,12 @@ public class OnPedido
         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderID}/confirm";
         try
         {
-            HttpResponseMessage response = await EnviaReq(urlDoPedido, "GET");
+            HttpResponseMessage response;
+
+            if (urlDoPedido == null)
+                response = await EnviaReq(url, "GET");
+            else
+                response = await EnviaReq(urlDoPedido, "GET");
 
             if (response.IsSuccessStatusCode)
             {
@@ -404,7 +815,7 @@ public class OnPedido
 
                     if (response.IsSuccessStatusCode)
                     {
-                        await ClsSons.PlaySomAsync();
+                        //await ClsSons.PlaySomAsync();
 
                         ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
                         string? respondeJson = await response.Content.ReadAsStringAsync();
@@ -429,6 +840,7 @@ public class OnPedido
                                 EndEntrega = pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
                                 BairEntrega = pedido.Return.Delivery.DeliveryAddressON.District;
                                 Status = "P";
+                                Entregador = "00";
                             }
 
                             if (pedido.Return.Type == "TAKEOUT")
@@ -478,7 +890,8 @@ public class OnPedido
                                          endEntrega: EndEntrega,
                                          bairEntrega: BairEntrega,
                                          entregador: Entregador,
-                                         eOnpedido: true
+                                         eOnpedido: true,
+                                         telefone: pedido.Return.Customer.PhoneOn?.Extension != null ? $"({pedido.Return.Customer.PhoneOn.Extension}){pedido.Return.Customer.PhoneOn.Number}" : " "
                                          ); //fim dos parâmetros do método de integração
 
                                 string type = pedido.Return.Payments.Prepaid > 0 && pedido.Return.Payments.Pending == 0 ? "ONLINE" : "OFFLINE";
@@ -580,16 +993,14 @@ public class OnPedido
 
                         ClsDeSuporteAtualizarPanel.MudouDataBase = true;
 
-                        //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-
-                        if (opSistema.ImpressaoAut)
+                        if (opSistema.ImpressaoAut && opSistema.AceitaPedidoAut)
                         {
                             ImprimeAutomatico(pedido);
                         }
 
                         if (pedido.Return.Type == "INDOOR")
                         {
-                            ConcluirPedido(pedido.Return.Id.ToString(), concluiuAut: true);
+                            await ConcluirPedido(pedido.Return.Id!.ToString(), concluiuAut: true);
                         }
                     }
                 }
