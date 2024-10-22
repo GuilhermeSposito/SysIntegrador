@@ -348,6 +348,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("bloqueado");
 
+                    b.Property<string>("Cartao")
+                        .HasColumnType("text")
+                        .HasColumnName("cartao");
+
                     b.Property<double>("Consumacao")
                         .HasColumnType("double precision")
                         .HasColumnName("consumacao");

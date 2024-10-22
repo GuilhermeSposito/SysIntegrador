@@ -275,6 +275,7 @@ public class GarcomSysMenu
                                 mesa.Praca = reader["PRACA"].ToString();
                                 mesa.Tipo = reader["TIPO"].ToString();
                                 mesa.status = reader["STATUS"].ToString();
+                                mesa.Cartao = reader["CARTAO"].ToString();
                                 mesa.Bloqueado = Convert.ToBoolean(reader["BLOQUEADO"].ToString());
                                 mesa.Consumacao = Convert.ToSingle(reader["CONSUMACAO"].ToString());
                                 mesa.Vip = Convert.ToBoolean(reader["VIP"].ToString());

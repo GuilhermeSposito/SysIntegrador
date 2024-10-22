@@ -15,6 +15,7 @@ public class Mesa
     [Column("tipo")] public string? Tipo { get; set; }
     [Column("status")] public string? status { get; set; }
     [Column("bloqueado")] public bool Bloqueado { get; set; }
+    [Column("cartao")] public string? Cartao { get; set; }
     [Column("consumacao")] public double  Consumacao { get; set; }
     [Column("vip")] public bool Vip { get; set; }
 }

@@ -5,6 +5,7 @@ using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using System;
 using System.Configuration;
+using System.Diagnostics;
 using System.Windows.Forms.Design;
 
 namespace SysIntegradorApp
@@ -17,10 +18,16 @@ namespace SysIntegradorApp
             var serviceCollection = new ServiceCollection();
             ConfigureServices(serviceCollection);
             var serviceProvider = serviceCollection.BuildServiceProvider();
+            string nomeDoProcesso = "SysIntegradorApp";
 
-            // see https://aka.ms/applicationconfiguration.
-            // ApplicationConfiguration.Initialize();
-            // Application.Run(new Form1());
+            Process[] processos = Process.GetProcessesByName(nomeDoProcesso);
+
+            if (processos.Length > 1)
+            {
+                MessageBox.Show("O aplicativo já está em execução.", "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
+                return;
+            }
 
             MigrationManager.ApplyMigrations(new ApplicationDbContext());
 
@@ -31,7 +38,6 @@ namespace SysIntegradorApp
             serviceProvider.GetRequiredService<FormMenuInicial>();
             serviceProvider.GetRequiredService<Ifood>();
             serviceProvider.GetRequiredService<CCM>();
-           
         }
 
         private static void ConfigureServices(IServiceCollection services)

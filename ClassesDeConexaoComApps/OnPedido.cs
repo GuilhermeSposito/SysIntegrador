@@ -23,6 +23,7 @@ public class OnPedido
 {
 
     private readonly IMeuContexto _Context;
+    private List<string> NumerosDosPedidosASerAceito = new List<string>();
 
     public OnPedido(IMeuContexto context)
     {
@@ -162,7 +163,15 @@ public class OnPedido
                     }
 
                     if (NumerosDosPedidosASerAdicionadoNoBancoDeDados.Count > 0)
+                    {
                         await SetPedido2(NumerosDosPedidosASerAdicionadoNoBancoDeDados);
+
+                        if (Configs!.AceitaPedidoAut)
+                        {
+                            if (NumerosDosPedidosASerAceito.Count > 0)
+                                await AceitaPedidoVarios();
+                        }
+                    }
                 }
             }
         }
@@ -195,7 +204,7 @@ public class OnPedido
                         Pedidos = JsonConvert.DeserializeObject<PedidoOnPedido2>(jsonContent);
                     else
                     {
-                        PedidoOnPedido pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(jsonContent)!; 
+                        PedidoOnPedido pedido = JsonConvert.DeserializeObject<PedidoOnPedido>(jsonContent)!;
 
                         Pedidos = new PedidoOnPedido2() { Status = pedido.Status, Return = new List<Return>() { pedido.Return } };
                     }
@@ -380,6 +389,11 @@ public class OnPedido
 
                             }
 
+                            if (Configs.AceitaPedidoAut)
+                            {
+                                NumerosDosPedidosASerAceito.Add(pedido.Id!.ToString());
+                            }
+
                             ClsDeSuporteAtualizarPanel.MudouDataBase = true;
 
                             if (opSistema.ImpressaoAut && opSistema.AceitaPedidoAut)
@@ -404,6 +418,34 @@ public class OnPedido
             MessageBox.Show(ex.ToString(), "Ops");
         }
     }
+
+    public async Task AceitaPedidoVarios()
+    {
+        try
+        {
+            string? NumerosDosPedidosString = string.Join("-", NumerosDosPedidosASerAceito);
+            string url = $"https://merchant-api.onpedido.com.br/v1/orders/{NumerosDosPedidosString}/confirm";
+
+            string? BodyDeConfirmacao = " ";
+
+            ClsParaConfirmarPedido ClsConfirma = new ClsParaConfirmarPedido() { Reason = "Confirmed", PreparationTime = 60 };
+            BodyDeConfirmacao = JsonConvert.SerializeObject(ClsConfirma);
+
+            HttpResponseMessage responseDeConfirmacao = await EnviaReq(url, "POST", BodyDeConfirmacao);
+
+            if (!responseDeConfirmacao.IsSuccessStatusCode)
+            {
+                throw new Exception("Erro ao Aceitar Pedidos");
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "Ops");
+        }
+    }
+
 
     public async void ConcluiPedidosAutomatico()
     {
@@ -714,7 +756,7 @@ public class OnPedido
         }
     }
 
-    public async Task AceitaPedido(string? orderID, string urlDoPedido = null)
+    public async Task AceitaPedido(string? orderID, string? urlDoPedido = null)
     {
         string url = $"https://merchant-api.onpedido.com.br/v1/orders/{orderID}/confirm";
         try

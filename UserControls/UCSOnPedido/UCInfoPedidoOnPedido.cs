@@ -355,7 +355,7 @@ public partial class UCInfoPedidoOnPedido : UserControl
                     btnDespachar.Visible = false;
                 }
 
-                if (StatusPedido == "Novo" && !ConfigApp!.AceitaPedidoAut)
+                if (StatusPedido == "Novo")
                 {
                     BtnAceitar.Visible = true;
                     BtnRejeitar.Visible = true;
