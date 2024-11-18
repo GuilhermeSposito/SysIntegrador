@@ -24,6 +24,7 @@ public class OnPedido
 
     private readonly IMeuContexto _Context;
     private List<string> NumerosDosPedidosASerAceito = new List<string>();
+    private int ReqDePollingCount { get; set; } = 0;
 
     public OnPedido(IMeuContexto context)
     {
@@ -39,7 +40,6 @@ public class OnPedido
             {
                 ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
 
-                // await PostgresConfigs.ConcluiPedidoOnPedido();
                 await RefreshTokenOnPedidos();
                 await ConcluirPedido(concluiuAut: true);
                 await DespachaPedido2(DispachaAut: true);
@@ -97,6 +97,7 @@ public class OnPedido
                         }
                     }
                 }
+
             }
         }
         catch (Exception ex)
@@ -173,12 +174,20 @@ public class OnPedido
                         }
                     }
                 }
+                else
+                {
+                    string responseString = await response.Content.ReadAsStringAsync();
+                    ClsErroApi clsErroApi = JsonConvert.DeserializeObject<ClsErroApi>(responseString)!;
+
+                    if ((clsErroApi.Error.Code.Contains("OAuth39") || clsErroApi.Error.Code.Contains("OAuth40") || clsErroApi.Error.Code.Contains("OAuth41")) && ReqDePollingCount == 0)
+                        await GetToken();
+                }
             }
         }
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao enviar requisição de pedidos!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -1255,6 +1264,7 @@ public class OnPedido
                     AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
                     AutBase.VenceEmOnPedido = HorarioDeVencimento;
                     await db.SaveChangesAsync();
+                    ReqDePollingCount = 1;
                 }
 
             }
@@ -1304,6 +1314,8 @@ public class OnPedido
                         AutBase.TokenOnPedido = TokenOnP.AccessOAuthToken;
                         AutBase.VenceEmOnPedido = HorarioDeVencimento;
                         await db.SaveChangesAsync();
+
+                        ReqDePollingCount = 1;
                     }
                     else
                     {

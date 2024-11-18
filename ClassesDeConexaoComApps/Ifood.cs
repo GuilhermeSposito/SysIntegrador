@@ -212,7 +212,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "OPS");
         }
         return TokenValido;
     }
@@ -246,7 +245,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "OPS");
         }
     }
 
@@ -279,7 +277,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao atualizar Status Pedido", "OPS");
         }
     }
 
@@ -303,7 +300,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "OPS");
         }
     }
 
@@ -343,7 +339,7 @@ public class Ifood
                             complementoDaEntrega = pedidoCompletoDeserialiado.delivery.deliveryAddress.complement;
                         }
 
-                        if(pedidoCompletoDeserialiado.customer.name.Length > 50)
+                        if (pedidoCompletoDeserialiado.customer.name.Length > 50)
                         {
                             pedidoCompletoDeserialiado.customer.name = pedidoCompletoDeserialiado.customer.name.Substring(0, 50);
                         }
@@ -406,7 +402,6 @@ public class Ifood
                     ClsDeSuporteAtualizarPanel.MudouDataBase = true;
                     ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
 
-                    // FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
 
                     if (Configs.IntegracaoSysMenu)
                     {
@@ -416,6 +411,7 @@ public class Ifood
                         {
                             ClsDeIntegracaoSys.CadastraCliente(pedidoCompletoDeserialiado.customer, pedidoCompletoDeserialiado.delivery);
                         }
+
 
                         foreach (Items item in pedidoCompletoDeserialiado.items)
                         {
@@ -506,11 +502,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs1 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs1 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs1 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs1 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -522,11 +518,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs2 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs2 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs2 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs2 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -538,11 +534,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs3 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs3 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs3 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs3 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -554,11 +550,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs4 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs4 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs4 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs4 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -570,11 +566,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs5 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs5 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs5 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs5 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -586,11 +582,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs6 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs6 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs6 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs6 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -602,11 +598,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs7 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs7 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs7 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs7 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -618,11 +614,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs8 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs8 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs8 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs8 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -634,11 +630,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs9 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs9 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs9 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs9 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -650,11 +646,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs10 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs10 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs10 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs10 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -666,11 +662,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs11 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs11 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs11 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs11 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -682,11 +678,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs12 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs12 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs12 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs12 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -698,11 +694,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs13 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs13 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs13 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs13 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -714,11 +710,11 @@ public class Ifood
 
                                         if (pesquisaProduto && opcao.externalCode.Contains("m"))
                                         {
-                                            obs14 = $"{item.quantity}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs14 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else if (opcao.externalCode.Contains("m"))
                                         {
-                                            obs14 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs14 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -812,11 +808,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs1 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs1 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs1 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs1 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -828,11 +824,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs2 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs2 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs2 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs2 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -844,11 +840,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs3 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs3 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs3 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs3 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -860,11 +856,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs4 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs4 = $"{(opcao.quantity * item.quantity)}X -  {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs4 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs4 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -876,11 +872,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs5 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs5 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs5 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs5 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -892,11 +888,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs6 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs6 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs6 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs6 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -908,11 +904,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs7 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs7 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs7 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs7 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -924,11 +920,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs8 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs8 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs8 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs8 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -940,11 +936,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs9 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs9 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs9 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs9 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -956,11 +952,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs10 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs10 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs10 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs10 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -972,11 +968,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs11 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs11 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs11 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs11 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -988,11 +984,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs12 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs12 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs12 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs12 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -1004,11 +1000,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs13 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs13 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs13 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs13 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -1020,11 +1016,11 @@ public class Ifood
 
                                         if (pesquisaProduto)
                                         {
-                                            obs14 = $"{item.quantity}X {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
+                                            obs14 = $"{(opcao.quantity * item.quantity)}X - {ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.externalCode)}";
                                         }
                                         else
                                         {
-                                            obs14 = $"{opcao.quantity}X - {opcao.name} - {opcao.price.ToString("c")}";
+                                            obs14 = $"{(opcao.quantity * item.quantity)}X - {opcao.name} - {(opcao.price * item.quantity).ToString("c")}";
                                         }
 
                                         continue;
@@ -1083,10 +1079,7 @@ public class Ifood
 
                             }
                         }
-
                     }
-
-
 
                     ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
@@ -1117,8 +1110,7 @@ public class Ifood
         }
         catch (Exception ex)
         {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "ERRO AO INSERIR PEDIDO NO POSTGRES");
+            await Logs.CriaLogDeErro(ex.ToString());        
         }
 
     }
@@ -1191,7 +1183,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "ERRO AO CONFIRMAR PEDIDO");
         }
     }
 
@@ -1218,7 +1209,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops");
         }
     }
 
@@ -1246,7 +1236,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops");
         }
     }
 
@@ -1356,7 +1345,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
         }
         return validationState;
     }
@@ -1423,7 +1411,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
         }
         return response;
     }
@@ -1470,7 +1457,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops");
         }
     }
 

@@ -17,6 +17,8 @@ using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
+using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
+using System.Reflection.Metadata.Ecma335;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -58,7 +60,9 @@ public class ClsDeIntegracaoSys
      bool eOnpedido = false,
      bool eCCM = false,
      bool eAnotaAi = false,
-     string? telefone = " "
+     string? telefone = " ",
+     string? status = "P",
+     float Couvert = 0f
      ) //método que está sendo usado para integrar a tabela contas do banco de dados com a tabela de pedido do SysIntegrador
     {
 
@@ -76,12 +80,12 @@ public class ClsDeIntegracaoSys
                     telefone = telefone.Replace(" ", "");
                 }
 
-                if(telefone is null)
+                if (telefone is null)
                     telefone = " ";
 
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA ,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO,TELEFONE,FONEPEDIDO ,ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, CLIENTE ,ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES (?,?,?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
+                string sqlInsert = $"INSERT INTO Sequencia (MESA, STATUS,CORTESIA, COUVERT,TAXAENTREGA,TAXAMOTOBOY, DTINICIO, HRINICIO,TELEFONE,FONEPEDIDO ,ENDENTREGA, BAIENTREGA, REFENTREGA ,CONTATO, CLIENTE ,ENTREGADOR, USUARIO, DTSAIDA, HRSAIDA, OBSCONTA1, OBSCONTA2 ,iFoodPedidoID) VALUES (?,?,?,?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -89,7 +93,7 @@ public class ClsDeIntegracaoSys
                     Console.ForegroundColor = ConsoleColor.White;
                     // Parâmetros para a consulta SQL
                     command.Parameters.AddWithValue("@MESA", mesa);
-                    command.Parameters.AddWithValue("@STATUS", "P");
+                    command.Parameters.AddWithValue("@STATUS", status);
 
                     if (!eIfood)
                         command.Parameters.AddWithValue("@CORTESIA", cortesia);
@@ -97,6 +101,7 @@ public class ClsDeIntegracaoSys
                         command.Parameters.AddWithValue("@CORTESIA", 0.0f);
 
 
+                    command.Parameters.AddWithValue("@COUVERT", Couvert);
                     command.Parameters.AddWithValue("@TAXAENTREGA", taxaEntrega);
                     command.Parameters.AddWithValue("@TAXAMOTOBOY", taxaMotoboy);
                     command.Parameters.AddWithValue("@DTINICIO", dtInicio.Replace("-", "/"));
@@ -251,6 +256,617 @@ public class ClsDeIntegracaoSys
         }
 
         return ultimoNumeroConta;
+    }
+
+    public static void UpdateMeiosDePagamentosSequenciaParaOIfood(Payments pagamento, int numConta, float desconto = 0.0f, float acrecimo = 0.0f, List<Benefits>? benefits = null)
+    {
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.ToList().FirstOrDefault();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+            foreach (Methods pagamentoAtual in pagamento.methods)
+            {
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    // Abrindo a conexão
+                    connection.Open();
+                    string? tipoPagamento = "PAGCRT";
+
+                    switch (pagamentoAtual.method)
+                    {
+                        case "CREDIT":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "MEAL_VOUCHER":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "DEBIT":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "PIX":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "CASH":
+                            tipoPagamento = "PAGDNH";
+                            break;
+                        case "BANK_PAY":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "FOOD_VOUCHER":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "DIN":
+                            tipoPagamento = "PAGDNHDELMATCH";
+                            break;
+                        case "DEB":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        case "Dinheiro":
+                            tipoPagamento = "PAGDNH";
+                            break;
+                        case "money":
+                            tipoPagamento = "PAGDNH";
+                            break;
+                        case "DIGITAL_WALLET":
+                            tipoPagamento = "PAGCRT";
+                            break;
+                        default:
+                            tipoPagamento = "PAGCRT";
+                            break;
+                    }
+
+                    if (pagamentoAtual.type == "ONLINE")
+                    {
+                        string SelectQuery = "SELECT * FROM Sequencia WHERE CONTA = @CONDICAO"; //Vai fazer um select primeiro na coluna para ver se ela tem valor
+                        float ValorDaColuna = 0.0f;
+
+                        using (OleDbCommand selectCommand = new OleDbCommand(SelectQuery, connection))
+                        {
+                            selectCommand.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executar a consulta SELECT
+                            using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    ValorDaColuna = Convert.ToSingle(reader["PAGONLINE"].ToString());
+                                }
+                            }
+                        } // aqui faz o select e coloca o valor da coluna PAGONLINE
+
+                        string updateQuery = $"UPDATE Sequencia SET PAGONLINE = @NovoValor WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+
+                        if (ValorDaColuna > 0)
+                            valor += ValorDaColuna; // aqui verifica se o valor que ja estava na coluna é maior que zero, se for ele soma o valor do pagamento atual
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@NovoValor", valor);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarDesconto = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+
+
+                    if (tipoPagamento == "PAGCRT")
+                    {
+                        string SelectQuery = "SELECT * FROM Sequencia WHERE CONTA = @CONDICAO"; //Vai fazer um select primeiro na coluna para ver se ela tem valor
+                        float ValorDaColuna = 0.0f;
+
+                        using (OleDbCommand selectCommand = new OleDbCommand(SelectQuery, connection))
+                        {
+                            selectCommand.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executar a consulta SELECT
+                            using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                            {
+                                while (reader.Read())
+                                {
+                                    ValorDaColuna = Convert.ToSingle(reader["PAGCRT"].ToString());
+                                }
+                            }
+                        } // aqui faz o select e coloca o valor da coluna PAGCARTAO
+
+                        string updateQuery = $"UPDATE Sequencia SET PAGCRT = @NovoValor WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+
+                        if (ValorDaColuna > 0)
+                            valor += ValorDaColuna; // aqui verifica se o valor que ja estava na coluna é maior que zero, se for ele soma o valor do pagamento atual
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@NovoValor", valor);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    if (tipoPagamento == "PAGDNH")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.cash.changeFor;
+                            troco = pagamentoAtual.cash.changeFor - pagamentoAtual.value;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    if (tipoPagamento == "PAGDNHDELMATCH")
+                    {
+                        tipoPagamento = "PAGDNH";
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.value;
+                            troco = pagamentoAtual.cash.changeFor;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+
+                        continue;
+                    }
+
+                    if (tipoPagamento == "PAGDNH")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.cash.changeFor;
+                            troco = pagamentoAtual.cash.changeFor - pagamentoAtual.value;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+                        if (benefits is not null)
+                        {
+                            foreach (var benefitMajor in benefits)
+                            {
+                                if (benefitMajor.value > 0)
+                                {
+                                    if (benefitMajor.sponsorshipValues.Count > 0)
+                                    {
+                                        //se cair no if ele adiciona os valores do array em VOUCHER
+                                        foreach (var benefit in benefitMajor.sponsorshipValues)
+                                        {
+                                            if (benefit.name == "IFOOD")
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarVoucher = $"UPDATE Sequencia SET VOUCHER = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarVoucher, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                            else
+                                            {
+                                                if (benefit.value > 0)
+                                                {
+                                                    string QueryDeAdicionarCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                                    using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarCortesia, connection))
+                                                    {
+
+                                                        command.Parameters.AddWithValue($"@NovoValor", benefit.value);
+                                                        command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                                        // Executando o comando UPDATE
+                                                        command.ExecuteNonQuery();
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        //se cair no else ele adiciona o valor total em CORTESIA
+                                        string QueryDeAdicionarDescontoCortesia = $"UPDATE Sequencia SET CORTESIA = @NovoValor WHERE CONTA = @CONDICAO;";
+                                        using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDescontoCortesia, connection))
+                                        {
+
+                                            command.Parameters.AddWithValue($"@NovoValor", benefitMajor.value);
+                                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                            // Executando o comando UPDATE
+                                            command.ExecuteNonQuery();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        continue;
+                    }
+
+                    if (tipoPagamento == "Dinheiro")
+                    {
+                        string updateQuery = $"UPDATE Sequencia SET PAGDNH = @Valor, TROCO = @ValorTroco, TROCOENTREGA = @ValorTrocoEntrega WHERE CONTA = @CONDICAO;";
+                        double valor = pagamentoAtual.value;
+                        double troco = 0.0;
+
+                        if (pagamentoAtual.cash.changeFor > 0)
+                        {
+                            valor = pagamentoAtual.cash.changeFor;
+                            troco = pagamentoAtual.cash.changeFor - pagamentoAtual.value;
+                        }
+
+
+                        using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                        {
+
+                            // Definindo os parâmetros para a instrução SQL
+                            command.Parameters.AddWithValue($"@Valor", valor);
+                            command.Parameters.AddWithValue("@ValorTroco", troco);
+                            command.Parameters.AddWithValue("@ValorTrocoEntrega", troco);
+                            command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                            // Executando o comando UPDATE
+                            command.ExecuteNonQuery();
+                        }
+
+
+                        if (acrecimo > 0)
+                        {
+                            string QueryDeAdicionarAcrecimo = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarAcrecimo, connection))
+                            {
+                                // Definindo os parâmetros para a instrução SQL
+                                command.Parameters.AddWithValue($"@NovoValor", acrecimo);
+                                command.Parameters.AddWithValue("@CONDICAO", numConta);
+
+                                // Executando o comando UPDATE
+                                command.ExecuteNonQuery();
+                            }
+                        }
+
+
+                        continue;
+                    }
+
+
+
+                }
+            }
+
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro dentro do insere valores");
+        }
     }
 
     public static void UpdateMeiosDePagamentosSequencia(Payments pagamento, int numConta, float desconto = 0.0f, float acrecimo = 0.0f, List<Benefits>? benefits = null)
@@ -855,7 +1471,10 @@ public class ClsDeIntegracaoSys
       string? usuario = "CAIXA",
       string? status = "P",
       bool pedidoOnLineMesa = false,
-      string? idPedido = " "
+      string? idPedido = " ",
+      string? Requisicao = " ",
+      string? HoraDeLancamentoDoItem = " ",
+      string? garcom = " "
       )
     { //aqui começa o código para inserção na tabela CONTAS
         try
@@ -871,7 +1490,7 @@ public class ClsDeIntegracaoSys
             {
                 connection.Open();
 
-                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,OBS10,OBS11,OBS12,OBS13,OBS14,OBS15,CLIENTE,STATUS,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                string sqlInsert = $"INSERT INTO Contas (CONTA,MESA,QTDADE,CODCARDA1,CODCARDA2,CODCARDA3,TAMANHO,REQUISICAO,GARCON,DESCARDA,VALORUNIT,VALORTOTAL,DATAINICIO,HORAINICIO,OBS1,OBS2,OBS3,OBS4,OBS5,OBS6,OBS7,OBS8,OBS9,OBS10,OBS11,OBS12,OBS13,OBS14,OBS15,CLIENTE,STATUS,TELEFONE,IMPCOMANDA,IMPCOMANDA2,QTDCOMANDA,USUARIO,HORALANCAITEM ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
                 using (OleDbCommand command = new OleDbCommand(sqlInsert, connection))
                 {
@@ -883,6 +1502,8 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@CODCARDA2", codCarda2);
                     command.Parameters.AddWithValue("@CODCARDA3", codCarda3);
                     command.Parameters.AddWithValue("@TAMANHO", tamanho);
+                    command.Parameters.AddWithValue("@REQUISICAO", Requisicao);
+                    command.Parameters.AddWithValue("@GARCON", garcom);
                     command.Parameters.AddWithValue("@DESCARDA", descarda.Length > 31 ? descarda.Substring(0, 31) : descarda);
                     command.Parameters.AddWithValue("@VALORUNIT", valorUnit); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@VALORTOTAL", valorTotal);//se vier WEBB aqui vai ser null
@@ -910,6 +1531,7 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@IMPCOMANDA2", ImpComanda2);
                     command.Parameters.AddWithValue("@QTDCOMANDA", qtdComanda);
                     command.Parameters.AddWithValue("@USUARIO", usuario);
+                    command.Parameters.AddWithValue("@HORALANCAITEM", HoraDeLancamentoDoItem);
 
                     // Executa o comando SQL
                     int rowsAffected = command.ExecuteNonQuery();
@@ -937,9 +1559,10 @@ public class ClsDeIntegracaoSys
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro de integração com o contas", "Ops");
+            MessageBox.Show(ex.Message, "Ops");
         }
     }
+
 
 
     public static async void IntegracaoPagCartao(string? metodo, int NumContas, float valor, string type, string app)
@@ -1469,7 +2092,7 @@ public class ClsDeIntegracaoSys
                     {
                         while (reader.Read())
                         {
-                            Mesa mesa = new Mesa();
+                            ClassesAuxiliares.ClassesDeserializacaoDelmatch.Mesa mesa = new();
 
                             mesa.MESA = reader["MESA"].ToString();
                             mesa.PedidoID = reader["PEDIDOONLINEID"].ToString();
@@ -2460,6 +3083,435 @@ public class ClsDeIntegracaoSys
         }
     }
 
+
+    public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemGarcomSys(ClassesGarcomSysMenu.Produto item, bool comanda = false, bool eIntegracao = false)
+    {
+        string? NomeProduto = "";
+        ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
+
+        //Função que entra caso sejá pizza ou lanche ou porção, não mudei o nome do booleano pq já estava estruturado o cod 
+
+        bool ePizza = item.Codigo != null && (item.Codigo2 != null || item.Codigo3 != null) ? true : false;
+
+        string? ObsDoItem = " ";
+
+        if (item.Observacao != null && item.Observacao != "")
+        {
+            if (item.Observacao.Length > 80)
+            {
+                ObsDoItem = item.Observacao.Substring(0, 80);
+            }
+            else
+            {
+                ObsDoItem = item.Observacao;
+            }
+        }
+
+        ClasseDeSuporte.ObsDoItem = ObsDoItem;
+
+        if (ePizza)
+        {
+            string? obs1 = " ";
+            string? obs2 = " ";
+            string? obs3 = " ";
+            string? obs4 = " ";
+            string? obs5 = " ";
+            string? obs6 = " ";
+            string? obs7 = " ";
+            string? obs8 = " ";
+            string? obs9 = " ";
+            string? obs10 = " ";
+            string? obs11 = " ";
+            string? obs12 = " ";
+            string? obs13 = " ";
+            string? obs14 = " ";
+
+            double ValorTotalDoProduto = 0;
+
+            //aqui só define o tamanho se for pizza, se não for ele fica U de unitario
+            if (item.Tamanho == "Grande")
+            {
+                ClasseDeSuporte.Tamanho = "G";
+                ValorTotalDoProduto = item.Preco3;
+            }
+            else if (item.Tamanho == "Medio")
+            {
+                ClasseDeSuporte.Tamanho = "M";
+                ValorTotalDoProduto = item.Preco2;
+            }
+            else if (item.Tamanho == "Pequeno")
+            {
+                ClasseDeSuporte.Tamanho = "P";
+                ValorTotalDoProduto = item.Preco1;
+            }
+            else
+            {
+                ClasseDeSuporte.Tamanho = "U";
+                ValorTotalDoProduto = item.Preco1;
+            }
+
+
+            ClasseDeSuporte.ExternalCode1 = item.Codigo;
+            ClasseDeSuporte.ExternalCode2 = item.Codigo2 == null ? " " : item.Codigo2;
+            ClasseDeSuporte.ExternalCode3 = item.Codigo3 == null ? " " : item.Codigo3; ;
+            NomeProduto = "";
+
+            List<string?> NumerosDeCodigo = new List<string?> { ClasseDeSuporte.ExternalCode1, ClasseDeSuporte.ExternalCode2, ClasseDeSuporte.ExternalCode3 };
+            foreach (var cod in NumerosDeCodigo)
+            {
+                if (cod is not null && cod != " ")
+                {
+                    if (NomeProduto != "")
+                        NomeProduto += "/";
+
+                    NomeProduto += ClsDeIntegracaoSys.NomeProdutoCardapio(cod);
+                }
+            }
+
+
+            foreach (var opcao in item.incrementos)
+            {
+                ValorTotalDoProduto += opcao.Valor;
+
+                if (obs1 == " ")
+                {
+                    obs1 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs1);
+
+                    continue;
+                }
+
+                if (obs2 == " ")
+                {
+                    obs2 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs2);
+
+                    continue;
+
+                }
+
+                if (obs3 == " ")
+                {
+                    obs3 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs3);
+
+                    continue;
+                }
+
+                if (obs4 == " ")
+                {
+                    obs4 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs4);
+
+                    continue;
+                }
+
+                if (obs5 == " ")
+                {
+                    obs5 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs5);
+
+                    continue;
+                }
+
+                if (obs6 == " ")
+                {
+                    obs6 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs6);
+
+                    continue;
+                }
+
+                if (obs7 == " ")
+                {
+                    obs7 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs7);
+
+                    continue;
+                }
+
+                if (obs8 == " ")
+                {
+                    obs8 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs8);
+
+                    continue;
+                }
+
+                if (obs9 == " ")
+                {
+                    obs9 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs9);
+
+                    continue;
+                }
+
+                if (obs10 == " ")
+                {
+                    obs10 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs10);
+
+                    continue;
+                }
+
+                if (obs11 == " ")
+                {
+                    obs11 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs11);
+
+                    continue;
+                }
+
+                if (obs12 == " ")
+                {
+                    obs12 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs12);
+
+                    continue;
+                }
+
+                if (obs13 == " ")
+                {
+                    obs13 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs13);
+
+                    continue;
+                }
+
+                if (obs14 == " ")
+                {
+                    obs14 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs14);
+
+                    continue;
+                }
+
+            }
+
+
+            ClasseDeSuporte.valorDoItem = Convert.ToSingle((ValorTotalDoProduto * item.Quantidade) / item.Quantidade);
+            ClasseDeSuporte.valorTotalDoItem = Convert.ToSingle(ValorTotalDoProduto * item.Quantidade);
+
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+            ClasseDeSuporte.Obs1 = obs1;
+            ClasseDeSuporte.Obs2 = obs2;
+            ClasseDeSuporte.Obs3 = obs3;
+            ClasseDeSuporte.Obs4 = obs4;
+            ClasseDeSuporte.Obs5 = obs5;
+            ClasseDeSuporte.Obs6 = obs6;
+            ClasseDeSuporte.Obs7 = obs7;
+            ClasseDeSuporte.Obs8 = obs8;
+            ClasseDeSuporte.Obs9 = obs9;
+            ClasseDeSuporte.Obs10 = obs10;
+            ClasseDeSuporte.Obs11 = obs11;
+            ClasseDeSuporte.Obs12 = obs12;
+            ClasseDeSuporte.Obs13 = obs13;
+            ClasseDeSuporte.Obs14 = obs14;
+
+            return ClasseDeSuporte;
+
+        }
+        else
+        {
+            string? externalCode = item.Codigo == null || item.Codigo == "" ? " " : item.Codigo;
+            string? obs = item.Observacao == null || item.Observacao == "" ? " " : item.Observacao.ToString();
+
+            string? externalCode1 = item.Codigo;
+            string? externalCode2 = " ";
+            string? externalCode3 = " ";
+
+            NomeProduto = item.Descricao;
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+
+            double ValorTotalDoProduto = 0;
+
+            string? obs1 = " ";
+            string? obs2 = " ";
+            string? obs3 = " ";
+            string? obs4 = " ";
+            string? obs5 = " ";
+            string? obs6 = " ";
+            string? obs7 = " ";
+            string? obs8 = " ";
+            string? obs9 = " ";
+            string? obs10 = " ";
+            string? obs11 = " ";
+            string? obs12 = " ";
+            string? obs13 = " ";
+            string? obs14 = " ";
+
+            if (item.Tamanho is not null)
+            {
+                if (item.Tamanho == "Grande")
+                {
+                    ClasseDeSuporte.Tamanho = "G";
+                    ValorTotalDoProduto = item.Preco3;
+                }
+                else if (item.Tamanho == "Medio")
+                {
+                    ClasseDeSuporte.Tamanho = "M";
+                    ValorTotalDoProduto = item.Preco2;
+                }
+                else if (item.Tamanho == "Pequeno")
+                {
+                    ClasseDeSuporte.Tamanho = "P";
+                    ValorTotalDoProduto = item.Preco1;
+                }
+                else
+                {
+                    ClasseDeSuporte.Tamanho = "U";
+                    ValorTotalDoProduto = item.Preco1;
+                }
+            }
+
+
+            foreach (var opcao in item.incrementos)
+            {
+                ValorTotalDoProduto += opcao.Valor * opcao.Quantidade;
+
+                if (obs1 == " ")
+                {
+                    obs1 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs1);
+
+                    continue;
+                }
+
+                if (obs2 == " ")
+                {
+                    obs2 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs2);
+
+                    continue;
+
+                }
+
+                if (obs3 == " ")
+                {
+                    obs3 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs3);
+
+                    continue;
+                }
+
+                if (obs4 == " ")
+                {
+                    obs4 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs4);
+
+                    continue;
+                }
+
+                if (obs5 == " ")
+                {
+                    obs5 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs5);
+
+                    continue;
+                }
+
+                if (obs6 == " ")
+                {
+                    obs6 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs6);
+
+                    continue;
+                }
+
+                if (obs7 == " ")
+                {
+                    obs7 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs7);
+
+                    continue;
+                }
+
+                if (obs8 == " ")
+                {
+                    obs8 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs8);
+
+                    continue;
+                }
+
+                if (obs9 == " ")
+                {
+                    obs9 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs9);
+
+                    continue;
+                }
+
+                if (obs10 == " ")
+                {
+                    obs10 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs10);
+
+                    continue;
+                }
+
+                if (obs11 == " ")
+                {
+                    obs11 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs11);
+
+                    continue;
+                }
+
+                if (obs12 == " ")
+                {
+                    obs12 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs12);
+
+                    continue;
+                }
+
+                if (obs13 == " ")
+                {
+                    obs13 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs13);
+
+                    continue;
+                }
+
+                if (obs14 == " ")
+                {
+                    obs14 = $"{opcao.Quantidade}X {opcao.Descricao}";
+                    ClasseDeSuporte.Observações!.Add(obs14);
+
+                    continue;
+                }
+
+            }
+
+
+            ClasseDeSuporte.valorDoItem = Convert.ToSingle((ValorTotalDoProduto * item.Quantidade) / item.Quantidade);
+            ClasseDeSuporte.valorTotalDoItem = Convert.ToSingle(ValorTotalDoProduto * item.Quantidade);
+
+            ClasseDeSuporte.ExternalCode1 = externalCode1;
+            ClasseDeSuporte.ExternalCode2 = externalCode2;
+            ClasseDeSuporte.ExternalCode3 = externalCode3;
+
+            ClasseDeSuporte.Obs1 = obs1;
+            ClasseDeSuporte.Obs2 = obs2;
+            ClasseDeSuporte.Obs3 = obs3;
+            ClasseDeSuporte.Obs4 = obs4;
+            ClasseDeSuporte.Obs5 = obs5;
+            ClasseDeSuporte.Obs6 = obs6;
+            ClasseDeSuporte.Obs7 = obs7;
+            ClasseDeSuporte.Obs8 = obs8;
+            ClasseDeSuporte.Obs9 = obs9;
+            ClasseDeSuporte.Obs10 = obs10;
+            ClasseDeSuporte.Obs11 = obs11;
+            ClasseDeSuporte.Obs12 = obs12;
+            ClasseDeSuporte.Obs13 = obs13;
+            ClasseDeSuporte.Obs14 = obs14;
+
+            return ClasseDeSuporte;
+
+        }
+    }
+
     public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemCCM(SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM.Item item, bool comanda = false)
     {
         string? NomeProduto = "";
@@ -3419,6 +4471,11 @@ public class ClsDeIntegracaoSys
             string obs = item.observations == null || item.observations == "" ? " " : item.observations.ToString();
             string externalCode = " ";
 
+
+            string? externalCode1 = " ";
+            string? externalCode2 = " ";
+            string? externalCode3 = " ";
+
             string? ePizza1 = null;
             string? ePizza2 = null;
             string? ePizza3 = null;
@@ -3511,14 +4568,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs1 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs1 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
 
@@ -3536,14 +4593,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs2 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs2 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs2);
 
                     }
@@ -3563,14 +4620,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs3 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs3 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs3);
 
                     }
@@ -3590,14 +4647,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs4 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs4 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs4);
 
                     }
@@ -3617,14 +4674,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs5 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs5 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs5);
 
                     }
@@ -3644,14 +4701,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs6 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs6 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs6);
 
                     }
@@ -3671,14 +4728,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs7 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs7 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs7);
 
                     }
@@ -3698,14 +4755,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs8 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs8 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs8);
 
                     }
@@ -3725,14 +4782,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs9 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs9 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs9);
 
                     }
@@ -3752,14 +4809,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs10 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs10 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs10);
 
                     }
@@ -3779,14 +4836,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs11 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs11 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs11);
                     }
 
@@ -3805,14 +4862,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs12 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs12 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs12);
 
                     }
@@ -3832,14 +4889,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs13 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs13 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs13);
 
                     }
@@ -3859,14 +4916,14 @@ public class ClsDeIntegracaoSys
                     }
                     else if (opcao.externalCode.Contains("m"))
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs14 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs14 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs14);
                     }
 
@@ -3927,14 +4984,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs1 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs1 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs1);
                     }
 
@@ -3952,14 +5009,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs2 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs2 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs2);
                     }
 
@@ -3977,14 +5034,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs3 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs3 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs3);
                     }
 
@@ -4002,14 +5059,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs4 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs4 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs4);
                     }
 
@@ -4027,14 +5084,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs5 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs5 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs5);
                     }
 
@@ -4052,14 +5109,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs6 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs6 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs6);
                     }
 
@@ -4077,14 +5134,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs7 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs7 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs7);
                     }
 
@@ -4102,14 +5159,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs8 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs8 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs8);
                     }
 
@@ -4127,14 +5184,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs9 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs9 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs9);
                     }
 
@@ -4152,14 +5209,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs10 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs10 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs10);
                     }
 
@@ -4177,14 +5234,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs11 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs11 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs11);
                     }
 
@@ -4202,14 +5259,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs12 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs12 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs12);
                     }
 
@@ -4227,14 +5284,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs13 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs13 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs13);
                     }
 
@@ -4252,14 +5309,14 @@ public class ClsDeIntegracaoSys
                     }
                     else
                     {
-                        string precoProduto = $"- {opcao.price.ToString("c")}";
+                        string precoProduto = $"- {((opcao.price) * (item.quantity)).ToString("c")}";
 
                         if (comanda || precoProduto == "- R$ 0,00")
                         {
                             precoProduto = " ";
                         }
 
-                        obs14 = $"{opcao.quantity}X  {opcao.name} {precoProduto}";
+                        obs14 = $"{opcao.quantity * item.quantity}X  {opcao.name} {precoProduto}";
                         ClasseDeSuporte.Observações.Add(obs14);
                     }
 
@@ -6687,6 +7744,63 @@ public class ClsDeIntegracaoSys
         }
 
         return sequencias;
+    }
+
+    public static float TaxaDeGarcom(float valorDaConta,string? mesa)
+    {
+        float taxa = 0f;
+        float ValorTaxa = 0;
+        try
+        {
+            using (ApplicationDbContext dbPostgres = new ApplicationDbContext())
+            {
+                var mesaSelecionada = dbPostgres.mesas.FirstOrDefault(x => x.Codigo == mesa);
+
+                if(mesaSelecionada is not null)
+                {
+                    if (!mesaSelecionada.Taxa)
+                        return 0f;
+                    
+                }
+
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "SETUP");
+
+                string SqlSelectIntoCadastros = $"SELECT * FROM Config";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    connection.Open();
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                    {
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                taxa = Convert.ToSingle(reader["TAXASERVICO"].ToString());
+                            }
+
+                            if (taxa > 0)
+                            {
+                                taxa = taxa / 100;
+                                ValorTaxa = valorDaConta * taxa;
+
+                                return ValorTaxa;
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            Logs.CriaLogDeErro(ex.Message);
+        }
+        return ValorTaxa;
     }
 
     public async void UpdateMachineId(List<ClsApoioUpdateId> ClsDeApoioUpdate)

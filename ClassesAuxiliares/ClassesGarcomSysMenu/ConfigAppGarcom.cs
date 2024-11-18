@@ -18,4 +18,5 @@ public class ConfigAppGarcom
     [Column("comanda")] public bool Comanda { get; set; }
     [Column("mesa")] public bool Mesa { get; set; }
     [Column("semrequisicao")] public bool SemRequisicao { get; set; }
+    [Column("tempoenviopedido")] public int TempoEnvioPedido { get; set; }
 }

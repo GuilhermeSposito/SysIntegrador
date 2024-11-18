@@ -557,7 +557,7 @@ public class Impressao
 
                         if (item.observations != null && item.observations.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.observations}", FonteObservaçõesItem);
+                            AdicionaConteudo($"Obs: {item.observations.Replace("\n", " ")}", FonteObservaçõesItem);
                         }
 
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);

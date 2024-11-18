@@ -15,4 +15,5 @@ public class Incremento
     [Column("valor")] public double Valor { get; set; }
     [Column("tipo")] public string? Tipo { get; set; }
     [Column("vendainternet")] public bool VendaInternet { get; set; }
+    [NotMapped] public int Quantidade { get; set; } = 0;
 }

@@ -10,6 +10,7 @@ using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.UserControls.UCSAnotaAi;
 using SysIntegradorApp.UserControls.UCSccm;
 using SysIntegradorApp.UserControls.UCSDelMatch;
+using SysIntegradorApp.UserControls.UcsGarcom;
 using SysIntegradorApp.UserControls.UCSOnPedido;
 using System;
 using System.Collections.Generic;
@@ -22,6 +23,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
+
 
 namespace SysIntegradorApp;
 
@@ -60,7 +62,7 @@ public partial class UCPedido : UserControl
         labelNumPedido.Text = $"#{numPedido}";
         labelNumConta.Text = Pedido.NumConta.ToString() == "999" ? "MESA" : Pedido.NumConta.ToString().PadLeft(3, '0');
         labelNomePedido.Text = nomePedido;
-        labelHorarioDeEntrega.Text = HorarioEntrega.Substring(11, 5);
+        labelHorarioDeEntrega.Text = HorarioEntrega!.Substring(11, 5);
         string status = TraduzStatus.TraduzStatusEnviado(statusPedido);
 
         if (status == "Cancelado" || status == "Pendente")
@@ -113,6 +115,31 @@ public partial class UCPedido : UserControl
                     infoPedido.Height = 1200;
 
                     infoPedido.InsereItemNoPedido(PedidoDeserializado.InfoDoPedido.Items);
+                    FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
+                    FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
+                }
+            }
+
+            if (Pedido.CriadoPor == "SYSMENU")
+            {
+                using (ApplicationDbContext db = new ApplicationDbContext())
+                {
+                    ParametrosDoPedido? Pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).ToList().FirstOrDefault();
+
+                    SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Pedido? PedidoDeserializado = JsonConvert.DeserializeObject<SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.Pedido>(Pedido.Json);
+
+                    PedidoDeserializado.Id = Pedido.Id;
+                    FormMenuInicial.panelDetalhePedido.Controls.Clear();
+                    FormMenuInicial.panelDetalhePedido.PerformLayout();
+                    UCInfoPedidoGarcom infoPedido = new UCInfoPedidoGarcom() { Pedido = PedidoDeserializado, StatusPedido = Pedido.Situacao };
+                    infoPedido.SetLabels();
+
+                    int tamanhoPanel = FormMenuInicial.panelDetalhePedido.Width;
+
+                    infoPedido.Width = tamanhoPanel - 50;//1707;
+                    infoPedido.Height = 1200;
+
+                    infoPedido.InsereItemNoPedido(PedidoDeserializado!.produtos);
                     FormMenuInicial.labelDeAvisoPedidoDetalhe.Visible = false;
                     FormMenuInicial.panelDetalhePedido.Controls.Add(infoPedido);
                 }
@@ -341,6 +368,15 @@ public partial class UCPedido : UserControl
     {
         try
         {
+            if (Pedido.CriadoPor == "SYSMENU")
+            {
+                using ApplicationDbContext db = new ApplicationDbContext();
+                ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
+
+                if (pedido is not null)
+                    ImpressaoGarcom.ChamaImpessoes(pedido.Json);
+            }
+
             if (Pedido.CriadoPor == "ONPEDIDO")
             {
                 using ApplicationDbContext db = new ApplicationDbContext();
@@ -541,6 +577,19 @@ public partial class UCPedido : UserControl
         }
     }
 
+    public async void MudaPictureBoxSysGarcom(UCPedido instancia)
+    {
+        try
+        {
+            instancia.pictureBoxSysLogica.Visible = true;
+            instancia.pictureBoxGarcom.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+        }
+    }
+
     public async void MudaPictureBoxANOTAAI(UCPedido instancia)
     {
         try
@@ -572,4 +621,28 @@ public partial class UCPedido : UserControl
         UCPedido_Enter(sender, e);
         this.Focus();
     }
+
+    private void pictureBoxSysLogica_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+    private void pictureBoxGarcom_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+    private void pictureBoxCCM_Click(object sender, EventArgs e)
+    {
+        UCPedido_Click(sender, e);
+        UCPedido_Enter(sender, e);
+        this.Focus();
+    }
+
+
+
 }

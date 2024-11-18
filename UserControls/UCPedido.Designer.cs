@@ -46,6 +46,9 @@
             pictureBoxCCM = new PictureBox();
             pictureBoxDeMEsa = new PictureBox();
             pictureBoxAnotaAi = new PictureBox();
+            pictureBoxSysLogica = new PictureBox();
+            pictureBoxGarcom = new PictureBox();
+            pictureBoxLixo = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxImp).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDELMATCH).BeginInit();
@@ -56,6 +59,9 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAnotaAi).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxGarcom).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxLixo).BeginInit();
             SuspendLayout();
             // 
             // pictureBox1
@@ -220,6 +226,7 @@
             pictureBoxCCM.TabIndex = 14;
             pictureBoxCCM.TabStop = false;
             pictureBoxCCM.Visible = false;
+            pictureBoxCCM.Click += pictureBoxCCM_Click;
             // 
             // pictureBoxDeMEsa
             // 
@@ -244,11 +251,50 @@
             pictureBoxAnotaAi.TabStop = false;
             pictureBoxAnotaAi.Visible = false;
             // 
+            // pictureBoxSysLogica
+            // 
+            pictureBoxSysLogica.Image = (Image)resources.GetObject("pictureBoxSysLogica.Image");
+            pictureBoxSysLogica.Location = new Point(1, -6);
+            pictureBoxSysLogica.Name = "pictureBoxSysLogica";
+            pictureBoxSysLogica.Size = new Size(126, 137);
+            pictureBoxSysLogica.SizeMode = PictureBoxSizeMode.StretchImage;
+            pictureBoxSysLogica.TabIndex = 17;
+            pictureBoxSysLogica.TabStop = false;
+            pictureBoxSysLogica.Visible = false;
+            pictureBoxSysLogica.Click += pictureBoxSysLogica_Click;
+            // 
+            // pictureBoxGarcom
+            // 
+            pictureBoxGarcom.Image = (Image)resources.GetObject("pictureBoxGarcom.Image");
+            pictureBoxGarcom.Location = new Point(292, 60);
+            pictureBoxGarcom.Name = "pictureBoxGarcom";
+            pictureBoxGarcom.Size = new Size(58, 43);
+            pictureBoxGarcom.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxGarcom.TabIndex = 18;
+            pictureBoxGarcom.TabStop = false;
+            pictureBoxGarcom.Visible = false;
+            pictureBoxGarcom.Click += pictureBoxGarcom_Click;
+            // 
+            // pictureBoxLixo
+            // 
+            pictureBoxLixo.BackColor = Color.Transparent;
+            pictureBoxLixo.Image = (Image)resources.GetObject("pictureBoxLixo.Image");
+            pictureBoxLixo.InitialImage = (Image)resources.GetObject("pictureBoxLixo.InitialImage");
+            pictureBoxLixo.Location = new Point(284, 3);
+            pictureBoxLixo.Name = "pictureBoxLixo";
+            pictureBoxLixo.Size = new Size(24, 24);
+            pictureBoxLixo.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxLixo.TabIndex = 19;
+            pictureBoxLixo.TabStop = false;
+            // 
             // UCPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            Controls.Add(pictureBoxLixo);
+            Controls.Add(pictureBoxGarcom);
+            Controls.Add(pictureBoxSysLogica);
             Controls.Add(pictureBoxAnotaAi);
             Controls.Add(pictureBoxDeMEsa);
             Controls.Add(pictureBoxCCM);
@@ -285,6 +331,9 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDeMEsa).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAnotaAi).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxGarcom).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxLixo).EndInit();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -308,5 +357,8 @@
         private PictureBox pictureBoxCCM;
         private PictureBox pictureBoxDeMEsa;
         private PictureBox pictureBoxAnotaAi;
+        private PictureBox pictureBoxSysLogica;
+        private PictureBox pictureBoxGarcom;
+        private PictureBox pictureBoxLixo;
     }
 }

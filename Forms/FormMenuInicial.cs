@@ -35,6 +35,8 @@ using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.Forms.TaxyMachine;
 using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
+using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
+using Microsoft.EntityFrameworkCore;
 
 namespace SysIntegradorApp;
 
@@ -42,9 +44,13 @@ public partial class FormMenuInicial : Form
 {
 
     public readonly ApplicationDbContext _db;
+    public GarcomSysMenu garcomSysMenu = new GarcomSysMenu(new MeuContexto());
+    public bool IntegraComOGarcom = false;
+    public int TempoDoPolling { get; set; } = 5000;
 
     private System.Threading.Timer _timer;
     private System.Threading.Timer _timer2;
+    private System.Threading.Timer _timer3;
     private WebView2 webViwer = new WebView2();
     public static int ContadorPooling { get; set; }
 
@@ -79,9 +85,11 @@ public partial class FormMenuInicial : Form
 
     private async void FormMenuInicial_Load(object sender, EventArgs e)
     {
+        await DefineTempoDoPollingDoGarcom();
         await PostgresConfigs.LimpaPedidosACada8horas();
 
         _timer = new System.Threading.Timer(TimerCallback, null, TimeSpan.Zero, TimeSpan.FromSeconds(30)); //Função que chama o pulling a cada 30 segundos 
+        _timer3 = new System.Threading.Timer(PollingProGarcom, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(TempoDoPolling));
         SetarPanelPedidos();
     }
 
@@ -92,6 +100,24 @@ public partial class FormMenuInicial : Form
 
     private void FormMenuInicial_Shown(object sender, EventArgs e) { }
 
+
+    private async Task DefineTempoDoPollingDoGarcom()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Configuracoes = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Configuracoes is not null)
+                    TempoDoPolling = Configuracoes.TempoPollingGarcom * 1000;
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
 
     public static async void SetarPanelPedidos(int? pesquisaDisplayId = null, string? pesquisaNome = null)
     {
@@ -106,6 +132,23 @@ public partial class FormMenuInicial : Form
                 ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
 
                 List<PedidoCompleto> pedidos = new List<PedidoCompleto>(); //lista para colocar os pedidos do ifood
+
+                if (Configuracoes!.IntegraGarcom)
+                {
+                    GarcomSysMenu SysMenu = new GarcomSysMenu(new MeuContexto());
+
+                    IEnumerable<ParametrosDoPedido> PedidosGarcom = await SysMenu.GetPedidoGarcom(pesquisaDisplayId, pesquisaNome);
+                    foreach (var item in PedidosGarcom)
+                    {
+                        var pedidoJsonConvertido = JsonConvert.DeserializeObject<Pedido>(item!.Json);
+                        pedidoJsonConvertido!.Id = item.Id;
+                        PedidoCompleto PedidoConvertido = await SysMenu.SysMenuPedidoCompleto(pedidoJsonConvertido);
+                        PedidoConvertido.Situacao = item.Situacao;
+                        PedidoConvertido.NumConta = item.Conta;
+                        PedidoConvertido.CriadoPor = "SYSMENU";
+                        pedidos.Add(PedidoConvertido);
+                    }
+                }
 
 
                 if (Configuracoes.IntegraOnOPedido)
@@ -227,6 +270,53 @@ public partial class FormMenuInicial : Form
                         continue;
                     }
 
+
+                    if (item.CriadoPor == "SYSMENU")
+                    {
+                        if (!checkBoxMesas.Checked && pesquisaDisplayId is null)
+                            continue;
+
+
+                        if (Configuracoes.IntegraGarcom)
+                        {
+                            string horarioCorrigido = "";
+
+                            DateTime HorarioMudado = DateTime.Parse(item.delivery.deliveryDateTime!);
+                            horarioCorrigido = HorarioMudado.ToString();
+
+                            UCPedido UserControlPedido = new UCPedido()
+                            {
+                                Pedido = item,
+                                Id_pedido = item.id,
+                                OrderType = item.orderType,
+                                Display_id = item.displayId,//aqui seta as propriedades dentro da classe para podermos usar essa informação dinamicamente no pedido
+                                NomePedido = item.customer.name,
+                                DeliveryBy = "RETIRADA",
+                                FeitoAs = item.createdAt,
+                                HorarioEntrega = horarioCorrigido,//item.delivery.deliveryDateTime,
+                                LocalizadorPedido = "RETIRADA",
+                                EnderecoFormatado = "RETIRADA",
+                                Bairro = "RETIRADA",
+                                TipoDaEntrega = "RETIRADA",
+                                ValorTotalItens = item.total.subTotal,
+                                ValorTaxaDeentrega = item.total.deliveryFee,
+                                Valortaxaadicional = item.total.additionalFees,
+                                Descontos = item.total.benefits,
+                                TotalDoPedido = item.total.orderAmount,
+                                // Observations = item.delivery.observations,
+                                items = item.items,
+                            };
+
+
+                            UserControlPedido.MudaPictureBoxSysGarcom(UserControlPedido);
+                            UserControlPedido.SetLabels(item.id!, item.displayId!, item.customer.name!, horarioCorrigido, item.Situacao!); // aqui muda as labels do user control para cada pedido em questão
+
+                            panelPedidos.Controls.Add(UserControlPedido); //Aqui adiciona o user control no panel
+                        }
+                    }
+
+
+
                     if (item.CriadoPor == "ANOTAAI")
                     {
                         if (Configuracoes.IntegraAnotaAi)
@@ -335,9 +425,9 @@ public partial class FormMenuInicial : Form
                                 UserControlPedido.MudaPictureBoxAgendada(UserControlPedido);
                             }
 
-                            if(item.orderType == "INDOOR")
+                            if (item.orderType == "INDOOR")
                             {
-                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);    
+                                UserControlPedido.MudaPictureBoxMesa(UserControlPedido);
                             }
 
 
@@ -697,9 +787,7 @@ public partial class FormMenuInicial : Form
 
             if (Configuracoes.IntegraGarcom)
             {
-                GarcomSysMenu garcomSysMenu = new GarcomSysMenu(new MeuContexto());
-
-                await garcomSysMenu.AtualizarContas();
+                IntegraComOGarcom = true;
             }
 
             if (Configuracoes.IntegraIfood)
@@ -728,7 +816,7 @@ public partial class FormMenuInicial : Form
             {
                 OnPedido OnPedido = new OnPedido(new MeuContexto());
 
-               // await OnPedido.Pooling();
+                // await OnPedido.Pooling();
                 await OnPedido.Pooling2();
             }
 
@@ -775,7 +863,7 @@ public partial class FormMenuInicial : Form
             }
 
 
-            _timer2 = new System.Threading.Timer(BarraDeCarregamento, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(1000)); //Função que chama o pulling a cada 30 segundos 
+            _timer2 = new System.Threading.Timer(BarraDeCarregamento, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(1000)); //Função que chama o pulling a cada 30 segundos
         }
         catch (Exception ex)
         {
@@ -795,7 +883,26 @@ public partial class FormMenuInicial : Form
                 ContadorPooling = 0;
             }
 
+
             FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.progressBar1.Value = ContadorPooling));
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            MessageBox.Show(ex.ToString(), "OPS");
+        }
+    }
+
+    private async void PollingProGarcom(object state)
+    {
+        try
+        {
+            if (IntegraComOGarcom)
+            {
+                await garcomSysMenu.Pooling();
+                await garcomSysMenu.AtualizarContas();
+                garcomSysMenu.AtualizaPainelDePedidos();
+            }
         }
         catch (Exception ex)
         {
@@ -1103,5 +1210,8 @@ public partial class FormMenuInicial : Form
 
     }
 
-
+    private void checkBoxMesas_CheckedChanged(object sender, EventArgs e)
+    {
+        SetarPanelPedidos();
+    }
 }

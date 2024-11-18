@@ -63,6 +63,18 @@ public class PostgresConfigs
                     FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                 }
 
+                var ApoioPedidosQuery = db.apoioappgarcom.AsQueryable();
+
+                var ApoioPedidos = ApoioPedidosQuery
+                   .AsEnumerable() // Projetar para o lado do cliente
+                   .Where(p => DateTime.Now - p.CriadoEm! > intervalo)
+                   .ToList();
+
+                if (ApoioPedidos.Count() > 0)
+                {
+                    db.apoioappgarcom.RemoveRange(ApoioPedidos);
+                    await db.SaveChangesAsync();
+                }
             }
         }
         catch (Exception ex)

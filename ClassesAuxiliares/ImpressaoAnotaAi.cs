@@ -376,8 +376,6 @@ public class ImpressaoAnotaAi
 
             float ValorTaxasAdicionais = 0.0f;
 
-
-
             float ValorDescontosNum = 0.0f;
 
             foreach (var item in pedidoCompleto.InfoDoPedido.Descontos)
@@ -387,8 +385,8 @@ public class ImpressaoAnotaAi
 
 
             AdicionaConteudo($"Valor dos itens: \t                  {valorDosItens.ToString("c")} ", FonteGeral);
-            if (pedidoCompleto.InfoDoPedido.DeliveryFee > 0)
-                AdicionaConteudo($"Taxa De Entrega: \t   {pedidoCompleto.InfoDoPedido.DeliveryFee.ToString("c")}", FonteGeral);
+            if (Convert.ToSingle(pedidoCompleto.InfoDoPedido.DeliveryFee) > 0)
+                AdicionaConteudo($"Taxa De Entrega: \t   {Convert.ToSingle(pedidoCompleto.InfoDoPedido.DeliveryFee).ToString("c")}", FonteGeral);
             if (ValorTaxasAdicionais > 0)
                 AdicionaConteudo($"Taxa Adicional:  \t                  {ValorTaxasAdicionais.ToString("c")} ", FonteGeral);
             if (ValorDescontosNum > 0)

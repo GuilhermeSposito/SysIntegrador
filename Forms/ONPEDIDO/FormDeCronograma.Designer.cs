@@ -108,7 +108,7 @@
             btnCancelar.FlatAppearance.BorderSize = 2;
             btnCancelar.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnCancelar.ForeColor = SystemColors.ButtonHighlight;
-            btnCancelar.Location = new Point(76, 491);
+            btnCancelar.Location = new Point(61, 568);
             btnCancelar.Name = "btnCancelar";
             btnCancelar.Size = new Size(130, 59);
             btnCancelar.TabIndex = 4;
@@ -124,7 +124,7 @@
             btnEnvir.FlatAppearance.BorderSize = 2;
             btnEnvir.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             btnEnvir.ForeColor = SystemColors.ButtonHighlight;
-            btnEnvir.Location = new Point(257, 491);
+            btnEnvir.Location = new Point(257, 568);
             btnEnvir.Name = "btnEnvir";
             btnEnvir.Size = new Size(138, 59);
             btnEnvir.TabIndex = 5;
@@ -318,7 +318,8 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(474, 562);
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            ClientSize = new Size(474, 639);
             Controls.Add(panel4);
             Controls.Add(panel3);
             Controls.Add(label5);

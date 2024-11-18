@@ -94,7 +94,7 @@ public class AnotaAi
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 
@@ -140,7 +140,7 @@ public class AnotaAi
                                 EndEntrega = Pedido.InfoDoPedido.deliveryAddress.FormattedAddress;
                                 BairEntrega = Pedido.InfoDoPedido.deliveryAddress.Neighborhood;
                                 Status = "P";
-                                valorEntrega = Pedido.InfoDoPedido.DeliveryFee;
+                                valorEntrega = Convert.ToSingle(Pedido.InfoDoPedido.DeliveryFee);
                                 Entregador = "00";
                             }
 

@@ -62,6 +62,7 @@
             panelDePaginas = new FlowLayoutPanel();
             checkBoxDespachados = new CheckBox();
             checkBoxConfirmados = new CheckBox();
+            checkBoxMesas = new CheckBox();
             notifyIcon1 = new NotifyIcon(components);
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
@@ -426,12 +427,12 @@
             // checkBoxConcluido
             // 
             checkBoxConcluido.AutoSize = true;
-            checkBoxConcluido.Location = new Point(18, 6);
-            checkBoxConcluido.Margin = new Padding(18, 3, 3, 3);
+            checkBoxConcluido.Location = new Point(10, 6);
+            checkBoxConcluido.Margin = new Padding(10, 3, 3, 3);
             checkBoxConcluido.Name = "checkBoxConcluido";
-            checkBoxConcluido.Size = new Size(104, 24);
+            checkBoxConcluido.Size = new Size(76, 24);
             checkBoxConcluido.TabIndex = 0;
-            checkBoxConcluido.Text = "Concluidos";
+            checkBoxConcluido.Text = "Conclu";
             checkBoxConcluido.UseVisualStyleBackColor = true;
             checkBoxConcluido.Click += checkBoxConcluido_Click;
             // 
@@ -444,6 +445,7 @@
             panelDePaginas.Controls.Add(checkBoxConcluido);
             panelDePaginas.Controls.Add(checkBoxDespachados);
             panelDePaginas.Controls.Add(checkBoxConfirmados);
+            panelDePaginas.Controls.Add(checkBoxMesas);
             panelDePaginas.Location = new Point(13, 608);
             panelDePaginas.Margin = new Padding(3, 300, 3, 3);
             panelDePaginas.Name = "panelDePaginas";
@@ -457,11 +459,11 @@
             checkBoxDespachados.AutoSize = true;
             checkBoxDespachados.Checked = true;
             checkBoxDespachados.CheckState = CheckState.Checked;
-            checkBoxDespachados.Location = new Point(128, 6);
+            checkBoxDespachados.Location = new Point(92, 6);
             checkBoxDespachados.Name = "checkBoxDespachados";
-            checkBoxDespachados.Size = new Size(120, 24);
+            checkBoxDespachados.Size = new Size(96, 24);
             checkBoxDespachados.TabIndex = 1;
-            checkBoxDespachados.Text = "Despachados";
+            checkBoxDespachados.Text = "Despacha";
             checkBoxDespachados.UseVisualStyleBackColor = true;
             checkBoxDespachados.CheckedChanged += checkBoxDespachados_CheckedChanged;
             // 
@@ -470,13 +472,26 @@
             checkBoxConfirmados.AutoSize = true;
             checkBoxConfirmados.Checked = true;
             checkBoxConfirmados.CheckState = CheckState.Checked;
-            checkBoxConfirmados.Location = new Point(254, 6);
+            checkBoxConfirmados.Location = new Point(194, 6);
             checkBoxConfirmados.Name = "checkBoxConfirmados";
-            checkBoxConfirmados.Size = new Size(116, 24);
+            checkBoxConfirmados.Size = new Size(92, 24);
             checkBoxConfirmados.TabIndex = 2;
-            checkBoxConfirmados.Text = "Confirmados";
+            checkBoxConfirmados.Text = "Confirma";
             checkBoxConfirmados.UseVisualStyleBackColor = true;
             checkBoxConfirmados.CheckedChanged += checkBoxConfirmados_CheckedChanged;
+            // 
+            // checkBoxMesas
+            // 
+            checkBoxMesas.AutoSize = true;
+            checkBoxMesas.Checked = true;
+            checkBoxMesas.CheckState = CheckState.Checked;
+            checkBoxMesas.Location = new Point(292, 6);
+            checkBoxMesas.Name = "checkBoxMesas";
+            checkBoxMesas.Size = new Size(72, 24);
+            checkBoxMesas.TabIndex = 3;
+            checkBoxMesas.Text = "Mesas";
+            checkBoxMesas.UseVisualStyleBackColor = true;
+            checkBoxMesas.CheckedChanged += checkBoxMesas_CheckedChanged;
             // 
             // notifyIcon1
             // 
@@ -560,6 +575,7 @@
         public NotifyIcon notifyIcon1;
         private Label ChatLabel;
         private PictureBox pictureBox3;
+        private static CheckBox checkBoxMesas;
         private static CheckBox checkBoxConcluido;
         public static FlowLayoutPanel panelDePaginas;
         private static CheckBox checkBoxDespachados;
@@ -573,13 +589,14 @@
     }
 }
 
-/*      private static CheckBox checkBoxConcluido;
+/*      private static CheckBox checkBoxMesas;
+        private static CheckBox checkBoxConcluido;
         public static FlowLayoutPanel panelDePaginas;
         private static CheckBox checkBoxDespachados;
-        private static CheckBox checkBoxConfirmados;
+        private  static CheckBox checkBoxConfirmados;
         private static ProgressBar progressBar1;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;
         public static Label labelDeAvisoPedidoDetalhe;
         public static FlowLayoutPanel panelDetalhePedido;
-        public static FlowLayoutPanel panelPedidos;;*/
+        public static FlowLayoutPanel panelPedidos;*/

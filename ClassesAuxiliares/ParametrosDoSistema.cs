@@ -98,6 +98,7 @@ public class ParametrosDoSistema
     [Column("usarnomenacomanda")] public bool UsarNomeNaComanda { get; set; }
     [Column("codfilialccm")] public string? CodFilialCCM { get; set; }
     [Column("integragarcom")] public bool IntegraGarcom { get; set; }
+    [Column("tempopollinggarcom")] public int TempoPollingGarcom { get; set; }
     public ParametrosDoSistema() { }
 
 

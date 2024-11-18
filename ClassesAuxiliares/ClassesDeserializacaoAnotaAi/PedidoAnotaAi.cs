@@ -19,7 +19,7 @@ public class InfoDoPedido
     [JsonProperty("check")] public int Check { get; set; }
     [JsonProperty("createdAt")] public string? CreatedAt { get; set; }
     [JsonProperty("customer")] public CustomerAnotaAi Customer { get; set; } = new CustomerAnotaAi();
-    [JsonProperty("deliveryFee")] public int DeliveryFee { get; set; }
+    [JsonProperty("deliveryFee")] public float DeliveryFee { get; set; }
     [JsonProperty("from")] public string? Origem { get; set; }
     [JsonProperty("id")] public string? Id { get; set; }
     [JsonProperty("items")] public List<ItemAnotaAi> Items { get; set; } = new List<ItemAnotaAi>();

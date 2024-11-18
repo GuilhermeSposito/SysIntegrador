@@ -123,7 +123,7 @@ namespace SysIntegradorApp.UserControls.UCSAnotaAi
                     ValorTotalDosItens.Text = ValorDosItens.ToString("c");
 
 
-                    valorTaxaDeEntrega.Text = p.InfoDoPedido.DeliveryFee.ToString("c");
+                    valorTaxaDeEntrega.Text = Convert.ToSingle(p.InfoDoPedido.DeliveryFee).ToString("c");
 
                     valorTaxaAdicional.Text = (0.0f).ToString("c");
 

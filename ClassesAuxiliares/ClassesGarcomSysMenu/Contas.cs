@@ -39,6 +39,7 @@ public class Contas
     [Column("obs14")] public string? Obs14 { get; set; }
     [Column("obs15")] public string? Obs15 { get; set; }
     [Column("cliente")] public string? Cliente { get; set; }
+    [Column("requisicao")] public string? Requisicao { get; set; }
     [Column("status")] public string? Status { get; set; }
     [Column("telefone")] public string? Telefone { get; set; }
     [Column("impcomanda")] public string? ImpComanda { get; set; }

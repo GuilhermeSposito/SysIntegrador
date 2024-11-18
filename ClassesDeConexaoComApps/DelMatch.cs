@@ -716,7 +716,7 @@ public class DelMatch
                         {
                             while (reader.Read())
                             {
-                                string telefone = reader["TELEFONE"].ToString();
+                                string telefone = reader["TELEFONE"].ToString()!;
                                 Sequencia sequencia = await PesquisaEnderecoDeEntrega(reader["CONTA"].ToString(), "ENVIARPEDIDO"); //PesquisaClientesNoCadastro(telefone.Trim());
 
                                 if (sequencia.DeliveryAddress.FormattedAddress == null || sequencia.DeliveryAddress.FormattedAddress.Length <= 3)

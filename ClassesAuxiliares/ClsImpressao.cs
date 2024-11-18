@@ -7,6 +7,7 @@ using static SysIntegradorApp.ClassesAuxiliares.Impressao;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoAnotaAi;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoCCM;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoDelMatch;
+using static SysIntegradorApp.ClassesAuxiliares.ImpressaoGarcom;
 using static SysIntegradorApp.ClassesAuxiliares.ImpressaoONPedido;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
@@ -64,3 +65,15 @@ public class ClsImpressaoDefinicoesAnotaAi
 
     public ClsImpressaoDefinicoesAnotaAi() { }
 }
+
+public class ClsImpressaoDefinicoeGarcom
+{
+    public string Texto { get; set; }
+    public Font Fonte { get; set; }
+    public AlinhamentosGarcom Alinhamento { get; set; }
+    public bool eObs { get; set; }
+
+    public ClsImpressaoDefinicoeGarcom() { }
+}
+
+

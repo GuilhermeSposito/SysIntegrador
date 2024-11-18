@@ -15,8 +15,7 @@ namespace SysIntegradorApp.data;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-           : base(options)
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
     {
     }
 
@@ -37,6 +36,10 @@ public class ApplicationDbContext : DbContext
     public DbSet<Incremento> incrementos { get; set; }
     public DbSet<IncrementoCardapio> incrementocardapio { get; set; }
     public DbSet<ConfigAppGarcom> configappgarcom { get; set; }
+    public DbSet<ApoioAppGarcom> apoioappgarcom { get; set; }
+    public DbSet<ClsDeAcesso> acesso { get; set; }
+    public DbSet<Promocoes> promocoes { get; set; }
+    public DbSet<Setup> setup { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

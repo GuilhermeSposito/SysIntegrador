@@ -1,6 +1,7 @@
 ﻿using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,6 +33,8 @@ public class ClsDeSuporteParaImpressaoDosItens
     public string? Obs13 {  get; set; }   
     public string? Obs14 {  get; set; }   
     public string? ObsDoItem {  get; set; }   
+    public float valorDoItem { get; set; }
+    public float valorTotalDoItem { get; set; }
     public ClsDeSuporteParaImpressaoDosItens()
     {
             
@@ -118,6 +121,24 @@ public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasAnotaAi
         Itens = new List<ItemAnotaAi>();
     }
     public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasAnotaAi()
+    {
+
+    }
+}
+
+
+public class ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasGarcom
+{
+    public string? Impressora1 { get; set; }
+    public string? Impressora2 { get; set; }
+    public List<Produto> Itens { get; set; } = new List<Produto>();
+
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasGarcom(string? impressora)
+    {
+        Impressora1 = impressora;
+        Itens = new List<Produto>();
+    }
+    public ClsDeSuporteParaImpressaoDosItensEmComandasSeparadasGarcom()
     {
 
     }

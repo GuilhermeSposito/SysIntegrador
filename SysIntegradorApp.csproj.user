@@ -106,6 +106,12 @@
     <Compile Update="UserControls\UCSDelMatch\UCPedidoDelMatch.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Update="UserControls\UcsGarcom\UCInfoPedidoGarcom.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UcsGarcom\UCItemGarcom.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\UCSOnPedido\UCInfoPedidoOnPedido.cs">
       <SubType>UserControl</SubType>
     </Compile>

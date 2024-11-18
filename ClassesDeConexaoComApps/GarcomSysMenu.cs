@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
@@ -10,17 +13,510 @@ using System.Data.OleDb;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Runtime.InteropServices;
+using System.Net.Http.Json;
+using System.Windows.Forms;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using Microsoft.VisualBasic.Devices;
+using System.Globalization;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
 public class GarcomSysMenu
 {
     private readonly IMeuContexto _Context;
-
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
     public GarcomSysMenu(MeuContexto contexto)
     {
         _Context = contexto;
     }
+
+    public async Task Pooling()
+    {
+        try
+        {
+            using (ApplicationDbContext dbPostgres = await _Context.GetContextoAsync())
+            {
+                List<ApoioAppGarcom> apoioAppGarcoms = dbPostgres.apoioappgarcom.Where(x => x.Processado == false && x.Obs == null).ToList();
+
+                foreach (var apoio in apoioAppGarcoms)
+                {
+                    if (apoio.Tipo == "pedido")
+                    {
+                        bool PedidoProcessado = await SetPedido(apoio.PedidoJson, apoio.Id);
+                    }
+
+                    if (apoio.Tipo == "FECHAMENTO")
+                    {
+                        await FechaMesa(apoio.PedidoJson, apoio.Id);
+                    }
+
+                    if (apoio.Tipo == "AVISO")
+                    {
+                        await GeraAviso(apoio.PedidoJson, apoio.Id);
+                    }
+
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message);
+        }
+    }
+    private async Task GeraAviso(string? aviso, int IdDoApoio)
+    {
+        try
+        {
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                var ApoioTabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoApoio);
+                if (ApoioTabela is not null)
+                {
+                    ApoioTabela.Processado = true;
+                    await db.SaveChangesAsync();
+
+                }
+
+                ClsSons.PlaySom2();
+                MessageBox.Show(aviso, "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                ClsSons.StopSom();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            throw;
+        }
+    }
+
+    private async Task FechaMesa(string? JsonDeFechamento, int idDoAPoio)
+    {
+        try
+        {
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.ClsSuporteDeFechamentoDeMesa? clsApoioFechamanetoDeMesa = JsonConvert.DeserializeObject<ClsSuporteDeFechamentoDeMesa>(JsonDeFechamento);
+
+                string? NumeroMesa = clsApoioFechamanetoDeMesa!.NumeroMesaOuComanda;
+
+                var Contas = db.contas.Where(x => x.Mesa == NumeroMesa && x.Status == "A").ToList();
+
+                if (Contas is not null && Contas.Count > 0)
+                {
+                    var ApoioTabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == idDoAPoio);
+                    if (ApoioTabela is not null)
+                    {
+                        ApoioTabela.Processado = true;
+                        await db.SaveChangesAsync();
+
+                    }
+
+                    var Conta = Contas.FirstOrDefault();
+
+                    DateTime HorarioAtual = DateTime.Now.ToUniversalTime();
+                    string? DataSaida = HorarioAtual.ToString()!.Substring(0, 10).Replace("-", "/");
+                    string? HoraSaida = HorarioAtual.ToString()!.Substring(11, 5);
+
+
+                    int insertNoSysMenuConta = await ClsDeIntegracaoSys.IntegracaoSequencia(
+                                 mesa: NumeroMesa,
+                                 cortesia: 0f,
+                                 taxaEntrega: 0f,
+                                 taxaMotoboy: 0f,
+                                 dtInicio: Conta!.DataInicio!.Substring(0, 10),
+                                 hrInicio: Conta.HoraInicio,
+                                 contatoNome: " ",
+                                 usuario: "ADMIN",
+                                 dataSaida: DataSaida,
+                                 hrSaida: HoraSaida,
+                                 obsConta1: " ",
+                                 iFoodPedidoID: Conta!.Id.ToString(),
+                                 obsConta2: " ",
+                                 referencia: " ",
+                                 endEntrega: " ",
+                                 bairEntrega: " ",
+                                 entregador: " ",
+                                 eIfood: false,
+                                 telefone: " ",
+                                 status: "F",
+                                 Couvert: clsApoioFechamanetoDeMesa.ValorCouvert
+                                 ); //fim dos parâmetros do método de integração
+
+                    string? mesa = Contas.FirstOrDefault()!.Mesa;
+
+                    float ValorTotal = 0f;
+                    foreach (var item in Contas)
+                    {
+                        ValorTotal += Convert.ToSingle(item.ValorTotal);
+                    }
+                    float TaxaDeServico = ClsDeIntegracaoSys.TaxaDeGarcom(ValorTotal, mesa);
+
+                    await AtualizaTaxaDeServicoNoSequencia(insertNoSysMenuConta, TaxaDeServico);
+
+
+                    await AtualizaNumeroContaNoSequencia(insertNoSysMenuConta, NumeroMesa!);
+                    await AtualizarContas();
+
+                    ImpressaoGarcom.ChamaImpessaoDeFechamento(JsonDeFechamento, insertNoSysMenuConta);
+
+                }
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.ToString());
+        }
+    }
+
+    private async Task AtualizaTaxaDeServicoNoSequencia(int NumConta, float ValorTaxa)
+    {
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = await dbPostgres.parametrosdosistema.FirstOrDefaultAsync();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+
+                connection.Open();
+                string updateQuery = $"UPDATE Sequencia SET SERVICO = @NovoValor WHERE CONTA = @CONDICAO";
+
+                using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                {
+                    // Definindo os parâmetros para a instrução SQL
+                    command.Parameters.AddWithValue($"@NovoValor", ValorTaxa);
+                    command.Parameters.AddWithValue("@CONDICAO", NumConta);
+
+                    // Executando o comando UPDATE
+                    command.ExecuteNonQuery();
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+    private async Task AtualizaNumeroContaNoSequencia(int NumConta, string Mesa)
+    {
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = await dbPostgres.parametrosdosistema.FirstOrDefaultAsync();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+
+                connection.Open();
+                string updateQuery = $"UPDATE Contas SET CONTA = @NovoValor WHERE MESA = @CONDICAO AND STATUS = 'A';";
+
+                using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                {
+                    // Definindo os parâmetros para a instrução SQL
+                    command.Parameters.AddWithValue($"@NovoValor", NumConta);
+                    command.Parameters.AddWithValue("@CONDICAO", Mesa);
+
+                    // Executando o comando UPDATE
+                    command.ExecuteNonQuery();
+                }
+
+                await Task.Delay(1000);
+
+                await AtualizaStatusDaContaNoSequencia(NumConta, null);
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+    private async Task AtualizaStatusDaContaNoSequencia(int NumConta, string? Mesa)
+    {
+        try
+        {
+            using ApplicationDbContext dbPostgres = new ApplicationDbContext();
+            ParametrosDoSistema? opcSistema = await dbPostgres.parametrosdosistema.FirstOrDefaultAsync();
+
+            string? caminhoBancoAccess = opcSistema.CaminhodoBanco;
+
+
+            using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+            {
+
+                connection.Open();
+                string updateQuery = $"UPDATE Contas SET STATUS = @NovoValor WHERE CONTA = @CONDICAO;";
+
+                using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                {
+                    // Definindo os parâmetros para a instrução SQL
+                    command.Parameters.AddWithValue($"@NovoValor", "F");
+                    command.Parameters.AddWithValue("@CONDICAO", NumConta.ToString());
+
+                    // Executando o comando UPDATE
+                    command.ExecuteNonQuery();
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+
+            throw;
+        }
+    }
+
+
+    private async Task<bool> SetPedido(string? PedidoJson, int IdDoPedidoNoDB)
+    {
+        try
+        {
+            await using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                int insertNoSysMenuConta = 0;
+                var pedido = JsonConvert.DeserializeObject<ClassesAuxiliares.ClassesGarcomSysMenu.Pedido>(PedidoJson!);
+                string? mesa = pedido!.Mesa is not null && pedido!.Mesa != "0000" ? pedido!.Mesa : pedido.Comanda;
+                string? GarcomResponsavel = pedido.GarcomResponsavel;
+
+                if (mesa!.Length > 4)
+                {
+                    var COdMesa = db.mesas.FirstOrDefault(x => x.Cartao == mesa);
+
+                    if (COdMesa is not null)
+                        mesa = COdMesa.Codigo;
+                    else
+                        throw new Exception("Comanda não encontrada no sistema");
+                }
+
+                var Garcom = db.garcons.FirstOrDefault(x => x.Codigo == GarcomResponsavel);  // Se não encontrar o garçom, coloca o nome de Garcom
+                if (Garcom is not null)
+                    GarcomResponsavel = Garcom.Nome;
+
+                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Json = PedidoJson,
+                    Situacao = "CONFIRMED",
+                    Conta = insertNoSysMenuConta,
+                    CriadoEm = DateTime.Now.ToString(),
+                    DisplayId = Convert.ToInt32(mesa),
+                    JsonPolling = "Sem Polling ID",
+                    CriadoPor = "SYSMENU",
+                    PesquisaDisplayId = Convert.ToInt32(mesa),
+                    PesquisaNome = GarcomResponsavel
+                });
+                await db.SaveChangesAsync();
+
+                ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
+                ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                foreach (var item in pedido.produtos)
+                {
+                    var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemGarcomSys(item, eIntegracao: true);
+                    string? DataInicio = pedido.HorarioFeito!.ToString()!.Substring(0, 10).Replace("-", "/");
+                    string? HoraInicio = pedido.HorarioFeito!.ToString()!.Substring(11, 5);
+
+                    ClsDeIntegracaoSys.IntegracaoContas(
+                               conta: insertNoSysMenuConta, //numero
+                               mesa: mesa, //texto curto 
+                               qtdade: item.Quantidade, //numero
+                               codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                               codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                               codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                               tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                               descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                               valorUnit: CaracteristicasPedido.valorDoItem, //moeda
+                               valorTotal: CaracteristicasPedido.valorTotalDoItem, //moeda
+                               dataInicio: DataInicio, //data
+                               horaInicio: HoraInicio, //data
+                               obs1: CaracteristicasPedido.Obs1,
+                               obs2: CaracteristicasPedido.Obs2,
+                               obs3: CaracteristicasPedido.Obs3,
+                               obs4: CaracteristicasPedido.Obs4,
+                               obs5: CaracteristicasPedido.Obs5,
+                               obs6: CaracteristicasPedido.Obs6,
+                               obs7: CaracteristicasPedido.Obs7,
+                               obs8: CaracteristicasPedido.Obs8,
+                               obs9: CaracteristicasPedido.Obs9,
+                               obs10: CaracteristicasPedido.Obs10,
+                               obs11: CaracteristicasPedido.Obs11,
+                               obs12: CaracteristicasPedido.Obs12,
+                               obs13: CaracteristicasPedido.Obs13,
+                               obs14: CaracteristicasPedido.Obs14,
+                               obs15: CaracteristicasPedido.ObsDoItem,
+                               cliente: " ", // texto curto 80 letras
+                               telefone: " ", // texto curto 14 letras
+                               impComanda: "Não",
+                               ImpComanda2: "Não",
+                               qtdComanda: 00f,
+                               status: "A",
+                               Requisicao: String.IsNullOrEmpty(item.Requisicao) ? " " : item.Requisicao.ToUpper(),
+                               HoraDeLancamentoDoItem: $"{item.Quantidade} Item-{HoraInicio}",
+                               garcom: pedido.GarcomResponsavel
+                          );//fim dos parâmetros
+
+                }
+
+                var ApoioTabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoPedidoNoDB);
+                if (ApoioTabela is not null)
+                {
+                    ApoioTabela.Processado = true;
+                    await db.SaveChangesAsync();
+                }
+
+                ImpressaoGarcom.ChamaImpessoes(PedidoJson);
+                return true;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await Logs.CriaLogDeErro(ex.Message);
+            if (!IsMessageBoxOpen("Erro Garçom"))
+            {
+                await using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                {
+                    var PedidoComErro = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoPedidoNoDB);
+
+                    if (PedidoComErro is not null)
+                    {
+                        PedidoComErro.Obs = ex.Message;
+                        db.SaveChanges();
+                    }
+
+                    MessageBox.Show(ex.ToString(), "Erro Garçom");
+                }
+            }
+
+        }
+        return false;
+    }
+
+    public void AtualizaPainelDePedidos()
+    {
+        if (ClsDeSuporteAtualizarPanel.MudouDataBase)
+        {
+            if (ClsDeSuporteAtualizarPanel.MudouDataBasePedido) //entra aqui só se foi pedido novo
+            {
+                ClsDeSuporteAtualizarPanel.MudouDataBasePedido = false;
+            }
+
+            FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+            ClsDeSuporteAtualizarPanel.MudouDataBase = false;
+        }
+    }
+
+    public async Task<PedidoCompleto> SysMenuPedidoCompleto(ClassesAuxiliares.ClassesGarcomSysMenu.Pedido p)
+    {
+        PedidoCompleto PedidoCompletoConvertido = new PedidoCompleto();
+        try
+        {
+            using (ApplicationDbContext db = await _Context.GetContextoAsync())
+            {
+                string GarcomResponsavel = p.GarcomResponsavel!;
+
+                var Garcom = db.garcons.FirstOrDefault(x => x.Codigo == GarcomResponsavel);  // Se não encontrar o garçom, coloca o nome de Garcom
+                if (Garcom is not null)
+                    GarcomResponsavel = Garcom.Nome!;
+
+                PedidoCompletoConvertido.CriadoPor = "SYSMENU"; // Valor fixo de exemplo
+                PedidoCompletoConvertido.JsonPolling = "{}"; // Valor fixo de exemplo
+                PedidoCompletoConvertido.id = p.Id;
+                PedidoCompletoConvertido.displayId = p!.Mesa is not null && p!.Mesa != "0000" ? p!.Mesa : p.Comanda;
+                PedidoCompletoConvertido.createdAt = p.HorarioFeito.ToString();
+                PedidoCompletoConvertido.orderTiming = "IMEDIATE"; // Valor fixo de exemplo
+                PedidoCompletoConvertido.orderType = "MESA";
+
+                string? dataLimite = DateTime.TryParse(p.HorarioFeito.ToString()!, out DateTime result) ? result.AddMinutes(30).ToString() : DateTime.Now.AddMinutes(30).ToString();
+                string? DeliveryBy = "MESA";
+
+                PedidoCompletoConvertido.delivery.deliveredBy = DeliveryBy;
+                PedidoCompletoConvertido.delivery.deliveryDateTime = dataLimite;
+                PedidoCompletoConvertido.customer.id = Guid.NewGuid().ToString();
+                PedidoCompletoConvertido.customer.name = GarcomResponsavel;
+                PedidoCompletoConvertido.customer.documentNumber = " ";
+                PedidoCompletoConvertido.salesChannel = "SYSMENU"; // Valor fixo de exemplo
+
+                return PedidoCompletoConvertido;
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+        return PedidoCompletoConvertido;
+    }
+
+    public async Task<List<ParametrosDoPedido>> GetPedidoGarcom(int? display_ID = null, string? pesquisaNome = null)
+    {
+        List<ParametrosDoPedido> pedidosFromDb = new List<ParametrosDoPedido>();
+
+        List<PedidoCompleto> pedidos = new List<PedidoCompleto>();
+        try
+        {
+            if (display_ID != null || pesquisaNome != null)
+            {
+                if (display_ID != null)
+                {
+                    using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                    {
+
+                        pedidosFromDb = db.parametrosdopedido.Where(x => x.DisplayId == display_ID && x.CriadoPor == "SYSMENU" || x.Conta == display_ID && x.CriadoPor == "SYSMENU").AsNoTracking().ToList();
+
+
+                        return pedidosFromDb;
+                    }
+                }
+
+                if (pesquisaNome != null)
+                {
+                    using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                    {
+
+                        pedidosFromDb = db.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "SYSMENU").AsNoTracking().ToList();
+
+
+                        return pedidosFromDb;
+                    }
+                }
+            }
+            else
+            {
+                using (ApplicationDbContext db = await _Context.GetContextoAsync())
+                {
+
+                    pedidosFromDb = db.parametrosdopedido.Where(x => x.CriadoPor == "SYSMENU").AsNoTracking().ToList();
+
+                    return pedidosFromDb;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+
+        return pedidosFromDb;
+    }
+
 
     public async Task AtualizarListaDeGarcom()
     {
@@ -66,6 +562,63 @@ public class GarcomSysMenu
 
                     }
                 }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await Logs.CriaLogDeErro(ex.Message);
+        }
+    }
+
+    public async Task AtualizarListaDePromocoes()
+    {
+        try
+        {
+            using (ApplicationDbContext dbPostgres = await _Context.GetContextoAsync())
+            {
+                bool ExistePromocoesNoPostgres = dbPostgres.promocoes.Any();
+
+                if (ExistePromocoesNoPostgres)
+                {
+                    dbPostgres.promocoes.RemoveRange(dbPostgres.promocoes);
+                    await dbPostgres.SaveChangesAsync();
+                }
+
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();
+                string? caminhoBancoAccess = opcSistema!.CaminhodoBanco!.Replace("CONTAS", "CADASTROS");
+
+                string SqlSelectIntoCadastros = $"SELECT * FROM Promocao";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    connection.Open();
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                    {
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Promocoes promocao = new Promocoes();
+
+                                promocao.Dia = reader["DIA"].ToString();
+                                promocao.codigo = reader["CODIGO"].ToString();
+                                promocao.pvenda1 = Convert.ToSingle(reader["PVENDA1"].ToString());
+                                promocao.pvenda2 = Convert.ToSingle(reader["PVENDA2"].ToString());
+                                promocao.pvenda3 = Convert.ToSingle(reader["PVENDA3"].ToString());
+                                promocao.Mesa = Convert.ToBoolean(reader["MESA"].ToString());
+
+                                dbPostgres.promocoes.Add(promocao);
+                                await dbPostgres.SaveChangesAsync();
+                            }
+
+                        }
+
+                    }
+                }
+
+                await AtualizaValoresSeTiverPromocao();
             }
         }
         catch (Exception ex)
@@ -162,7 +715,7 @@ public class GarcomSysMenu
 
                                 incrementoCard.Incremento = reader["INCREMENTO"].ToString();
                                 incrementoCard.CodCardapio = reader["CODCARDA"].ToString();
-                               
+
 
                                 dbPostgres.incrementocardapio.Add(incrementoCard);
                                 await dbPostgres.SaveChangesAsync();
@@ -269,13 +822,14 @@ public class GarcomSysMenu
                         {
                             while (reader.Read())
                             {
-                                Mesa mesa = new Mesa();
+                                ClassesAuxiliares.ClassesGarcomSysMenu.Mesa mesa = new();
 
                                 mesa.Codigo = reader["CODIGO"].ToString();
                                 mesa.Praca = reader["PRACA"].ToString();
                                 mesa.Tipo = reader["TIPO"].ToString();
                                 mesa.status = reader["STATUS"].ToString();
                                 mesa.Cartao = reader["CARTAO"].ToString();
+                                mesa.Taxa = Convert.ToBoolean(reader["TAXA"].ToString());
                                 mesa.Bloqueado = Convert.ToBoolean(reader["BLOQUEADO"].ToString());
                                 mesa.Consumacao = Convert.ToSingle(reader["CONSUMACAO"].ToString());
                                 mesa.Vip = Convert.ToBoolean(reader["VIP"].ToString());
@@ -360,6 +914,7 @@ public class GarcomSysMenu
                                 conta.Obs14 = reader["OBS14"].ToString();
                                 conta.Obs15 = reader["OBS15"].ToString();
                                 conta.Cliente = reader["CLIENTE"].ToString();
+                                conta.Requisicao = reader["REQUISICAO"].ToString();
                                 conta.Status = reader["STATUS"].ToString();
                                 conta.Telefone = reader["TELEFONE"].ToString();
                                 conta.ImpComanda = reader["IMPCOMANDA"].ToString();
@@ -441,6 +996,165 @@ public class GarcomSysMenu
         }
     }
 
+    public async Task AtualizaValoresSeTiverPromocao()
+    {
+        try
+        {
+            string? DiaDaSemana = RetornaDiaDaSemana();
+            using (ApplicationDbContext dbPostgres = await _Context.GetContextoAsync())
+            {
+                var Promocoes = await dbPostgres.promocoes.ToListAsync();
+                if (Promocoes is not null)
+                {
+                    bool ExistePromocaoNoDIa = Promocoes.Any(x => DiaDaSemana.Contains(x.Dia, StringComparison.OrdinalIgnoreCase));
+                    if (ExistePromocaoNoDIa)
+                    {
+                        var PromocoesValidas = Promocoes.Where(x => DiaDaSemana.Contains(x.Dia, StringComparison.OrdinalIgnoreCase)).ToList();
+                        if (PromocoesValidas is not null)
+                        {
+                            foreach (var promocao in PromocoesValidas)
+                            {
+                                if (promocao.Mesa)
+                                {
+                                    Produto? produto = await dbPostgres.cardapio.FirstOrDefaultAsync(x => x.Codigo == promocao.codigo);
+                                    if (produto is not null)
+                                    {
+                                        produto.Preco1 = promocao.pvenda1;
+                                        produto.Preco2 = promocao.pvenda2;
+                                        produto.Preco3 = promocao.pvenda3;
+
+                                        await dbPostgres.SaveChangesAsync();
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await Logs.CriaLogDeErro(ex.Message);
+        }
+    }
+
+    public async Task AtualizaSetup()
+    {
+        try
+        {
+            string? DiaDaSemana = RetornaDiaDaSemana();
+
+            using (ApplicationDbContext dbPostgres = await _Context.GetContextoAsync())
+            {
+                bool ExisteSetupNoPostgres = dbPostgres.setup.Any();
+
+                if (ExisteSetupNoPostgres)
+                {
+                    dbPostgres.setup.RemoveRange(dbPostgres.setup);
+                    await dbPostgres.SaveChangesAsync();
+                }
+
+                ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();
+                string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "SETUP");
+
+                string SqlSelectIntoCadastros = $"SELECT * FROM Config";
+
+                using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
+                {
+                    connection.Open();
+
+                    using (OleDbCommand selectCommand = new OleDbCommand(SqlSelectIntoCadastros, connection))
+                    {
+                        using (OleDbDataReader reader = selectCommand.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                Setup setup = new Setup();
+
+                                setup.CouvertValor = Convert.ToSingle(reader["COUVERT"].ToString());
+                                setup.CouvertDom = Convert.ToBoolean(reader["COUVERTDOM"].ToString());
+                                setup.CouvertSeg = Convert.ToBoolean(reader["COUVERTSEG"].ToString());
+                                setup.CouvertTer = Convert.ToBoolean(reader["COUVERTTER"].ToString());
+                                setup.CouvertQuar = Convert.ToBoolean(reader["COUVERTQUA"].ToString());
+                                setup.CouvertQuin = Convert.ToBoolean(reader["COUVERTQUI"].ToString());
+                                setup.CouvertSex = Convert.ToBoolean(reader["COUVERTSEX"].ToString());
+                                setup.CouvertSab = Convert.ToBoolean(reader["COUVERTSAB"].ToString());
+
+                                if (DiaDaSemana.Contains("dom"))
+                                {
+                                    if (setup.CouvertDom)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("seg"))
+                                {
+                                    if (setup.CouvertSeg)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("ter"))
+                                {
+                                    if (setup.CouvertTer)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("quar"))
+                                {
+                                    if (setup.CouvertQuar)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("quin"))
+                                {
+                                    if (setup.CouvertQuin)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("sex"))
+                                {
+                                    if (setup.CouvertSex)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                if (DiaDaSemana.Contains("sab"))
+                                {
+                                    if (setup.CouvertSab)
+                                        setup.CouvertHoje = true;
+                                }
+
+                                dbPostgres.setup.Add(setup);
+                                await dbPostgres.SaveChangesAsync();
+                            }
+
+                        }
+
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+            await Logs.CriaLogDeErro(ex.Message);
+        }
+    }
+
+
+    public string RetornaDiaDaSemana()
+    {
+        DateTime dataAtual = DateTime.Now;
+        string diaDaSemanaPtBr = dataAtual.ToString("dddd", new CultureInfo("pt-BR"));
+
+        return diaDaSemanaPtBr;
+    }
+
+    public bool IsMessageBoxOpen(string title)
+    {
+        IntPtr hWnd = FindWindow(null, title);
+        return hWnd != IntPtr.Zero;
+    }
+
     public async Task AtualizarBancoDeDadosParaOGarcon()
     {
         await AtualizarListaDeGarcom();
@@ -450,6 +1164,9 @@ public class GarcomSysMenu
         await AtualizarContas();
         await AtualizarListaDeIncrementos();
         await AtualizarListaDeIncrementosCardapio();
+        await AtualizarListaDePromocoes();
+        await AtualizaSetup();
     }
 
 }
+
