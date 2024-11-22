@@ -3573,6 +3573,7 @@ public class ClsDeIntegracaoSys
 
                         if (option.ObsParte is not null && option.ObsParte.Length > 0)
                         {
+                            ClasseDeSuporte.Observações!.Add($"Obs Parte 1 : {option.ObsParte}");
                             ObsDoItem += option.ObsParte;
                         }
 
@@ -3592,6 +3593,7 @@ public class ClsDeIntegracaoSys
 
                         if (option.ObsParte is not null && option.ObsParte.Length > 0)
                         {
+                            ClasseDeSuporte.Observações!.Add($"Obs Parte 2 : {option.ObsParte}");
                             ObsDoItem += $" ;{option.ObsParte}";
                         }
 
@@ -3611,6 +3613,7 @@ public class ClsDeIntegracaoSys
 
                         if (option.ObsParte is not null && option.ObsParte.Length > 0)
                         {
+                            ClasseDeSuporte.Observações!.Add($"Obs Parte 3 : {option.ObsParte}");
                             ObsDoItem += $" ;{option.ObsParte}";
                         }
 

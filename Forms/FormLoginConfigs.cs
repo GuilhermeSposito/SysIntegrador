@@ -57,6 +57,13 @@ namespace SysIntegradorApp.Forms
                 // Se o formulário estiver aberto, feche-o
                 Application.OpenForms["FormDeParametrosDoSistema"].Close();
             }
+
+
+            if (Application.OpenForms["NewFormConfiguracoes"] != null)
+            {
+                // Se o formulário estiver aberto, feche-o
+                Application.OpenForms["NewFormConfiguracoes"].Close();
+            }
         }
 
         private void btnEntrar_Click(object sender, EventArgs e)
@@ -84,6 +91,11 @@ namespace SysIntegradorApp.Forms
         }
 
         private void FormLoginConfigs_Load(object sender, EventArgs e)
+        {
+            textSenha.Focus();
+        }
+
+        private void FormLoginConfigs_Shown(object sender, EventArgs e)
         {
             textSenha.Focus();
         }

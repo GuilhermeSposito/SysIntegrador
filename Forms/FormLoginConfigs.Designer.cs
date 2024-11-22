@@ -144,6 +144,7 @@
             FormClosing += FormLoginConfigs_FormClosing;
             FormClosed += FormLoginConfigs_FormClosed;
             Load += FormLoginConfigs_Load;
+            Shown += FormLoginConfigs_Shown;
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             groupBox1.ResumeLayout(false);
             groupBox1.PerformLayout();

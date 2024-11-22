@@ -251,24 +251,19 @@ public partial class FormMenuInicial : Form
                 foreach (var item in pedidosOrdenado)
                 {
                     if (!checkBoxConcluido.Checked && item.Situacao == "DELIVERED" && pesquisaDisplayId is null)
-                    {
                         continue;
-                    }
 
                     if (!checkBoxConcluido.Checked && item.Situacao == "CONCLUDED" && pesquisaDisplayId is null)
-                    {
                         continue;
-                    }
 
                     if (!checkBoxConfirmados.Checked && item.Situacao == "CONFIRMED" && pesquisaDisplayId is null)
-                    {
                         continue;
-                    }
 
                     if (!checkBoxDespachados.Checked && item.Situacao == "DISPATCHED" && pesquisaDisplayId is null)
-                    {
                         continue;
-                    }
+
+                    if (!checkBoxMesas.Checked && item.orderType == "INDOOR" && pesquisaDisplayId is null)
+                        continue;
 
 
                     if (item.CriadoPor == "SYSMENU")
@@ -953,8 +948,11 @@ public partial class FormMenuInicial : Form
 
     private void pictureBoxConfig_Click(object sender, EventArgs e)
     {
-        FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();
-        configs.ShowDialog();
+        //FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();
+        //configs.ShowDialog();
+
+        NewFormConfiguracoes Configs = new NewFormConfiguracoes(new MeuContexto());
+        Configs.ShowDialog();
     }
 
     private void pictureBoxChat_Click(object sender, EventArgs e)

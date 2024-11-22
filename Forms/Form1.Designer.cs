@@ -51,6 +51,7 @@
             label2 = new Label();
             pictureBoxInfo = new PictureBox();
             notifyIcon1 = new NotifyIcon(components);
+            pictureBox1 = new PictureBox();
             ((System.ComponentModel.ISupportInitialize)pictureBoxSysLogica).BeginInit();
             majorPanel.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxCadeado).BeginInit();
@@ -60,6 +61,7 @@
             panelInstrucoes.SuspendLayout();
             groupBoxInstru.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             SuspendLayout();
             // 
             // BrnAutorizar
@@ -305,12 +307,25 @@
             notifyIcon1.BalloonTipClicked += notifyIcon1_BalloonTipClicked;
             notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
             // 
+            // pictureBox1
+            // 
+            pictureBox1.Cursor = Cursors.Hand;
+            pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
+            pictureBox1.Location = new Point(734, 6);
+            pictureBox1.Name = "pictureBox1";
+            pictureBox1.Size = new Size(36, 32);
+            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox1.TabIndex = 13;
+            pictureBox1.TabStop = false;
+            pictureBox1.Click += pictureBox1_Click;
+            // 
             // Form1
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ButtonHighlight;
             ClientSize = new Size(782, 572);
+            Controls.Add(pictureBox1);
             Controls.Add(pictureBoxInfo);
             Controls.Add(panelInstrucoes);
             Controls.Add(majorPanel);
@@ -334,6 +349,7 @@
             groupBoxInstru.ResumeLayout(false);
             groupBoxInstru.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxInfo).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             ResumeLayout(false);
         }
 
@@ -359,5 +375,6 @@
         private PictureBox pictureBoxDeColar;
         private LinkLabel linkLabel1;
         public  NotifyIcon notifyIcon1;
+        private PictureBox pictureBox1;
     }
 }

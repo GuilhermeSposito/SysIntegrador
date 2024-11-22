@@ -31,82 +31,6 @@ public class OnPedido
         _Context = context;
     }
 
-    public async Task Pooling()
-    {
-        string url = @"https://merchant-api.onpedido.com.br/v1/events:polling";
-        try
-        {
-            using (ApplicationDbContext db = await _Context.GetContextoAsync())
-            {
-                ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
-
-                await RefreshTokenOnPedidos();
-                await ConcluirPedido(concluiuAut: true);
-                await DespachaPedido2(DispachaAut: true);
-                ConcluiPedidosAutomatico();
-
-                HttpResponseMessage response = await EnviaReq(url, "GET");
-
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseString = await response.Content.ReadAsStringAsync();
-
-                    PollingOnPedido? pooling = JsonConvert.DeserializeObject<PollingOnPedido>(responseString);
-
-                    foreach (var item in pooling?.Return)
-                    {
-                        switch (item.EventId)
-                        {
-                            case "0":
-                                //Set Pedido
-                                await SetPedido(item.OrderURL, item.orderId);
-                                ClsSons.PlaySom();
-                                if (Configs!.AceitaPedidoAut)
-                                {
-                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL!);
-                                }
-                                break;
-                            case "1":
-                                //Set Pedido
-                                await SetPedido(item.OrderURL, item.orderId);
-                                ClsSons.PlaySom();
-                                if (Configs!.AceitaPedidoAut)
-                                {
-                                    await AceitaPedido(item.orderId.ToString(), item.OrderURL!);
-                                }
-                                break;
-                            case "2":
-                                await SetPedido(item.OrderURL, item.orderId);
-                                await MudaStatusPedido(item.orderId, "CONFIRMED");
-                                ClsSons.StopSom();
-                                break;
-                            case "3":
-                                await MudaStatusPedido(item.orderId, "DISPATCHED");
-                                //muda status
-                                ClsSons.StopSom();
-                                break;
-                            case "4":
-                                await MudaStatusPedido(item.orderId, "CONCLUDED");
-                                //muda status
-                                ClsSons.StopSom();
-                                break;
-                            case "5":
-                                await MudaStatusPedido(item.orderId, "CANCELLED");
-                                ClsSons.StopSom();
-                                break;
-                        }
-                    }
-                }
-
-            }
-        }
-        catch (Exception ex)
-        {
-            await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao enviar requisição de pedidos!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
-        }
-    }
-
     public async Task Pooling2()
     {
         string url = @"https://merchant-api.onpedido.com.br/v1/events:polling";
@@ -412,7 +336,10 @@ public class OnPedido
 
                             if (pedido.Type == "INDOOR")
                             {
-                                await ConcluirPedido(pedido.Id!.ToString(), concluiuAut: true);
+                                db.apoioonpedido.Add(new ApoioOnPedido { Id_Pedido = Convert.ToInt32(pedido.Id), Action = "CONCLUIR" });
+
+
+                                //   await ConcluirPedido(pedido.Id!.ToString(), concluiuAut: true);
 
                             }
                         }

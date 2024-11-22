@@ -358,7 +358,7 @@ public class ImpressaoCCM
 
                     if (!opcDoSistema.RemoveComplementos)
                     {
-                        if (item.Adicionais.Count > 0)
+                        if (CaracteristicasPedido.Observações.Count > 0)
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
                             {

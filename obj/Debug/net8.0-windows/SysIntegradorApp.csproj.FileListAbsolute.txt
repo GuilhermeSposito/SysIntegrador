@@ -119,7 +119,6 @@ C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\System.Composition.Runtime.
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\System.Composition.TypedParts.dll
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\System.Data.OleDb.dll
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\System.IO.Pipelines.dll
-C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\System.Text.Json.dll
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\cs\Microsoft.CodeAnalysis.resources.dll
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\de\Microsoft.CodeAnalysis.resources.dll
 C:\integrador\SysIntegrador\bin\Debug\net8.0-windows\es\Microsoft.CodeAnalysis.resources.dll
@@ -225,3 +224,4 @@ C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\refint\SysIntegradorApp.dll
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.pdb
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.genruntimeconfig.cache
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\ref\SysIntegradorApp.dll
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.Forms.NewFormConfiguracoes.resources

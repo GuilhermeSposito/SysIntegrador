@@ -427,7 +427,7 @@
             pictureBoxOn2.Anchor = AnchorStyles.None;
             pictureBoxOn2.Cursor = Cursors.Hand;
             pictureBoxOn2.Image = (Image)resources.GetObject("pictureBoxOn2.Image");
-            pictureBoxOn2.Location = new Point(215, 490);
+            pictureBoxOn2.Location = new Point(213, 492);
             pictureBoxOn2.Name = "pictureBoxOn2";
             pictureBoxOn2.Size = new Size(84, 45);
             pictureBoxOn2.SizeMode = PictureBoxSizeMode.Zoom;
@@ -487,7 +487,7 @@
             pictureBoxOFF.Anchor = AnchorStyles.None;
             pictureBoxOFF.Cursor = Cursors.Hand;
             pictureBoxOFF.Image = (Image)resources.GetObject("pictureBoxOFF.Image");
-            pictureBoxOFF.Location = new Point(218, 434);
+            pictureBoxOFF.Location = new Point(218, 430);
             pictureBoxOFF.Name = "pictureBoxOFF";
             pictureBoxOFF.Size = new Size(84, 43);
             pictureBoxOFF.SizeMode = PictureBoxSizeMode.Zoom;

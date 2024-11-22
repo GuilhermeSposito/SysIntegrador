@@ -113,7 +113,6 @@ namespace SysIntegradorApp
             catch (Exception ex)
             {
                 await Logs.CriaLogDeErro(ex.ToString());
-                MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OKCancel);
             }
         }
 
@@ -211,7 +210,7 @@ namespace SysIntegradorApp
                         }
 
                     }
-                    else if(!ConfigApp.IntegraIfood)
+                    else if (!ConfigApp.IntegraIfood)
                     {
                         if (ConfigApp.IntegracaoSysMenu)
                         {
@@ -231,14 +230,13 @@ namespace SysIntegradorApp
                         FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.MudaStatusMerchant()));
                     }
 
-                   
+
                 }
 
             }
             catch (Exception ex)
             {
                 await Logs.CriaLogDeErro(ex.ToString());
-                MessageBox.Show(ex.ToString(), "Ops");
             }
 
 
@@ -311,7 +309,6 @@ namespace SysIntegradorApp
             catch (Exception ex)
             {
                 await Logs.CriaLogDeErro(ex.ToString());
-                MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
         }
@@ -367,6 +364,12 @@ namespace SysIntegradorApp
         private void notifyIcon1_BalloonTipClicked(object sender, EventArgs e)
         {
             this.notifyIcon1.Dispose();
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+            NewFormConfiguracoes newFormConfiguracoes = new NewFormConfiguracoes(new MeuContexto());
+            newFormConfiguracoes.ShowDialog();
         }
     }
 
