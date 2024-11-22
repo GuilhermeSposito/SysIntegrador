@@ -18,3 +18,5 @@ public class ApoioAppGarcom
     [Column("tipo")] public string? Tipo { get; set; }
 
 }
+
+//teste
