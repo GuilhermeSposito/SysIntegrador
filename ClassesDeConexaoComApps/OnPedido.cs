@@ -7,6 +7,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -111,7 +112,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -163,15 +164,28 @@ public class OnPedido
 
                             if (Configs.IntegracaoSysMenu)
                             {
+
                                 if (pedido.Type == "DELIVERY")
                                 {
+                                    if (Configs.IntegraOttoEntregas && Configs.EnviaPedidoAut)
+                                    {
+                                        Entregador = "66";
+                                    }
+                                    else if (Configs.IntegraDelmatchEntregas && Configs.EnviaPedidoAut)
+                                    {
+                                        Entregador = "99";
+                                    }
+                                    else
+                                    {
+                                        Entregador = "00";
+                                    }
+
                                     mesa = "WEB";
                                     DataCertaEntregarEm = pedido.Delivery.DeliveryDateTime;
                                     Complemento = pedido.Delivery.DeliveryAddressON.Complement;
                                     EndEntrega = pedido.Delivery.DeliveryAddressON.FormattedAddress;
                                     BairEntrega = pedido.Delivery.DeliveryAddressON.District;
                                     Status = "P";
-                                    Entregador = "00";
                                 }
 
                                 if (pedido.Type == "TAKEOUT")
@@ -351,7 +365,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -378,7 +392,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -468,7 +482,8 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
     }
 
@@ -494,7 +509,7 @@ public class OnPedido
                         {
                             if (!DispachaAut)
                             {
-                                MessageBox.Show($"Pedido de id: {orderId} Despachado com sucesso!");
+                                await SysAlerta.Alerta("Despachado!", $"Pedido de id: {orderId} Despachado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
                             }
 
                             db.apoioonpedido.Remove(PedidoApoio);
@@ -504,7 +519,7 @@ public class OnPedido
                         {
                             if (!DispachaAut)
                             {
-                                MessageBox.Show("Não foi possivel despachar pedido", "Não foi possivel!");
+                                await SysAlerta.Alerta("Não foi possivel!", "Não foi possivel despachar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                             }
 
                         }
@@ -514,7 +529,8 @@ public class OnPedido
                     {
                         if (!DispachaAut)
                         {
-                            MessageBox.Show("Pedido já Despachado", "Não é possivel!");
+
+                            await SysAlerta.Alerta("Não foi possivel!", "Pedido já Despachado", SysAlertaTipo.Erro, SysAlertaButtons.Ok); await SysAlerta.Alerta("Não foi possivel!", "Não foi possivel despachar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                         }
                         db.apoioonpedido.Remove(PedidoApoio);
                         await db.SaveChangesAsync();
@@ -526,7 +542,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -556,7 +572,7 @@ public class OnPedido
                     {
                         if (!DispachaAut)
                         {
-                            MessageBox.Show($"Pedido de id: {orderId} Despachado com sucesso!");
+                            await SysAlerta.Alerta("Despachado!", $"Pedido de id: {orderId} Despachado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
                         }
 
                         db.apoioonpedido.RemoveRange(PedidosApoio);
@@ -566,7 +582,7 @@ public class OnPedido
                     {
                         if (!DispachaAut)
                         {
-                            MessageBox.Show("Não foi possivel despachar pedido", "Não foi possivel!");
+                            await SysAlerta.Alerta("Não foi possivel!", "Não foi possivel despachar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                         }
 
                     }
@@ -579,7 +595,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -607,7 +623,7 @@ public class OnPedido
                     {
                         if (!concluiuAut)
                         {
-                            MessageBox.Show($"Pedido de id {orderId} Concluido com sucesso!");
+                            await SysAlerta.Alerta("Concluido!", $"Pedido de id {orderId} Concluido com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
                         }
 
                         db.apoioonpedido.RemoveRange(PedidoApoio);
@@ -618,7 +634,7 @@ public class OnPedido
                     {
                         if (!concluiuAut)
                         {
-                            MessageBox.Show(await response.Content.ReadAsStringAsync(), "Não foi possivel!");
+                            await SysAlerta.Alerta("Erro!", await response.Content.ReadAsStringAsync(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                         }
                     }
 
@@ -630,7 +646,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -736,7 +752,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -758,7 +774,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return pedidoCancelado;
     }
@@ -773,7 +789,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -1005,7 +1021,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return numeroMesa;
     }
@@ -1042,7 +1058,8 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
     }
 
@@ -1093,7 +1110,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "ERRO AO GETPEDIDO");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return pedidosFromDb;
@@ -1151,7 +1168,8 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
         return PedidoCompletoConvertido;
     }
@@ -1199,7 +1217,8 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao pegar token ONPedidos", "Ops");
+            await SysAlerta.Alerta("Ops", $"Erro ao pegar token OnPedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
     }
 
@@ -1246,7 +1265,8 @@ public class OnPedido
                     }
                     else
                     {
-                        MessageBox.Show(await response.Content.ReadAsStringAsync());
+                        await SysAlerta.Alerta("Ops", $"{response.Content.ReadAsStringAsync()}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
                     }
                 }
             }
@@ -1254,7 +1274,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao Dar o refresh token ONPedidos", "Ops");
+            await SysAlerta.Alerta("Ops", $"Erro ao dar refresh token OnPedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -1306,7 +1326,7 @@ public class OnPedido
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao enviar Requisição HTTPS OnPedido", "ERRO");
+            await SysAlerta.Alerta("Ops", $"Erro ao enviar requisição para OnPedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return response;
     }

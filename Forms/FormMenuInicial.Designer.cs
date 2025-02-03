@@ -524,6 +524,7 @@
             StartPosition = FormStartPosition.CenterParent;
             Text = "Integrador De Apps SysLogica";
             WindowState = FormWindowState.Maximized;
+            FormClosing += FormMenuInicial_FormClosing;
             FormClosed += FormMenuInicial_FormClosed;
             Load += FormMenuInicial_Load;
             Shown += FormMenuInicial_Shown;

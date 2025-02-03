@@ -1449,10 +1449,10 @@
             // 
             tabPage1.BackColor = Color.FromArgb(161, 162, 166);
             tabPage1.Controls.Add(panelDoIfood);
-            tabPage1.Location = new Point(4, 29);
+            tabPage1.Location = new Point(4, 37);
             tabPage1.Name = "tabPage1";
             tabPage1.Padding = new Padding(3);
-            tabPage1.Size = new Size(1100, 624);
+            tabPage1.Size = new Size(1100, 616);
             tabPage1.TabIndex = 0;
             tabPage1.Text = "Ifood";
             // 
@@ -1467,7 +1467,7 @@
             panelDoIfood.Controls.Add(panelDeClientSecret);
             panelDoIfood.Location = new Point(97, 55);
             panelDoIfood.Name = "panelDoIfood";
-            panelDoIfood.Size = new Size(907, 514);
+            panelDoIfood.Size = new Size(907, 506);
             panelDoIfood.TabIndex = 1;
             // 
             // pictureBox2
@@ -1703,10 +1703,10 @@
             // 
             tabPage2.BackColor = Color.FromArgb(161, 162, 166);
             tabPage2.Controls.Add(panelOnPedido);
-            tabPage2.Location = new Point(4, 29);
+            tabPage2.Location = new Point(4, 37);
             tabPage2.Name = "tabPage2";
             tabPage2.Padding = new Padding(3);
-            tabPage2.Size = new Size(1100, 624);
+            tabPage2.Size = new Size(1100, 616);
             tabPage2.TabIndex = 1;
             tabPage2.Text = "On Pedido";
             // 
@@ -1721,7 +1721,7 @@
             panelOnPedido.Controls.Add(panel4);
             panelOnPedido.Location = new Point(97, 55);
             panelOnPedido.Name = "panelOnPedido";
-            panelOnPedido.Size = new Size(907, 514);
+            panelOnPedido.Size = new Size(907, 506);
             panelOnPedido.TabIndex = 2;
             // 
             // pictureBox3
@@ -1960,9 +1960,9 @@
             // 
             tabPage3.BackColor = Color.FromArgb(161, 162, 166);
             tabPage3.Controls.Add(panelCCM);
-            tabPage3.Location = new Point(4, 29);
+            tabPage3.Location = new Point(4, 37);
             tabPage3.Name = "tabPage3";
-            tabPage3.Size = new Size(1100, 624);
+            tabPage3.Size = new Size(1100, 616);
             tabPage3.TabIndex = 2;
             tabPage3.Text = "CCM";
             // 
@@ -1976,7 +1976,7 @@
             panelCCM.Controls.Add(panel5);
             panelCCM.Location = new Point(97, 55);
             panelCCM.Name = "panelCCM";
-            panelCCM.Size = new Size(907, 514);
+            panelCCM.Size = new Size(907, 506);
             panelCCM.TabIndex = 3;
             // 
             // pictureBox4
@@ -2124,9 +2124,9 @@
             // 
             tabPage4.BackColor = Color.FromArgb(161, 162, 166);
             tabPage4.Controls.Add(panelDelMatch);
-            tabPage4.Location = new Point(4, 29);
+            tabPage4.Location = new Point(4, 37);
             tabPage4.Name = "tabPage4";
-            tabPage4.Size = new Size(1100, 624);
+            tabPage4.Size = new Size(1100, 616);
             tabPage4.TabIndex = 3;
             tabPage4.Text = "Del Match";
             // 
@@ -2142,7 +2142,7 @@
             panelDelMatch.Controls.Add(panel7);
             panelDelMatch.Location = new Point(97, 55);
             panelDelMatch.Name = "panelDelMatch";
-            panelDelMatch.Size = new Size(907, 514);
+            panelDelMatch.Size = new Size(907, 506);
             panelDelMatch.TabIndex = 3;
             // 
             // pictureBox5
@@ -2430,9 +2430,9 @@
             // 
             tabPage5.BackColor = Color.FromArgb(161, 162, 166);
             tabPage5.Controls.Add(panelAnotaAi);
-            tabPage5.Location = new Point(4, 29);
+            tabPage5.Location = new Point(4, 37);
             tabPage5.Name = "tabPage5";
-            tabPage5.Size = new Size(1100, 624);
+            tabPage5.Size = new Size(1100, 616);
             tabPage5.TabIndex = 4;
             tabPage5.Text = "Anota Aí";
             // 
@@ -2446,7 +2446,7 @@
             panelAnotaAi.Controls.Add(panel8);
             panelAnotaAi.Location = new Point(97, 55);
             panelAnotaAi.Name = "panelAnotaAi";
-            panelAnotaAi.Size = new Size(907, 514);
+            panelAnotaAi.Size = new Size(907, 506);
             panelAnotaAi.TabIndex = 4;
             // 
             // pictureBox6
@@ -2805,7 +2805,7 @@
             // 
             // TextBoxTempoApp
             // 
-            TextBoxTempoApp.Anchor = AnchorStyles.Left | AnchorStyles.Right;
+            TextBoxTempoApp.Anchor = AnchorStyles.Right;
             TextBoxTempoApp.Location = new Point(678, 35);
             TextBoxTempoApp.Minimum = new decimal(new int[] { 10, 0, 0, 0 });
             TextBoxTempoApp.Name = "TextBoxTempoApp";

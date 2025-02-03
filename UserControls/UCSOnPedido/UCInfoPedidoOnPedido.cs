@@ -46,9 +46,7 @@ public partial class UCInfoPedidoOnPedido : UserControl
             textBox1.BackColor = Color.White; // Define a cor de fundo igual ao UserControl
             textBox1.TabStop = false; // Impede que o TextBox receba foco via Tab
             textBox1.WordWrap = true;
-            // textBox1.Location = new Point(10, 10);// Altere conforme necessário
-            //textBox1.Width = 200; // Altere conforme necessário
-            //textBox1.Height = 30;// Altere conforme necessário
+           
 
             string? TipoPedido = Pedido.Return.Type;
             string? TipoDaEntrega = "";
@@ -68,6 +66,31 @@ public partial class UCInfoPedidoOnPedido : UserControl
                     TipoDaEntrega = "Propria";
                     EnderecoDaEntrega = Pedido.Return.Delivery.DeliveryAddressON.FormattedAddress;
                     DataCorreta = Pedido.Return.Delivery.DeliveryDateTime;
+                }
+
+                if(Pedido.Return.Delivery.DeliveryAddressON.Complement is not null)
+                { 
+                    panel2.AutoScroll = true;
+                    panel2.Height += 100;
+                    var TextBoxComplemento = new System.Windows.Forms.TextBox() { Text = Pedido.Return.Delivery.DeliveryAddressON.Complement, ForeColor = Color.Black,  AutoSize = true, ReadOnly = true  };
+                    panel2.Controls.Add(TextBoxComplemento);
+
+                    TextBoxComplemento.BorderStyle = BorderStyle.None;
+                    TextBoxComplemento.ReadOnly = true;
+                    TextBoxComplemento.Multiline = false;
+                    TextBoxComplemento.BackColor = Color.White; // Define a cor de fundo igual ao UserControl
+                    TextBoxComplemento.TabStop = false; // Impede que o TextBox receba foco via Tab
+                    TextBoxComplemento.WordWrap = true;
+                    TextBoxComplemento.Font = new Font(TextBoxComplemento.Font, FontStyle.Bold);
+
+                    for (int i = 0; i < Pedido.Return.Delivery.DeliveryAddressON.Complement.Length; i++ )
+                    {
+                        TextBoxComplemento.Width += 10;
+                    }
+
+                    TextBoxComplemento.Location = new Point(411, 55);
+
+                    panel2.PerformLayout();
                 }
 
             }

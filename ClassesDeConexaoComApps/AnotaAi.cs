@@ -8,6 +8,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -94,7 +95,7 @@ public class AnotaAi
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -340,7 +341,7 @@ public class AnotaAi
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return numeroMesa;
     }
@@ -538,8 +539,8 @@ public class AnotaAi
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao Converter Pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao Converter Pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
 
         }
         return null;
@@ -635,7 +636,8 @@ public class AnotaAi
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
     }
 

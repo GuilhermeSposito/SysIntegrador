@@ -186,9 +186,11 @@ C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.Fo
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.FormMenuInicial.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.FormPedidosEnviados.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.FormWebBrowser.resources
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.NewFormConfiguracoes.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormAguardoDeConclPedidos.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormCancelamentoOnPedido.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.ONPEDIDO.FormDeCronograma.resources
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.SysAlerta.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.TaxyMachine.EnvioDePedidos.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Properties.Resources.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.UserControls.TaxyMachine.UCPedidoTaxyMachine.resources
@@ -223,4 +225,8 @@ C:\integrador\SysIntegrador\obj\Release\net8.0-windows\refint\SysIntegradorApp.d
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.pdb
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.genruntimeconfig.cache
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\ref\SysIntegradorApp.dll
-C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.Forms.NewFormConfiguracoes.resources
+C:\integrador\SysIntegrador\bin\Release\net8.0-windows\SysIntegradorApp.dll.manifest
+C:\integrador\SysIntegrador\bin\Release\net8.0-windows\SysIntegradorApp.application
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.genpublishdeps.cache
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.dll.manifest
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\SysIntegradorApp.application

@@ -152,3 +152,4 @@ C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.UserControls.UcsGarcom.UCInfoPedidoGarcom.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.UserControls.UcsGarcom.UCItemGarcom.resources
 C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.Forms.NewFormConfiguracoes.resources
+C:\integrador\SysIntegrador\obj\Release\net8.0-windows\win-x64\SysIntegradorApp.Forms.SysAlerta.resources

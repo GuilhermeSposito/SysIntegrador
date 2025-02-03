@@ -1212,4 +1212,15 @@ public partial class FormMenuInicial : Form
     {
         SetarPanelPedidos();
     }
+
+    private async void FormMenuInicial_FormClosing(object sender, FormClosingEventArgs e)
+    {
+       // DialogResult result = MessageBox.Show("Você tem certeza que deseja fechar o app?", "Fechando", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+       // if (result == DialogResult.No) { e.Cancel = true; }
+
+        DialogResultSys opc = await SysAlerta.Alerta("Fechando","Você tem certeza que deseja fechar o app?", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);
+
+        if(opc == DialogResultSys.Nao)
+            e.Cancel = true;
+    }
 }

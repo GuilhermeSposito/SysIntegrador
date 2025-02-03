@@ -19,16 +19,16 @@ public class ImpressaoGarcom
     public static Font FonteNomeRestaurante = new Font("DejaVu sans mono", 15, FontStyle.Bold);
     public static Font FonteEndereçoDoRestaurante = new Font("DejaVu sans mono", 9, FontStyle.Bold);
     public static Font FonteNúmeroDoPedido = new Font("DejaVu sans mono", 17, FontStyle.Bold);
-    public static Font FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold);
+    public static Font FonteDetalhesDoPedido = new Font("DejaVu sans mono", 12, FontStyle.Bold);
     public static Font FonteNúmeroDoTelefone = new Font("DejaVu sans mono", 11, FontStyle.Bold);
     public static Font FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
     public static Font FonteEndereçoDoCliente = new Font("DejaVu sans mono", 10, FontStyle.Bold);
-    public static Font FonteItens = new Font("DejaVu sans mono", 12, FontStyle.Bold);
+    public static Font FonteItens = new Font("DejaVu sans mono", 15, FontStyle.Bold);
     public static Font FonteValorTotal = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteOpcionais = new Font("DejaVu sans mono", 11, FontStyle.Regular);
     public static Font FonteObservaçõesItem = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteTotaisDoPedido = new Font("DejaVu sans mono", 10, FontStyle.Bold);
-    public static Font FonteCPF = new Font("DejaVu sans mono", 8, FontStyle.Bold);
+    public static Font FonteCPF = new Font("DejaVu sans mono", 10, FontStyle.Bold);
     public static Font FonteSubTotal = new Font("DejaVu sans mono", 8, FontStyle.Regular);
     public static Font FonteMarcaDAgua = new Font("DejaVu sans mono", 7, FontStyle.Regular);
 
@@ -224,12 +224,25 @@ public class ImpressaoGarcom
             string? mesa = pedido!.Mesa is not null && pedido!.Mesa != "0000" ? pedido!.Mesa : pedido.Comanda;
             string? DataInicio = pedido.HorarioFeito!.ToString()!.Substring(0, 10).Replace("-", "/");
             string? HoraInicio = pedido.HorarioFeito!.ToString()!.Substring(11, 5);
+            string? NomeGarcom = "PADRÃO";
+
+            //Testar Parte do nome do garçom
+            if (!String.IsNullOrEmpty(pedido.GarcomResponsavel))
+            {
+                bool garcomPesquisa = dbContext.garcons.Any(x => x.Codigo == pedido.GarcomResponsavel);
+                if (garcomPesquisa)
+                {
+                    var garcom = dbContext.garcons.FirstOrDefault(x => x.Codigo == pedido.GarcomResponsavel);
+
+                    NomeGarcom = garcom!.Nome;
+                }
+            }
 
 
             if (mesa!.Length > 4)
-                AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}", FonteGeral);
+                AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}     Garcom: {NomeGarcom} ", FonteGeral);
             else
-                AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}", FonteGeral);
+                AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}     Garcom: {NomeGarcom} ", FonteGeral);
 
             AdicionaConteudo(AdicionarSeparadorDuplo(), FonteSeparadores);
             AdicionaConteudo($"Emitido em {DataInicio}  -  {HoraInicio}", FonteGeral);
@@ -304,8 +317,6 @@ public class ImpressaoGarcom
         try
         {
             SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.ClsSuporteDeFechamentoDeMesa? clsApoioFechamanetoDeMesa = JsonConvert.DeserializeObject<ClsSuporteDeFechamentoDeMesa>(PedidoJson);
-
-            //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.FirstOrDefault();
             string banco = opcSistema!.CaminhodoBanco!;
@@ -361,7 +372,7 @@ public class ImpressaoGarcom
                 AdicionaConteudo($"Taxa de Serviço ........: {TaxaDeServico.ToString("c")}", FonteSubTotal);
             }
 
-            if(clsApoioFechamanetoDeMesa!.ValorCouvert > 0)
+            if (clsApoioFechamanetoDeMesa!.ValorCouvert > 0)
             {
                 ValorTotal += clsApoioFechamanetoDeMesa!.ValorCouvert;
                 AdicionaConteudo($"Couvert ................: {clsApoioFechamanetoDeMesa!.ValorCouvert.ToString("c")}", FonteSubTotal);
@@ -592,12 +603,25 @@ public class ImpressaoGarcom
             string? mesa = pedido!.Mesa is not null && pedido!.Mesa != "0000" ? pedido!.Mesa : pedido.Comanda;
             string? DataInicio = pedido.HorarioFeito!.ToString()!.Substring(0, 10).Replace("-", "/");
             string? HoraInicio = pedido.HorarioFeito!.ToString()!.Substring(11, 5);
+            string? NomeGarcom = "PADRÃO";
 
+            //Testar Parte do nome do garçom
+            if (!String.IsNullOrEmpty(pedido.GarcomResponsavel))
+            {
+                bool garcomPesquisa = dbContext.garcons.Any(x => x.Codigo == pedido.GarcomResponsavel);
+                if (garcomPesquisa)
+                {
+                    var garcom = dbContext.garcons.FirstOrDefault(x => x.Codigo == pedido.GarcomResponsavel);
+
+                    NomeGarcom = garcom!.Nome;
+                }
+            }
 
             if (mesa!.Length > 4)
-                AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}", FonteGeral);
+                AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}     Garcom: {NomeGarcom} ", FonteGeral);
             else
-                AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}", FonteGeral);
+                AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}     Garcom: {NomeGarcom} ", FonteGeral);
+
 
             AdicionaConteudo(AdicionarSeparadorDuplo(), FonteSeparadores);
             AdicionaConteudo($"Emitido em {DataInicio}  -  {HoraInicio}", FonteGeral);

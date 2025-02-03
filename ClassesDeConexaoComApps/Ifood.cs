@@ -22,6 +22,7 @@ using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
+using SysIntegradorApp.Forms;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -55,7 +56,7 @@ public class Ifood
                     if (!CaixaAberto)
                     {
                         ClsSons.PlaySom2();
-                        MessageBox.Show("Seu aplicativo está integrado com o SysMenu, abra o caixa para continuar", "Aplicativo Integrado");
+                        await SysAlerta.Alerta("Aplicativo Integrado", "Seu aplicativo está integrado com o SysMenu, abra o caixa para continuar", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                         ClsSons.StopSom();
                         Application.Exit();
                         return;
@@ -157,6 +158,18 @@ public class Ifood
                                 ClsSons.StopSom();
                                 await AvisarAcknowledge(P);
                                 break;
+                            case "AAO":
+                                ClsSons.StopSom();
+                                await AvisarAcknowledge(P);
+                                break;  
+                            case "DDCS":
+                                ClsSons.StopSom();
+                                await AvisarAcknowledge(P);
+                                break;
+                            case "ADR":
+                                ClsSons.StopSom();
+                                await AvisarAcknowledge(P);
+                                break;
                         }
                     }
 
@@ -173,9 +186,7 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            ClsSons.PlaySom2();
-            MessageBox.Show("Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            ClsSons.StopSom();
+            await SysAlerta.Alerta("Ops", "Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
     }
@@ -290,11 +301,11 @@ public class Ifood
 
             if (!response.IsSuccessStatusCode)
             {
-                MessageBox.Show("Erro ao solicitar entregador");
+                await SysAlerta.Alerta("Ops", "Erro ao solicitar entregador", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
             }
             else
             {
-                MessageBox.Show("Entregador chamado com sucesso!");
+                await SysAlerta.Alerta("Ops", "Entregador chamado com sucesso", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
             }
         }
         catch (Exception ex)
@@ -1110,7 +1121,7 @@ public class Ifood
         }
         catch (Exception ex)
         {
-            await Logs.CriaLogDeErro(ex.ToString());        
+            await Logs.CriaLogDeErro(ex.ToString());
         }
 
     }
@@ -1166,7 +1177,7 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "ERRO AO GETPEDIDO");
+            await SysAlerta.Alerta("Ops", "Erro ao pegar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return pedidosFromDb;
@@ -1197,13 +1208,13 @@ public class Ifood
 
             if (statusCode == 202)
             {
-                MessageBox.Show("Pedido Despachado com sucesso!", "Despachado", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                await SysAlerta.Alerta("Despachado", "Pedido Despachado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
             }
             else
             {
                 string? message = await resp.Content.ReadAsStringAsync();
 
-                MessageBox.Show(message, "Ops");
+                await SysAlerta.Alerta("Ops", message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
             }
         }
         catch (Exception ex)
@@ -1223,13 +1234,14 @@ public class Ifood
 
             if (statusCode == 202)
             {
-                MessageBox.Show("Pedido Pronto Para Retirada avisado com sucesso!", "Pedido Pronto", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                await SysAlerta.Alerta("Pedido Pronto", "Pedido Pronto Para Retirada avisado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
             }
             else
             {
                 string? message = await resp.Content.ReadAsStringAsync();
 
-                MessageBox.Show(message, "Ops");
+                await SysAlerta.Alerta("Ops", message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
             }
 
         }
@@ -1261,7 +1273,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            Console.WriteLine(ex.Message);
         }
         return motivosDeCancelamento;
     }
@@ -1282,7 +1293,7 @@ public class Ifood
 
             if (statusCode == 202)
             {
-                MessageBox.Show("Cancelamento Enviado com sucesso", "Tudo Certo!");
+                await SysAlerta.Alerta("Tudo Certo!", "Cancelamento Enviado com sucesso", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
             }
 
             return statusCode;
@@ -1290,7 +1301,6 @@ public class Ifood
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            Console.WriteLine(ex.Message);
         }
         return statusCode;
     }
@@ -1327,7 +1337,7 @@ public class Ifood
                     if (statusCode == 401)
                     {
                         ClsSons.PlaySom2();
-                        MessageBox.Show("Login expirado, por favor refaça o login!", "Login Vencido", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        await SysAlerta.Alerta("Login Vencido", "Login expirado, por favor refaça o login!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);               
                         ClsSons.StopSom();
                         Application.Exit();
                     }

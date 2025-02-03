@@ -77,6 +77,31 @@ namespace SysIntegradorApp.UserControls.UCSAnotaAi
                         DefineLocalEntrega = $"{p.InfoDoPedido.deliveryAddress.FormattedAddress} {p.InfoDoPedido.deliveryAddress.Neighborhood} - {p.InfoDoPedido.deliveryAddress.City}";
 
                         horarioEntrega = DataCertaEntregarEm.ToString();
+
+                        if (p.InfoDoPedido.deliveryAddress.Complement is not null)
+                        {
+                            panel2.AutoScroll = true;
+                            panel2.Height += 100;
+                            var TextBoxComplemento = new System.Windows.Forms.TextBox() { Text = p.InfoDoPedido.deliveryAddress.Complement, ForeColor = Color.Black, AutoSize = true, ReadOnly = true };
+                            panel2.Controls.Add(TextBoxComplemento);
+
+                            TextBoxComplemento.BorderStyle = BorderStyle.None;
+                            TextBoxComplemento.ReadOnly = true;
+                            TextBoxComplemento.Multiline = false;
+                            TextBoxComplemento.BackColor = Color.White; // Define a cor de fundo igual ao UserControl
+                            TextBoxComplemento.TabStop = false; // Impede que o TextBox receba foco via Tab
+                            TextBoxComplemento.WordWrap = true;
+                            TextBoxComplemento.Font = new Font(TextBoxComplemento.Font, FontStyle.Bold);
+
+                            for (int i = 0; i < p.InfoDoPedido.deliveryAddress.Complement.Length; i++)
+                            {
+                                TextBoxComplemento.Width += 10;
+                            }
+
+                            TextBoxComplemento.Location = new Point(411, 55);
+
+                            panel2.PerformLayout();
+                        }
                     }
 
                     if (p.InfoDoPedido.Type == "LOCAL")

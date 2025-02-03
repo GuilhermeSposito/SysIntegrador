@@ -1,24 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\roger\\source\\repos\\RogerSys\\SysIntegrador\\SysIntegrador\\SysIntegradorApp.csproj": {}
+    "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj": {}
   },
   "projects": {
-    "C:\\Users\\roger\\source\\repos\\RogerSys\\SysIntegrador\\SysIntegrador\\SysIntegradorApp.csproj": {
+    "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\roger\\source\\repos\\RogerSys\\SysIntegrador\\SysIntegrador\\SysIntegradorApp.csproj",
+        "projectUniqueName": "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj",
         "projectName": "SysIntegradorApp",
-        "projectPath": "C:\\Users\\roger\\source\\repos\\RogerSys\\SysIntegrador\\SysIntegrador\\SysIntegradorApp.csproj",
-        "packagesPath": "C:\\Users\\roger\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\roger\\source\\repos\\RogerSys\\SysIntegrador\\SysIntegrador\\obj\\",
+        "projectPath": "C:\\integrador\\SysIntegrador\\SysIntegradorApp.csproj",
+        "packagesPath": "C:\\Users\\gui-c\\.nuget\\packages\\",
+        "outputPath": "C:\\integrador\\SysIntegrador\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
-          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\roger\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\gui-c\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],

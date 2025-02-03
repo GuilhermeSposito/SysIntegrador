@@ -75,6 +75,31 @@ public partial class UCInfoPedidoCCM : UserControl
                 TipoDaEntrega = "Propria";
                 EnderecoDaEntrega = $"{Pedido.Endereco.Rua}, {Pedido.Endereco.Numero} - {Pedido.Endereco.Bairro}";
                 DataCorreta = Pedido.EntregarAte;
+
+                if (Pedido.Endereco.Complemento is not null)
+                {
+                    panel2.AutoScroll = true;
+                    panel2.Height += 100;
+                    var TextBoxComplemento = new System.Windows.Forms.TextBox() { Text = Pedido.Endereco.Complemento, ForeColor = Color.Black, AutoSize = true, ReadOnly = true };
+                    panel2.Controls.Add(TextBoxComplemento);
+
+                    TextBoxComplemento.BorderStyle = BorderStyle.None;
+                    TextBoxComplemento.ReadOnly = true;
+                    TextBoxComplemento.Multiline = false;
+                    TextBoxComplemento.BackColor = Color.White; // Define a cor de fundo igual ao UserControl
+                    TextBoxComplemento.TabStop = false; // Impede que o TextBox receba foco via Tab
+                    TextBoxComplemento.WordWrap = true;
+                    TextBoxComplemento.Font = new Font(TextBoxComplemento.Font, FontStyle.Bold);
+
+                    for (int i = 0; i < Pedido.Endereco.Complemento.Length; i++)
+                    {
+                        TextBoxComplemento.Width += 10;
+                    }
+
+                    TextBoxComplemento.Location = new Point(411, 55);
+
+                    panel2.PerformLayout();
+                }
             }
 
             if (TipoPedido == "TAKEOUT")

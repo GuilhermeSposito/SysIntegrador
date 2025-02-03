@@ -59,35 +59,6 @@ public partial class FormDeCronograma : Form
                 {
                     instancia.OnCardapio.Visible = configuracoes.IntegraOnOPedido;
 
-                    Button BtnDeRenovarToken = new Button();
-                    BtnDeRenovarToken.Text = "Renovar conexão ONPEDIDO";
-                    BtnDeRenovarToken.Size = new Size(300, 59);
-                    BtnDeRenovarToken.Location = new Point(80, 480);
-                    BtnDeRenovarToken.BackColor = Color.Red;
-                    BtnDeRenovarToken.ForeColor = Color.White;
-                    BtnDeRenovarToken.Cursor = Cursors.Hand;
-                    BtnDeRenovarToken.Font = new Font("Segoe UI", 12, FontStyle.Bold);
-
-                    instancia.Controls.Add(BtnDeRenovarToken);
-                    BtnDeRenovarToken.Click += async (sender, e) =>
-                    {
-                        try
-                        {
-                            OnPedido onPedido = new OnPedido(new MeuContexto());
-                            await onPedido.GetToken();
-
-                            MessageBox.Show("Envio de renovação concluída com sucesso!", "Sucesso");
-
-                            instancia.Close();
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message, "Ops");
-                        }
-                    };
-
-                   // AjustarTamanhoForm(instancia);
-
                 }
 
                 if (configuracoes.CardapioUsando == "ANOTAAI")
@@ -98,6 +69,11 @@ public partial class FormDeCronograma : Form
                 if (String.IsNullOrEmpty(configuracoes.CardapioUsando))
                 {
                     instancia.OnCardapio.Visible = false;
+                }
+
+                if (configuracoes.IntegraGarcom)
+                {
+                    instancia.btnSincGarcom.Visible = true;
                 }
 
                 instancia.OnEntrega.Visible = configuracoes.EnviaPedidoAut;
@@ -231,5 +207,20 @@ public partial class FormDeCronograma : Form
     {
         OffEntrega.Visible = true;
         OnEntrega.Visible = false;
+    }
+
+    private async void btnSincGarcom_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            var GarcomApp = new GarcomSysMenu(new MeuContexto());
+
+            await GarcomApp.AtualizarBancoDeDadosParaOGarcon();
+            await SysAlerta.Alerta("Banco de dados do app atualizado", "Sucesso ao atualizar o banco de dados para o garçom.", TipoDoAlerta: SysAlertaTipo.Sucesso);
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro ao sincronizar banco de dados para o garçom", "Tivemos um erro ao tentar atualizar o banco de dados para o garçom, tente novamente mais tarde ou entre em contato com o suporte da syslogica.", TipoDoAlerta: SysAlertaTipo.Erro);
+        }
     }
 }

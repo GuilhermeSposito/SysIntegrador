@@ -9,6 +9,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -82,7 +83,7 @@ public class CCM
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro pooling CCM");
+            await SysAlerta.Alerta("Erro pooling CCM", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -153,8 +154,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao Atualizar pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao atualizar Pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -188,8 +189,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao aceitar pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao aceitar Pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -203,7 +204,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao negar pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro ao negar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
             await Logs.CriaLogDeErro(ex.ToString());
         }
     }
@@ -456,8 +458,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao inserir pedido na base de dados", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -481,8 +483,9 @@ public class CCM
         catch (Exception ex)
         {
 
-            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao inserir pedido na base de dados", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
 
         }
     }
@@ -561,7 +564,7 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao buscar pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro ao procurar pedido na base de dados", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
             await Logs.CriaLogDeErro(ex.ToString());
 
         }
@@ -579,8 +582,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao inserir pedido na base de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
 
         }
         return pedido;
@@ -660,8 +663,8 @@ public class CCM
         }
         catch (Exception ex)
         {
-            MessageBox.Show("Erro ao Converter Pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
             await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao Converter Pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
 
         }
         return pedidoCompleto;
@@ -781,13 +784,10 @@ public class CCM
         }//HAZZRWXX5GWYBNQ1BZXBQNK8WP5P6CQT  //uhux4nqnp-89p3p4o4n0a3n2j7a2q8r5n0q1o881 /on
         catch (Exception ex)
         {
+            await SysAlerta.Alerta("Ops", "Erro ao enviar requisição CCM", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro ao enviar Req CCM");
         }
         return response;
     }
 
 }
-
-
-//gURLCCM = "http://api.ccmpedidoonline.com.br/wsccm_v2.php?token=" + Trim(gTokenCCM) + "&codFilial=" + gNroLojaCCM

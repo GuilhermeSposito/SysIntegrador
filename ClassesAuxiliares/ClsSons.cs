@@ -68,6 +68,24 @@ internal class ClsSons
             player.Play();
         }
 
+    }  
+    
+    public static void PlaySomErroDb()
+    {
+        string appDataPath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string customFolderName = "SysLogicaLogs";
+
+        string fullPath = Path.Combine(appDataPath, customFolderName);
+
+        string path = $"{fullPath}\\SOMS\\ErroMonitor.wav";
+
+        string caminhoDoArquivo = path;
+
+        if (File.Exists(caminhoDoArquivo))
+        {
+            player = new SoundPlayer(caminhoDoArquivo);
+            player.Play();
+        }
     }
 
     public static void StopSom()

@@ -3,6 +3,7 @@ using ExCSS;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
@@ -97,9 +98,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            ClsSons.PlaySom2();
-            MessageBox.Show(ex.ToString(), "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-            ClsSons.StopSom();
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -115,7 +114,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -156,7 +155,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao limpar pedidos", "Ops");
+            await SysAlerta.Alerta("Ops", "Erro ao limpar pedidos", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -182,7 +181,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao atualizar Status Pedido", "OPS");
+            await SysAlerta.Alerta("Ops", "Erro ao Atualizar status do pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -197,7 +196,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", "Erro ao despachar pedido", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -212,7 +211,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -227,7 +226,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -255,7 +254,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -582,7 +581,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -635,7 +634,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "ERRO AO GETPEDIDO");
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return pedidosFromDb;
@@ -684,7 +683,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", ex.ToString(), SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return PedidoCompletoConvertido;
     }
@@ -775,7 +774,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return sequencias;
@@ -855,7 +854,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro Ao listar Pedidos Abertos");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return sequencias;
@@ -898,7 +897,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            Console.WriteLine(ex.Message, "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -918,7 +917,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            Console.WriteLine(ex.Message, "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
         return response;
     }
@@ -961,7 +961,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            Console.WriteLine(ex.Message);
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
         return pedido;
     }
@@ -1014,7 +1015,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro ao enviar Req DelMatch");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
         return ExistePedido;
     }
@@ -1054,7 +1056,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao encontra Id. Por favor comunique o suporte da syslogica", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -1112,7 +1114,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro Ao listar Cliente Cadastrado");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return sequencia;
     }
@@ -1179,7 +1181,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.ToString(), "Erro Ao listar Cliente Cadastrado");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return sequencia;
     }
@@ -1246,7 +1248,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro ao enviar pedidos automatico para delmatch", "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -1287,7 +1289,7 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -1336,7 +1338,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro Ao pegar o token Del Match", "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
     }
 
@@ -1385,7 +1388,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
         }
         return ClsParaEnviarPedido;
     }
@@ -1440,7 +1444,8 @@ public class DelMatch
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            await SysAlerta.Alerta("Ops", "Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
 
         }
         return response;

@@ -52,6 +52,7 @@
             OnEntrega = new PictureBox();
             OffEntrega = new PictureBox();
             labelEntregaAut = new Label();
+            btnSincGarcom = new Button();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)OnIfood).BeginInit();
             ((System.ComponentModel.ISupportInitialize)OffIfood).BeginInit();
@@ -314,12 +315,29 @@
             labelEntregaAut.TabIndex = 11;
             labelEntregaAut.Text = "Entrega Aut";
             // 
+            // btnSincGarcom
+            // 
+            btnSincGarcom.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            btnSincGarcom.BackColor = Color.Red;
+            btnSincGarcom.Cursor = Cursors.Hand;
+            btnSincGarcom.Font = new Font("Segoe UI", 10.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            btnSincGarcom.ForeColor = Color.White;
+            btnSincGarcom.Location = new Point(61, 488);
+            btnSincGarcom.Name = "btnSincGarcom";
+            btnSincGarcom.Size = new Size(351, 48);
+            btnSincGarcom.TabIndex = 15;
+            btnSincGarcom.Text = "Sincronizar app do garçom ";
+            btnSincGarcom.UseVisualStyleBackColor = false;
+            btnSincGarcom.Visible = false;
+            btnSincGarcom.Click += btnSincGarcom_Click;
+            // 
             // FormDeCronograma
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            ClientSize = new Size(474, 639);
+            ClientSize = new Size(476, 639);
+            Controls.Add(btnSincGarcom);
             Controls.Add(panel4);
             Controls.Add(panel3);
             Controls.Add(label5);
@@ -380,5 +398,6 @@
         private PictureBox OnEntrega;
         private PictureBox OffEntrega;
         private Label labelEntregaAut;
+        private Button btnSincGarcom;
     }
 }

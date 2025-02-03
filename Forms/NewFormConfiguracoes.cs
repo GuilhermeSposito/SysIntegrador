@@ -175,6 +175,7 @@ public partial class NewFormConfiguracoes : Form
             MudaOnOff(Configuracoes.IntegraAnotaAi, this.pictureBoxOnAnotaAiIntegra, this.pictureBoxOffAnotaAiIntegra);
 
             //tela de integração GARCOM
+            MudaOnOff(Configuracoes.IntegraGarcom, this.pictureBoxOnGarcom, this.pictureBoxOffGarcom);
             MudaRadioButtonsGarcom();
 
             //tela de integração OTTO
@@ -335,112 +336,439 @@ public partial class NewFormConfiguracoes : Form
 
     }
 
-    private void pictureBoxONAgruparComanda_Click(object sender, EventArgs e)
+    private async void pictureBoxONAgruparComanda_Click(object sender, EventArgs e)
     {
-        pictureBoxONAgruparComanda.Visible = false;
-        pictureBoxOFFAgruparComanda.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.AgruparComandas = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxONAgruparComanda.Visible = false;
+                pictureBoxOFFAgruparComanda.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+      
     }
 
-    private void pictureBoxOFFAgruparComanda_Click(object sender, EventArgs e)
+    private async void pictureBoxOFFAgruparComanda_Click(object sender, EventArgs e)
     {
-        pictureBoxONAgruparComanda.Visible = true;
-        pictureBoxOFFAgruparComanda.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.AgruparComandas = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxONAgruparComanda.Visible = true;
+                pictureBoxOFFAgruparComanda.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
     }
 
-    private void pictureBoxOnImprimeCaixa_Click(object sender, EventArgs e)
+    private async void pictureBoxOnImprimeCaixa_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImprimeCaixa.Visible = false;
-        pictureBoxOffImprimeCaixa.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImprimirComandaNoCaixa = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImprimeCaixa.Visible = false;
+                pictureBoxOffImprimeCaixa.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+       
     }
 
-    private void pictureBoxOffImprimeCaixa_Click(object sender, EventArgs e)
+    private async void pictureBoxOffImprimeCaixa_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImprimeCaixa.Visible = true;
-        pictureBoxOffImprimeCaixa.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImprimirComandaNoCaixa = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImprimeCaixa.Visible = true;
+                pictureBoxOffImprimeCaixa.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+     
     }
 
-    private void pictureBoxOnSeparaItem_Click(object sender, EventArgs e)
+    private async void pictureBoxOnSeparaItem_Click(object sender, EventArgs e)
     {
-        pictureBoxOnSeparaItem.Visible = false;
-        pictureBoxOffSeparaItem.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.TipoComanda = 1;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnSeparaItem.Visible = false;
+                pictureBoxOffSeparaItem.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+     
     }
 
-    private void pictureBoxOffSeparaItem_Click(object sender, EventArgs e)
+    private async void pictureBoxOffSeparaItem_Click(object sender, EventArgs e)
     {
-        pictureBoxOnSeparaItem.Visible = true;
-        pictureBoxOffSeparaItem.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.TipoComanda = 2;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnSeparaItem.Visible = true;
+                pictureBoxOffSeparaItem.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+      
     }
 
-    private void pictureBoxOnImpCompacta_Click(object sender, EventArgs e)
+    private async void pictureBoxOnImpCompacta_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImpCompacta.Visible = false;
-        pictureBoxOffImpCompacta.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImpCompacta = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImpCompacta.Visible = false;
+                pictureBoxOffImpCompacta.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+       
     }
 
-    private void pictureBoxOffImpCompacta_Click(object sender, EventArgs e)
+    private async void pictureBoxOffImpCompacta_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImpCompacta.Visible = true;
-        pictureBoxOffImpCompacta.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImpCompacta = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImpCompacta.Visible = true;
+                pictureBoxOffImpCompacta.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+    
     }
 
-    private void pictureBoxOnComandaComapcat_Click(object sender, EventArgs e)
+    private async void pictureBoxOnComandaComapcat_Click(object sender, EventArgs e)
     {
-        pictureBoxOnComandaComapcat.Visible = false;
-        pictureBoxOffComandaComapcat.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ComandaReduzida = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnComandaComapcat.Visible = false;
+                pictureBoxOffComandaComapcat.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+
+     
     }
 
-    private void pictureBoxOffComandaComapcat_Click(object sender, EventArgs e)
+    private async void pictureBoxOffComandaComapcat_Click(object sender, EventArgs e)
     {
-        pictureBoxOnComandaComapcat.Visible = true;
-        pictureBoxOffComandaComapcat.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ComandaReduzida = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnComandaComapcat.Visible = true;
+                pictureBoxOffComandaComapcat.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+       
     }
 
-    private void pictureBoxOnRemoveComplementos_Click(object sender, EventArgs e)
+    private async void pictureBoxOnRemoveComplementos_Click(object sender, EventArgs e)
     {
-        pictureBoxOnRemoveComplementos.Visible = false;
-        pictureBoxOffRemoveComplementos.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.RemoveComplementos = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnRemoveComplementos.Visible = false;
+                pictureBoxOffRemoveComplementos.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+
+    
     }
 
-    private void pictureBoxOffRemoveComplementos_Click(object sender, EventArgs e)
+    private async void pictureBoxOffRemoveComplementos_Click(object sender, EventArgs e)
     {
-        pictureBoxOnRemoveComplementos.Visible = true;
-        pictureBoxOffRemoveComplementos.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.RemoveComplementos = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnRemoveComplementos.Visible = true;
+                pictureBoxOffRemoveComplementos.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+
+      
     }
 
-    private void pictureBoxOnImpAut_Click(object sender, EventArgs e)
+    private async void pictureBoxOnImpAut_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImpAut.Visible = false;
-        pictureBoxOffImpAut.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImpressaoAut = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImpAut.Visible = false;
+                pictureBoxOffImpAut.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+
+       
     }
 
-    private void pictureBoxOffImpAut_Click(object sender, EventArgs e)
+    private async void pictureBoxOffImpAut_Click(object sender, EventArgs e)
     {
-        pictureBoxOnImpAut.Visible = true;
-        pictureBoxOffImpAut.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.ImpressaoAut = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnImpAut.Visible = true;
+                pictureBoxOffImpAut.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+
+      
     }
 
-    private void pictureBoxOnNomeNaComanda_Click(object sender, EventArgs e)
+    private async void pictureBoxOnNomeNaComanda_Click(object sender, EventArgs e)
     {
-        pictureBoxOnNomeNaComanda.Visible = false;
-        pictureBoxOffNomeNaComanda.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.UsarNomeNaComanda = false;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnNomeNaComanda.Visible = false;
+                pictureBoxOffNomeNaComanda.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+      
     }
 
-    private void pictureBoxOffNomeNaComanda_Click(object sender, EventArgs e)
+    private async void pictureBoxOffNomeNaComanda_Click(object sender, EventArgs e)
     {
-        pictureBoxOnNomeNaComanda.Visible = true;
-        pictureBoxOffNomeNaComanda.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.UsarNomeNaComanda = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnNomeNaComanda.Visible = true;
+                pictureBoxOffNomeNaComanda.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
+      
     }
 
-    private void pictureBoxOnDestacaObs_Click(object sender, EventArgs e)
+    private async void pictureBoxOnDestacaObs_Click(object sender, EventArgs e)
     {
-        pictureBoxOnDestacaObs.Visible = false;
-        pictureBoxOffDestacaObs.Visible = true;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.DestacarObs = false;
+
+                await db.SaveChangesAsync();
+
+
+                pictureBoxOnDestacaObs.Visible = false;
+                pictureBoxOffDestacaObs.Visible = true;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
     }
 
-    private void pictureBoxOffDestacaObs_Click(object sender, EventArgs e)
+    private async void pictureBoxOffDestacaObs_Click(object sender, EventArgs e)
     {
-        pictureBoxOnDestacaObs.Visible = true;
-        pictureBoxOffDestacaObs.Visible = false;
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Config is not null)
+                    Config.DestacarObs = true;
+
+                await db.SaveChangesAsync();
+
+                pictureBoxOnDestacaObs.Visible = true;
+                pictureBoxOffDestacaObs.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show(ex.Message, "Erro");
+        }
     }
 
     private async void pictureBoxOnAceitaPedidoAut_Click(object sender, EventArgs e)
@@ -1074,7 +1402,9 @@ public partial class NewFormConfiguracoes : Form
                 OnPedido onPedido = new OnPedido(new MeuContexto());
                 await onPedido.GetToken();
 
-                MessageBox.Show("Envio de renovação concluída com sucesso!", "Sucesso");
+             //   MessageBox.Show("Envio de renovação concluída com sucesso!", "Sucesso");
+               await SysAlerta.Alerta("Sucesso", "Envio de renovação concluída com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+
 
                 ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
                 Token token = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
@@ -1425,8 +1755,8 @@ public partial class NewFormConfiguracoes : Form
 
     private void NewFormConfiguracoes_Shown(object sender, EventArgs e)
     {
-        //FormLoginConfigs formLoginConfigs = new FormLoginConfigs();
-        //formLoginConfigs.ShowDialog();
+        FormLoginConfigs formLoginConfigs = new FormLoginConfigs();
+        formLoginConfigs.ShowDialog();
     }
 
     private async void TextBoxNumeroDeViasComanda_ValueChanged(object sender, EventArgs e)

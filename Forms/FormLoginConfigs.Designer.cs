@@ -115,6 +115,7 @@
             textSenha.Size = new Size(272, 34);
             textSenha.TabIndex = 1;
             textSenha.UseSystemPasswordChar = true;
+            textSenha.KeyDown += textSenha_KeyDown;
             textSenha.KeyPress += textSenha_KeyPress;
             // 
             // textBoxUser

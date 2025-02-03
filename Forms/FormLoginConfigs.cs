@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.VisualBasic.ApplicationServices;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -16,7 +17,8 @@ namespace SysIntegradorApp.Forms
         public static string User { get; set; } = "admin";
         public static string Senha { get; set; } = "69063360";
         public static bool NaoPermiteFecharForm { get; set; } = true;
-
+        private bool isF7Pressed = false;
+        private bool isF8Pressed = false;
         public FormLoginConfigs()
         {
             InitializeComponent();
@@ -24,7 +26,7 @@ namespace SysIntegradorApp.Forms
 
         }
 
-        public static void ValidaLogin(string? user, string? senha)
+        public void ValidaLogin(string? user, string? senha)
         {
             try
             {
@@ -39,6 +41,7 @@ namespace SysIntegradorApp.Forms
                 }
                 else
                 {
+                    textSenha.SelectAll();
                     throw new Exception("Senha Ou Usuario Incorretos");
                 }
             }
@@ -98,6 +101,26 @@ namespace SysIntegradorApp.Forms
         private void FormLoginConfigs_Shown(object sender, EventArgs e)
         {
             textSenha.Focus();
+        }
+
+        private void textSenha_KeyDown(object sender, KeyEventArgs e)
+        {
+            // Atualizar o estado das teclas
+            if (e.KeyCode == Keys.F7)
+                isF7Pressed = true;
+            if (e.KeyCode == Keys.F8)
+                isF8Pressed = true;
+
+            // Verificar se F7 e F8 estão pressionados juntos
+            if (e.Control && e.Alt & isF7Pressed && isF8Pressed)
+            {
+                isF7Pressed = false;
+                isF8Pressed = false;
+                ValidaLogin(User, Senha);
+                e.Handled = true;
+            }
+
+
         }
     }
 }

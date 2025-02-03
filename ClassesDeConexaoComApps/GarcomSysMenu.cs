@@ -21,6 +21,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using Microsoft.VisualBasic.Devices;
 using System.Globalization;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.Mapping;
+using SysIntegradorApp.Forms;
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
 
@@ -66,7 +67,7 @@ public class GarcomSysMenu
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message);
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
     private async Task GeraAviso(string? aviso, int IdDoApoio)
@@ -172,7 +173,7 @@ public class GarcomSysMenu
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.ToString());
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 

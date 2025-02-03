@@ -632,12 +632,12 @@ public class ImpressaoONPedido
                             {
                                 foreach (var option in CaracteristicasPedido.Observações)
                                 {
-                                    AdicionaConteudo($"{option}", FonteDetalhesDoPedido);
+                                    AdicionaConteudo($"{option}", FonteObservaçõesItem);
                                 }
 
                                 if (item.observations != null && item.observations.Length > 0)
                                 {
-                                    AdicionaConteudo($"Obs: {item.observations}", FonteCPF);
+                                    AdicionaConteudo($"Obs: {item.observations}", FonteObservaçõesItem);
                                 }
                             }
                         }
@@ -718,6 +718,14 @@ public class ImpressaoONPedido
     {
         try
         {
+            FonteCPF = new Font("DejaVu sans mono", 11, FontStyle.Bold);
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 20, FontStyle.Bold);
+            FonteNomeDoCliente =  new Font("DejaVu sans mono", 18, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 15, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 12, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 15, FontStyle.Bold);
+
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
@@ -755,7 +763,7 @@ public class ImpressaoONPedido
                 }
                 else
                 {
-                    AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                    AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 }
 
                 if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
@@ -791,7 +799,7 @@ public class ImpressaoONPedido
 
                     if (item.observations != null && item.observations.Length > 0)
                     {
-                        AdicionaConteudo($"Obs: {item.observations}", FonteCPF, eObs: true);
+                        AdicionaConteudo($"Obs: {item.observations}", FonteObservaçõesItem, eObs: true);
                     }
 
                 }
@@ -809,6 +817,14 @@ public class ImpressaoONPedido
             Imprimir(Conteudo, impressora1, 18);
             Conteudo.Clear();
 
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 17, FontStyle.Bold);
+            FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 11, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
+            FonteCPF = new Font("DejaVu sans mono", 8, FontStyle.Bold);
+
         }
         catch (Exception ex)
         {
@@ -821,6 +837,14 @@ public class ImpressaoONPedido
     {
         try
         {
+            FonteCPF = new Font("DejaVu sans mono", 10, FontStyle.Bold);
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 19, FontStyle.Bold);
+            FonteNomeDoCliente = new Font("DejaVu sans mono", 17, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 14, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 11, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 13, FontStyle.Bold);
+
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
@@ -864,7 +888,7 @@ public class ImpressaoONPedido
                 }
                 else
                 {
-                    AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                    AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                 }
 
                 if (item.externalCode == "G" || item.externalCode == "M" || item.externalCode == "P" || item.externalCode == "B")
@@ -921,6 +945,14 @@ public class ImpressaoONPedido
             Imprimir(Conteudo, impressora1, 24);
             Conteudo.Clear();
 
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 17, FontStyle.Bold);
+            FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 11, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
+            FonteCPF = new Font("DejaVu sans mono", 8, FontStyle.Bold);
+
         }
         catch (Exception ex)
         {
@@ -933,6 +965,15 @@ public class ImpressaoONPedido
 
         try
         {
+            FonteCPF = new Font("DejaVu sans mono", 10, FontStyle.Bold);
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 19, FontStyle.Bold);
+            FonteNomeDoCliente = new Font("DejaVu sans mono", 17, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 14, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 11, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 13, FontStyle.Bold);
+
+
             //fazer select no banco de dados de parâmetros do pedido aonde o num contas sejá relacionado com ele
             using ApplicationDbContext dbContext = new ApplicationDbContext();
             ParametrosDoPedido? pedidoPSQL = dbContext.parametrosdopedido.Where(x => x.DisplayId == displayId).FirstOrDefault();
@@ -990,7 +1031,7 @@ public class ImpressaoONPedido
                         }
                         else
                         {
-                            AdicionaConteudo($"{item.quantity}X {CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
+                            AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}\n\n", FonteItens);
                         }
                     }
 
@@ -1054,6 +1095,16 @@ public class ImpressaoONPedido
         catch (Exception ex)
         {
             MessageBox.Show(ex.Message, "Ops");
+        }
+        finally
+        {
+            FonteNúmeroDoPedido = new Font("DejaVu sans mono", 17, FontStyle.Bold);
+            FonteNomeDoCliente = new Font("DejaVu sans mono", 15, FontStyle.Bold);
+            FonteItens = new Font("DejaVu sans mono", 11, FontStyle.Bold); ;
+            FonteDetalhesDoPedido = new Font("DejaVu sans mono", 9, FontStyle.Bold); ;
+            FonteGeral = new Font("DejaVu sans mono mono", 11, FontStyle.Bold);
+            FonteObservaçõesItem = new Font("DejaVu sans mono", 11, FontStyle.Bold);
+            FonteCPF = new Font("DejaVu sans mono", 8, FontStyle.Bold);
         }
     }
 
