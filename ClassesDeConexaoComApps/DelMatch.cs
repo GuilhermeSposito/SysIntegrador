@@ -744,7 +744,13 @@ public class DelMatch
                                                            Convert.ToDecimal(reader["CORTESIA"]);
                                     string NumConta = sequencia.numConta.ToString();
 
-                                    var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
+                                    //Antigo Fazedor de id do pedido
+                                    // var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
+
+                                    //Novo fazedor de id de pedido
+                                    Random random = new Random();
+                                    int numeroAleatorio = random.Next();
+                                    var idPedido = NumConta.PadLeft(4, '0') + "-" + $"{numeroAleatorio}";
 
                                     sequencia.DelMatchId = idPedido.ToString();
                                     sequencia.Id = "dd56e3a213da0d221091d3bc6a0e621071550b80";

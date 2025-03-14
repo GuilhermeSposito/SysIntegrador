@@ -64,7 +64,6 @@ public class Ifood
                 }
 
                 await RefreshTokenIfood();
-
                 var reponse = await EnviaReqParaOIfood($"{url}:polling", "GET");
 
                 int statusCode = (int)reponse.StatusCode;

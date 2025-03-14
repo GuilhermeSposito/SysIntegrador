@@ -27,7 +27,12 @@ public partial class UCItemGarcom : UserControl
     {
         if(item.Requisicao is not null)
         {
-
+            if (!String.IsNullOrEmpty(item.Requisicao.Trim()))
+            {
+                LblRequisicao.Visible = true;
+                LblReqNome.Visible = true;
+                LblReqNome.Text = item.Requisicao;
+            }
         }
 
         double PrecoDOItem = 0;

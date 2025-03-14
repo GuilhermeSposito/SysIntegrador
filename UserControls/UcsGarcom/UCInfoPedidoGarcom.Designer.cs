@@ -35,10 +35,6 @@
             labelDisplayId = new Label();
             labelFeitoAsNM = new Label();
             dateFeitoAs = new Label();
-            panel1 = new Panel();
-            pictureBox4 = new PictureBox();
-            horarioEntregaPrevista = new Label();
-            labelEntregaPrevistaNM = new Label();
             panel2 = new Panel();
             pictureBox16 = new PictureBox();
             pictureBox6 = new PictureBox();
@@ -63,8 +59,6 @@
             btnDespacharIfood = new Button();
             btnImprimir = new Button();
             ((System.ComponentModel.ISupportInitialize)pictureBox7).BeginInit();
-            panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox16).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox6).BeginInit();
@@ -139,49 +133,6 @@
             dateFeitoAs.Size = new Size(50, 23);
             dateFeitoAs.TabIndex = 29;
             dateFeitoAs.Text = "10:10";
-            // 
-            // panel1
-            // 
-            panel1.BackColor = SystemColors.ButtonHighlight;
-            panel1.BorderStyle = BorderStyle.FixedSingle;
-            panel1.Controls.Add(pictureBox4);
-            panel1.Controls.Add(horarioEntregaPrevista);
-            panel1.Controls.Add(labelEntregaPrevistaNM);
-            panel1.Location = new Point(29, 90);
-            panel1.Margin = new Padding(3, 3, 10, 3);
-            panel1.Name = "panel1";
-            panel1.Size = new Size(251, 40);
-            panel1.TabIndex = 30;
-            // 
-            // pictureBox4
-            // 
-            pictureBox4.Image = (Image)resources.GetObject("pictureBox4.Image");
-            pictureBox4.Location = new Point(-1, 3);
-            pictureBox4.Name = "pictureBox4";
-            pictureBox4.Size = new Size(45, 31);
-            pictureBox4.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox4.TabIndex = 24;
-            pictureBox4.TabStop = false;
-            // 
-            // horarioEntregaPrevista
-            // 
-            horarioEntregaPrevista.AutoSize = true;
-            horarioEntregaPrevista.Font = new Font("Segoe UI", 10F);
-            horarioEntregaPrevista.Location = new Point(181, 5);
-            horarioEntregaPrevista.Name = "horarioEntregaPrevista";
-            horarioEntregaPrevista.Size = new Size(50, 23);
-            horarioEntregaPrevista.TabIndex = 20;
-            horarioEntregaPrevista.Text = "10:10";
-            // 
-            // labelEntregaPrevistaNM
-            // 
-            labelEntregaPrevistaNM.AutoSize = true;
-            labelEntregaPrevistaNM.Font = new Font("Segoe UI", 10.2F, FontStyle.Regular, GraphicsUnit.Point, 0);
-            labelEntregaPrevistaNM.Location = new Point(50, 5);
-            labelEntregaPrevistaNM.Name = "labelEntregaPrevistaNM";
-            labelEntregaPrevistaNM.Size = new Size(137, 23);
-            labelEntregaPrevistaNM.TabIndex = 19;
-            labelEntregaPrevistaNM.Text = "Entrega Prevista:";
             // 
             // panel2
             // 
@@ -490,7 +441,6 @@
             Controls.Add(panel6);
             Controls.Add(groupBoxDeItens);
             Controls.Add(panel2);
-            Controls.Add(panel1);
             Controls.Add(dateFeitoAs);
             Controls.Add(labelFeitoAsNM);
             Controls.Add(labelDisplayId);
@@ -501,9 +451,6 @@
             Name = "UCInfoPedidoGarcom";
             Size = new Size(1052, 1426);
             ((System.ComponentModel.ISupportInitialize)pictureBox7).EndInit();
-            panel1.ResumeLayout(false);
-            panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox16).EndInit();
@@ -530,10 +477,6 @@
         private Label labelDisplayId;
         private Label labelFeitoAsNM;
         private Label dateFeitoAs;
-        private Panel panel1;
-        private PictureBox pictureBox4;
-        private Label horarioEntregaPrevista;
-        private Label labelEntregaPrevistaNM;
         private Panel panel2;
         private PictureBox pictureBox16;
         private PictureBox pictureBox6;

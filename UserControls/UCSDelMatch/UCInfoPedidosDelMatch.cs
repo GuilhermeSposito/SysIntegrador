@@ -358,8 +358,12 @@ public partial class UCInfoPedidosDelMatch : UserControl
                         ClsDeserializacaoPedidoSucesso? reposta = JsonConvert.DeserializeObject<ClsDeserializacaoPedidoSucesso>(jsonContent);
 
                         string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
+                        //Antigo jeito de update id
+                        //Delmatch.UpdateDelMatchId(Pedido.NumConta, Pedido.NumConta.ToString().PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/"));
 
-                        Delmatch.UpdateDelMatchId(Pedido.NumConta, Pedido.NumConta.ToString().PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/"));
+                        Random random = new Random();
+                        int numeroAleatorio = random.Next();
+                       Delmatch.UpdateDelMatchId(Pedido.NumConta, Pedido.NumConta.ToString().PadLeft(4, '0') + "-" + $"{numeroAleatorio}");
 
                         MessageBox.Show(reposta.Response, Titulo);
 

@@ -294,97 +294,185 @@ public class GarcomSysMenu
             {
                 int insertNoSysMenuConta = 0;
                 var pedido = JsonConvert.DeserializeObject<ClassesAuxiliares.ClassesGarcomSysMenu.Pedido>(PedidoJson!);
+                string? NomeCliente = " ";
                 string? mesa = pedido!.Mesa is not null && pedido!.Mesa != "0000" ? pedido!.Mesa : pedido.Comanda;
                 string? GarcomResponsavel = pedido.GarcomResponsavel;
+                string? IdDoPedidoGuid = Guid.NewGuid().ToString();
 
-                if (mesa!.Length > 4)
+                bool ExistePedido = true;
+
+                if (pedido.IdPedido is not null)
                 {
-                    var COdMesa = db.mesas.FirstOrDefault(x => x.Cartao == mesa);
-
-                    if (COdMesa is not null)
-                        mesa = COdMesa.Codigo;
-                    else
-                        throw new Exception("Comanda não encontrada no sistema");
+                    ExistePedido = await db.parametrosdopedido.AnyAsync(x => x.Id == pedido.IdPedido);
+                    IdDoPedidoGuid = pedido.IdPedido;
+                }
+                else if (pedido.IdPedido is null)
+                {
+                    ExistePedido = false;
                 }
 
-                var Garcom = db.garcons.FirstOrDefault(x => x.Codigo == GarcomResponsavel);  // Se não encontrar o garçom, coloca o nome de Garcom
-                if (Garcom is not null)
-                    GarcomResponsavel = Garcom.Nome;
-
-                var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
+                if (!ExistePedido)
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Json = PedidoJson,
-                    Situacao = "CONFIRMED",
-                    Conta = insertNoSysMenuConta,
-                    CriadoEm = DateTime.Now.ToString(),
-                    DisplayId = Convert.ToInt32(mesa),
-                    JsonPolling = "Sem Polling ID",
-                    CriadoPor = "SYSMENU",
-                    PesquisaDisplayId = Convert.ToInt32(mesa),
-                    PesquisaNome = GarcomResponsavel
-                });
-                await db.SaveChangesAsync();
+                    if (!String.IsNullOrEmpty(pedido.NomeClienteNaMesa))
+                        NomeCliente = pedido.NomeClienteNaMesa;
 
-                ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
-                ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+                    if (mesa!.Length > 4 && !pedido.EBalcao && pedido.Comanda != "000000")
+                    {
+                        var COdMesa = db.mesas.FirstOrDefault(x => x.Cartao == mesa);
 
-                foreach (var item in pedido.produtos)
-                {
-                    var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemGarcomSys(item, eIntegracao: true);
-                    string? DataInicio = pedido.HorarioFeito!.ToString()!.Substring(0, 10).Replace("-", "/");
-                    string? HoraInicio = pedido.HorarioFeito!.ToString()!.Substring(11, 5);
+                        if (COdMesa is not null)
+                            mesa = COdMesa.Codigo;
+                        else
+                            throw new Exception("Comanda não encontrada no sistema");
 
-                    ClsDeIntegracaoSys.IntegracaoContas(
-                               conta: insertNoSysMenuConta, //numero
-                               mesa: mesa, //texto curto 
-                               qtdade: item.Quantidade, //numero
-                               codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
-                               codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
-                               codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
-                               tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
-                               descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
-                               valorUnit: CaracteristicasPedido.valorDoItem, //moeda
-                               valorTotal: CaracteristicasPedido.valorTotalDoItem, //moeda
-                               dataInicio: DataInicio, //data
-                               horaInicio: HoraInicio, //data
-                               obs1: CaracteristicasPedido.Obs1,
-                               obs2: CaracteristicasPedido.Obs2,
-                               obs3: CaracteristicasPedido.Obs3,
-                               obs4: CaracteristicasPedido.Obs4,
-                               obs5: CaracteristicasPedido.Obs5,
-                               obs6: CaracteristicasPedido.Obs6,
-                               obs7: CaracteristicasPedido.Obs7,
-                               obs8: CaracteristicasPedido.Obs8,
-                               obs9: CaracteristicasPedido.Obs9,
-                               obs10: CaracteristicasPedido.Obs10,
-                               obs11: CaracteristicasPedido.Obs11,
-                               obs12: CaracteristicasPedido.Obs12,
-                               obs13: CaracteristicasPedido.Obs13,
-                               obs14: CaracteristicasPedido.Obs14,
-                               obs15: CaracteristicasPedido.ObsDoItem,
-                               cliente: " ", // texto curto 80 letras
-                               telefone: " ", // texto curto 14 letras
-                               impComanda: "Não",
-                               ImpComanda2: "Não",
-                               qtdComanda: 00f,
-                               status: "A",
-                               Requisicao: String.IsNullOrEmpty(item.Requisicao) ? " " : item.Requisicao.ToUpper(),
-                               HoraDeLancamentoDoItem: $"{item.Quantidade} Item-{HoraInicio}",
-                               garcom: pedido.GarcomResponsavel
-                          );//fim dos parâmetros
+                    }
+                    else if (pedido.EBalcao)
+                    {
+                        if (pedido.BalcaoInfos != null && pedido.BalcaoInfos.Repetido)
+                        {
+                            if (pedido.BalcaoInfos.Repetido)
+                            {
+                                mesa = pedido.BalcaoInfos.CodBalcao;
+                                NomeCliente = pedido.BalcaoInfos.NomeCliente;
+                            }
+                        }
+                        else
+                        {
+                            string? CodigoBalcao = "B";
+                            int ContagemDeControles = 1;
+                            List<Contas> contas = db.contas.Where(x => x.Status == "A" || x.Status == "F" && x.Mesa!.Contains(CodigoBalcao)).ToList();
 
-                }
+                            foreach (var conta in contas)
+                            {
+                                var CodigoBalcaoCompletoInicial = $"{CodigoBalcao}{ContagemDeControles}";
 
-                var ApoioTabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoPedidoNoDB);
-                if (ApoioTabela is not null)
-                {
-                    ApoioTabela.Processado = true;
+                                if (contas.Any(x => x.Mesa == CodigoBalcaoCompletoInicial))
+                                    ContagemDeControles++;
+
+                            }
+
+                            if (pedido.BalcaoInfos != null)
+                            {
+                                if (pedido.BalcaoInfos.NomeCliente is not null)
+                                {
+                                    NomeCliente = pedido.BalcaoInfos.NomeCliente;
+                                }
+
+                                pedido.BalcaoInfos.CodBalcao = $"{CodigoBalcao}{ContagemDeControles}";
+
+                                var PedidoNATabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoPedidoNoDB);
+                                if (PedidoNATabela is not null)
+                                {
+                                    string? Json = JsonConvert.SerializeObject(pedido);
+                                    PedidoNATabela.PedidoJson = Json;
+                                    PedidoJson = Json;
+                                    await db.SaveChangesAsync();
+                                }
+                            }
+
+                            mesa = $"{CodigoBalcao}{ContagemDeControles}";
+                        }
+
+                    }
+
+                    var Garcom = db.garcons.FirstOrDefault(x => x.Codigo == GarcomResponsavel);  // Se não encontrar o garçom, coloca o nome de Garcom
+                    if (Garcom is not null)
+                        GarcomResponsavel = Garcom.Nome;
+
+                    int NumeroDeDisplayId = 0;
+                    bool ConversaoNumMesa = int.TryParse(mesa, out int result);
+                    if (ConversaoNumMesa)
+                    {
+                        NumeroDeDisplayId = result;
+                    }
+
+                    if (pedido.IdPedido is not null)
+                    {
+                        IdDoPedidoGuid = pedido.IdPedido;
+                    }
+
+                    var pedidoInserido = db.parametrosdopedido.Add(new ParametrosDoPedido()
+                    {
+                        Id = IdDoPedidoGuid,
+                        Json = PedidoJson,
+                        Situacao = "CONFIRMED",
+                        Conta = insertNoSysMenuConta,
+                        CriadoEm = DateTime.Now.ToString(),
+                        DisplayId = NumeroDeDisplayId,
+                        JsonPolling = "Sem Polling ID",
+                        CriadoPor = "SYSMENU",
+                        PesquisaDisplayId = NumeroDeDisplayId,
+                        PesquisaNome = GarcomResponsavel
+                    });
                     await db.SaveChangesAsync();
-                }
 
-                ImpressaoGarcom.ChamaImpessoes(PedidoJson);
-                return true;
+                    ClsDeSuporteAtualizarPanel.MudouDataBasePedido = true;
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = true;
+
+                    foreach (var item in pedido.produtos)
+                    {
+                        var CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemGarcomSys(item, eIntegracao: true);
+                        string? DataInicio = pedido.HorarioFeito!.ToString()!.Substring(0, 10).Replace("-", "/");
+                        string? HoraInicio = pedido.HorarioFeito!.ToString()!.Substring(11, 5);
+
+                        if (pedido.HorarioFeito.Contains("+00:00"))
+                        {
+                            DataInicio = "01/01/2000";
+                            HoraInicio = "01:01";
+                        }
+
+
+                        ClsDeIntegracaoSys.IntegracaoContas(
+                                   conta: insertNoSysMenuConta, //numero
+                                   mesa: mesa, //texto curto 
+                                   qtdade: item.Quantidade, //numero
+                                   codCarda1: CaracteristicasPedido.ExternalCode1, //item.externalCode != null && item.options.Count() > 0 ? item.options[0].externalCode : "Test" , //texto curto 4 letras
+                                   codCarda2: CaracteristicasPedido.ExternalCode2, //texto curto 4 letras
+                                   codCarda3: CaracteristicasPedido.ExternalCode3, //texto curto 4 letras
+                                   tamanho: CaracteristicasPedido.Tamanho, ////texto curto 1 letra
+                                   descarda: CaracteristicasPedido.NomeProduto, // texto curto 31 letras
+                                   valorUnit: CaracteristicasPedido.valorDoItem, //moeda
+                                   valorTotal: CaracteristicasPedido.valorTotalDoItem, //moeda
+                                   dataInicio: DataInicio, //data
+                                   horaInicio: HoraInicio, //data
+                                   obs1: CaracteristicasPedido.Obs1,
+                                   obs2: CaracteristicasPedido.Obs2,
+                                   obs3: CaracteristicasPedido.Obs3,
+                                   obs4: CaracteristicasPedido.Obs4,
+                                   obs5: CaracteristicasPedido.Obs5,
+                                   obs6: CaracteristicasPedido.Obs6,
+                                   obs7: CaracteristicasPedido.Obs7,
+                                   obs8: CaracteristicasPedido.Obs8,
+                                   obs9: CaracteristicasPedido.Obs9,
+                                   obs10: CaracteristicasPedido.Obs10,
+                                   obs11: CaracteristicasPedido.Obs11,
+                                   obs12: CaracteristicasPedido.Obs12,
+                                   obs13: CaracteristicasPedido.Obs13,
+                                   obs14: CaracteristicasPedido.Obs14,
+                                   obs15: CaracteristicasPedido.ObsDoItem,
+                                   cliente: NomeCliente, // texto curto 80 letras
+                                   telefone: " ", // texto curto 14 letras
+                                   impComanda: "Não",
+                                   ImpComanda2: "Não",
+                                   qtdComanda: 00f,
+                                   status: "A",
+                                   Requisicao: String.IsNullOrEmpty(item.Requisicao) ? " " : item.Requisicao.ToUpper(),
+                                   HoraDeLancamentoDoItem: $"{item.Quantidade} Item-{HoraInicio}",
+                                   garcom: pedido.GarcomResponsavel
+                              );//fim dos parâmetros
+
+                    }
+
+                    var ApoioTabela = db.apoioappgarcom.FirstOrDefault(x => x.Id == IdDoPedidoNoDB);
+                    if (ApoioTabela is not null)
+                    {
+                        ApoioTabela.Processado = true;
+                        await db.SaveChangesAsync();
+                    }
+
+                    ImpressaoGarcom.ChamaImpessoes(PedidoJson);
+                    return true;
+                }
             }
         }
         catch (Exception ex)
@@ -438,12 +526,34 @@ public class GarcomSysMenu
                 if (Garcom is not null)
                     GarcomResponsavel = Garcom.Nome!;
 
-                PedidoCompletoConvertido.CriadoPor = "SYSMENU"; // Valor fixo de exemplo
-                PedidoCompletoConvertido.JsonPolling = "{}"; // Valor fixo de exemplo
+                string? DisplayId = p!.Mesa is not null && p!.Mesa != "0000" ? p!.Mesa : p.Comanda;
+
+                if (p.EBalcao)
+                {
+                    DisplayId = "BALCÃO";
+
+                    if (p.BalcaoInfos is not null)
+                    {
+                        if (p.BalcaoInfos.NomeCliente is not null)
+                        {
+                            if (!String.IsNullOrEmpty(p.BalcaoInfos.NomeCliente.Trim()))
+                                GarcomResponsavel = p.BalcaoInfos.NomeCliente;
+                            else
+                                GarcomResponsavel = p.BalcaoInfos.CodBalcao!;
+                        }
+                        else
+                        {
+                            GarcomResponsavel = p.BalcaoInfos.CodBalcao!;
+                        }
+                    }
+                }
+
+                PedidoCompletoConvertido.CriadoPor = "SYSMENU";
+                PedidoCompletoConvertido.JsonPolling = "{}";
                 PedidoCompletoConvertido.id = p.Id;
-                PedidoCompletoConvertido.displayId = p!.Mesa is not null && p!.Mesa != "0000" ? p!.Mesa : p.Comanda;
+                PedidoCompletoConvertido.displayId = DisplayId;
                 PedidoCompletoConvertido.createdAt = p.HorarioFeito.ToString();
-                PedidoCompletoConvertido.orderTiming = "IMEDIATE"; // Valor fixo de exemplo
+                PedidoCompletoConvertido.orderTiming = "IMEDIATE";
                 PedidoCompletoConvertido.orderType = "MESA";
 
                 string? dataLimite = DateTime.TryParse(p.HorarioFeito.ToString()!, out DateTime result) ? result.AddMinutes(30).ToString() : DateTime.Now.AddMinutes(30).ToString();
@@ -454,7 +564,7 @@ public class GarcomSysMenu
                 PedidoCompletoConvertido.customer.id = Guid.NewGuid().ToString();
                 PedidoCompletoConvertido.customer.name = GarcomResponsavel;
                 PedidoCompletoConvertido.customer.documentNumber = " ";
-                PedidoCompletoConvertido.salesChannel = "SYSMENU"; // Valor fixo de exemplo
+                PedidoCompletoConvertido.salesChannel = "SYSMENU";
 
                 return PedidoCompletoConvertido;
             }
@@ -811,7 +921,7 @@ public class GarcomSysMenu
                 ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();
                 string? caminhoBancoAccess = opcSistema.CaminhodoBanco.Replace("CONTAS", "CADASTROS");
 
-                string SqlSelectIntoCadastros = $"SELECT * FROM Mesas WHERE TIPO = 'M'";
+                string SqlSelectIntoCadastros = $"SELECT * FROM Mesas WHERE TIPO = 'M' OR CODIGO LIKE '%B%'"; // OR TIPO = 'B'
 
                 using (OleDbConnection connection = new OleDbConnection(caminhoBancoAccess))
                 {

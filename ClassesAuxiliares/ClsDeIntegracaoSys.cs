@@ -19,6 +19,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 using System.Reflection.Metadata.Ecma335;
+using SysIntegradorApp.Forms;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -1559,7 +1560,7 @@ public class ClsDeIntegracaoSys
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show(ex.Message, "Ops");
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 

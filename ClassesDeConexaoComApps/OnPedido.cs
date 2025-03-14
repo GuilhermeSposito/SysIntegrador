@@ -1265,8 +1265,29 @@ public class OnPedido
                     }
                     else
                     {
-                        await SysAlerta.Alerta("Ops", $"{response.Content.ReadAsStringAsync()}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+                        string? reposta = await response.Content.ReadAsStringAsync();
+                        ClsErroApi clsErroApi = JsonConvert.DeserializeObject<ClsErroApi>(reposta)!;
 
+                        if (clsErroApi.Status == false)
+                        {
+                            if (clsErroApi.Error is not null)
+                            {
+                                if (clsErroApi.Error.Name!.Contains("Your IP address was blocked", StringComparison.OrdinalIgnoreCase))
+                                {
+                                    await SysAlerta.Alerta("Ops", "Seu IP foi bloqueado pela OnPedido, entre em contato com o suporte", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+                                }
+                            }
+                            else
+                            {
+                                await SysAlerta.Alerta("Ops", $"{reposta}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
+                            }
+                        }
+                        else
+                        {
+                            await SysAlerta.Alerta("Ops", $"{reposta}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
+                        }
                     }
                 }
             }

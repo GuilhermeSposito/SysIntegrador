@@ -145,6 +145,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("tempoenviopedido");
 
+                    b.Property<bool>("UsaBalcao")
+                        .HasColumnType("boolean")
+                        .HasColumnName("usabalcao");
+
                     b.HasKey("Id");
 
                     b.ToTable("configappgarcom");

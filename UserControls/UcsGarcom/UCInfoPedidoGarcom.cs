@@ -2,6 +2,7 @@
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 using SysIntegradorApp.data;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,9 +37,29 @@ namespace SysIntegradorApp.UserControls.UcsGarcom
         {
             //  this.toolTip1.SetToolTip(this.pictureBox16, "Copiar Endereço de entrega");
 
-            string? DefineMesaOuComanda = Pedido!.Mesa == null ? Pedido.Comanda : Pedido.Mesa;
-            string? DefineMesaOuComandaString = Pedido!.Mesa == null ? "Comanda" : "Mesa";
+            bool NumeroMesa = int.TryParse(Pedido!.Mesa, out int result);
+            bool NumeroComanda = int.TryParse(Pedido!.Comanda, out int result2);
 
+            string? DefineMesaOuComanda = Pedido!.Mesa == null || Pedido!.Mesa == "0000" ? $"{result2}" : $"{result}";
+            string? DefineMesaOuComandaString = Pedido!.Mesa == null || Pedido!.Mesa == "0000" ? "Comanda" : "Mesa";
+
+            if (Pedido.NomeClienteNaMesa is not null)
+            {
+                if (!String.IsNullOrEmpty(Pedido.NomeClienteNaMesa.Trim()))
+                    DefineMesaOuComanda += $" / {Pedido.NomeClienteNaMesa}";
+            }
+
+            if (Pedido.EBalcao)
+            {
+                DefineMesaOuComanda = Pedido.BalcaoInfos!.CodBalcao;
+                DefineMesaOuComandaString = "Balcão";
+
+                if (Pedido.BalcaoInfos is not null && Pedido.BalcaoInfos.NomeCliente is not null)
+                {
+                    if (!String.IsNullOrEmpty(Pedido.BalcaoInfos.NomeCliente.Trim()))
+                        DefineMesaOuComanda += $" / {Pedido.BalcaoInfos.NomeCliente}";
+                }
+            }
 
             string? DefineEntrega = DefineMesaOuComanda;
             string? DefineLocalEntrega = DefineMesaOuComanda;
@@ -51,7 +72,6 @@ namespace SysIntegradorApp.UserControls.UcsGarcom
 
             dateFeitoAs.Text = Pedido!.HorarioFeito!.ToString()!.Substring(11, 5);
             tipoEntrega.Text = $"{DefineMesaOuComandaString} {DefineEntrega}";
-            horarioEntregaPrevista.Text = "Teste";//Pedido.HorarioFeito.Value.AddMinutes(15).ToString()!.Substring(11, 5);
             labelEndereco.Text = $"Entregar para a {DefineMesaOuComandaString} {DefineLocalEntrega}";
 
             float ValorTotal = 0f;
@@ -103,11 +123,13 @@ namespace SysIntegradorApp.UserControls.UcsGarcom
             ImpressaoGarcom.ChamaImpessoes(PedidoJson);
         }
 
-        private void btnCancelar_Click(object sender, EventArgs e)
+        private async void btnCancelar_Click(object sender, EventArgs e)
         {
-            DialogResult OpcUser = MessageBox.Show("Você deseja excluir este pedido ?\n (Lembrando que o pedido não sera excluido do sysmenu, apenas da tela do integrador)", "Excluindo Pedido", MessageBoxButtons.OKCancel);
+            //DialogResult OpcUser = MessageBox.Show("Você deseja excluir este pedido ?\n (Lembrando que o pedido não sera excluido do sysmenu, apenas da tela do integrador)", "Excluindo Pedido", MessageBoxButtons.OKCancel);
 
-            if (OpcUser == DialogResult.OK)
+            DialogResultSys OpcUser = await SysAlerta.Alerta("Excluindo", $"Você deseja excluir este pedido ? (Lembrando que o pedido não sera excluido do sysmenu, apenas da tela do integrador)", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);
+
+            if (OpcUser == DialogResultSys.Sim)
             {
                 try
                 {
@@ -128,7 +150,7 @@ namespace SysIntegradorApp.UserControls.UcsGarcom
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Erro ao excluir pedido: " + ex.Message);
+                    await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                 }
             }
         }

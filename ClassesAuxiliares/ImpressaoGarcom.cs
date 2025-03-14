@@ -239,10 +239,34 @@ public class ImpressaoGarcom
             }
 
 
-            if (mesa!.Length > 4)
+            if (mesa!.Length > 4 && !pedido.EBalcao)
+            {
                 AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}     Garcom: {NomeGarcom} ", FonteGeral);
-            else
+            }
+            else if (!pedido.EBalcao)
+            {
                 AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}     Garcom: {NomeGarcom} ", FonteGeral);
+            }
+            else if (pedido.EBalcao)
+            {
+                AdicionaConteudo($"Balcão     Garcom: {NomeGarcom} ", FonteGeral);
+                AdicionaConteudo($"Controle:  {pedido.BalcaoInfos!.CodBalcao}", FonteGeral);
+
+                if (pedido.BalcaoInfos.NomeCliente is not null)
+                {
+                    if (!String.IsNullOrEmpty(pedido.BalcaoInfos.NomeCliente.Trim()))
+                        AdicionaConteudo($"Cliente: {pedido.BalcaoInfos.NomeCliente}", FonteGeral);
+
+                }
+            }
+
+            if (!String.IsNullOrEmpty(pedido.NomeClienteNaMesa))
+            {
+                if (!String.IsNullOrEmpty(pedido.NomeClienteNaMesa.Trim()))
+                {
+                    AdicionaConteudo($"Mesa/Nome: {pedido.NomeClienteNaMesa}", FonteGeral);
+                }
+            }
 
             AdicionaConteudo(AdicionarSeparadorDuplo(), FonteSeparadores);
             AdicionaConteudo($"Emitido em {DataInicio}  -  {HoraInicio}", FonteGeral);
@@ -301,7 +325,9 @@ public class ImpressaoGarcom
 
             AdicionaConteudo("SysMenu ....... www.syslogica.com.br", FonteMarcaDAgua, AlinhamentosGarcom.Centro);
 
-            Imprimir(Conteudo, impressora1, 19);
+            for (int i = 0; i < opcSistema.NumDeViasDeComanda; i++)
+                Imprimir(Conteudo, impressora1, 19);
+
             Conteudo.Clear();
 
         }
@@ -322,25 +348,30 @@ public class ImpressaoGarcom
             string banco = opcSistema!.CaminhodoBanco!;
             var Contas = dbContext.contas.Where(x => x.Conta == NumConta.ToString()).ToList();
 
-
             string? mesa = Contas.FirstOrDefault()!.Mesa;
             string? DataInicio = Contas.FirstOrDefault()!.DataInicio!.Substring(0, 10).Replace("-", "/");
             string? HoraInicio = Contas.FirstOrDefault()!.HoraInicio;
-
+            bool DefineSeEBalcao = clsApoioFechamanetoDeMesa!.NumeroMesaOuComanda!.Contains("B");
 
             AdicionaConteudo($"{opcSistema.NomeFantasia}", FonteItens);
             AdicionaConteudo(AdicionarSeparadorDuplo(), FonteSeparadores);
 
-
             AdicionaConteudo($"CONTA Nro: {NumConta.ToString().PadLeft(3, '0')}", FonteCPF);
-            if (dbContext.configappgarcom.FirstOrDefault()!.Comanda)
+            if (dbContext.configappgarcom.FirstOrDefault()!.Comanda && !DefineSeEBalcao)
             {
                 var COdMesa = dbContext.mesas.FirstOrDefault(x => x.Codigo == mesa)!.Cartao;
 
                 AdicionaConteudo($"Comanda: {Convert.ToInt32(COdMesa)}", FonteCPF);
             }
-            else
+            else if (!DefineSeEBalcao)
+            {
                 AdicionaConteudo($"Mesa: {Convert.ToInt32(mesa).ToString()}", FonteCPF);
+            }
+            else if (DefineSeEBalcao)
+            {
+                AdicionaConteudo($"Balcão ", FonteCPF);
+                AdicionaConteudo($"Controle: {clsApoioFechamanetoDeMesa.NumeroMesaOuComanda} ", FonteCPF);
+            }
 
             AdicionaConteudo($"Emitido em {DataInicio}  -  {HoraInicio}", FonteCPF);
             AdicionaConteudo($"Controle Interno \t Sem valor fiscal", FonteCPF);
@@ -438,7 +469,8 @@ public class ImpressaoGarcom
             }
             else
             {
-                SeparaItensParaImpressaoSeparada(PedidoJson);
+                for (int i = 0; i < opSistema.NumDeViasDeComanda; i++)
+                    SeparaItensParaImpressaoSeparada(PedidoJson);
             }
 
 
@@ -463,9 +495,10 @@ public class ImpressaoGarcom
 
             foreach (string imp in impressoras)
             {
-                if (imp != "Sem Impressora" && imp != null)
+                if (imp != "Sem Impressora" && imp != null && imp == opSistema.Impressora1 || imp == opSistema.ImpressoraAux)
                 {
-                    ImprimeFechamentoDeConta(PedidoJson, numConta, imp);
+                    if (imp != "Sem Impressora")
+                        ImprimeFechamentoDeConta(PedidoJson, numConta, imp);
                 }
 
             }
@@ -617,11 +650,34 @@ public class ImpressaoGarcom
                 }
             }
 
-            if (mesa!.Length > 4)
+            if (mesa!.Length > 4 && !pedido.EBalcao)
+            {
                 AdicionaConteudo($"Comanda: {Convert.ToInt32(mesa)}     Garcom: {NomeGarcom} ", FonteGeral);
-            else
+            }
+            else if (!pedido.EBalcao)
+            {
                 AdicionaConteudo($"Mesa: {Convert.ToInt32(pedido.Mesa).ToString()}     Garcom: {NomeGarcom} ", FonteGeral);
+            }
+            else if (pedido.EBalcao)
+            {
+                AdicionaConteudo($"Balcão     Garcom: {NomeGarcom} ", FonteGeral);
+                AdicionaConteudo($"Controle:  {pedido.BalcaoInfos!.CodBalcao}", FonteGeral);
 
+                if (pedido.BalcaoInfos.NomeCliente is not null)
+                {
+                    if (!String.IsNullOrEmpty(pedido.BalcaoInfos.NomeCliente.Trim()))
+                        AdicionaConteudo($"Cliente: {pedido.BalcaoInfos.NomeCliente}", FonteGeral);
+
+                }
+            }
+
+            if (!String.IsNullOrEmpty(pedido.NomeClienteNaMesa))
+            {
+                if (!String.IsNullOrEmpty(pedido.NomeClienteNaMesa.Trim()))
+                {
+                    AdicionaConteudo($"Mesa/Nome: {pedido.NomeClienteNaMesa}", FonteGeral);
+                }
+            }
 
             AdicionaConteudo(AdicionarSeparadorDuplo(), FonteSeparadores);
             AdicionaConteudo($"Emitido em {DataInicio}  -  {HoraInicio}", FonteGeral);
@@ -639,10 +695,8 @@ public class ImpressaoGarcom
 
                 ClsDeSuporteParaImpressaoDosItens CaracteristicasPedido = ClsDeIntegracaoSys.DefineCaracteristicasDoItemGarcomSys(item, true);
 
-
                 AdicionaConteudo($"   {item.Quantidade}\n", FonteItens);
                 AdicionaConteudo($"{CaracteristicasPedido.NomeProduto}", FonteItens);
-
 
                 if (CaracteristicasPedido.Tamanho == "G" || CaracteristicasPedido.Tamanho == "M" || CaracteristicasPedido.Tamanho == "P" || CaracteristicasPedido.Tamanho == "B")
                 {
@@ -692,7 +746,6 @@ public class ImpressaoGarcom
                 Imprimir(Conteudo!, impressora, 24);
             }
 
-            //Imprimir(Conteudo, impressora);
             Conteudo!.Clear();
 
         }
