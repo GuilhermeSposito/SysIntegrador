@@ -94,6 +94,7 @@
             pictureBox7 = new PictureBox();
             pictureBox1 = new PictureBox();
             toolTip1 = new ToolTip(components);
+            LblIdentificacaoDaLoja = new Label();
             panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panel3.SuspendLayout();
@@ -892,12 +893,25 @@
             pictureBox1.TabIndex = 25;
             pictureBox1.TabStop = false;
             // 
+            // LblIdentificacaoDaLoja
+            // 
+            LblIdentificacaoDaLoja.AutoSize = true;
+            LblIdentificacaoDaLoja.Font = new Font("Segoe UI Symbol", 13.8F, FontStyle.Bold | FontStyle.Underline, GraphicsUnit.Point, 0);
+            LblIdentificacaoDaLoja.ForeColor = Color.Red;
+            LblIdentificacaoDaLoja.Location = new Point(698, 23);
+            LblIdentificacaoDaLoja.Name = "LblIdentificacaoDaLoja";
+            LblIdentificacaoDaLoja.Size = new Size(241, 31);
+            LblIdentificacaoDaLoja.TabIndex = 26;
+            LblIdentificacaoDaLoja.Text = "Identificação da loja";
+            LblIdentificacaoDaLoja.Visible = false;
+            // 
             // UCInfoPedido
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             AutoSize = true;
             BackColor = Color.DarkGray;
+            Controls.Add(LblIdentificacaoDaLoja);
             Controls.Add(pictureBox1);
             Controls.Add(pictureBox7);
             Controls.Add(pictureBox3);
@@ -1024,5 +1038,6 @@
         private Button BtnChamaEntregador;
         private PictureBox pictureBox16;
         private ToolTip toolTip1;
+        private Label LblIdentificacaoDaLoja;
     }
 }

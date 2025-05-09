@@ -253,7 +253,7 @@ public class ImpressaoONPedido
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
 
                     AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteNomeRestaurante, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo($"{opcDoSistema.Endereco}", FonteGeral);
@@ -445,7 +445,7 @@ public class ImpressaoONPedido
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteCPF, AlinhamentosOnPedido.Centro);
 
                 }
@@ -485,7 +485,7 @@ public class ImpressaoONPedido
                 using (OleDbDataReader reader = comando.ExecuteReader())
                 {
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                     AdicionaConteudo($"{defineEntrega}", FonteItens);
@@ -698,7 +698,7 @@ public class ImpressaoONPedido
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
                 }
@@ -810,7 +810,7 @@ public class ImpressaoONPedido
 
             }
 
-            AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+            AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
             AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
 
@@ -859,7 +859,7 @@ public class ImpressaoONPedido
             string? defineEntrega = pedidoCompleto.Return.Type == "TAKEOUT" ? "Retirada" : "Entrega";
 
 
-            AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+            AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
 
             AdicionaConteudo($"Pedido:   #{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -938,7 +938,7 @@ public class ImpressaoONPedido
                 AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                 AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
             }
 
@@ -1001,7 +1001,7 @@ public class ImpressaoONPedido
                 for (var i = 0; i < item.quantity; i++)
                 {
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
 
                     AdicionaConteudo($"Pedido:          #{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -1079,7 +1079,7 @@ public class ImpressaoONPedido
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
 
@@ -1239,7 +1239,7 @@ public class ImpressaoONPedido
             //nome do restaurante estatico por enquanto
 
 
-            AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+            AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
 
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -1319,7 +1319,7 @@ public class ImpressaoONPedido
             AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-            AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+            AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
             AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
             if (impressora != "Nao")
@@ -1360,7 +1360,7 @@ public class ImpressaoONPedido
                 for (int i = 0; i < quantidadeDoItem; i++)
                 {
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
 
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Return.Id}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -1433,7 +1433,7 @@ public class ImpressaoONPedido
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo("ONPEDIDO", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
+                    AdicionaConteudo("Onpedido", FonteNomeDoCliente, AlinhamentosOnPedido.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosOnPedido.Centro);
 
                     if (impressora != "Nao")

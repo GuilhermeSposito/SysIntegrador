@@ -26,6 +26,7 @@ namespace SysIntegradorApp.Forms.TaxyMachine
         public List<Sequencia> PedidosAEnviar { get; set; } = new List<Sequencia>();
         private readonly IMeuContexto _Context;
         private Image backgroundImage;
+        public bool eJuma { get; set; } = false;
 
         public EnvioDePedidos(MeuContexto context)
         {
@@ -44,11 +45,18 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                 ClsEstiloComponentes.SetRoundedRegion(panel3, 24);
             };
 
+
             _Context = context;
         }
 
         private async void EnvioDePedidos_Load(object sender, EventArgs e)
         {
+
+            if (eJuma)
+            {
+                this.PanelDePedidosAguardando.BackgroundImage = null;//SysIntegradorApp.Properties.Resources.juma;// Properties.Resources.;
+            }
+
             await SetPainelPedidosAberto(true);
         }
 
@@ -71,6 +79,8 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                         if (Config.IntegraOttoEntregas)
                             PedidosAbertos = await ClasseIntegracao.ListarPedidosAbertos(CodEntregador: "66", empresaId: "MachineId");
 
+                        if (Config.IntegraJumaEntregas)
+                            PedidosAbertos = await ClasseIntegracao.ListarPedidosJaEnviados(CodEntregador: "77", empresaId: "MachineId");
 
 
                         PanelDePedidosAbertos.SuspendLayout();
@@ -105,8 +115,13 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                         ParametrosDoSistema? Config = db.parametrosdosistema.FirstOrDefault();
                         ClsDeIntegracaoSys ClasseIntegracao = new ClsDeIntegracaoSys(new MeuContexto());
 
-                        if (Config.IntegraOttoEntregas)
-                            PedidosAbertos = await ClasseIntegracao.ListarPedidosJaEnviados(CodEntregador: "66", empresaId: "MachineId");
+                        if (Config!.IntegraOttoEntregas)
+                            PedidosAbertos = await ClasseIntegracao.ListarPedidosJaEnviados(CodEntregador: "66", empresaId: "MachineId"); 
+                        
+                        if (Config.IntegraJumaEntregas)
+                            PedidosAbertos = await ClasseIntegracao.ListarPedidosJaEnviados(CodEntregador: "77", empresaId: "MachineId");
+
+
 
                         PanelDePedidosAbertos.SuspendLayout();
                         foreach (var pedido in PedidosAbertos.OrderBy(x => x.numConta))
@@ -166,9 +181,9 @@ namespace SysIntegradorApp.Forms.TaxyMachine
 
                 if (checkBoxMostrarPedidosEnviados.Checked)
                 {
-                    DialogResult RespostaUser = MessageBox.Show("Pedidos já foram enviado uma vez, você deseja envia-los novamente ?", "Pedidos Já Enviados", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+                    DialogResultSys RespostaUser = await SysAlerta.Alerta("Pedidos Já Enviados", "Pedidos já foram enviado uma vez, você deseja envia-los novamente ?", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);// MessageBox.Show("Pedidos já foram enviado uma vez, você deseja envia-los novamente ?", "Pedidos Já Enviados", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
 
-                    if (RespostaUser == DialogResult.Yes)
+                    if (RespostaUser == DialogResultSys.Sim)
                     {
                         DesejaEnviar = true;
                     }
@@ -212,14 +227,14 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                             MenssagemDeErro = Otto.retornaMensagemDeErro(respostasEnvios);
 
                             if (MenssagemDeErro is not null)
-                            {                          
+                            {
                                 if (MenssagemDeErro.Length > 2)
                                 {
                                     MessageBox.Show(MenssagemDeErro, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Pedidos Enviados Com sucesso!", "Sucesso", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                                    await SysAlerta.Alerta("Sucesso", "Pedidos Enviados Com sucesso!", SysAlertaTipo.Sucesso);
                                     PanelDePedidosAguardando.Controls.Clear();
                                     await SetPainelPedidosAberto(true);
 
@@ -228,13 +243,54 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                             }
 
                         }
+
+                        if (Config!.IntegraJumaEntregas)
+                        {
+
+                            Juma Juma = new Juma(new MeuContexto());
+
+                            string? MenssagemDeErro = "";
+                            bool EntregaImediata = false;
+                            bool eRota = false;
+
+                            if (checkBoxImediata.Checked)
+                                EntregaImediata = true;
+
+                            if (checkBoxRota.Checked)
+                                eRota = true;
+
+                            if (PedidosAEnviar.Count == 0)
+                                throw new NullReferenceException("Nenhum pedido foi selecionado para ser enviado");
+
+                            List<ClsApoioRespostaApi>? respostasEnvios = await Juma.EnviaPedidosManualmente(PedidosAbertos: PedidosAEnviar, imediata: EntregaImediata, codEntregador: "77", minutos: (int)minutos, rota: eRota);
+
+                            MenssagemDeErro = Juma.retornaMensagemDeErro(respostasEnvios);
+
+                            if (MenssagemDeErro is not null)
+                            {
+                                if (MenssagemDeErro.Length > 2)
+                                {
+                                    MessageBox.Show(MenssagemDeErro, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                                else
+                                {
+                                    await SysAlerta.Alerta("Sucesso", "Pedidos Enviados Com sucesso!", SysAlertaTipo.Sucesso);
+                                    PanelDePedidosAguardando.Controls.Clear();
+                                    await SetPainelPedidosAberto(true);
+
+                                    PedidosAEnviar.Clear();
+                                }
+                            }
+
+
+                        }
                     }
                 }
 
             }
             catch (Exception ex) when (ex.Message.Contains("Nenhum pedido foi selecionado para ser enviado"))
             {
-                MessageBox.Show(ex.Message, "Vazio", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                await SysAlerta.Alerta("Vazio", "Nenhum pedido foi selecionado para ser enviado", SysAlertaTipo.Alerta);
             }
             catch (Exception ex)
             {
@@ -274,7 +330,7 @@ namespace SysIntegradorApp.Forms.TaxyMachine
         {
             if (checkBoxAgendada.Checked == true)
                 checkBoxImediata.Checked = false;
-            
+
             if (checkBoxAgendada.Checked == false)
                 checkBoxImediata.Checked = true;
         }
@@ -285,7 +341,7 @@ namespace SysIntegradorApp.Forms.TaxyMachine
                 checkBoxAgendada.Checked = false;
 
             if (checkBoxImediata.Checked == false)
-                checkBoxAgendada.Checked = true; 
+                checkBoxAgendada.Checked = true;
 
         }
 
@@ -318,7 +374,7 @@ namespace SysIntegradorApp.Forms.TaxyMachine
 
         private void PanelDePedidosAguardando_Paint(object sender, PaintEventArgs e)
         {
-          
+
         }
     }
 

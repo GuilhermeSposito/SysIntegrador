@@ -1,4 +1,5 @@
-﻿using SysIntegradorApp.ClassesAuxiliares;
+﻿using Microsoft.EntityFrameworkCore;
+using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
@@ -19,6 +20,7 @@ public partial class FormDeCancelamento : Form
 {
     public string? id_Pedido { get; set; }
     public string? display_Id { get; set; }
+    public PedidoCompleto Pedido { get; set; }
     public FormDeCancelamento()
     {
         InitializeComponent();
@@ -27,25 +29,48 @@ public partial class FormDeCancelamento : Form
 
     private async void FormDeCancelamento_Load(object sender, EventArgs e)
     {
-       Ifood Ifood = new Ifood(new MeuContexto());
-
-
-        List<ClsMotivosDeCancelamento> motivos = await Ifood.CancelaPedidoOpcoes(id_Pedido);
-
-        if (motivos.Count() == 0)
+        try
         {
-           var OkUser =  MessageBox.Show("Não é possivel cancelar este pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            Ifood Ifood = new Ifood(new MeuContexto());
+            List<ClsMotivosDeCancelamento> motivos = new List<ClsMotivosDeCancelamento>();
 
-           this.Close();
-        }
-        else
-        {
-            foreach (ClsMotivosDeCancelamento motivo in motivos)
+            using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                UCMotivoCancelamento UserControlDeMotivos = new UCMotivoCancelamento() { IdPedido = id_Pedido, cancelCodeId = motivo.cancelCodeId, description = motivo.description, display_Id = display_Id };
-                panelDeMotivos.Controls.Add(UserControlDeMotivos);
+                var config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (config!.IfoodMultiEmpresa)
+                {
+                    var empresa = await db.empresasIfoods.FirstOrDefaultAsync(x=> x.MerchantId == Pedido!.merchant.id);
+
+                    motivos = await Ifood.CancelaPedidoOpcoesMultiEmpresa(id_Pedido!, empresa!.Token!);
+                }
+                else
+                {
+                    motivos = await Ifood.CancelaPedidoOpcoes(id_Pedido);
+
+                } 
+
+                if (motivos.Count() == 0)
+                {
+                    var OkUser = MessageBox.Show("Não é possivel cancelar este pedido", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    this.Close();
+                }
+                else
+                {
+                    foreach (ClsMotivosDeCancelamento motivo in motivos)
+                    {
+                        UCMotivoCancelamento UserControlDeMotivos = new UCMotivoCancelamento() { IdPedido = id_Pedido, cancelCodeId = motivo.cancelCodeId, description = motivo.description, display_Id = display_Id, Pedido = Pedido };
+                        panelDeMotivos.Controls.Add(UserControlDeMotivos);
+                    }
+                }
             }
         }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+
     }
 
     private void btnCancelar_Click(object sender, EventArgs e)

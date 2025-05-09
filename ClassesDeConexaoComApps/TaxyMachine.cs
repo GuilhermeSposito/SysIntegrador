@@ -8,6 +8,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
 using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.Forms;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,6 +24,9 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 public class TaxyMachine
 {
     private readonly IMeuContexto _Context;
+    public string? UsuarioEnviado { get; set; }
+    public string? SenhaEnviada { get; set; }
+    public string? ApiKeyEnviado { get; set; }
     public string? _ApiKey { get; set; }
     public string? UrlApi { get { return "https://cloud.taximachine.com.br/api/integracao"; } }
     public string? Username { get; set; } = string.Empty;
@@ -37,6 +41,16 @@ public class TaxyMachine
     {
         try
         {
+            if (UsuarioEnviado is not null && SenhaEnviada is not null && ApiKeyEnviado is not null)
+            {
+
+                _ApiKey = ApiKeyEnviado;
+                Username = UsuarioEnviado;
+                Password = SenhaEnviada;
+
+                return ApiKeyEnviado;
+            }
+
             await using (ApplicationDbContext db = await _Context.GetContextoAsync())
             {
                 ParametrosDoSistema? ConfigSist = await db.parametrosdosistema.FirstOrDefaultAsync();
@@ -51,7 +65,7 @@ public class TaxyMachine
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.Message);
-            MessageBox.Show("Erro ao ter chave de acesso do banco de dados", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro ao ter chave de acesso do banco de dados", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return null;
     }
@@ -65,6 +79,7 @@ public class TaxyMachine
             if (Response is null)
                 throw new Exception("Erro ao enviar requisição Taxy Machine");
 
+            string teste = await Response.Content.ReadAsStringAsync();
 
             if (Response.IsSuccessStatusCode)
             {
@@ -77,7 +92,7 @@ public class TaxyMachine
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.Message);
-            MessageBox.Show("Erro ao acessar informações da empresa!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro ao acessar informações da empresa!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
 
         }
         return null;
@@ -150,14 +165,14 @@ public class TaxyMachine
                             CidadeParada = Empresa.Infos.Cidade,
                             EstadoParada = "SP",
                             ReferenciaParada = null,
-                            IdExterno = pedido.numConta.ToString().PadLeft(4,'0'),
+                            IdExterno = pedido.IDPEDIDO,
                             NomeClienteParada = pedido.Customer.Name,
                             TelefoneClienteParada = pedido.Customer.Phone,
                         }
                     },
                     Data = Data,
                     Hora = Hora,
-                    Retorno = false,
+                    Retorno = pedido.PagamentoNaEntrega,
                     Antecedencia = 1
                 });
             }
@@ -176,12 +191,34 @@ public class TaxyMachine
 
                         ClsApoioRespostaApi? clsApoioRespostaApi = JsonConvert.DeserializeObject<ClsApoioRespostaApi>(respostaJson);
 
-                        clsApoioUpdateIds.Add(new ClsApoioUpdateId()
+                        if (clsApoioRespostaApi!.Response.Errors.Count > 0)
                         {
-                            NumConta = solicitacao.numConta,
-                            MachineId = clsApoioRespostaApi.Response.Machine_Id,
-                            EPedidoAgrupado = false
-                        });
+                            clsApoioUpdateIds.Add(new ClsApoioUpdateId()
+                            {
+                                NumConta = solicitacao.numConta,
+                                MachineId = "ERRO",
+                                EPedidoAgrupado = false
+                            });
+
+                            string? erro = "";
+                            foreach (var erroItem in clsApoioRespostaApi.Response.Errors)
+                            {
+                                erro += $"{erroItem}\n";
+                            }
+
+                            await SysAlerta.Alerta("Ops", $"Erro ao enviar pedido {solicitacao.numConta}!\nMotivo: {erro}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
+                            clsApoioReturn.Add(clsApoioRespostaApi);
+                        }
+                        else
+                        {
+                            clsApoioUpdateIds.Add(new ClsApoioUpdateId()
+                            {
+                                NumConta = solicitacao.numConta,
+                                MachineId = clsApoioRespostaApi.Response.Machine_Id,
+                                EPedidoAgrupado = false
+                            });
+                        }
 
                         clsApoioReturn.Add(clsApoioRespostaApi);
                     }
@@ -206,7 +243,7 @@ public class TaxyMachine
             if (clsApoioUpdateIds.Count > 0)
                 IntegraClass.UpdateMachineId(clsApoioUpdateIds);
 
-           string? Erro =  retornaMensagemDeErro(clsApoioReturn);
+            string? Erro = retornaMensagemDeErro(clsApoioReturn);
 
             if (Erro is not null && Erro.Length > 0)
                 MessageBox.Show(Erro, "Erro ao enviar pedidos automaticamente!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -215,7 +252,7 @@ public class TaxyMachine
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro Enviar Pedido Automatico!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro Enviar Pedido Automatico!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return null;
     }
@@ -283,7 +320,7 @@ public class TaxyMachine
                             CidadeParada = Empresa.Infos.Cidade,
                             EstadoParada = "SP",
                             ReferenciaParada = null,
-                            IdExterno = pedido.numConta.ToString().PadLeft(4,'0'),
+                            IdExterno = pedido.IDPEDIDO, // pedido.numConta.ToString().PadLeft(4,'0'), 
                             NomeClienteParada = pedido.Customer.Name,
                             TelefoneClienteParada = pedido.Customer.Phone,
                         }
@@ -346,7 +383,7 @@ public class TaxyMachine
 
                 var SolicitacaoComRota = new AbrirSolicitacao()
                 {
-                    FormaDePagamento = "D",
+                    FormaDePagamento = TipoPagamento,
                     EmpresaId = Empresa.Infos.Id,
                     Partida = new Partida()
                     {
@@ -365,7 +402,7 @@ public class TaxyMachine
                     Antecedencia = 1
                 };
 
-                foreach (var pedido in PedidosAbertos)
+                foreach (Sequencia? pedido in PedidosAbertos)
                 {
                     SolicitacaoComRota.Paradas.Add(
                         new Paradas()
@@ -376,7 +413,7 @@ public class TaxyMachine
                             CidadeParada = Empresa.Infos.Cidade,
                             EstadoParada = "SP",
                             ReferenciaParada = null,
-                            IdExterno = pedido.numConta.ToString().PadLeft(4, '0'),
+                            IdExterno = pedido.IDPEDIDO, // pedido.numConta.ToString().PadLeft(4,'0'), 
                             NomeClienteParada = pedido.Customer.Name,
                             TelefoneClienteParada = pedido.Customer.Phone,
                         }
@@ -426,7 +463,7 @@ public class TaxyMachine
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro Enviar Pedido Automatico!", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            await SysAlerta.Alerta("Ops", "Erro Enviar Pedido Automatico!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
         return null;
     }

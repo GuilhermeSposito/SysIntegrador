@@ -1,42 +1,25 @@
-﻿using Svg;
+﻿using ExCSS;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.WinForms;
+using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoDelmatch;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
+using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
+using SysIntegradorApp.ClassesAuxiliares.logs;
+using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
-using SysIntegradorApp.Forms;
-using SysIntegradorApp.UserControls.UCSDelMatch;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Timers;
-using System.Windows.Forms;
-using System.Windows.Forms.VisualStyles;
-using Newtonsoft.Json;
-using System.Collections;
-using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoOnPedido;
-using SysIntegradorApp.ClassesAuxiliares.logs;
-using SysIntegradorApp.Forms.ONPEDIDO;
-using SysIntegradorApp.UserControls;
-using System.Security.Policy;
-using ExCSS;
 using SysIntegradorApp.data.InterfaceDeContexto;
-using Microsoft.Web.WebView2.WinForms;
-using Microsoft.Web.WebView2.Core;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.StartPanel;
-using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoAnotaAi;
+using SysIntegradorApp.Forms;
+using SysIntegradorApp.Forms.ONPEDIDO;
 using SysIntegradorApp.Forms.TaxyMachine;
-using SysIntegradorApp.ClassesAuxiliares.Verificacoes;
-using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
-using Microsoft.EntityFrameworkCore;
+using SysIntegradorApp.UserControls;
+using System.Data;
+using System.Drawing.Drawing2D;
+using System.Text;
 
 namespace SysIntegradorApp;
 
@@ -47,6 +30,7 @@ public partial class FormMenuInicial : Form
     public GarcomSysMenu garcomSysMenu = new GarcomSysMenu(new MeuContexto());
     public bool IntegraComOGarcom = false;
     public int TempoDoPolling { get; set; } = 5000;
+    public int ContadorDeClickLojaOnLine { get; set; } = 0;
 
     private System.Threading.Timer _timer;
     private System.Threading.Timer _timer2;
@@ -65,6 +49,7 @@ public partial class FormMenuInicial : Form
         SetRoundedRegion(panelDetalhePedido, 20);
         SetRoundedRegion(panelDePaginas, 20);
         SetRoundedRegion(panel1, 20);
+        SetRoundedRegion(PanelDeInfosOnLine, 20);
 
         this.Resize += (sender, e) =>
         {
@@ -72,6 +57,7 @@ public partial class FormMenuInicial : Form
             SetRoundedRegion(panelPedidos, 20);
             SetRoundedRegion(panelDetalhePedido, 20);
             SetRoundedRegion(panel1, 20);
+            SetRoundedRegion(PanelDeInfosOnLine, 20);
         };
 
         StartChat();
@@ -108,6 +94,13 @@ public partial class FormMenuInicial : Form
             using (ApplicationDbContext db = new ApplicationDbContext())
             {
                 ParametrosDoSistema? Configuracoes = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Configuracoes!.IfoodMultiEmpresa)
+                {
+                    labelStatusLojaNM.Text = "Status De Lojas";
+                    pictureBoxOnline.Visible = false;
+                    pictureBoxOfline.Visible = false;
+                }
 
                 if (Configuracoes is not null)
                     TempoDoPolling = Configuracoes.TempoPollingGarcom * 1000;
@@ -149,6 +142,7 @@ public partial class FormMenuInicial : Form
                         pedidos.Add(PedidoConvertido);
                     }
                 }
+
 
 
                 if (Configuracoes.IntegraOnOPedido)
@@ -770,93 +764,165 @@ public partial class FormMenuInicial : Form
     {
         try
         {
-            ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
-
-            bool verificaInternet = await VerificaInternet.InternetAtiva();
-
-            if (!verificaInternet)
+            using (ApplicationDbContext db = new ApplicationDbContext())
             {
-                throw new Exception("Por favor verifique sua conexão com a internet");
-            }
+                ParametrosDoSistema? Configuracoes = db.parametrosdosistema.FirstOrDefault();
 
-            if (Configuracoes.IntegraGarcom)
-            {
-                IntegraComOGarcom = true;
-            }
+                bool verificaInternet = await VerificaInternet.InternetAtiva();
 
-            if (Configuracoes.IntegraIfood)
-            {
-                var Ifood = new Ifood(new MeuContexto());
-                await Ifood.Polling();
-            }
-
-            if (Configuracoes.IntegraDelmatchEntregas)
-            {
-                if (Configuracoes.EnviaPedidoAut)
+                if (!verificaInternet)
                 {
-                    ChamaEntregaAutDelMatch();
+                    throw new Exception("Por favor verifique sua conexão com a internet");
                 }
-            }
 
-            if (Configuracoes.IntegraDelMatch)
-            {
-                DelMatch Delmatch = new DelMatch(new MeuContexto());
 
-                await Delmatch.PoolingDelMatch();
-                await Delmatch.FechaMesa();
-            }
-
-            if (Configuracoes.IntegraOnOPedido)
-            {
-                OnPedido OnPedido = new OnPedido(new MeuContexto());
-
-                // await OnPedido.Pooling();
-                await OnPedido.Pooling2();
-            }
-
-            if (Configuracoes.IntegraCCM)
-            {
-                CCM CCMNEW = new CCM(new MeuContexto());
-                await CCMNEW.Pooling();
-            }
-
-            if (Configuracoes.IntegraOttoEntregas)
-            {
-                OTTO Otto = new OTTO(new MeuContexto());
-
-                if (Configuracoes.EnviaPedidoAut)
+                if (Configuracoes!.IntegraAiQFome)
                 {
-                    await Otto.EnviaPedidosAutomaticamente(codEntregador: "66");
+                    AiQFome AiQFome = new AiQFome(new MeuContexto());
+
+                    await AiQFome.Polling();
                 }
-            }
 
-            if (Configuracoes.IntegraAnotaAi)
-                await AnotaAi.Pooling();
-
-
-            if (ClsDeSuporteAtualizarPanel.MudouDataBase)
-            {
-                if (ClsDeSuporteAtualizarPanel.MudouDataBasePedido) //entra aqui só se foi pedido novo
+                if (Configuracoes.IntegraGarcom)
                 {
-                    if (this.WindowState == FormWindowState.Minimized)
+                    IntegraComOGarcom = true;
+                }
+
+                if (Configuracoes.IntegraIfood)
+                {
+                    var Ifood = new Ifood(new MeuContexto());
+                    await Ifood.Polling();
+                }
+
+
+
+                if (Configuracoes.IntegraDelMatch)
+                {
+                    DelMatch Delmatch = new DelMatch(new MeuContexto());
+
+                    await Delmatch.PoolingDelMatch();
+                    await Delmatch.FechaMesa();
+                }
+
+                if (Configuracoes.IntegraOnOPedido)
+                {
+                    OnPedido OnPedido = new OnPedido(new MeuContexto());
+
+                    // await OnPedido.Pooling();
+                    await OnPedido.Pooling2();
+                }
+
+                if (Configuracoes.IntegraCCM)
+                {
+                    CCM CCMNEW = new CCM(new MeuContexto());
+                    await CCMNEW.Pooling();
+                }
+
+                if (Configuracoes.IntegraDelmatchEntregas)
+                {
+                    if (Configuracoes.EnviaPedidoAut)
                     {
-                        notifyIcon1.Text = "Novo Pedido";
-                        notifyIcon1.Tag = "SyslogicaApp";
-                        notifyIcon1.Visible = true;
-                        notifyIcon1.BalloonTipTitle = "SysLogicaApp";
-                        notifyIcon1.BalloonTipText = "SysLogicaApp";
-                        notifyIcon1.ShowBalloonTip(3, "Novo Pedido", "Um novo pedido chegou para você!", ToolTipIcon.Info);
+                        ChamaEntregaAutDelMatch();
+                    }
+                }
 
-                        ClsDeSuporteAtualizarPanel.MudouDataBasePedido = false;
+                
+                if (Configuracoes.IntegravariasEmpresasTaxyMachine)
+                {
+                    List<EmpresasEntregaTaxyMachine> empresas = new List<EmpresasEntregaTaxyMachine>();
+                    if (Configuracoes.UserNameTaxyMachine.Contains("@"))
+                    {
+                        string CodEmpresa = "00";
+
+                        switch (Configuracoes.EmpresadeEntrega)
+                        {
+                            case "JUMA":
+                                CodEmpresa = "77";
+                                break;
+                            case "OTTO":
+                                CodEmpresa = "66";
+                                break;
+                        }
+
+                        empresas.Add(new EmpresasEntregaTaxyMachine()
+                        {
+                            NomeEmpresa = Configuracoes.EmpresadeEntrega,
+                            Usuario = Configuracoes.UserNameTaxyMachine,
+                            Senha = Configuracoes.PasswordTaxyMachine,
+                            CodEntregador = CodEmpresa,
+                            MachineId = Configuracoes.ApiKeyTaxyMachine
+                        });
+                    }
+
+                    List<EmpresasEntregaTaxyMachine> EmpresasCadastrada = await db.empresastaxymachine.ToListAsync();
+                    if (EmpresasCadastrada is not null)
+                    {
+                        empresas.AddRange(EmpresasCadastrada);
+                    }
+
+                    foreach (var empresa in empresas)
+                    {
+                        if (Configuracoes.EnviaPedidoAut)
+                        {
+                            TaxyMachine taxyMachine = new TaxyMachine(new MeuContexto()) { UsuarioEnviado = empresa.Usuario, SenhaEnviada = empresa.Senha, ApiKeyEnviado = empresa.MachineId };
+
+                            await taxyMachine.EnviaPedidosAutomaticamente(empresa.CodEntregador);
+                        }
+
+
                     }
                 }
 
 
-                FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
-                ClsDeSuporteAtualizarPanel.MudouDataBase = false;
-            }
+                if (Configuracoes.IntegravariasEmpresasTaxyMachine)
+                {
+                    if (Configuracoes.IntegraOttoEntregas)
+                    {
+                        OTTO Otto = new OTTO(new MeuContexto());
 
+                        if (Configuracoes.EnviaPedidoAut)
+                        {
+                            await Otto.EnviaPedidosAutomaticamente(codEntregador: "66");
+                        }
+                    }
+
+                    if (Configuracoes.IntegraJumaEntregas)
+                    {
+                        Juma Juma = new Juma(new MeuContexto());
+
+                        if (Configuracoes.EnviaPedidoAut)
+                        {
+                            await Juma.EnviaPedidosAutomaticamente(codEntregador: "77");
+                        }
+                    }
+                }
+
+                if (Configuracoes.IntegraAnotaAi)
+                    await AnotaAi.Pooling();
+
+
+                if (ClsDeSuporteAtualizarPanel.MudouDataBase)
+                {
+                    if (ClsDeSuporteAtualizarPanel.MudouDataBasePedido) //entra aqui só se foi pedido novo
+                    {
+                        if (this.WindowState == FormWindowState.Minimized)
+                        {
+                            notifyIcon1.Text = "Novo Pedido";
+                            notifyIcon1.Tag = "SyslogicaApp";
+                            notifyIcon1.Visible = true;
+                            notifyIcon1.BalloonTipTitle = "SysLogicaApp";
+                            notifyIcon1.BalloonTipText = "SysLogicaApp";
+                            notifyIcon1.ShowBalloonTip(3, "Novo Pedido", "Um novo pedido chegou para você!", ToolTipIcon.Info);
+
+                            ClsDeSuporteAtualizarPanel.MudouDataBasePedido = false;
+                        }
+                    }
+
+
+                    FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
+                    ClsDeSuporteAtualizarPanel.MudouDataBase = false;
+                }
+            }
 
             _timer2 = new System.Threading.Timer(BarraDeCarregamento, null, TimeSpan.Zero, TimeSpan.FromMilliseconds(1000)); //Função que chama o pulling a cada 30 segundos
         }
@@ -931,9 +997,14 @@ public partial class FormMenuInicial : Form
                     EnvioDePedidos FormDePedidos = new EnvioDePedidos(new MeuContexto());
                     FormDePedidos.ShowDialog();
                 }
+                else if (Configs.IntegraJumaEntregas)
+                {
+                    EnvioDePedidos FormDePedidos = new EnvioDePedidos(new MeuContexto()) { eJuma = true };
+                    FormDePedidos.ShowDialog();
+                }
                 else
                 {
-                    MessageBox.Show("Você não tem nenhuma integração com aplicativos de entrega", "Ops", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    await SysAlerta.Alerta("Nenhuma empresa cadastrada", "Você não tem nenhuma integração com aplicativos de entrega", SysAlertaTipo.Alerta);
                 }
             }
 
@@ -1215,12 +1286,115 @@ public partial class FormMenuInicial : Form
 
     private async void FormMenuInicial_FormClosing(object sender, FormClosingEventArgs e)
     {
-       // DialogResult result = MessageBox.Show("Você tem certeza que deseja fechar o app?", "Fechando", MessageBoxButtons.YesNo, MessageBoxIcon.Information);
-       // if (result == DialogResult.No) { e.Cancel = true; }
+        try
+        {
 
-        DialogResultSys opc = await SysAlerta.Alerta("Fechando","Você tem certeza que deseja fechar o app?", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var Configs = db.parametrosdosistema.FirstOrDefault();
 
-        if(opc == DialogResultSys.Nao)
-            e.Cancel = true;
+                DialogResultSys opc = await SysAlerta.Alerta("Fechando", "Você tem certeza que deseja fechar o app?", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);
+
+                if (opc == DialogResultSys.Nao)
+                {
+                    e.Cancel = true;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro", $"{ex.Message}", SysAlertaTipo.Alerta, SysAlertaButtons.Ok);
+        }
+
+    }
+
+    private void panelStatusLoja_MouseEnter(object sender, EventArgs e)
+    {
+    }
+
+    private void panelStatusLoja_MouseLeave(object sender, EventArgs e)
+    {
+
+    }
+
+    private void labelStatusLojaNM_MouseEnter(object sender, EventArgs e)
+    {
+
+    }
+
+    private void labelStatusLojaNM_MouseLeave(object sender, EventArgs e)
+    {
+    }
+
+    private void pictureBoxOfline_MouseEnter(object sender, EventArgs e)
+    {
+    }
+
+    private void pictureBoxOfline_MouseLeave(object sender, EventArgs e)
+    {
+    }
+
+    private void pictureBoxOnline_MouseEnter(object sender, EventArgs e)
+    {
+    }
+
+    private void pictureBoxOnline_MouseLeave(object sender, EventArgs e)
+    {
+    }
+
+    private void PanelDeInfosOnLine_MouseLeave(object sender, EventArgs e)
+    {
+    }
+
+    private async void panelStatusLoja_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Configuracoes = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (Configuracoes!.IfoodMultiEmpresa)
+                {
+                    var EmpresasIfood = await db.empresasIfoods.ToListAsync();
+                    PanelDeInfosOnLine.Controls.Clear();
+
+                    foreach (var empresa in EmpresasIfood)
+                    {
+                        UCInfoDeLojaOnLine UCInfoDeLojaOnLine = new UCInfoDeLojaOnLine(empresa);
+                        PanelDeInfosOnLine.Controls.Add(UCInfoDeLojaOnLine);
+                    }
+
+                    if (ContadorDeClickLojaOnLine % 2 == 0)
+                    {
+                        PanelDeInfosOnLine.Visible = true;
+                        ContadorDeClickLojaOnLine++;
+                    }
+                    else
+                    {
+                        PanelDeInfosOnLine.Visible = false;
+                        ContadorDeClickLojaOnLine++;
+                    }
+                }
+
+            }
+
+
+        }
+        catch (Exception)
+        {
+            await SysAlerta.Alerta("Erro", "Erro ao tentar abrir informações da loja", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+
+    }
+
+    private void labelStatusLojaNM_Click(object sender, EventArgs e)
+    {
+        panelStatusLoja_Click(sender, e);
+    }
+
+    private void PanelDeInfosOnLine_Leave(object sender, EventArgs e)
+    {
+        PanelDeInfosOnLine.Visible = false;
     }
 }

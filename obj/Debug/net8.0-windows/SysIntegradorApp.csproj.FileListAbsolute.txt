@@ -226,3 +226,7 @@ C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\refint\SysIntegradorApp.dll
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.pdb
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.genruntimeconfig.cache
 C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\ref\SysIntegradorApp.dll
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCInfoDeEmpresaIntegrada.resources
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCInfoDeLojaOnLine.resources
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.UCSAiqfome.UCEmpresaIntegrada.resources
+C:\integrador\SysIntegrador\obj\Debug\net8.0-windows\SysIntegradorApp.UserControls.TaxyMachine.UCEmpresaIntegradaTaxyMachine.resources

@@ -1,17 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesAiqfome;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
+using SysIntegradorApp.ClassesAuxiliares.Ifood;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
+using SysIntegradorApp.UserControls;
+using SysIntegradorApp.UserControls.TaxyMachine;
+using SysIntegradorApp.UserControls.UCSAiqfome;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,7 +29,7 @@ public partial class NewFormConfiguracoes : Form
 {
     public readonly IMeuContexto _context;
     public ApplicationDbContext _db;
-
+    private string? CodeFromUser { get; set; } = String.Empty;
     public NewFormConfiguracoes(MeuContexto context)
     {
         _context = context;
@@ -32,6 +40,7 @@ public partial class NewFormConfiguracoes : Form
         CriaStripParaOsPainel();
 
         ClsEstiloComponentes.SetRoundedRegion(panelmpressoras, 24);
+        ClsEstiloComponentes.SetRoundedRegion(panel15, 24);
         ClsEstiloComponentes.SetRoundedRegion(panelDeConfigDeimpressao, 24);
         ClsEstiloComponentes.SetRoundedRegion(panelLogomarca, 24);
         ClsEstiloComponentes.SetRoundedRegion(panelDeGeral, 24);
@@ -56,6 +65,7 @@ public partial class NewFormConfiguracoes : Form
         ClsEstiloComponentes.SetRoundedRegion(panel13, 24);
         ClsEstiloComponentes.SetRoundedRegion(panel1, 24);
         ClsEstiloComponentes.SetRoundedRegion(panel9, 24);
+        ClsEstiloComponentes.SetRoundedRegion(panelDeMultiEmpresa, 24);
         this.Resize += (sender, e) =>
         {
             ClsEstiloComponentes.SetRoundedRegion(panelmpressoras, 24);
@@ -83,6 +93,7 @@ public partial class NewFormConfiguracoes : Form
             ClsEstiloComponentes.SetRoundedRegion(panel13, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel1, 24);
             ClsEstiloComponentes.SetRoundedRegion(panel9, 24);
+            ClsEstiloComponentes.SetRoundedRegion(panelDeMultiEmpresa, 24);
         };
 
 
@@ -137,6 +148,7 @@ public partial class NewFormConfiguracoes : Form
             textBoxNomeFantasia.Text = Configuracoes.NomeFantasia;
             MudaOnOff(Configuracoes.AceitaPedidoAut, this.pictureBoxOnAceitaPedidoAut, this.pictureBoxOffAceitaPedidoAut);
             MudaOnOff(Configuracoes.EnviaPedidoAut, this.pictureBoxOnEnviaPedidoAut, this.pictureBoxOffEnviaPedidoAut);
+            MudaOnOff(Configuracoes.RetornoAut, this.pictureBoxONRetornoAut, this.pictureBoxOFFRetornoAut);
 
 
             //tela de integração ifood
@@ -146,6 +158,8 @@ public partial class NewFormConfiguracoes : Form
             textBoxAcessToken.Text = AuthConfig.accessToken ?? String.Empty;
             textBoxRefreshToken.Text = AuthConfig.refreshToken ?? String.Empty;
             textBoxVenceTokenIfoodEm.Text = AuthConfig.VenceEm ?? String.Empty;
+            AdicionaEmpresasNoPageControlIfood();
+            MudaOnOff(Configuracoes.IfoodMultiEmpresa, this.pictureBoxONMultiEmpresas, this.pictureBoxOFFMultiEmpresas);
             MudaOnOff(Configuracoes.IntegraIfood, this.pictureBoxOnIntegraIfood, this.pictureBoxOffItegraIfood);
 
             //tela de integração ONPEDIDO
@@ -184,6 +198,13 @@ public partial class NewFormConfiguracoes : Form
             textBoxTokenDeIntegracaoOtto.Text = Configuracoes.ApiKeyTaxyMachine;
             textBoxTipoDePagamentoOtto.Text = Configuracoes.TipoPagamentoTaxyMachine;
             MudaOnOff(Configuracoes.IntegraOttoEntregas, this.pictureBoxOnOtto, this.pictureBoxOffOtto);
+
+            //tela de integração AIQFOME
+            AdicionaEmpresasNoPageControlAiQueFome();
+
+
+            //tela TaxyMachine
+            AdicionaEmpresasNoPageControlTaxyMachine();
         }
         catch (Exception ex)
         {
@@ -357,7 +378,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-      
+
     }
 
     private async void pictureBoxOFFAgruparComanda_Click(object sender, EventArgs e)
@@ -404,7 +425,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-       
+
     }
 
     private async void pictureBoxOffImprimeCaixa_Click(object sender, EventArgs e)
@@ -428,7 +449,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-     
+
     }
 
     private async void pictureBoxOnSeparaItem_Click(object sender, EventArgs e)
@@ -452,7 +473,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-     
+
     }
 
     private async void pictureBoxOffSeparaItem_Click(object sender, EventArgs e)
@@ -476,7 +497,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-      
+
     }
 
     private async void pictureBoxOnImpCompacta_Click(object sender, EventArgs e)
@@ -500,7 +521,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-       
+
     }
 
     private async void pictureBoxOffImpCompacta_Click(object sender, EventArgs e)
@@ -524,7 +545,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-    
+
     }
 
     private async void pictureBoxOnComandaComapcat_Click(object sender, EventArgs e)
@@ -549,7 +570,7 @@ public partial class NewFormConfiguracoes : Form
             MessageBox.Show(ex.Message, "Erro");
         }
 
-     
+
     }
 
     private async void pictureBoxOffComandaComapcat_Click(object sender, EventArgs e)
@@ -573,7 +594,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-       
+
     }
 
     private async void pictureBoxOnRemoveComplementos_Click(object sender, EventArgs e)
@@ -598,7 +619,7 @@ public partial class NewFormConfiguracoes : Form
             MessageBox.Show(ex.Message, "Erro");
         }
 
-    
+
     }
 
     private async void pictureBoxOffRemoveComplementos_Click(object sender, EventArgs e)
@@ -623,7 +644,7 @@ public partial class NewFormConfiguracoes : Form
             MessageBox.Show(ex.Message, "Erro");
         }
 
-      
+
     }
 
     private async void pictureBoxOnImpAut_Click(object sender, EventArgs e)
@@ -648,7 +669,7 @@ public partial class NewFormConfiguracoes : Form
             MessageBox.Show(ex.Message, "Erro");
         }
 
-       
+
     }
 
     private async void pictureBoxOffImpAut_Click(object sender, EventArgs e)
@@ -673,7 +694,7 @@ public partial class NewFormConfiguracoes : Form
             MessageBox.Show(ex.Message, "Erro");
         }
 
-      
+
     }
 
     private async void pictureBoxOnNomeNaComanda_Click(object sender, EventArgs e)
@@ -697,7 +718,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-      
+
     }
 
     private async void pictureBoxOffNomeNaComanda_Click(object sender, EventArgs e)
@@ -721,7 +742,7 @@ public partial class NewFormConfiguracoes : Form
         {
             MessageBox.Show(ex.Message, "Erro");
         }
-      
+
     }
 
     private async void pictureBoxOnDestacaObs_Click(object sender, EventArgs e)
@@ -1182,12 +1203,20 @@ public partial class NewFormConfiguracoes : Form
             ParametrosDoSistema Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
 
             if (Config is not null)
+            {
                 Config.IntegraOttoEntregas = true;
+                Config.IntegraJumaEntregas = false;
+            }
+
 
             await _db.SaveChangesAsync();
 
             pictureBoxOffOtto.Visible = false;
             pictureBoxOnOtto.Visible = true;
+
+            //trabalha com a juma
+            pictureBoxOFFJUMA.Visible = true;
+            pictureBoxOnJuma.Visible = false;
         }
         catch (Exception ex)
         {
@@ -1402,8 +1431,8 @@ public partial class NewFormConfiguracoes : Form
                 OnPedido onPedido = new OnPedido(new MeuContexto());
                 await onPedido.GetToken();
 
-             //   MessageBox.Show("Envio de renovação concluída com sucesso!", "Sucesso");
-               await SysAlerta.Alerta("Sucesso", "Envio de renovação concluída com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+                //   MessageBox.Show("Envio de renovação concluída com sucesso!", "Sucesso");
+                await SysAlerta.Alerta("Sucesso", "Envio de renovação concluída com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
 
 
                 ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
@@ -1970,10 +1999,12 @@ public partial class NewFormConfiguracoes : Form
     {
         try
         {
-            int TempoApp = Convert.ToInt32(TextBoxTempoApp.Text) - 1;
+            await Task.Delay(100);
+
+            int TempoApp = Convert.ToInt32(TextBoxTempoApp.Text);
             int TempoIntegrador = Convert.ToInt32(TextBoxTempoIntegrador.Text);
 
-            if (TempoApp <= TempoIntegrador)
+            if (TempoIntegrador >= TempoApp)
             {
                 TextBoxTempoIntegrador.Text = (TempoIntegrador - 1).ToString();
                 throw new Exception("O Tempo do app não pode ser menor ou igual ao do integrador");
@@ -1991,7 +2022,7 @@ public partial class NewFormConfiguracoes : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
     }
@@ -2000,21 +2031,22 @@ public partial class NewFormConfiguracoes : Form
     {
         try
         {
-            int TempoApp = Convert.ToInt32(TextBoxTempoApp.Text) - 1;
+            await Task.Delay(100);
+
+            int TempoApp = Convert.ToInt32(TextBoxTempoApp.Text);
             int TempoIntegrador = Convert.ToInt32(TextBoxTempoIntegrador.Text);
 
             if (TempoApp <= TempoIntegrador)
             {
-                TextBoxTempoApp.Text = (TempoIntegrador + 2).ToString();
+                TextBoxTempoApp.Text = (TempoApp + 2).ToString();
                 throw new Exception("O Tempo do app não pode ser menor ou igual ao do integrador");
             }
-
             using (ApplicationDbContext db = new ApplicationDbContext())
             {
                 ConfigAppGarcom? Config = await db.configappgarcom.FirstOrDefaultAsync();
-
                 if (Config is not null)
                 {
+                    await db.SaveChangesAsync();
                     Config.TempoEnvioPedido = TempoApp;
                 }
                 await db.SaveChangesAsync();
@@ -2022,7 +2054,7 @@ public partial class NewFormConfiguracoes : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -2042,7 +2074,567 @@ public partial class NewFormConfiguracoes : Form
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Erro");
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
+    }
+
+    private async void GerarCodigoDeAutBtn_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            GerarCodigoDeAutBtn.Visible = false;
+            AutBtn.Visible = true;
+            panelDeColar.Visible = true;
+            textBoxCodAutorizacao.Visible = true;
+
+            using (ApplicationDbContext db = await _context.GetContextoAsync())
+            {
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+                string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
+
+                using (HttpClient client = new HttpClient())
+                {
+                    FormUrlEncodedContent formData = new FormUrlEncodedContent(new[]
+                        {
+                        new KeyValuePair<string, string>("clientId", opcSistema.ClientId)
+                         });
+
+                    HttpResponseMessage response = await client.PostAsync($"{url}userCode", formData);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new HttpRequestException("\nErro ao acessar o user code\n");
+                    }
+
+                    string jsonContent = await response.Content.ReadAsStringAsync();
+                    UserCodeReturnFromAPI codesOfVerif = JsonSerializer.Deserialize<UserCodeReturnFromAPI>(jsonContent);
+                    UserCodeReturnFromAPI.CodeVerifier = codesOfVerif.authorizationCodeVerifier; //seta o valor em uma propriedade static para podermos pegar no proximo método 
+
+                    string? urlVerificacao = codesOfVerif.verificationUrlComplete;
+
+                    if (urlVerificacao != null && Uri.IsWellFormedUriString(urlVerificacao, UriKind.Absolute))
+                    {
+                        Process.Start(new ProcessStartInfo
+                        {
+                            FileName = urlVerificacao,
+                            UseShellExecute = true
+                        });
+                    }
+
+                    Clipboard.SetText(codesOfVerif.userCode);
+
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void AdicionaEmpresasNoPageControlIfood()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+                List<EmpresasIfood> Empresas = await db.empresasIfoods.ToListAsync();
+
+                if (Empresas is not null)
+                {
+                    foreach (EmpresasIfood Empresa in Empresas)
+                    {
+                        AdicionaNovaEmpresaAoTabControlDeEmpresasIFood(Empresa);
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void AdicionaEmpresasNoPageControlAiQueFome()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+                List<ClsEmpresasAiqFome> Empresas = await db.empresasaiqfome.ToListAsync();
+
+                if (Empresas is not null)
+                {
+                    foreach (ClsEmpresasAiqFome Empresa in Empresas)
+                    {
+                        AdicionaEmpresaNoTabControlDeEmpresasDoAiQFome(Empresa);
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+
+    private async void AdicionaEmpresasNoPageControlTaxyMachine()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ParametrosDoSistema? Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+                List<EmpresasEntregaTaxyMachine> Empresas = await db.empresastaxymachine.ToListAsync();
+
+                if (Empresas is not null)
+                {
+                    foreach (EmpresasEntregaTaxyMachine Empresa in Empresas)
+                    {
+                        AdicionaEmpresaNoTabControlDeEmpresaDaTaxyMachine(Empresa);
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+
+
+
+
+    private async void AutBtn_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                if (textBoxCodAutorizacao.Text is null || textBoxCodAutorizacao.Text!.Length < 1)
+                {
+                    throw new Exception("O campo de código de autorização não pode estar vazio");
+                }
+
+                if (String.IsNullOrEmpty(textBoxMerchantIdNovaEmp.Text) || String.IsNullOrEmpty(NomeIdentificadorNovaEmp.Text))
+                {
+                    throw new Exception("Os campos de MerchantId e Nome Identificador não podem estar vazios");
+                }
+
+                string url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
+                ParametrosDoSistema? opcSistema = await db.parametrosdosistema.FirstOrDefaultAsync();
+                List<EmpresasIfood> Empresas = await db.empresasIfoods.ToListAsync();
+                string? codeFromMenu = CodeFromUser;
+
+                FormUrlEncodedContent formDataToGetTheToken = new FormUrlEncodedContent(new[]
+                     {
+                        new KeyValuePair<string, string>("grantType", "authorization_code"),
+                        new KeyValuePair<string, string>("clientId", opcSistema.ClientId),
+                        new KeyValuePair<string, string>("clientSecret", opcSistema.ClientSecret),
+                        new KeyValuePair<string, string>("authorizationCode", codeFromMenu),
+                        new KeyValuePair<string, string>("authorizationCodeVerifier", UserCodeReturnFromAPI.CodeVerifier)
+                    });
+
+                using HttpClient client = new HttpClient();
+
+                HttpResponseMessage responseWithToken = await client.PostAsync($"{url}token", formDataToGetTheToken);
+                if (!responseWithToken.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException("\nErro ao acessar o token de acesso\n");
+                }
+
+                string? jsonObjTokenFromAPI = await responseWithToken.Content.ReadAsStringAsync();
+                Token propriedadesAPIWithToken = JsonSerializer.Deserialize<Token>(jsonObjTokenFromAPI)!;
+
+                DateTime horaAtual = DateTime.Now;
+                double milissegundosAdicionais = 21600;
+                DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken.expiresIn);
+                string HoraFormatada = horaFutura.ToString();
+
+                propriedadesAPIWithToken.VenceEm = HoraFormatada;
+
+                EmpresasIfood NovaEmpresa = new EmpresasIfood()
+                {
+                    NomeIdentificador = NomeIdentificadorNovaEmp.Text,
+                    MerchantId = textBoxMerchantIdNovaEmp.Text,
+                    Token = propriedadesAPIWithToken.accessToken,
+                    RefreshToken = propriedadesAPIWithToken.refreshToken,
+                    DataExpiracao = propriedadesAPIWithToken.VenceEm
+                };
+
+                await db.empresasIfoods.AddAsync(NovaEmpresa);
+                await db.SaveChangesAsync();
+                AdicionaNovaEmpresaAoTabControlDeEmpresasIFood(NovaEmpresa, true);
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private void AdicionaNovaEmpresaAoTabControlDeEmpresasIFood(EmpresasIfood NovaEmpresa, bool eNovaEmpresa = false)
+    {
+        int indexPenultimo = TabControlEmpresas.TabPages.Count - 1;
+        TabPage AbaDeNovaEmpresa = new TabPage($"{NovaEmpresa.NomeIdentificador}");
+        UCInfoDeEmpresaIntegrada uCInfoDeEmpresaIntegrada = new UCInfoDeEmpresaIntegrada(NovaEmpresa, TabControlEmpresas);
+
+        AbaDeNovaEmpresa.Controls.Add(uCInfoDeEmpresaIntegrada);
+        TabControlEmpresas.TabPages.Insert(indexPenultimo, AbaDeNovaEmpresa);
+
+        if (eNovaEmpresa)
+        {
+            TabControlEmpresas.SelectedTab = AbaDeNovaEmpresa;
+            textBoxMerchantIdNovaEmp.Text = "";
+            NomeIdentificadorNovaEmp.Text = "";
+            AutBtn.Visible = false;
+            GerarCodigoDeAutBtn.Visible = true;
+            panelDeColar.Visible = false;
+            textBoxCodAutorizacao.Visible = false;
+        }
+    }
+
+    private async void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+    {
+        if (Clipboard.ContainsText())
+        {
+            CodeFromUser = Clipboard.GetText();
+            textBoxCodAutorizacao.Text = CodeFromUser;
+        }
+        else
+        {
+            await SysAlerta.Alerta("Ops", "Area de transferencia Vazia", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void pictureBoxOFFMultiEmpresas_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            DialogResultSys opcUser = await SysAlerta.Alerta("Atenção", "Atenção, Você esta ligando o modo multiempresas do ifood, tem certeza?", SysAlertaTipo.Alerta, SysAlertaButtons.SimNao);
+
+            if (opcUser == DialogResultSys.Sim)
+            {
+                using (ApplicationDbContext db = new ApplicationDbContext())
+                {
+                    var Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+                    Config!.IfoodMultiEmpresa = true;
+                    await db.SaveChangesAsync();
+
+                    pictureBoxOFFMultiEmpresas.Visible = false;
+                    pictureBoxONMultiEmpresas.Visible = true;
+                }
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void pictureBoxONMultiEmpresas_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var Config = await db.parametrosdosistema.FirstOrDefaultAsync();
+                Config!.IfoodMultiEmpresa = false;
+                await db.SaveChangesAsync();
+
+                pictureBoxOFFMultiEmpresas.Visible = true;
+                pictureBoxONMultiEmpresas.Visible = false;
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void pictureBoxOFFRetornoAut_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+            if (Config is not null)
+                Config.RetornoAut = true;
+
+            await _db.SaveChangesAsync();
+
+            pictureBoxOFFRetornoAut.Visible = false;
+            pictureBoxONRetornoAut.Visible = true;
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void pictureBoxONRetornoAut_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+            if (Config is not null)
+                Config.RetornoAut = false;
+
+            await _db.SaveChangesAsync();
+
+            pictureBoxOFFRetornoAut.Visible = true;
+            pictureBoxONRetornoAut.Visible = false;
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void AutBntAiQFome_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (String.IsNullOrEmpty(textBoxClientIdAiQueFome.Text))
+            {
+                throw new Exception("O campo ClientId não pode estar vazio");
+            }
+
+            if (String.IsNullOrEmpty(textBoxNomeIdentificadorAiQFome.Text))
+            {
+                throw new Exception("O campo Nome identificador não pode estar vazio");
+            }
+
+            if (String.IsNullOrEmpty(textBoxURIAiQueFOme.Text))
+            {
+                throw new Exception("O campo de URI não pode estar vazio");
+            }
+
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                string url = "https://id.magalu.com/oauth/token";
+                ParametrosDoSistema? opcSistema = await db.parametrosdosistema.FirstOrDefaultAsync();
+                List<ClsEmpresasAiqFome> Empresas = await db.empresasaiqfome.ToListAsync();
+                string? codeFromMenu = textBoxURIAiQueFOme.Text.Substring(textBoxURIAiQueFOme.Text.IndexOf("=") + 1);
+
+                FormUrlEncodedContent formDataToGetTheToken = new FormUrlEncodedContent(new[]
+                     {
+                        new KeyValuePair<string, string>("client_id", textBoxClientIdAiQueFome.Text),
+                        new KeyValuePair<string, string>("client_secret", opcSistema!.ClientSecretAiqfome!),
+                        new KeyValuePair<string, string>("redirect_uri", textBoxURIAiQueFOme.Text),
+                        new KeyValuePair<string, string>("code", codeFromMenu),
+                        new KeyValuePair<string, string>("grant_type", "authorization_code")
+                    });
+
+                using HttpClient client = new HttpClient();
+
+                HttpResponseMessage responseWithToken = await client.PostAsync(url, formDataToGetTheToken);
+                if (!responseWithToken.IsSuccessStatusCode)
+                {
+                    throw new HttpRequestException("\nErro ao acessar o token de acesso\n");
+                }
+
+                string RetornoDaApi = await responseWithToken.Content.ReadAsStringAsync();
+                ClsDeSuporteTokenDeAcesso propriedadesAPIWithToken = JsonSerializer.Deserialize<ClsDeSuporteTokenDeAcesso>(RetornoDaApi)!;
+                DateTime DataAtual = DateTime.Now.AddSeconds(propriedadesAPIWithToken.ExpiresIn);
+
+                ClsEmpresasAiqFome NovaEmpresa = new ClsEmpresasAiqFome()
+                {
+                    NomeIdentificador = textBoxNomeIdentificadorAiQFome.Text,
+                    ClientId = textBoxClientIdAiQueFome.Text,
+                    TokenReq = propriedadesAPIWithToken.AccessToken,
+                    RefreshToken = propriedadesAPIWithToken.RefreshToken,
+                    TokenExpiracao = DataAtual.ToString()
+                };
+
+                await db.empresasaiqfome.AddAsync(NovaEmpresa);
+                await db.SaveChangesAsync();
+
+                AdicionaEmpresaNoTabControlDeEmpresasDoAiQFome(NovaEmpresa, true);
+
+                await SysAlerta.Alerta("Sucesso", "Empresa adicionada!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private void AdicionaEmpresaNoTabControlDeEmpresasDoAiQFome(ClsEmpresasAiqFome NovaEmpresa, bool eNovaEmpresa = false)
+    {
+        int indexPenultimo = tabControlDeEmpresasAiQueFome.TabPages.Count - 1;
+        TabPage AbaDeNovaEmpresa = new TabPage($"{NovaEmpresa.NomeIdentificador}");
+        UCEmpresaIntegrada uCInfoDeEmpresaIntegrada = new UCEmpresaIntegrada(NovaEmpresa, TabControlEmpresas);
+
+        AbaDeNovaEmpresa.Controls.Add(uCInfoDeEmpresaIntegrada);
+        tabControlDeEmpresasAiQueFome.TabPages.Insert(indexPenultimo, AbaDeNovaEmpresa);
+
+        if (eNovaEmpresa)
+        {
+            tabControlDeEmpresasAiQueFome.SelectedTab = AbaDeNovaEmpresa;
+            textBoxClientIdAiQueFome.Text = "";
+            textBoxNomeIdentificadorAiQFome.Text = "";
+        }
+    }
+
+    private async void pictureBoxOFFJUMA_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+            if (Config is not null)
+            {
+                Config.IntegraJumaEntregas = true;
+                Config.IntegraOttoEntregas = false;
+            }
+
+            await _db.SaveChangesAsync();
+
+
+            //trabalha com a juma
+            pictureBoxOnJuma.Visible = true;
+            pictureBoxOFFJUMA.Visible = false;
+
+            //trabalha com a atto
+            pictureBoxOffOtto.Visible = true;
+            pictureBoxOnOtto.Visible = false;
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void pictureBoxOnJuma_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+            if (Config is not null)
+                Config.IntegraJumaEntregas = false;
+
+            await _db.SaveChangesAsync();
+
+            pictureBoxOnJuma.Visible = false;
+            pictureBoxOFFJUMA.Visible = true;
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void BtnAdicionarEmpresaTaxyMachine_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                if (String.IsNullOrEmpty(textBoxNomeEmpresaTaxyMachine.Text) || String.IsNullOrEmpty(textBoxTipoPagamento.Text) || String.IsNullOrEmpty(textBoxToken.Text) || String.IsNullOrEmpty(textBoxUserName.Text) || String.IsNullOrEmpty(textBoxSenha.Text))
+                {
+                    throw new Exception("Confira se algum campo esta em vazio e tente novamente");
+                }
+
+                string CodEntregador = String.Empty;
+
+                if (!textBoxNomeEmpresaTaxyMachine.Text.Contains("OTTO", StringComparison.OrdinalIgnoreCase) && !textBoxNomeEmpresaTaxyMachine.Text.Contains("JUMA", StringComparison.OrdinalIgnoreCase))
+                    throw new Exception($"Adicione uma empresa Valida. Ainda não temos integração com a empresa {textBoxNomeEmpresaTaxyMachine.Text}. \n Empresas que temos integração: \n - OTTO \n - JUMA");
+
+                if (textBoxNomeEmpresaTaxyMachine.Text.Contains("OTTO", StringComparison.OrdinalIgnoreCase))
+                {
+                    CodEntregador = "66";
+                }
+                else if (textBoxNomeEmpresaTaxyMachine.Text.Contains("JUMA", StringComparison.OrdinalIgnoreCase))
+                {
+                    CodEntregador = "77";
+                }
+
+                EmpresasEntregaTaxyMachine Empresa = new EmpresasEntregaTaxyMachine()
+                {
+                    NomeEmpresa = textBoxNomeEmpresaTaxyMachine.Text.ToUpper(),
+                    Usuario = textBoxUserName.Text,
+                    Senha = textBoxSenha.Text,
+                    MachineId = textBoxToken.Text,
+                    TipoPagamento = textBoxTipoPagamento.Text,
+                    CodEntregador = CodEntregador
+                };
+
+                await db.empresastaxymachine.AddAsync(Empresa);
+                await db.SaveChangesAsync();
+
+                AdicionaEmpresaNoTabControlDeEmpresaDaTaxyMachine(Empresa, true);
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private void AdicionaEmpresaNoTabControlDeEmpresaDaTaxyMachine(EmpresasEntregaTaxyMachine NovaEmpresa, bool eNovaEmpresa = false)
+    {
+        int indexPenultimo = tabControlEmpresasTaxyMachine.TabPages.Count - 1;
+        TabPage AbaDeNovaEmpresa = new TabPage($"{NovaEmpresa.NomeEmpresa}");
+        UCEmpresaIntegradaTaxyMachine uCInfoDeEmpresaIntegrada = new UCEmpresaIntegradaTaxyMachine(NovaEmpresa, tabControlEmpresasTaxyMachine);
+
+        AbaDeNovaEmpresa.Controls.Add(uCInfoDeEmpresaIntegrada);
+        tabControlEmpresasTaxyMachine.TabPages.Insert(indexPenultimo, AbaDeNovaEmpresa);
+
+        if (eNovaEmpresa)
+        {
+            tabControlEmpresasTaxyMachine.SelectedTab = AbaDeNovaEmpresa;
+            textBoxUserName.Text = "";
+            textBoxSenha.Text = "";
+        }
+    }
+
+    private void textBoxTipoPagamento_TextChanged(object sender, EventArgs e)
+    {
+        textBoxTipoPagamento.Text = textBoxTipoPagamento.Text.ToUpper();
+    }
+
+    private async void pictureBoxOnIntegraVariasEmpresasTaxy_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.IntegravariasEmpresasTaxyMachine = true;
+
+        await _db.SaveChangesAsync();
+
+        pictureBoxoffIntegraVariasEmpresasTaxy.Visible = false;
+        pictureBoxIntegraVariasEmpresasTaxyMachine.Visible = true;
+
+    }
+
+    private async void pictureBoxIntegraVariasEmpresasTaxyMachine_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.IntegravariasEmpresasTaxyMachine = false;
+
+        await _db.SaveChangesAsync();
+
+        pictureBoxoffIntegraVariasEmpresasTaxy.Visible = true;
+        pictureBoxIntegraVariasEmpresasTaxyMachine.Visible = false;
     }
 }

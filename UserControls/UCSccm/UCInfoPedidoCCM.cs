@@ -122,27 +122,28 @@ public partial class UCInfoPedidoCCM : UserControl
 
             }
 
-            if (Pedido.Agendamento == 1)
-            {
-                labelTipoEntregaNM.Text = "Agendada:";
-                labelTipoEntregaNM.ForeColor = Color.Red;
-                tipoEntrega.Location = new Point(155, 23);
-
-                if (TipoPedido == "DELIVERY")
+            if (Pedido.HorarioRetirada is not null)
+                if (Pedido.HorarioRetirada!.Contains("Entre", StringComparison.OrdinalIgnoreCase))
                 {
-                    DataCorreta = Pedido.DataHoraAgendamento;
-                }
+                    labelTipoEntregaNM.Text = "Agendada:";
+                    labelTipoEntregaNM.ForeColor = Color.Red;
+                    tipoEntrega.Location = new Point(155, 23);
 
-                if (TipoPedido == "TAKEOUT")
-                {
-                    DataCorreta = Pedido.DataHoraAgendamento;
-                }
+                    if (TipoPedido == "DELIVERY")
+                    {
+                        DataCorreta = Pedido.DataHoraAgendamento;
+                    }
 
-                if (TipoPedido == "INDOOR")
-                {
-                    //DataCorreta = Pedido.Return.Indoor.IndoorDateTime;
+                    if (TipoPedido == "TAKEOUT")
+                    {
+                        DataCorreta = Pedido.DataHoraAgendamento;
+                    }
+
+                    if (TipoPedido == "INDOOR")
+                    {
+                        //DataCorreta = Pedido.Return.Indoor.IndoorDateTime;
+                    }
                 }
-            }
 
             labelDisplayId.Text = $"#{Pedido.NroPedido.ToString()}";
 
@@ -178,9 +179,9 @@ public partial class UCInfoPedidoCCM : UserControl
 
             if (!String.IsNullOrEmpty(Pedido.TrocoPara))
             {
-                if (Pedido.DescricaoPagamento == "Dinheiro")
+                if (Pedido.DescricaoPagamento == "Dinheiro" || Pedido.DescricaoPagamento == "Outros")
                 {
-                    var TrocoPara = float.Parse(Pedido.TrocoPara.Replace(".", ","));
+                    float.TryParse(Pedido.TrocoPara.Replace(".", ","), out float TrocoPara);
                     var troco = TrocoPara - Pedido.ValorTotal;
 
                     defineTroco = $". Levar troco para {TrocoPara.ToString("c")}. Total troco: {troco.ToString("c")}";

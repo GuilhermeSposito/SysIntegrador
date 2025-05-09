@@ -55,11 +55,18 @@ namespace SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM
         [XmlElement("cliente")] public Cliente Cliente { get; set; } = new Cliente();
         [XmlElement("endereco")] public Endereco Endereco { get; set; } = new Endereco();
         [XmlArray("itens"), XmlArrayItem("item")] public List<Item> Itens { get; set; } = new List<Item>();
+        [XmlArray("brindes"), XmlArrayItem("brinde")] public List<Brinde> Brindes { get; set; } = new List<Brinde>();
 
         public Pedido()
         {
                 
         }
+    }
+
+    public class Brinde
+    {
+        [XmlElement("codPdvBrinde")] public string? CodPdvBrinde { get; set; }
+        [XmlElement("descricao")] public string? Descricao { get; set; }
     }
 
     public class Cliente

@@ -19,6 +19,7 @@ namespace SysIntegradorApp.UserControls
         public string? cancelCodeId { get; set; }
         public string? description { get; set; }
         public string? display_Id { get; set; }
+        public PedidoCompleto Pedido { get; set; }
 
         public UCMotivoCancelamento()
         {
@@ -37,7 +38,7 @@ namespace SysIntegradorApp.UserControls
 
         private void UCMotivoCancelamento_Click(object sender, EventArgs e)
         {
-            FormDeConfirmacaoDeCancelamento formCancelamento = new FormDeConfirmacaoDeCancelamento() { IdPedido = IdPedido, cancelCodeId = cancelCodeId, description = description, display_Id = display_Id };
+            FormDeConfirmacaoDeCancelamento formCancelamento = new FormDeConfirmacaoDeCancelamento() { IdPedido = IdPedido, cancelCodeId = cancelCodeId, description = description, display_Id = display_Id, Pedido = Pedido };
             formCancelamento.ShowDialog();
         }
 

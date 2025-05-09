@@ -20,6 +20,7 @@ using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
 using System.Reflection.Metadata.Ecma335;
 using SysIntegradorApp.Forms;
+using SysIntegradorApp.ClassesAuxiliares.ClassesAiqfome;
 
 namespace SysIntegradorApp.ClassesAuxiliares;
 
@@ -59,6 +60,7 @@ public class ClsDeIntegracaoSys
      bool eIfood = false,
      bool eDelMatch = false,
      bool eOnpedido = false,
+     bool eAiQFome = false,
      bool eCCM = false,
      bool eAnotaAi = false,
      string? telefone = " ",
@@ -112,8 +114,8 @@ public class ClsDeIntegracaoSys
                     command.Parameters.AddWithValue("@ENDENTREGA", endEntrega); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@BAIENTREGA", bairEntrega);//se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@REFENTREGA", referencia);//se vier WEBB aqui vai ser null
-                    command.Parameters.AddWithValue("@CONTATO", contatoNome);
-                    command.Parameters.AddWithValue("@CLIENTE", contatoNome);
+                    command.Parameters.AddWithValue("@CONTATO", contatoNome.Length > 50 ? contatoNome.Substring(0, 40) : contatoNome);
+                    command.Parameters.AddWithValue("@CLIENTE", contatoNome.Length > 40 ? contatoNome.Substring(0, 40) : contatoNome);
                     command.Parameters.AddWithValue("@ENTREGADOR", entregador); //se vier WEBB aqui vai ser null
                     command.Parameters.AddWithValue("@USUARIO", usuario);
                     command.Parameters.AddWithValue("@DTSAIDA", dataSaida.Replace("-", "/"));
@@ -204,6 +206,24 @@ public class ClsDeIntegracaoSys
                                             ComandoMudaIsIfood.ExecuteNonQuery();
                                         }
                                     }
+                                    
+                                    if (eAiQFome)
+                                    {
+                                        string query = "UPDATE Sequencia SET PEDWEB = ? WHERE CONTA = ?";
+                                        using (OleDbCommand ComandoMudaIsIfood = new OleDbCommand(query, connection))
+                                        {
+
+                                            OleDbParameter paramConta = new OleDbParameter("@CONTA", OleDbType.VarChar);
+                                            paramConta.Value = ultimoNumeroConta.ToString();
+
+                                            OleDbParameter paramPedWeb = new OleDbParameter("@PEDWEB", "AIQFOME");
+
+                                            ComandoMudaIsIfood.Parameters.Add(paramPedWeb);
+                                            ComandoMudaIsIfood.Parameters.Add(paramConta);
+
+                                            ComandoMudaIsIfood.ExecuteNonQuery();
+                                        }
+                                    }
 
                                     if (eAnotaAi)
                                     {
@@ -253,7 +273,7 @@ public class ClsDeIntegracaoSys
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
-            MessageBox.Show("Erro de inserção", "ERRO AO INSERIR O PEDIDO NO BANCO DE DADOS DO ACCESS");
+            await SysAlerta.Alerta("Erro ao processar pedido", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
         return ultimoNumeroConta;
@@ -919,6 +939,9 @@ public class ClsDeIntegracaoSys
                         case "Dinheiro":
                             tipoPagamento = "PAGDNH";
                             break;
+                        case "Outros":
+                            tipoPagamento = "PAGDNH";
+                            break;
                         case "money":
                             tipoPagamento = "PAGDNH";
                             break;
@@ -945,8 +968,8 @@ public class ClsDeIntegracaoSys
 
                         if (acrecimo > 0)
                         {
-                            string QueryDeAdicionarDesconto = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;";
-                            using (OleDbCommand command = new OleDbCommand(updateQuery, connection))
+                            string QueryDeAdicionarDesconto = $"UPDATE Sequencia SET ACRESCIMO = @NovoValor WHERE CONTA = @CONDICAO;"; //ACRESCIMO
+                            using (OleDbCommand command = new OleDbCommand(QueryDeAdicionarDesconto, connection))
                             {
                                 // Definindo os parâmetros para a instrução SQL
                                 command.Parameters.AddWithValue($"@NovoValor", acrecimo);
@@ -3083,6 +3106,301 @@ public class ClsDeIntegracaoSys
 
         }
     }
+
+    public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemAiQFome(ItemAiQFome item, bool comanda = false)
+    {
+        string? NomeProduto = "";
+        ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
+
+        //Função que entra caso sejá pizza ou lanche ou porção, não mudei o nome do booleano pq já estava estruturado o cod 
+
+        bool ePizza = item.Sku == "G" || item.Sku == "M" || item.Sku == "P" || item.Sku == "B" || item.Sku == "LAN" || item.Sku == "PRC" ? true : false;
+
+        string? ObsDoItem = " ";
+
+        string? obs1 = " ";
+        string? obs2 = " ";
+        string? obs3 = " ";
+        string? obs4 = " ";
+        string? obs5 = " ";
+        string? obs6 = " ";
+        string? obs7 = " ";
+        string? obs8 = " ";
+        string? obs9 = " ";
+        string? obs10 = " ";
+        string? obs11 = " ";
+        string? obs12 = " ";
+        string? obs13 = " ";
+        string? obs14 = " ";
+
+        string externalCode1 = " ";
+        string externalCode2 = " ";
+        string externalCode3 = " ";
+
+
+        if (ePizza)
+        {
+            string? ePizza1 = null;
+            string? ePizza2 = null;
+            string? ePizza3 = null;
+
+
+            if (item.Mandatory.Count > 0)
+            {
+                foreach (var option in item.Mandatory)
+                {
+                    bool eIncremento = option.Sku.Length == 3 ? true : false;
+
+                    if (!option.Sku.Contains("m", StringComparison.OrdinalIgnoreCase) && !option.Sku.Contains("bd", StringComparison.OrdinalIgnoreCase) && !eIncremento && ePizza1 == null)
+                    {
+                        ePizza1 = option.Sku == "" ? " " : option.Sku;
+                        bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.Sku);
+
+                        if (pesquisaProduto)
+                        {
+                            NomeProduto = ClsDeIntegracaoSys.NomeProdutoCardapio(option.Sku);
+                            externalCode1 = option.Sku;
+                        }
+                        else
+                        {
+                            NomeProduto += option.Name;
+                        }
+
+                        item.Mandatory.Remove(option);
+
+                        continue;
+                    }
+
+                    if (!option.Sku.Contains("m", StringComparison.OrdinalIgnoreCase) && !option.Sku.Contains("bd", StringComparison.OrdinalIgnoreCase) && !eIncremento && ePizza2 == null)
+                    {
+                        ePizza2 = option.Sku == "" ? " " : option.Sku;
+                        bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.Sku);
+
+                        if (pesquisaProduto)
+                        {
+                            NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.Sku);
+                            externalCode2 = option.Sku;
+                        }
+                        else
+                        {
+                            NomeProduto += " / " + option.Name;
+                        }
+
+                        item.Mandatory.Remove(option);
+
+                        continue;
+                    }
+
+                    if (!option.Sku.Contains("m", StringComparison.OrdinalIgnoreCase) && !option.Sku.Contains("bd", StringComparison.OrdinalIgnoreCase) && !eIncremento && ePizza3 == null)
+                    {
+                        ePizza3 = option.Sku == "" ? " " : option.Sku;
+                        bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.Sku);
+
+                        if (pesquisaProduto)
+                        {
+                            NomeProduto += " / " + ClsDeIntegracaoSys.NomeProdutoCardapio(option.Sku);
+                            externalCode3 = option.Sku;
+                        }
+                        else
+                        {
+                            NomeProduto += " / " + option.Name;
+                        }
+
+                        item.Mandatory.Remove(option);
+
+                        continue;
+                    }
+
+                }
+
+                if (NomeProduto == "")
+                {
+                    NomeProduto = item.Name;
+                }
+            }
+            else
+            {
+                bool existeProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(item.Sku);
+
+                if (existeProduto)
+                {
+                    NomeProduto = ClsDeIntegracaoSys.NomeProdutoCardapio(item.Sku);
+                    externalCode1 = item.Sku;
+                }
+                else
+                {
+                    NomeProduto = item.Name;
+                }
+
+                if (item.Observations is not null && item.Observations != "")
+                {
+                    ObsDoItem = item.Observations;
+                }
+
+            }
+
+            if (ObsDoItem.Length > 80)
+                ObsDoItem = ObsDoItem.Substring(0, 80);
+
+            ClasseDeSuporte.ObsDoItem = ObsDoItem;
+
+            ClasseDeSuporte.Tamanho = item.Sku == "G" || item.Sku == "M" || item.Sku == "P" || item.Sku == "B" ? item.Sku : "U";
+            ClasseDeSuporte.ExternalCode1 = externalCode1;
+            ClasseDeSuporte.ExternalCode2 = externalCode2;
+            ClasseDeSuporte.ExternalCode3 = externalCode3;
+
+
+            List<string> ListaDeObservacoes = new List<string>() { obs1, obs2, obs3, obs4, obs5, obs6, obs7, obs8, obs9, obs10, obs11, obs12, obs13, obs14 };
+            foreach (var opcao in item.Additional)
+            {
+                var ConversorfromAdicionalToMandatory = new Mandatory()
+                {
+                    Sku = opcao.Sku,
+                    Name = opcao.Name,
+                    Group = "",
+                    Value = opcao.Value,
+                };
+
+                item.Mandatory.Add(ConversorfromAdicionalToMandatory);
+            }
+
+            foreach (Mandatory opcao in item.Mandatory)
+            {
+                for (int i = 0; i <= ListaDeObservacoes.Count; i++)
+                {
+                    if (ListaDeObservacoes[i] == " ")
+                    {
+                        bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.Sku);
+
+                        if (pesquisaProduto)
+                        {
+                            ListaDeObservacoes[i] = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.Sku);
+                            ClasseDeSuporte.Observações!.Add(ListaDeObservacoes[i]);
+                        }
+                        else
+                        {
+                            ListaDeObservacoes[i] = opcao.Name;
+                            ClasseDeSuporte.Observações!.Add(ListaDeObservacoes[i]);
+                        }
+
+                        break;
+                    }
+
+                }
+            }
+
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+            ClasseDeSuporte.Obs1 = ListaDeObservacoes[0];
+            ClasseDeSuporte.Obs2 = ListaDeObservacoes[1];
+            ClasseDeSuporte.Obs3 = ListaDeObservacoes[2];
+            ClasseDeSuporte.Obs4 = ListaDeObservacoes[3];
+            ClasseDeSuporte.Obs5 = ListaDeObservacoes[4];
+            ClasseDeSuporte.Obs6 = ListaDeObservacoes[5];
+            ClasseDeSuporte.Obs7 = ListaDeObservacoes[6];
+            ClasseDeSuporte.Obs8 = ListaDeObservacoes[7];
+            ClasseDeSuporte.Obs9 = ListaDeObservacoes[8];
+            ClasseDeSuporte.Obs10 = ListaDeObservacoes[9];
+            ClasseDeSuporte.Obs11 = ListaDeObservacoes[10];
+            ClasseDeSuporte.Obs12 = ListaDeObservacoes[11];
+            ClasseDeSuporte.Obs13 = ListaDeObservacoes[12];
+            ClasseDeSuporte.Obs14 = ListaDeObservacoes[13];
+
+            return ClasseDeSuporte;
+
+        }
+        else
+        {
+            string? externalCode = item.Sku == null || item.Sku == "" ? " " : item.Sku;
+            bool existeProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(externalCode);
+
+            if (existeProduto)
+            {
+                NomeProduto = $"{item.Quantity}X " + ClsDeIntegracaoSys.NomeProdutoCardapio(externalCode);
+                externalCode1 = externalCode;
+            }
+            else
+            {
+                NomeProduto = $"{item.Quantity}X " + item.Name;
+            }
+
+
+            if (item.Observations is not null && item.Observations.Length > 0)
+            {
+                ObsDoItem = item.Observations;
+            }
+
+            if (ObsDoItem.Length > 80)
+                ObsDoItem = ObsDoItem.Substring(0, 80);
+
+            ClasseDeSuporte.ObsDoItem = ObsDoItem;
+            ClasseDeSuporte.NomeProduto = NomeProduto;
+
+
+            List<string> ListaDeObservacoes = new List<string>() { obs1, obs2, obs3, obs4, obs5, obs6, obs7, obs8, obs9, obs10, obs11, obs12, obs13, obs14 };
+            foreach (var opcao in item.Additional)
+            {
+                var ConversorfromAdicionalToMandatory = new Mandatory()
+                {
+                    Sku = opcao.Sku,
+                    Name = opcao.Name,
+                    Group = "",
+                    Value = opcao.Value,
+                };
+
+                item.Mandatory.Add(ConversorfromAdicionalToMandatory);
+            }
+
+            foreach (Mandatory opcao in item.Mandatory)
+            {
+                for (int i = 0; i <= ListaDeObservacoes.Count; i++)
+                {
+                    if (ListaDeObservacoes[i] == " ")
+                    {
+                        bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.Sku);
+
+                        if (pesquisaProduto)
+                        {
+                            ListaDeObservacoes[i] = ClsDeIntegracaoSys.NomeProdutoCardapio(opcao.Sku);
+                            ClasseDeSuporte.Observações!.Add(ListaDeObservacoes[i]);
+                        }
+                        else
+                        {
+                            ListaDeObservacoes[i] = opcao.Name;
+                            ClasseDeSuporte.Observações!.Add(ListaDeObservacoes[i]);
+                        }
+
+                        break;
+                    }
+                }
+            }
+
+
+            ClasseDeSuporte.Tamanho = "U";
+
+            ClasseDeSuporte.ExternalCode1 = externalCode1;
+            ClasseDeSuporte.ExternalCode2 = externalCode2;
+            ClasseDeSuporte.ExternalCode3 = externalCode3;
+
+            ClasseDeSuporte.Obs1 = ListaDeObservacoes[0];
+            ClasseDeSuporte.Obs2 = ListaDeObservacoes[1];
+            ClasseDeSuporte.Obs3 = ListaDeObservacoes[2];
+            ClasseDeSuporte.Obs4 = ListaDeObservacoes[3];
+            ClasseDeSuporte.Obs5 = ListaDeObservacoes[4];
+            ClasseDeSuporte.Obs6 = ListaDeObservacoes[5];
+            ClasseDeSuporte.Obs7 = ListaDeObservacoes[6];
+            ClasseDeSuporte.Obs8 = ListaDeObservacoes[7];
+            ClasseDeSuporte.Obs9 = ListaDeObservacoes[8];
+            ClasseDeSuporte.Obs10 = ListaDeObservacoes[9];
+            ClasseDeSuporte.Obs11 = ListaDeObservacoes[10];
+            ClasseDeSuporte.Obs12 = ListaDeObservacoes[11];
+            ClasseDeSuporte.Obs13 = ListaDeObservacoes[12];
+            ClasseDeSuporte.Obs14 = ListaDeObservacoes[13];
+
+
+            return ClasseDeSuporte;
+        }
+    }
+
 
 
     public static ClsDeSuporteParaImpressaoDosItens DefineCaracteristicasDoItemGarcomSys(ClassesGarcomSysMenu.Produto item, bool comanda = false, bool eIntegracao = false)
@@ -5563,7 +5881,7 @@ public class ClsDeIntegracaoSys
         string? NomeProduto = "";
         ClsDeSuporteParaImpressaoDosItens ClasseDeSuporte = new ClsDeSuporteParaImpressaoDosItens();
 
-        bool ePizza = item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" ? true : false;
+        bool ePizza = item.ExternalCode == "G" || item.ExternalCode == "M" || item.ExternalCode == "P" || item.ExternalCode!.Contains("TM", StringComparison.OrdinalIgnoreCase) || item.ExternalCode!.Contains("PRC", StringComparison.OrdinalIgnoreCase) || item.ExternalCode!.Contains("LAN", StringComparison.OrdinalIgnoreCase) || item.ExternalCode!.Contains("BB", StringComparison.OrdinalIgnoreCase) ? true : false;
 
         string? ObsDoItem = " ";
 
@@ -5610,7 +5928,7 @@ public class ClsDeIntegracaoSys
 
             foreach (var option in item.SubItems)
             {
-                if (!option.ExternalCode.Contains("m") && ePizza1 == null)
+                if (!option.ExternalCode.Contains("m", StringComparison.OrdinalIgnoreCase) || !option.ExternalCode.Contains("ig", StringComparison.OrdinalIgnoreCase) && ePizza1 == null)
                 {
                     ePizza1 = option.ExternalCode == "" ? " " : option.ExternalCode;
                     bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
@@ -5627,7 +5945,7 @@ public class ClsDeIntegracaoSys
                     continue;
                 }
 
-                if (!option.ExternalCode.Contains("m") && ePizza2 == null)
+                if (!option.ExternalCode.Contains("m", StringComparison.OrdinalIgnoreCase) || !option.ExternalCode.Contains("ig", StringComparison.OrdinalIgnoreCase) && ePizza2 == null)
                 {
                     ePizza2 = option.ExternalCode == "" ? " " : option.ExternalCode;
                     bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
@@ -5644,7 +5962,7 @@ public class ClsDeIntegracaoSys
                     continue;
                 }
 
-                if (!option.ExternalCode.Contains("m") && ePizza3 == null)
+                if (!option.ExternalCode.Contains("m", StringComparison.OrdinalIgnoreCase) || !option.ExternalCode.Contains("ig", StringComparison.OrdinalIgnoreCase) && ePizza3 == null)
                 {
                     ePizza3 = option.ExternalCode == "" ? " " : option.ExternalCode;
                     bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(option.ExternalCode);
@@ -5662,6 +5980,9 @@ public class ClsDeIntegracaoSys
                 }
 
             }
+
+            if (item.ExternalCode!.Length > 1)
+                item.ExternalCode = "U";
 
             ClasseDeSuporte.Tamanho = item.ExternalCode;
             ClasseDeSuporte.ExternalCode1 = externalCode1;
@@ -7616,6 +7937,7 @@ public class ClsDeIntegracaoSys
                                                            Convert.ToDecimal(reader["TAXAMOTOBOY"]) -
                                                            Convert.ToDecimal(reader["CORTESIA"]);
                                     string NumConta = sequencia.numConta.ToString();
+                                    sequencia.IDPEDIDO = reader["iFoodPedidoID"].ToString();
 
                                     var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
 
@@ -7630,6 +7952,24 @@ public class ClsDeIntegracaoSys
                                     sequencia.Merchant.Name = opcSistema.NomeFantasia;
                                     sequencia.Merchant.Id = opcSistema.DelMatchId;
                                     sequencia.Merchant.Unit = "62e91b20e390370012f9802e";
+
+                                    var ValorDePagamentoOnline = Convert.ToDecimal(reader["PAGONLINE"]);
+
+                                    if (opcSistema.RetornoAut)
+                                    {
+                                        if (ValorDePagamentoOnline > 0)
+                                        {
+                                            sequencia.PagamentoNaEntrega = false;
+                                        }
+                                        else
+                                        {
+                                            sequencia.PagamentoNaEntrega = true;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        sequencia.PagamentoNaEntrega = false;
+                                    }
 
                                     sequencias.Add(sequencia);
                                 }
@@ -7712,6 +8052,8 @@ public class ClsDeIntegracaoSys
                                                            Convert.ToDecimal(reader["CORTESIA"]);
                                     string NumConta = sequencia.numConta.ToString();
 
+                                    sequencia.IDPEDIDO = reader["iFoodPedidoID"].ToString();
+
                                     var idPedido = NumConta.PadLeft(4, '0') + "-" + DateTime.Now.ToString().Substring(0, 10).Replace("-", "/");
 
                                     sequencia.DelMatchId = idPedido.ToString();
@@ -7750,7 +8092,7 @@ public class ClsDeIntegracaoSys
         return sequencias;
     }
 
-    public static float TaxaDeGarcom(float valorDaConta,string? mesa)
+    public static float TaxaDeGarcom(float valorDaConta, string? mesa)
     {
         float taxa = 0f;
         float ValorTaxa = 0;
@@ -7760,11 +8102,11 @@ public class ClsDeIntegracaoSys
             {
                 var mesaSelecionada = dbPostgres.mesas.FirstOrDefault(x => x.Codigo == mesa);
 
-                if(mesaSelecionada is not null)
+                if (mesaSelecionada is not null)
                 {
                     if (!mesaSelecionada.Taxa)
                         return 0f;
-                    
+
                 }
 
                 ParametrosDoSistema? opcSistema = dbPostgres.parametrosdosistema.FirstOrDefault();

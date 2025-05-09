@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <_LastSelectedProfileId>C:\integrador\SysIntegrador\Properties\PublishProfiles\ClickOnceProfile1.pubxml</_LastSelectedProfileId>
+    <_LastSelectedProfileId>C:\integrador\SysIntegrador\Properties\PublishProfiles\ClickOnceProfile.pubxml</_LastSelectedProfileId>
   </PropertyGroup>
   <ItemGroup>
     <Compile Update="Forms\ANOTAAI\FormDeCancelamentoAnotaAi.cs">
@@ -64,10 +64,19 @@
     <Compile Update="Forms\TaxyMachine\EnvioDePedidos.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Update="UserControls\TaxyMachine\UCEmpresaIntegradaTaxyMachine.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Update="UserControls\TaxyMachine\UCPedidoTaxyMachine.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCComplementoDoItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCInfoDeEmpresaIntegrada.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCInfoDeLojaOnLine.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCInfoPedido.cs">
@@ -86,6 +95,9 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCPedidoAbertoSys.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="UserControls\UCSAiqfome\UCEmpresaIntegrada.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Update="UserControls\UCSAnotaAi\UCInfoPedidoAnotaAi.cs">

@@ -362,13 +362,13 @@ public class ImpressaoCCM
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                                AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                             }
                         }
 
                         if (item.ObsItem != null && item.ObsItem.Length > 0)
                         {
-                            AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                            AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                         }
 
 
@@ -376,6 +376,20 @@ public class ImpressaoCCM
 
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                 }
+
+
+                if(pedidoCompleto.Brindes is not null)
+                {
+                    int ContaBrinde = 1;
+                    foreach (var brinde in pedidoCompleto.Brindes)
+                    {
+                        AdicionaConteudo($"Brinde nº:{ContaBrinde}: {brinde.Descricao}", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        ContaBrinde++; 
+                    }   
+
+                }
+
 
                 float ValorEntrega = 0.0f;
                 float ValorDeDescontos = 0.0f;
@@ -512,25 +526,38 @@ public class ImpressaoCCM
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                            AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                         }
 
                         if (item.ObsItem != null && item.ObsItem.Length > 0)
                         {
                             if (CaracteristicasPedido.ObsDoItem != item.ObsItem)
                             {
-                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                             }
                         }
 
                         if (CaracteristicasPedido.ObsDoItem != " ")
                         {
-                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteCPF, eObs: true);
+                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteObservaçõesItem, eObs: true);
                         }
 
                     }
 
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+                }
+
+
+                if (pedidoCompleto.Brindes is not null)
+                {
+                    int ContaBrinde = 1;
+                    foreach (var brinde in pedidoCompleto.Brindes)
+                    {
+                        AdicionaConteudo($"Brinde nº:{ContaBrinde}: {brinde.Descricao}", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        ContaBrinde++;
+                    }
 
                 }
 
@@ -633,20 +660,20 @@ public class ImpressaoCCM
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                            AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                         }
 
                         if (item.ObsItem != null && item.ObsItem.Length > 0)
                         {
                             if (CaracteristicasPedido.ObsDoItem != item.ObsItem)
                             {
-                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                             }
                         }
 
                         if (CaracteristicasPedido.ObsDoItem != " ")
                         {
-                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteCPF, eObs: true);
+                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteObservaçõesItem, eObs: true);
                         }
 
                     }
@@ -655,6 +682,19 @@ public class ImpressaoCCM
 
                 }
                 contagemItemAtual = 0;
+
+
+                if (pedidoCompleto.Brindes is not null)
+                {
+                    int ContaBrinde = 1;
+                    foreach (var brinde in pedidoCompleto.Brindes)
+                    {
+                        AdicionaConteudo($"Brinde nº:{ContaBrinde}: {brinde.Descricao}", FonteItens);
+                        AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        ContaBrinde++;
+                    }
+
+                }
 
                 AdicionaConteudo("Impresso por:", FonteGeral);
                 AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
@@ -775,20 +815,20 @@ public class ImpressaoCCM
                         {
                             foreach (var option in CaracteristicasPedido.Observações)
                             {
-                                AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                                AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                             }
 
                             if (item.ObsItem != null && item.ObsItem.Length > 0)
                             {
                                 if (CaracteristicasPedido.ObsDoItem != item.ObsItem)
                                 {
-                                    AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                                    AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                                 }
                             }
 
                             if (CaracteristicasPedido.ObsDoItem != " ")
                             {
-                                AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteCPF, eObs: true);
+                                AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteObservaçõesItem, eObs: true);
                             }
 
                         }
@@ -1014,20 +1054,20 @@ public class ImpressaoCCM
                 {
                     foreach (var option in CaracteristicasPedido.Observações)
                     {
-                        AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                        AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                     }
 
                     if (item.ObsItem != null && item.ObsItem.Length > 0)
                     {
                         if (CaracteristicasPedido.ObsDoItem != item.ObsItem)
                         {
-                            AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                            AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                         }
                     }
 
                     if (CaracteristicasPedido.ObsDoItem != " ")
                     {
-                        AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteCPF, eObs: true);
+                        AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteObservaçõesItem, eObs: true);
                     }
 
                 }
@@ -1137,20 +1177,20 @@ public class ImpressaoCCM
                     {
                         foreach (var option in CaracteristicasPedido.Observações)
                         {
-                            AdicionaConteudo($"{option}", FonteDetalhesDoPedido, eObs: true);
+                            AdicionaConteudo($"{option}", FonteObservaçõesItem, eObs: true);
                         }
 
                         if (item.ObsItem != null && item.ObsItem.Length > 0)
                         {
                             if (CaracteristicasPedido.ObsDoItem != item.ObsItem)
                             {
-                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteCPF, eObs: true);
+                                AdicionaConteudo($"Obs: {item.ObsItem}", FonteObservaçõesItem, eObs: true);
                             }
                         }
 
                         if (CaracteristicasPedido.ObsDoItem != " ")
                         {
-                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteCPF, eObs: true);
+                            AdicionaConteudo($"Obs: {CaracteristicasPedido.ObsDoItem}", FonteObservaçõesItem, eObs: true);
                         }
 
                     }

@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
@@ -23,6 +24,7 @@ public partial class FormDeConfirmacaoDeCancelamento : Form
     public string? cancelCodeId { get; set; }
     public string? description { get; set; }
     public string? display_Id { get; set; }
+    public PedidoCompleto Pedido { get; set; }
 
     public FormDeConfirmacaoDeCancelamento()
     {
@@ -38,11 +40,23 @@ public partial class FormDeConfirmacaoDeCancelamento : Form
     {
         try
         {
+            int statusCode = 0;
             Ifood Ifood = new Ifood(new MeuContexto());
-
-            int statusCode = await Ifood.CancelaPedido(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId); //retorna o status code
             using ApplicationDbContext db = new ApplicationDbContext();
-            var ConfigSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            var ConfigSistema = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+            if (ConfigSistema!.IfoodMultiEmpresa)
+            {
+                var empresa = await db.empresasIfoods.FirstOrDefaultAsync(x => x.MerchantId == Pedido!.merchant.id);
+
+
+                statusCode = await Ifood.CancelaPedidoMultiEmpresa(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId, acesstoken: empresa.Token); //retorna o status code
+            }
+            else
+            {
+                statusCode = await Ifood.CancelaPedido(orderId: IdPedido, reason: description, cancellationCode: cancelCodeId); //retorna o status code
+            }
+
 
             if (statusCode == 202)
             {

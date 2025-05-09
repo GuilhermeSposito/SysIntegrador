@@ -85,14 +85,14 @@ public class GarcomSysMenu
                 }
 
                 ClsSons.PlaySom2();
-                MessageBox.Show(aviso, "Aviso", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                await SysAlerta.Alerta("Aviso", aviso, SysAlertaTipo.Alerta, SysAlertaButtons.Ok);
                 ClsSons.StopSom();
 
             }
         }
         catch (Exception ex)
         {
-            throw;
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 
@@ -999,7 +999,7 @@ public class GarcomSysMenu
 
                                 conta.Conta = reader["CONTA"].ToString();
                                 conta.Mesa = reader["MESA"].ToString();
-                                conta.Qtdade = Convert.ToInt32(reader["QTDADE"].ToString());
+                                conta.Qtdade = float.Parse(reader["QTDADE"].ToString());
                                 conta.CodCarda1 = reader["CODCARDA1"].ToString();
                                 conta.CodCarda2 = reader["CODCARDA2"].ToString();
                                 conta.CodCarda3 = reader["CODCARDA3"].ToString();
@@ -1046,6 +1046,7 @@ public class GarcomSysMenu
         }
         catch (Exception ex)
         {
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
             Console.WriteLine(ex.Message);
             await Logs.CriaLogDeErro(ex.Message);
         }

@@ -33,7 +33,10 @@ internal class TraduzStatus
                 StatusTraduzido = "Despachado";
                 break;
             case "CANCELLATION_REQUESTED":
-                StatusTraduzido = "Cancelado";
+                StatusTraduzido = "Solicitado Cancelamento";
+                    break; 
+            case "CANCELLATION_REQUEST_FAILED":
+                StatusTraduzido = "Cancelamento Falhou";
                     break;
             case "REQUEST_DRIVER_SUCCESS":
                 StatusTraduzido = "Entregador Chamado";

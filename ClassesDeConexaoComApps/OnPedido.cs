@@ -150,7 +150,7 @@ public class OnPedido
                         {
                             ClsSons.PlaySom();
 
-                            ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+                            ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
 
 
                             int insertNoSysMenuConta = 0;

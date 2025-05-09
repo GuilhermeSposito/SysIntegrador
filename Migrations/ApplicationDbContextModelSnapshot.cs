@@ -44,6 +44,56 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("apoioonpedido");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesAiqfome.ClsEmpresasAiqFome", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClientId")
+                        .HasColumnType("text")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("CodeUri")
+                        .HasColumnType("text")
+                        .HasColumnName("code_uri");
+
+                    b.Property<bool>("IntegraEmpresa")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integra_empresa");
+
+                    b.Property<string>("NomeIdentificador")
+                        .HasColumnType("text")
+                        .HasColumnName("nome_identificador");
+
+                    b.Property<bool>("Online")
+                        .HasColumnType("boolean")
+                        .HasColumnName("online");
+
+                    b.Property<string>("RedirectUri")
+                        .HasColumnType("text")
+                        .HasColumnName("redirect_uri");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text")
+                        .HasColumnName("refresh_token");
+
+                    b.Property<string>("TokenExpiracao")
+                        .HasColumnType("text")
+                        .HasColumnName("token_expiracao");
+
+                    b.Property<string>("TokenReq")
+                        .HasColumnType("text")
+                        .HasColumnName("token_req");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("empresasaiqfome");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu.ApoioAppGarcom", b =>
                 {
                     b.Property<int>("Id")
@@ -271,8 +321,8 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("real")
                         .HasColumnName("qtdcomanda");
 
-                    b.Property<int>("Qtdade")
-                        .HasColumnType("integer")
+                    b.Property<float>("Qtdade")
+                        .HasColumnType("real")
                         .HasColumnName("qtdade");
 
                     b.Property<string>("Requisicao")
@@ -581,6 +631,90 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("setup");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.EmpresasEntregaTaxyMachine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CodEntregador")
+                        .HasColumnType("text")
+                        .HasColumnName("cod_entregador");
+
+                    b.Property<bool>("Integra")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integra");
+
+                    b.Property<string>("MachineId")
+                        .HasColumnType("text")
+                        .HasColumnName("machine_id");
+
+                    b.Property<string>("NomeEmpresa")
+                        .HasColumnType("text")
+                        .HasColumnName("nome_empresa");
+
+                    b.Property<string>("Senha")
+                        .HasColumnType("text")
+                        .HasColumnName("senha");
+
+                    b.Property<string>("TipoPagamento")
+                        .HasColumnType("text")
+                        .HasColumnName("tipo_pagamento");
+
+                    b.Property<string>("Usuario")
+                        .HasColumnType("text")
+                        .HasColumnName("usuario");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("empresastaxymachine");
+                });
+
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.Ifood.EmpresasIfood", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DataExpiracao")
+                        .HasColumnType("text")
+                        .HasColumnName("dataExpiracao");
+
+                    b.Property<bool>("IntegraEmpresa")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integraempresa");
+
+                    b.Property<string>("MerchantId")
+                        .HasColumnType("text")
+                        .HasColumnName("merchantid");
+
+                    b.Property<string>("NomeIdentificador")
+                        .HasColumnType("text")
+                        .HasColumnName("nome");
+
+                    b.Property<bool>("Online")
+                        .HasColumnType("boolean")
+                        .HasColumnName("online");
+
+                    b.Property<string>("RefreshToken")
+                        .HasColumnType("text")
+                        .HasColumnName("refreshToken");
+
+                    b.Property<string>("Token")
+                        .HasColumnType("text")
+                        .HasColumnName("token");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("empresasIfoods");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ParametrosDoPedido", b =>
                 {
                     b.Property<string>("Id")
@@ -678,6 +812,11 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("text")
                         .HasColumnName("clientsecret");
 
+                    b.Property<string>("ClientSecretAiqfome")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("client_secret_aiqfome");
+
                     b.Property<string>("CodFilialCCM")
                         .HasColumnType("text")
                         .HasColumnName("codfilialccm");
@@ -711,6 +850,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<bool>("EnviaPedidoAut")
                         .HasColumnType("boolean")
                         .HasColumnName("enviapedidoaut");
+
+                    b.Property<bool>("IfoodMultiEmpresa")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ifoodmultiempresa");
 
                     b.Property<bool>("ImpCompacta")
                         .HasColumnType("boolean")
@@ -748,6 +891,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("imprimircomandacaixa");
 
+                    b.Property<bool>("IntegraAiQFome")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integra_aiqfome");
+
                     b.Property<bool>("IntegraAnotaAi")
                         .HasColumnType("boolean")
                         .HasColumnName("integraanotaai");
@@ -772,6 +919,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("integraifood");
 
+                    b.Property<bool>("IntegraJumaEntregas")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integra_juma_entregas");
+
                     b.Property<bool>("IntegraOnOPedido")
                         .HasColumnType("boolean")
                         .HasColumnName("integraonpedido");
@@ -783,6 +934,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<bool>("IntegracaoSysMenu")
                         .HasColumnType("boolean")
                         .HasColumnName("integracaosysmenu");
+
+                    b.Property<bool>("IntegravariasEmpresasTaxyMachine")
+                        .HasColumnType("boolean")
+                        .HasColumnName("integra_varias_empresas_taxymachine");
 
                     b.Property<string>("MerchantId")
                         .HasColumnType("text")
@@ -804,6 +959,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<bool>("RemoveComplementos")
                         .HasColumnType("boolean")
                         .HasColumnName("removecomplmentos");
+
+                    b.Property<bool>("RetornoAut")
+                        .HasColumnType("boolean")
+                        .HasColumnName("retornoaut");
 
                     b.Property<string>("SenhaDelMatch")
                         .HasColumnType("text")

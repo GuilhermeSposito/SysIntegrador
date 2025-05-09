@@ -218,9 +218,10 @@ public class ClsInfosDePagamentosParaImpressaoCCM
 
         if (!String.IsNullOrEmpty(trocoPara))
         {
-            if (DescricaoPagamento == "Dinheiro")
+            if (DescricaoPagamento == "Dinheiro" || DescricaoPagamento == "Outros")
             {
-                var TrocoPara = float.Parse(trocoPara.Replace(".", ","));
+                float.TryParse(trocoPara.Replace(".", ","), out float TrocoPara);
+
                 var troco = TrocoPara - ValorTotal;
 
                 infos.TipoPagamento += $" Levar troco  {troco.ToString("c")}";

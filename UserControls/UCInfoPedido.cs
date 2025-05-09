@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SysIntegradorApp.ClassesAuxiliares;
+using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoTaxyMachine;
+using SysIntegradorApp.ClassesAuxiliares.Ifood;
 using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data;
 using SysIntegradorApp.data.InterfaceDeContexto;
@@ -190,16 +192,59 @@ public partial class UCInfoPedido : UserControl
         impressoras.Clear();
     }
 
-    private void btnDespacharIfood_Click(object sender, EventArgs e)
+    private async void btnDespacharIfood_Click(object sender, EventArgs e)
     {
-        Ifood Ifood = new Ifood(new MeuContexto());
-        Ifood.DespacharPedido(orderId: Id_pedido);
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (config!.IfoodMultiEmpresa)
+                {
+                    var empresa = await db.empresasIfoods.FirstOrDefaultAsync(x => x.MerchantId == Pedido.merchant.id && x.IntegraEmpresa);
+                    Ifood Ifood = new Ifood(new MeuContexto());
+                    Ifood.DespacharPedidoMultiEmpresa(orderId: Id_pedido, empresa!.Token!);
+                }
+                else
+                {
+                    Ifood Ifood = new Ifood(new MeuContexto());
+                    Ifood.DespacharPedido(orderId: Id_pedido);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
     }
 
-    private void buttonReadyToPickUp_Click(object sender, EventArgs e)
+    private async void buttonReadyToPickUp_Click(object sender, EventArgs e)
     {
-        Ifood Ifood = new Ifood(new MeuContexto());
-        Ifood.AvisoReadyToPickUp(orderId: Id_pedido);
+
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                var config = await db.parametrosdosistema.FirstOrDefaultAsync();
+
+                if (config!.IfoodMultiEmpresa)
+                {
+                    var empresa = await db.empresasIfoods.FirstOrDefaultAsync(x => x.MerchantId == Pedido.merchant.id && x.IntegraEmpresa);
+                    Ifood Ifood = new Ifood(new MeuContexto());
+                    Ifood.AvisoReadyToPickUpMultiEmpresa(orderId: Id_pedido, empresa!.Token!);
+                }
+                else
+                {
+                    Ifood Ifood = new Ifood(new MeuContexto());
+                    Ifood.AvisoReadyToPickUp(orderId: Id_pedido);
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
     }
 
     private void UCInfoPedido_Paint(object sender, PaintEventArgs e)
@@ -211,19 +256,38 @@ public partial class UCInfoPedido : UserControl
         }
     }
 
-    private void btnCancelar_Click(object sender, EventArgs e)
+    private async void btnCancelar_Click(object sender, EventArgs e)
     {
-        FormDeCancelamento modalCancelamento = new FormDeCancelamento() { id_Pedido = Id_pedido };
-        modalCancelamento.display_Id = Display_id;
-        modalCancelamento.ShowDialog();
+        try
+        {
+
+            FormDeCancelamento modalCancelamento = new FormDeCancelamento() { id_Pedido = Id_pedido, Pedido = Pedido };
+            modalCancelamento.display_Id = Display_id;
+            modalCancelamento.ShowDialog();
+
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Erro", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
     }
 
-    private void UCInfoPedido_Load(object sender, EventArgs e)
+    private async void UCInfoPedido_Load(object sender, EventArgs e)
     {
         try
         {
             using ApplicationDbContext db = new ApplicationDbContext();
-            ParametrosDoSistema ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+            ParametrosDoSistema? ConfigsSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+
+            if (ConfigsSistema!.IfoodMultiEmpresa)
+            {
+                EmpresasIfood? empresa = await db.empresasIfoods.FirstOrDefaultAsync(x => x.MerchantId == Pedido.merchant.id && x.IntegraEmpresa);
+                if (empresa is not null)
+                {
+                    LblIdentificacaoDaLoja.Text = empresa.NomeIdentificador;
+                    LblIdentificacaoDaLoja.Visible = true;
+                }
+            }
 
             if (!ConfigsSistema.AceitaPedidoAut)
             {
@@ -268,18 +332,26 @@ public partial class UCInfoPedido : UserControl
     {
         try
         {
-            Polling NovoPolling = JsonConvert.DeserializeObject<Polling>(Pedido.JsonPolling);
+            Polling NovoPolling = JsonConvert.DeserializeObject<Polling>(Pedido.JsonPolling)!;
             using ApplicationDbContext db = new ApplicationDbContext();
             var opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-
             Ifood Ifood = new Ifood(new MeuContexto());
 
-            Ifood.ConfirmarPedido(NovoPolling);
-            await Ifood.AvisarAcknowledge(NovoPolling);
-            ClsSons.StopSom();
+            if (opSistema!.IfoodMultiEmpresa)
+            {
+                var empresa = await db.empresasIfoods.FirstOrDefaultAsync(x => x.MerchantId == Pedido.merchant.id && x.IntegraEmpresa);
 
-            MessageBox.Show("Pedido Aceito", "Aceito", MessageBoxButtons.OK);
+               await Ifood.ConfirmarPedidoMultiEmpresa(NovoPolling!, empresa!.Token!);
+               await Ifood.AvisarAcknowledgeMultiEmpresa(NovoPolling!, empresa!.Token!);
+            }
+            else
+            {
+                await Ifood.ConfirmarPedido(NovoPolling);
+                await Ifood.AvisarAcknowledge(NovoPolling);
+                ClsSons.StopSom();
+            }
 
+            await SysAlerta.Alerta("Pedido Aceito", "Pedido Aceito com sucesso", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
 
             List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
             ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
@@ -290,7 +362,7 @@ public partial class UCInfoPedido : UserControl
                 {
                     if (imp != "Sem Impressora" && imp != null)
                     {
-                        Impressao.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                        Impressao.ChamaImpressoes(pedido!.Conta, pedido.DisplayId, imp);
                     }
                 }
             }
@@ -307,7 +379,7 @@ public partial class UCInfoPedido : UserControl
         }
         catch (Exception ex)
         {
-            MessageBox.Show(ex.Message, "Erro ao Aceitar o pedido manualmente");
+            await SysAlerta.Alerta("Erro", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
     }
 

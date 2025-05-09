@@ -23,6 +23,7 @@ using SysIntegradorApp.ClassesAuxiliares.logs;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.ClassesAuxiliares.ClassesDeserializacaoCCM;
 using SysIntegradorApp.Forms;
+using SysIntegradorApp.ClassesAuxiliares.Ifood;
 
 
 namespace SysIntegradorApp.ClassesDeConexaoComApps;
@@ -47,8 +48,13 @@ public class Ifood
             using (ApplicationDbContext db = await _db.GetContextoAsync())
             {
                 ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
-                var authBase = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
 
+                if (opcSistema!.IfoodMultiEmpresa)
+                {
+                    throw new Exception("App Integrado para multiempresa");
+                }
+
+                var authBase = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
                 if (opcSistema.IntegracaoSysMenu)
                 {
                     bool CaixaAberto = await ClsDeIntegracaoSys.VerificaCaixaAberto();
@@ -74,7 +80,6 @@ public class Ifood
 
                     foreach (var P in pollings)
                     {
-
                         switch (P.code)
                         {
                             case "PLC": //caso entre aqui é porque é um novo pedido
@@ -98,9 +103,19 @@ public class Ifood
                             case "CAR":
                                 ClsSons.StopSom();
                                 await AtualizarStatusPedido(P);
+                                await AvisarAcknowledge(P);                        
+                                break;
+                            case "CAN":
+                                ClsSons.StopSom();
+                                await AtualizarStatusPedido(P);
                                 await AvisarAcknowledge(P);
                                 ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId);
-                                break;
+                                break;  
+                            case "CANF":
+                                ClsSons.StopSom();
+                                await AtualizarStatusPedido(P);
+                                await AvisarAcknowledge(P);
+                                break;                         
                             case "CON": //mudaria o status ou na tabela do sys menu
                                 ClsSons.StopSom();
                                 await AtualizarStatusPedido(P);
@@ -108,11 +123,6 @@ public class Ifood
                                 break;
                             case "DDCR": //mudaria o status ou na tabela do sys menu
                                 ClsSons.StopSom();
-                                await AvisarAcknowledge(P);
-                                break;
-                            case "CAN": //mudaria o status ou na tabela do sys menu
-                                ClsSons.StopSom();
-                                await AtualizarStatusPedido(P);
                                 await AvisarAcknowledge(P);
                                 break;
                             case "DSP":
@@ -160,7 +170,7 @@ public class Ifood
                             case "AAO":
                                 ClsSons.StopSom();
                                 await AvisarAcknowledge(P);
-                                break;  
+                                break;
                             case "DDCS":
                                 ClsSons.StopSom();
                                 await AvisarAcknowledge(P);
@@ -182,12 +192,172 @@ public class Ifood
                 }
             }
         }
+        catch (Exception ex) when (ex.Message.Contains("App Integrado para multiempresa"))
+        {
+            await PoolingMultiEmpresa();
+        }
         catch (Exception ex)
         {
             await Logs.CriaLogDeErro(ex.ToString());
             await SysAlerta.Alerta("Ops", "Por favor, verifique sua conexão com a internet. Ela pode estar oscilando ou desligada!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
 
+    }
+
+    public async Task PoolingMultiEmpresa()
+    {
+        try
+        {
+            string url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
+
+            using (ApplicationDbContext db = await _db.GetContextoAsync())
+            {
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                List<EmpresasIfood> empresasIfood = await db.empresasIfoods.ToListAsync();
+
+                if (opcSistema!.IntegracaoSysMenu)
+                {
+                    bool CaixaAberto = await ClsDeIntegracaoSys.VerificaCaixaAberto();
+
+                    if (!CaixaAberto)
+                    {
+                        ClsSons.PlaySom2();
+                        await SysAlerta.Alerta("Aplicativo Integrado", "Seu aplicativo está integrado com o SysMenu, abra o caixa para continuar", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+                        ClsSons.StopSom();
+                        Application.Exit();
+                        return;
+                    }
+                }
+
+                foreach (var empresa in empresasIfood)
+                {
+                    await RefreshTokenIfoodMultiEmpresa(empresa);
+                    var reponse = await EnviaReqParaOIfoodMultiEmpresa($"{url}:polling", "GET", AcessToken: empresa.Token!);
+
+                    int statusCode = (int)reponse.StatusCode;
+                    if (statusCode == 200)
+                    {
+                        string jsonContent = await reponse.Content.ReadAsStringAsync();
+                        List<Polling>? pollings = JsonConvert.DeserializeObject<List<Polling>>(jsonContent); //pedidos nesse caso é o pulling 
+
+                        foreach (var P in pollings)
+                        {
+                            switch (P.code)
+                            {
+                                case "PLC": //caso entre aqui é porque é um novo pedido
+                                    ClsSons.PlaySom();
+                                    if (opcSistema.AceitaPedidoAut)
+                                    {
+                                        await SetPedido(P.orderId, P, empresa.Token);
+                                        await ConfirmarPedidoMultiEmpresa(P, empresa.Token!);
+                                        await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    }
+                                    else
+                                    {
+                                        await SetPedido(P.orderId, P, empresa.Token);
+                                    }
+                                    break;
+                                case "CFM":
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "CAR":
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    ClsDeIntegracaoSys.ExcluiPedidoCasoCancelado(P.orderId!);
+                                    break;
+                                case "CON": //mudaria o status ou na tabela do sys menu
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "DDCR": //mudaria o status ou na tabela do sys menu
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "CAN": //mudaria o status ou na tabela do sys menu
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "DSP":
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "RDR":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "RDS":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "RTP":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "HSD":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "HSS":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "GTO":
+                                    ClsSons.StopSom();
+                                    await AtualizarStatusPedido(P);
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "AAD":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "DRGO":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "DCR":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "AAO":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "DDCS":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                                case "ADR":
+                                    ClsSons.StopSom();
+                                    await AvisarAcknowledgeMultiEmpresa(P, empresa.Token!);
+                                    break;
+                            }
+                        }
+
+                    }
+                    string statusMerchat = await GetStatusMerchantMultiEmpresa(empresa);
+
+                    if (statusMerchat == "OK")
+                    {
+                        if (!empresa.Online)
+                        {
+                            empresa.Online = true;
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+            await SysAlerta.Alerta("Ops", $"{ex.Message}", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
     }
 
     public async Task<bool> VerificaTokenValido()
@@ -277,12 +447,10 @@ public class Ifood
                         pedido.Situacao = P.fullCode;
                         db.SaveChanges();
                         ClsDeSuporteAtualizarPanel.MudouDataBase = true;
-                        //FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
                     }
 
                 }
             }
-            //await db.DisposeAsync();
         }
         catch (Exception ex)
         {
@@ -316,7 +484,7 @@ public class Ifood
 
     //Função que Insere o pediddo que vem no pulling no banco de dados
 
-    public async Task SetPedido(string? orderId, Polling P)
+    public async Task SetPedido(string? orderId, Polling P, string? TokenEmpresa = null)
     {
         string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{P.orderId}";
         try
@@ -330,7 +498,17 @@ public class Ifood
 
                 if (!verificaSeExistePedido)
                 {
-                    HttpResponseMessage response = await EnviaReqParaOIfood(url, "GET");
+                    HttpResponseMessage response;
+
+                    if(TokenEmpresa is null)
+                    {
+                        response = await EnviaReqParaOIfood(url, "GET");
+                    }
+                    else
+                    {
+                        response = await EnviaReqParaOIfoodMultiEmpresa(url, "GET", AcessToken: TokenEmpresa);
+                    }
+
 
                     string? jsonContent = await response.Content.ReadAsStringAsync();
                     PedidoCompleto? pedidoCompletoDeserialiado = JsonConvert.DeserializeObject<PedidoCompleto>(jsonContent);
@@ -338,7 +516,7 @@ public class Ifood
 
                     int insertNoSysMenuConta = 0;
                     string? mesa = pedidoCompletoDeserialiado.orderType == "DELIVERY" ? "WEB" : "WEBB";
-                    ParametrosDoSistema? Configs = db.parametrosdosistema.ToList().FirstOrDefault();
+                    ParametrosDoSistema? Configs = db.parametrosdosistema.FirstOrDefault();
 
                     if (Configs.IntegracaoSysMenu)
                     {
@@ -1336,7 +1514,7 @@ public class Ifood
                     if (statusCode == 401)
                     {
                         ClsSons.PlaySom2();
-                        await SysAlerta.Alerta("Login Vencido", "Login expirado, por favor refaça o login!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);               
+                        await SysAlerta.Alerta("Login Vencido", "Login expirado, por favor refaça o login!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
                         ClsSons.StopSom();
                         Application.Exit();
                     }
@@ -1344,7 +1522,7 @@ public class Ifood
                     if (statusCode != 200)
                     {
                         var message = JsonConvert.DeserializeObject<ClsDeserializacaoMessage>(jsonContent);
-                        throw new Exception(message.message);
+                        throw new Exception(message!.message);
                     }
 
                 }
@@ -1473,4 +1651,318 @@ public class Ifood
     {
         return new ApplicationDbContext();
     }
+
+    ///////////////////////// A PARTIR DAQUI É A PARTE DE MULTIEMPRESA //////////////////////////////////
+
+    public async Task ConfirmarPedidoMultiEmpresa(Polling P, string Token)
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{P.orderId}/confirm";
+        try
+        {
+            HttpResponseMessage response = await EnviaReqParaOIfoodMultiEmpresa(url, "POST", Token);
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+    public async Task AvisarAcknowledgeMultiEmpresa(Polling polling, string Token)
+    {
+        string? url = @"https://merchant-api.ifood.com.br/order/v1.0/events";
+        try
+        {
+            using (ApplicationDbContext db = await _db.GetContextoAsync())
+            {
+                ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                var authBase = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
+
+                using HttpClient client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", Token);
+                List<Polling> pollingList = new List<Polling>();
+                pollingList.Add(polling);
+
+
+                var polingToJson = JsonConvert.SerializeObject(pollingList);
+
+
+                StringContent content = new StringContent(polingToJson, Encoding.UTF8, "application/json");
+
+                await client.PostAsync($"{url}/acknowledgment", content);
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+    public async Task<HttpResponseMessage> EnviaReqParaOIfoodMultiEmpresa(string? url, string? metodo, string AcessToken, string? content = "", string? refreshToken = null)
+    {
+        HttpResponseMessage response = new HttpResponseMessage();
+        try
+        {
+            using (ApplicationDbContext db = await _db.GetContextoAsync())
+            {
+
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                var Auth = db.parametrosdeautenticacao.FirstOrDefault();
+
+                if (metodo == "POST")
+                {
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AcessToken);
+                    StringContent contentToReq = new StringContent(content, Encoding.UTF8, "application/json");
+
+                    response = await client.PostAsync(url, contentToReq);
+
+                    return response;
+                }
+
+                if (metodo == "GET")
+                {
+                    using HttpClient client = new HttpClient();
+                    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", AcessToken);
+
+
+                    response = await client.GetAsync(url);
+
+                    return response;
+                }
+
+                if (metodo == "REFRESHTOKEN")
+                {
+                    using HttpClient client = new HttpClient();
+                    ParametrosDoSistema? opcSistema = db.parametrosdosistema.FirstOrDefault();
+
+                    FormUrlEncodedContent formDataToGetTheToken = new FormUrlEncodedContent(new[]
+                         {
+                        new KeyValuePair<string, string>("grantType", "refresh_token"),
+                        new KeyValuePair<string, string>("clientId", opcSistema!.ClientId!),
+                        new KeyValuePair<string, string>("clientSecret", opcSistema.ClientSecret!),
+                        new KeyValuePair<string, string>("refreshToken", refreshToken!),
+
+                     });
+
+                    url = "https://merchant-api.ifood.com.br/authentication/v1.0/oauth/";
+
+                    response = await client.PostAsync($"{url}/token", formDataToGetTheToken);
+
+                    return response;
+                }
+
+                //await db.DisposeAsync();
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+        return response;
+    }
+
+    public async void DespacharPedidoMultiEmpresa(string? orderId, string AcessToken)
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/dispatch"; ///orders/{id}/dispatch
+        try
+        {
+            HttpResponseMessage resp = await EnviaReqParaOIfoodMultiEmpresa(url, "POST", AcessToken);
+
+            int statusCode = (int)resp.StatusCode;
+
+            if (statusCode == 202)
+            {
+                await SysAlerta.Alerta("Despachado", "Pedido Despachado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+            }
+            else
+            {
+                string? message = await resp.Content.ReadAsStringAsync();
+
+                await SysAlerta.Alerta("Ops", message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+    public async Task<List<ClsMotivosDeCancelamento>> CancelaPedidoOpcoesMultiEmpresa(string orderId, string acessToken)
+    {
+        List<ClsMotivosDeCancelamento>? motivosDeCancelamento = new();
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/cancellationReasons";
+        try
+        {
+            HttpResponseMessage response = await EnviaReqParaOIfoodMultiEmpresa(url, "GET", acessToken);
+            int statusCode = (int)response.StatusCode;
+
+            if (statusCode == 200)
+            {
+                string? jsonResponse = await response.Content.ReadAsStringAsync();
+                motivosDeCancelamento = JsonConvert.DeserializeObject<List<ClsMotivosDeCancelamento>>(jsonResponse);
+
+
+                return motivosDeCancelamento;
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+        return motivosDeCancelamento;
+    }
+
+    public async void AvisoReadyToPickUpMultiEmpresa(string? orderId, string acessToken)
+    {
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/readyToPickup"; ///orders/{id}/dispatch
+        try
+        {
+            HttpResponseMessage resp = await EnviaReqParaOIfoodMultiEmpresa(url, "POST", AcessToken: acessToken);
+
+            int statusCode = (int)resp.StatusCode;
+            if (statusCode == 202)
+            {
+                await SysAlerta.Alerta("Pedido Pronto", "Pedido Pronto Para Retirada avisado com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+            }
+            else
+            {
+                string? message = await resp.Content.ReadAsStringAsync();
+
+                await SysAlerta.Alerta("Ops", message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+
+            }
+
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+    public async Task RefreshTokenIfoodMultiEmpresa(EmpresasIfood Empresa)
+    {
+        try
+        {
+            using (ApplicationDbContext db = await _db.GetContextoAsync())
+            {
+
+                if (Empresa != null)
+                {
+                    DateTime dataHoraAtual = DateTime.Now;
+                    string DataDeVencimentoString = Empresa.DataExpiracao!;
+                    DateTime DataDeVencimento = DateTime.ParseExact(DataDeVencimentoString, "dd/MM/yyyy HH:mm:ss", null);
+
+                    if (dataHoraAtual >= DataDeVencimento)
+                    {
+                        var RespostaDoRefreshTokenEndPoint = await EnviaReqParaOIfoodMultiEmpresa(" ", "REFRESHTOKEN", AcessToken: Empresa.Token!, refreshToken: Empresa.RefreshToken);
+
+                        if (RespostaDoRefreshTokenEndPoint.IsSuccessStatusCode)
+                        {
+                            var repsonseWithToken = await RespostaDoRefreshTokenEndPoint.Content.ReadAsStringAsync();
+                            Token propriedadesAPIWithToken = JsonConvert.DeserializeObject<Token>(repsonseWithToken)!;
+
+                            DateTime horaAtual = DateTime.Now;
+                            DateTime horaFutura = horaAtual.AddSeconds(propriedadesAPIWithToken!.expiresIn);
+                            string HoraFormatada = horaFutura.ToString();
+
+                            propriedadesAPIWithToken.VenceEm = HoraFormatada;
+                            Empresa.Token = propriedadesAPIWithToken.accessToken;
+                            Empresa.RefreshToken = propriedadesAPIWithToken.refreshToken;
+                            Empresa.DataExpiracao = HoraFormatada;
+                            await db.SaveChangesAsync();
+                        }
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+    }
+
+    public async Task<int> CancelaPedidoMultiEmpresa(string? orderId, string reason, string cancellationCode, string acesstoken) //retorna o statuscode
+    {
+        int statusCode = 500;
+        string url = $"https://merchant-api.ifood.com.br/order/v1.0/orders/{orderId}/requestCancellation";
+        try
+        {
+            ClsParaEnvioDeCancelamento codesParaCancelar = new ClsParaEnvioDeCancelamento() { reason = reason, cancellationCode = cancellationCode };
+            string? content = JsonConvert.SerializeObject(codesParaCancelar);
+
+
+
+            HttpResponseMessage response = await EnviaReqParaOIfoodMultiEmpresa(url, "POST", AcessToken: acesstoken, content);
+            statusCode = (int)response.StatusCode;
+
+            if (statusCode == 202)
+            {
+                await SysAlerta.Alerta("Tudo Certo!", "Cancelamento Enviado com sucesso", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+            }
+
+            return statusCode;
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+        return statusCode;
+    }
+
+    public async Task<string> GetStatusMerchantMultiEmpresa(EmpresasIfood empresa)
+    {
+        string validationState = "ERROR";
+        try
+        {
+            using (ApplicationDbContext db = await _db.GetContextoAsync())
+            {
+
+                Validation validations = new Validation();
+                ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                string? merchantId = empresa.MerchantId;
+
+                if (merchantId != null)
+                {
+                    string url = $"https://merchant-api.ifood.com.br/merchant/v1.0/merchants/{merchantId}/status";
+
+                    HttpResponseMessage response = await EnviaReqParaOIfoodMultiEmpresa(url, "GET", AcessToken: empresa.Token!);
+                    string? jsonContent = await response.Content.ReadAsStringAsync();
+
+                    int statusCode = (int)response.StatusCode;
+
+                    if (statusCode == 200)
+                    {
+                        var deliveryStatus = JsonConvert.DeserializeObject<List<DeliveryStatus>>(jsonContent)!.FirstOrDefault();
+                        validations = deliveryStatus!.Validations.FirstOrDefault()!;
+
+                        return validations.State!;
+                    }
+
+                    if (statusCode == 401)
+                    {
+                        ClsSons.PlaySom2();
+                        await SysAlerta.Alerta("Login Vencido", "Login expirado, por favor refaça o login!", SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+                        ClsSons.StopSom();
+                        Application.Exit();
+                    }
+
+                    if (statusCode != 200)
+                    {
+                        var message = JsonConvert.DeserializeObject<ClsDeserializacaoMessage>(jsonContent);
+                        throw new Exception(message!.message);
+                    }
+
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await Logs.CriaLogDeErro(ex.ToString());
+        }
+        return validationState;
+    }
+
+
+
 }

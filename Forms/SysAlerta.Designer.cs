@@ -36,16 +36,16 @@
             panelDeTitulo = new Panel();
             lblTitulo = new Label();
             panelDeMensagem = new Panel();
+            LblMensagem = new Label();
+            pictureBoxSucesso = new PictureBox();
             pictureBoxError = new PictureBox();
             pictureBoxAviso = new PictureBox();
-            pictureBoxSucesso = new PictureBox();
-            LblMensagem = new Label();
             panelTituloContainer.SuspendLayout();
             panelDeTitulo.SuspendLayout();
             panelDeMensagem.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSucesso).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxError).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAviso).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxSucesso).BeginInit();
             SuspendLayout();
             // 
             // BtnSim
@@ -138,6 +138,29 @@
             panelDeMensagem.Size = new Size(723, 250);
             panelDeMensagem.TabIndex = 10;
             // 
+            // LblMensagem
+            // 
+            LblMensagem.Dock = DockStyle.Fill;
+            LblMensagem.Font = new Font("Segoe UI", 19.8000011F, FontStyle.Bold | FontStyle.Italic);
+            LblMensagem.Location = new Point(0, 336);
+            LblMensagem.Name = "LblMensagem";
+            LblMensagem.Size = new Size(702, 0);
+            LblMensagem.TabIndex = 3;
+            LblMensagem.Text = "Mensagem de erro que vai aparecer aqui caso de um erro u um aviso de mensagem ";
+            LblMensagem.TextAlign = ContentAlignment.TopCenter;
+            // 
+            // pictureBoxSucesso
+            // 
+            pictureBoxSucesso.Dock = DockStyle.Top;
+            pictureBoxSucesso.Image = (Image)resources.GetObject("pictureBoxSucesso.Image");
+            pictureBoxSucesso.Location = new Point(0, 224);
+            pictureBoxSucesso.Name = "pictureBoxSucesso";
+            pictureBoxSucesso.Size = new Size(702, 112);
+            pictureBoxSucesso.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxSucesso.TabIndex = 2;
+            pictureBoxSucesso.TabStop = false;
+            pictureBoxSucesso.Visible = false;
+            // 
             // pictureBoxError
             // 
             pictureBoxError.Dock = DockStyle.Top;
@@ -163,33 +186,11 @@
             pictureBoxAviso.TabIndex = 0;
             pictureBoxAviso.TabStop = false;
             // 
-            // pictureBoxSucesso
-            // 
-            pictureBoxSucesso.Dock = DockStyle.Top;
-            pictureBoxSucesso.Image = (Image)resources.GetObject("pictureBoxSucesso.Image");
-            pictureBoxSucesso.Location = new Point(0, 224);
-            pictureBoxSucesso.Name = "pictureBoxSucesso";
-            pictureBoxSucesso.Size = new Size(702, 112);
-            pictureBoxSucesso.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxSucesso.TabIndex = 2;
-            pictureBoxSucesso.TabStop = false;
-            pictureBoxSucesso.Visible = false;
-            // 
-            // LblMensagem
-            // 
-            LblMensagem.Dock = DockStyle.Fill;
-            LblMensagem.Font = new Font("Segoe UI", 19.8000011F, FontStyle.Bold | FontStyle.Italic);
-            LblMensagem.Location = new Point(0, 336);
-            LblMensagem.Name = "LblMensagem";
-            LblMensagem.Size = new Size(702, 0);
-            LblMensagem.TabIndex = 3;
-            LblMensagem.Text = "Mensagem de erro que vai aparecer aqui caso de um erro u um aviso de mensagem ";
-            LblMensagem.TextAlign = ContentAlignment.TopCenter;
-            // 
             // SysAlerta
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoScroll = true;
             BackColor = SystemColors.ControlDark;
             ClientSize = new Size(723, 433);
             Controls.Add(panelDeMensagem);
@@ -205,9 +206,9 @@
             panelTituloContainer.ResumeLayout(false);
             panelDeTitulo.ResumeLayout(false);
             panelDeMensagem.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)pictureBoxSucesso).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxError).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxAviso).EndInit();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxSucesso).EndInit();
             ResumeLayout(false);
         }
 

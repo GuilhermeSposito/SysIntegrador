@@ -13,7 +13,7 @@ public class Contas
     [Key][Column("id")] public int Id { get; set; }
     [Column("conta")] public string? Conta { get; set; }
     [Column("mesa")] public string? Mesa { get; set; }
-    [Column("qtdade")] public int Qtdade { get; set; }
+    [Column("qtdade")] public float Qtdade { get; set; }
     [Column("codcarda1")] public string? CodCarda1 { get; set; }
     [Column("codcarda2")] public string? CodCarda2 { get; set; }
     [Column("codcarda3")] public string? CodCarda3 { get; set; }

@@ -12,13 +12,14 @@ public class ClsApoioRespostaApi
     [JsonIgnore] public int NumConta {  get; set; }
     [JsonProperty("success")] public bool Success { get; set; }
     [JsonProperty("response")] public Response Response { get; set; } = new Response();
-    [JsonProperty("errors")] public List<Errors> Errors { get; set; } = new List<Errors>();
+    [JsonProperty("erros")] public List<Errors> Errors { get; set; } = new List<Errors>();
 
 }
 
 public class Response
 {
     [JsonProperty("id_mch")] public string? Machine_Id { get; set; }
+    [JsonProperty("erros")] public List<string> Errors { get; set; } = new List<string>();
 }
 
 public class Errors

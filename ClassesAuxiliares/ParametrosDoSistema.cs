@@ -99,6 +99,12 @@ public class ParametrosDoSistema
     [Column("codfilialccm")] public string? CodFilialCCM { get; set; }
     [Column("integragarcom")] public bool IntegraGarcom { get; set; }
     [Column("tempopollinggarcom")] public int TempoPollingGarcom { get; set; }
+    [Column("ifoodmultiempresa")] public bool IfoodMultiEmpresa { get; set; }
+    [Column("retornoaut")] public bool RetornoAut { get; set; }
+    [Column("client_secret_aiqfome")] public string ClientSecretAiqfome { get; set; }
+    [Column("integra_aiqfome")] public bool IntegraAiQFome { get; set; } = false;
+    [Column("integra_juma_entregas")] public bool IntegraJumaEntregas { get; set; } = false;
+    [Column("integra_varias_empresas_taxymachine")] public bool IntegravariasEmpresasTaxyMachine { get; set; } = false;
     public ParametrosDoSistema() { }
 
 

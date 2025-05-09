@@ -179,10 +179,23 @@ namespace SysIntegradorApp
 
                     if (ConfigApp.IntegraIfood)
                     {
+                        ParametrosDoSistema? ConfigSistem = db.parametrosdosistema.FirstOrDefault();
+                        if (ConfigSistem!.IfoodMultiEmpresa)
+                        {
+                            var Empresas = await db.empresasIfoods.ToListAsync();
+                            foreach (var empresa in Empresas)
+                            {
+                                if (empresa.Online)
+                                {
+                                    empresa.Online = false;
+                                    await db.SaveChangesAsync();
+                                }
+                            }
+                        }
+
                         Ifood Ifood = new Ifood(new MeuContexto());
                         await Ifood.RefreshTokenIfood();
 
-                        ParametrosDoSistema? ConfigSistem = db.parametrosdosistema.FirstOrDefault();
 
                         Token? tokenNoDb = await db.parametrosdeautenticacao.FirstOrDefaultAsync();
 
@@ -261,8 +274,6 @@ namespace SysIntegradorApp
             try
             {
                 panelInstrucoes.Visible = false;
-
-                //using ApplicationDbContext db = new ApplicationDbContext();
                 using (ApplicationDbContext db = await _context.GetContextoAsync())
                 {
                     ParametrosDoSistema? opcSistema = db.parametrosdosistema.ToList().FirstOrDefault();

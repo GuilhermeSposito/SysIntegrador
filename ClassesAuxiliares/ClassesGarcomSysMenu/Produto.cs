@@ -25,6 +25,6 @@ public class Produto
     [Column("ocultatablet")] public bool OcultaTablet { get; set; }
     [NotMapped] public string? Observacao { get; set; } = String.Empty;
     [NotMapped] public string? Requisicao { get; set; } = String.Empty;
-    [NotMapped] public int Quantidade { get; set; } = 1;
+    [NotMapped] public float Quantidade { get; set; } = 1;
     [NotMapped] public List<Incremento> incrementos { get; set; } = new List<Incremento>();
 }

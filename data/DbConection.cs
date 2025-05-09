@@ -10,6 +10,8 @@ using System.Data.OleDb;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using SysIntegradorApp.ClassesAuxiliares.ClassesGarcomSysMenu;
+using SysIntegradorApp.ClassesAuxiliares.Ifood;
+using SysIntegradorApp.ClassesAuxiliares.ClassesAiqfome;
 
 namespace SysIntegradorApp.data;
 
@@ -40,6 +42,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<ClsDeAcesso> acesso { get; set; }
     public DbSet<Promocoes> promocoes { get; set; }
     public DbSet<Setup> setup { get; set; }
+    public DbSet<EmpresasIfood> empresasIfoods { get; set; }
+    public DbSet<ClsEmpresasAiqFome> empresasaiqfome { get; set; }
+    public DbSet<EmpresasEntregaTaxyMachine> empresastaxymachine { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

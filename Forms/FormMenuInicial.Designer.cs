@@ -34,8 +34,6 @@
             panelDetalhePedido = new FlowLayoutPanel();
             labelDeAvisoPedidoDetalhe = new Label();
             panel1 = new Panel();
-            ChatLabel = new Label();
-            pictureBox3 = new PictureBox();
             label7 = new Label();
             pictureBox2 = new PictureBox();
             progressBar1 = new ProgressBar();
@@ -57,16 +55,15 @@
             pictureBoxOfline = new PictureBox();
             pictureBoxOnline = new PictureBox();
             labelStatusLojaNM = new Label();
-            pollingManual = new Button();
             checkBoxConcluido = new CheckBox();
             panelDePaginas = new FlowLayoutPanel();
             checkBoxDespachados = new CheckBox();
             checkBoxConfirmados = new CheckBox();
             checkBoxMesas = new CheckBox();
             notifyIcon1 = new NotifyIcon(components);
+            PanelDeInfosOnLine = new FlowLayoutPanel();
             panelDetalhePedido.SuspendLayout();
             panel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).BeginInit();
@@ -128,8 +125,6 @@
             panel1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             panel1.AutoSizeMode = AutoSizeMode.GrowAndShrink;
             panel1.BackColor = SystemColors.ButtonHighlight;
-            panel1.Controls.Add(ChatLabel);
-            panel1.Controls.Add(pictureBox3);
             panel1.Controls.Add(label7);
             panel1.Controls.Add(pictureBox2);
             panel1.Controls.Add(progressBar1);
@@ -148,35 +143,10 @@
             panel1.Controls.Add(pictureBoxHome);
             panel1.Controls.Add(pictureBox1);
             panel1.Controls.Add(panelStatusLoja);
-            panel1.Controls.Add(pollingManual);
             panel1.Location = new Point(10, 10);
             panel1.Name = "panel1";
             panel1.Size = new Size(1383, 70);
             panel1.TabIndex = 2;
-            // 
-            // ChatLabel
-            // 
-            ChatLabel.AutoSize = true;
-            ChatLabel.Font = new Font("Segoe UI Semibold", 7.8F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            ChatLabel.Location = new Point(1099, 52);
-            ChatLabel.Name = "ChatLabel";
-            ChatLabel.Size = new Size(36, 17);
-            ChatLabel.TabIndex = 24;
-            ChatLabel.Text = "Chat";
-            ChatLabel.Visible = false;
-            // 
-            // pictureBox3
-            // 
-            pictureBox3.Cursor = Cursors.Hand;
-            pictureBox3.Image = (Image)resources.GetObject("pictureBox3.Image");
-            pictureBox3.Location = new Point(1099, 6);
-            pictureBox3.Name = "pictureBox3";
-            pictureBox3.Size = new Size(51, 45);
-            pictureBox3.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBox3.TabIndex = 23;
-            pictureBox3.TabStop = false;
-            pictureBox3.Visible = false;
-            pictureBox3.Click += pictureBox3_Click;
             // 
             // label7
             // 
@@ -373,10 +343,14 @@
             panelStatusLoja.Controls.Add(pictureBoxOfline);
             panelStatusLoja.Controls.Add(pictureBoxOnline);
             panelStatusLoja.Controls.Add(labelStatusLojaNM);
+            panelStatusLoja.Cursor = Cursors.Hand;
             panelStatusLoja.Location = new Point(1208, 3);
             panelStatusLoja.Name = "panelStatusLoja";
             panelStatusLoja.Size = new Size(145, 47);
             panelStatusLoja.TabIndex = 7;
+            panelStatusLoja.Click += panelStatusLoja_Click;
+            panelStatusLoja.MouseEnter += panelStatusLoja_MouseEnter;
+            panelStatusLoja.MouseLeave += panelStatusLoja_MouseLeave;
             // 
             // pictureBoxOfline
             // 
@@ -387,6 +361,8 @@
             pictureBoxOfline.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBoxOfline.TabIndex = 10;
             pictureBoxOfline.TabStop = false;
+            pictureBoxOfline.MouseEnter += pictureBoxOfline_MouseEnter;
+            pictureBoxOfline.MouseLeave += pictureBoxOfline_MouseLeave;
             // 
             // pictureBoxOnline
             // 
@@ -398,6 +374,8 @@
             pictureBoxOnline.TabIndex = 6;
             pictureBoxOnline.TabStop = false;
             pictureBoxOnline.Visible = false;
+            pictureBoxOnline.MouseEnter += pictureBoxOnline_MouseEnter;
+            pictureBoxOnline.MouseLeave += pictureBoxOnline_MouseLeave;
             // 
             // labelStatusLojaNM
             // 
@@ -408,21 +386,9 @@
             labelStatusLojaNM.Size = new Size(86, 23);
             labelStatusLojaNM.TabIndex = 5;
             labelStatusLojaNM.Text = "Loja Oline";
-            // 
-            // pollingManual
-            // 
-            pollingManual.FlatAppearance.BorderColor = Color.Red;
-            pollingManual.FlatAppearance.BorderSize = 3;
-            pollingManual.FlatStyle = FlatStyle.Flat;
-            pollingManual.ForeColor = Color.Red;
-            pollingManual.Location = new Point(1082, 10);
-            pollingManual.Name = "pollingManual";
-            pollingManual.Size = new Size(134, 40);
-            pollingManual.TabIndex = 8;
-            pollingManual.Text = "Polling";
-            pollingManual.UseVisualStyleBackColor = true;
-            pollingManual.Visible = false;
-            pollingManual.Click += pollingManual_Click;
+            labelStatusLojaNM.Click += labelStatusLojaNM_Click;
+            labelStatusLojaNM.MouseEnter += labelStatusLojaNM_MouseEnter;
+            labelStatusLojaNM.MouseLeave += labelStatusLojaNM_MouseLeave;
             // 
             // checkBoxConcluido
             // 
@@ -506,6 +472,20 @@
             notifyIcon1.Click += notifyIcon1_Click;
             notifyIcon1.MouseDoubleClick += notifyIcon1_MouseDoubleClick;
             // 
+            // PanelDeInfosOnLine
+            // 
+            PanelDeInfosOnLine.Anchor = AnchorStyles.Top | AnchorStyles.Right;
+            PanelDeInfosOnLine.AutoScroll = true;
+            PanelDeInfosOnLine.FlowDirection = FlowDirection.TopDown;
+            PanelDeInfosOnLine.Location = new Point(1023, 62);
+            PanelDeInfosOnLine.Name = "PanelDeInfosOnLine";
+            PanelDeInfosOnLine.Size = new Size(367, 127);
+            PanelDeInfosOnLine.TabIndex = 23;
+            PanelDeInfosOnLine.Visible = false;
+            PanelDeInfosOnLine.WrapContents = false;
+            PanelDeInfosOnLine.Leave += PanelDeInfosOnLine_Leave;
+            PanelDeInfosOnLine.MouseLeave += PanelDeInfosOnLine_MouseLeave;
+            // 
             // FormMenuInicial
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -513,6 +493,7 @@
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             BackColor = SystemColors.ButtonShadow;
             ClientSize = new Size(1403, 655);
+            Controls.Add(PanelDeInfosOnLine);
             Controls.Add(panelDePaginas);
             Controls.Add(panel1);
             Controls.Add(panelPedidos);
@@ -534,7 +515,6 @@
             panelDetalhePedido.PerformLayout();
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBox3).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox2).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxLupa).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxDelivery).EndInit();
@@ -560,7 +540,6 @@
         private PictureBox pictureBoxChat;
         private Label labelStatusLojaNM;
         private Panel panelStatusLoja;
-        private Button pollingManual;
         private PictureBox pictureBoxDelivery;
         private Label label1;
         private Label label3;
@@ -574,8 +553,7 @@
         private Label label7;
         private PictureBox pictureBox2;
         public NotifyIcon notifyIcon1;
-        private Label ChatLabel;
-        private PictureBox pictureBox3;
+        private FlowLayoutPanel PanelDeInfosOnLine;
         private static CheckBox checkBoxMesas;
         private static CheckBox checkBoxConcluido;
         public static FlowLayoutPanel panelDePaginas;
@@ -590,11 +568,11 @@
     }
 }
 
-/*      private static CheckBox checkBoxMesas;
+/*       private static CheckBox checkBoxMesas;
         private static CheckBox checkBoxConcluido;
         public static FlowLayoutPanel panelDePaginas;
         private static CheckBox checkBoxDespachados;
-        private  static CheckBox checkBoxConfirmados;
+        private static CheckBox checkBoxConfirmados;
         private static ProgressBar progressBar1;
         private static PictureBox pictureBoxOnline;
         private static PictureBox pictureBoxOfline;

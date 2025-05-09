@@ -244,7 +244,7 @@ public class ImpressaoDelMatch
 
 
 
-                AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
                 AdicionaConteudo($"{opcDoSistema.NomeFantasia}", FonteNomeRestaurante, AlinhamentosDelMatch.Centro);
                 AdicionaConteudo($"{opcDoSistema.Endereco}", FonteGeral);
@@ -398,7 +398,7 @@ public class ImpressaoDelMatch
                 AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                 AdicionaConteudo("www.syslogica.com.br", FonteCPF, AlinhamentosDelMatch.Centro);
 
 
@@ -438,7 +438,7 @@ public class ImpressaoDelMatch
                     using (OleDbDataReader reader = comando.ExecuteReader())
                     {
 
-                        AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                        AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
                         AdicionaConteudo($"{defineEntrega}", FonteItens);
@@ -583,7 +583,7 @@ public class ImpressaoDelMatch
                         AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                        AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                        AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                         AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
                     }
@@ -617,7 +617,7 @@ public class ImpressaoDelMatch
                 string? defineEntrega = pedidoCompleto.Type == "TOGO" ? "Retirada" : "Entrega Propria";
 
 
-                AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
                 AdicionaConteudo($"Pedido:   #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -696,7 +696,7 @@ public class ImpressaoDelMatch
                 AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                 AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
 
@@ -796,7 +796,7 @@ public class ImpressaoDelMatch
 
                 }
 
-                AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                 AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
 
@@ -849,7 +849,7 @@ public class ImpressaoDelMatch
 
                     for (var i = 0; i < item.Quantity; i++)
                     {
-                        AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                        AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
                         AdicionaConteudo($"Pedido:  #{pedidoCompleto.Reference}", FonteNúmeroDoPedido);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -922,7 +922,7 @@ public class ImpressaoDelMatch
                         AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                        AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                        AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                         AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
 
@@ -1070,7 +1070,7 @@ public class ImpressaoDelMatch
             //nome do restaurante estatico por enquanto
 
 
-            AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+            AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
             AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -1151,7 +1151,7 @@ public class ImpressaoDelMatch
             AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-            AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+            AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
             AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
             if (impressora != "Nao")
@@ -1193,7 +1193,7 @@ public class ImpressaoDelMatch
                 for (int i = 0; i < quantidadeDoItem; i++)
                 {
 
-                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
 
                     AdicionaConteudo($"Pedido: \t#{pedidoCompleto.Reference}", FonteNúmeroDoPedido); // aqui seria o display id Arrumar
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
@@ -1267,7 +1267,7 @@ public class ImpressaoDelMatch
                     AdicionaConteudo("SysMenu / SysIntegrador", FonteGeral);
                     AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
 
-                    AdicionaConteudo("DEL MATCH", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
+                    AdicionaConteudo("Delmatch", FonteNomeDoCliente, AlinhamentosDelMatch.Centro);
                     AdicionaConteudo("www.syslogica.com.br", FonteGeral, AlinhamentosDelMatch.Centro);
 
                     if (impressora != "Nao")

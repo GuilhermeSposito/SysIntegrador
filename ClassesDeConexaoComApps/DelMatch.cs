@@ -18,6 +18,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Reflection.Metadata;
 using System.Reflection.Metadata.Ecma335;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
 using System.Security.Policy;
 using System.Text;
@@ -33,7 +34,8 @@ namespace SysIntegradorApp.ClassesDeConexaoComApps;
 public class DelMatch
 {
     public readonly IMeuContexto _Contxt;
-
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
     public DelMatch(IMeuContexto contxt)
     {
         _Contxt = contxt;
@@ -606,12 +608,12 @@ public class DelMatch
                     return pedidosFromDb;
                 }
 
-                if(pesquisaNome != null)
+                if (pesquisaNome != null)
                 {
                     using (ApplicationDbContext dataBase = await _Contxt.GetContextoAsync())
                     {
 
-                        pedidosFromDb = dataBase.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "DELMATCH" ).AsNoTracking().ToList();
+                        pedidosFromDb = dataBase.parametrosdopedido.Where(x => (x.PesquisaNome.ToLower().Contains(pesquisaNome) || x.PesquisaNome.Contains(pesquisaNome) || x.PesquisaNome.ToUpper().Contains(pesquisaNome)) && x.CriadoPor == "DELMATCH").AsNoTracking().ToList();
 
 
                     }
@@ -866,7 +868,7 @@ public class DelMatch
         return sequencias;
     }
 
-    public async Task GerarPedido(string? jsonContent)
+    public async Task GerarPedido(string? jsonContent, int numConta = 0, string? ShortReference = null)
     {
         string? url = "https://delmatchapp.com/api/deliveries/default/";
         try
@@ -874,7 +876,9 @@ public class DelMatch
             using HttpClient client = new HttpClient();
             StringContent content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             HttpResponseMessage response = await client.PostAsync(url, content);
-            string resposta = await response.Content.ReadAsStringAsync();
+
+            if (ShortReference is not null)
+                await UpdateDelMatchId(numConta, ShortReference!);
 
             if ((int)response.StatusCode != 200)
             {
@@ -885,9 +889,7 @@ public class DelMatch
                 string? Titulo = reposta.Success ? "Sucesso Ao enviar pedido" : "Erro ao enviar pedido";
                 string Erro = "";
 
-
                 Erro += reposta.Response;
-
 
                 Sequencia? Pedido = JsonConvert.DeserializeObject<Sequencia>(jsonContent);
 
@@ -895,9 +897,8 @@ public class DelMatch
                 ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Add(Pedido.ShortReference);
                 ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Add($"\n{Erro}\n");
 
-                ClsSons.PlaySom2();
+
                 await Logs.CriaLogDeErro(await response.Content.ReadAsStringAsync());
-                ClsSons.StopSom();
             }
         }
         catch (Exception ex)
@@ -1027,7 +1028,7 @@ public class DelMatch
         return ExistePedido;
     }
 
-    public async void UpdateDelMatchId(int numConta, string delmatchId)
+    public async Task UpdateDelMatchId(int numConta, string delmatchId)
     {
         try
         {
@@ -1054,6 +1055,7 @@ public class DelMatch
 
                         // Executando o comando UPDATE
                         command.ExecuteNonQuery();
+                        await Task.Delay(100);
                     }
                 }
 
@@ -1197,57 +1199,48 @@ public class DelMatch
     {
         try
         {
-            using (ApplicationDbContext db = await _Contxt.GetContextoAsync())
+            List<Sequencia> pedidosAbertos = await ListarPedidosAbertos();
+
+            if (pedidosAbertos.Count() > 0)
             {
-                ParametrosDoSistema? Configuracoes = db.parametrosdosistema.ToList().FirstOrDefault();
-
-                if (Configuracoes.EnviaPedidoAut)
+                foreach (var item in pedidosAbertos)
                 {
-                    List<Sequencia> pedidosAbertos = await ListarPedidosAbertos();
-                    int contagemdepedidos = pedidosAbertos.Count;
-                    List<Sequencia> ItensAEnviarDelMach = FormDePedidosAbertos.ItensAEnviarDelMach;
+                    string jsonContent = JsonConvert.SerializeObject(item);
+                    await GerarPedido(jsonContent, item.numConta, item.ShortReference);
+                }
 
-                    if (contagemdepedidos > 0)
-                    {
-                        ItensAEnviarDelMach.AddRange(pedidosAbertos);
-                    }
+                pedidosAbertos.Clear();
 
-                    if (ItensAEnviarDelMach.Count() > 0)
+                if (ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido)
+                {
+                    string PedidosASerINformados = "Erro a enviar pedidos. Pedidos que não foram Enviados: ";
+
+                    foreach (string item in ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados)
                     {
-                        foreach (var item in ItensAEnviarDelMach.ToList())
+                        string Motivos = "";
+
+                        foreach (var motivo in ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado)
                         {
-                            string jsonContent = JsonConvert.SerializeObject(item);
-                            await GerarPedido(jsonContent);
-                            UpdateDelMatchId(item.numConta, item.ShortReference);
+                            Motivos += motivo;
                         }
 
-                        ItensAEnviarDelMach.Clear();
-
-                        if (ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido)
-                        {
-                            string PedidosASerINformados = "Erro a enviar pedidos. Pedidos que não foram Enviados: ";
-
-                            foreach (string item in ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados)
-                            {
-                                string Motivos = "";
-
-                                foreach (var motivo in ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado)
-                                {
-                                    Motivos += motivo;
-                                }
-
-                                PedidosASerINformados += $"\n{item}\n {Motivos}";
-                            }
-
-                            ClsSons.PlaySom2();
-                            MessageBox.Show(PedidosASerINformados, "Erro ao enviar pedido automatico", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            ClsSons.StopSom();
-
-                            ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido = false;
-                            ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Clear();
-                            ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Clear();
-                        }
+                        PedidosASerINformados += $"\n{item}\n {Motivos}\n";
                     }
+
+
+                    if (!IsMessageBoxOpen("Erro ao enviar pedido automatico"))
+                    {
+                        ClsSons.PlaySom2();
+                        ClsSuporteDePedidoNaoEnviadoDelmatch.ErroDeEnvioDePedido = false;
+                        ClsSuporteDePedidoNaoEnviadoDelmatch.PedidosQueNaoForamEnviados.Clear();
+                        ClsSuporteDePedidoNaoEnviadoDelmatch.MotivosDeNaoTerEnviado.Clear();
+
+                        MessageBox.Show(PedidosASerINformados, "Erro ao enviar pedido automatico", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        ClsSons.StopSom();
+                    }
+
+
+
                 }
             }
         }
@@ -1256,6 +1249,12 @@ public class DelMatch
             await Logs.CriaLogDeErro(ex.ToString());
             await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
         }
+    }
+
+    public bool IsMessageBoxOpen(string title)
+    {
+        IntPtr hWnd = FindWindow(null, title);
+        return hWnd != IntPtr.Zero;
     }
 
     public async Task GetToken()

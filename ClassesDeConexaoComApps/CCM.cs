@@ -60,7 +60,7 @@ public class CCM
 
                 using var streamReaderXML = new StringReader(reponseXml);
 
-                Pedidos Pedidos = (Pedidos)serializer.Deserialize(streamReaderXML);
+                Pedidos Pedidos = (Pedidos)serializer.Deserialize(streamReaderXML)!;
 
                 if (Pedidos != null)
                 {
@@ -255,6 +255,16 @@ public class CCM
                                 BairEntrega = pedido.Endereco.Bairro;
                                 Status = "P";
                                 Entregador = "00";
+
+                                if (ConfigSistema.EnviaPedidoAut)
+                                {
+                                    if (ConfigSistema.IntegraOttoEntregas)
+                                        Entregador = "66";
+
+                                    if (ConfigSistema.IntegraDelmatchEntregas)
+                                        Entregador = "99";
+                                }
+
                             }
 
                             if (TipoPedido == "TAKEOUT")
@@ -276,6 +286,15 @@ public class CCM
                                 BairEntrega = pedido.Endereco.Bairro;
                                 Status = "P";
                                 Entregador = "00";
+
+                                if (ConfigSistema.EnviaPedidoAut)
+                                {
+                                    if (ConfigSistema.IntegraOttoEntregas)
+                                        Entregador = "66";
+
+                                    if (ConfigSistema.IntegraDelmatchEntregas)
+                                        Entregador = "99";
+                                }
                             }
 
                             if (TipoPedido == "TAKEOUT")
@@ -299,7 +318,7 @@ public class CCM
                                            mesa: mesa,
                                            cortesia: ValorDescontosNum,
                                            taxaEntrega: ValorEntrega,
-                                           taxaMotoboy: 0.00f,
+                                           taxaMotoboy: ValorEntrega,
                                            dtInicio: pedido.DataHoraPedido.ToString().Substring(0, 10),
                                            hrInicio: pedido.DataHoraPedido.ToString().Substring(11, 5),
                                            contatoNome: pedido.Cliente.Nome,
@@ -323,11 +342,11 @@ public class CCM
 
                             SysIntegradorApp.ClassesAuxiliares.Payments payments = new();
 
-                            if (pedido.DescricaoPagamento == "Dinheiro")
+                            if (pedido.DescricaoPagamento == "Dinheiro" || pedido.DescricaoPagamento == "Outros")
                             {
                                 if (!String.IsNullOrEmpty(pedido.TrocoPara))
                                 {
-                                    var TrocoPara = float.Parse(pedido.TrocoPara.Replace(".", ","));
+                                    float.TryParse(pedido.TrocoPara.Replace(".", ","), out float TrocoPara);
                                     ValorDeTroco = TrocoPara;
                                 }
                             }
