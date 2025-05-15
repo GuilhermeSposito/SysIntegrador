@@ -684,6 +684,9 @@ public class Ifood
 
                                 foreach (var opcao in item.options)
                                 {
+                                    if (string.IsNullOrEmpty(opcao.externalCode))
+                                        opcao.externalCode = "";
+
                                     if (obs1 == " ")
                                     {
                                         bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.externalCode);
@@ -990,6 +993,9 @@ public class Ifood
 
                                 foreach (var opcao in item.options)
                                 {
+                                    if (string.IsNullOrEmpty(opcao.externalCode))
+                                        opcao.externalCode = "";
+
                                     if (obs1 == " ")
                                     {
                                         bool pesquisaProduto = ClsDeIntegracaoSys.PesquisaCodCardapio(opcao.externalCode);

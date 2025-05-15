@@ -631,6 +631,52 @@ namespace SysIntegradorApp.Migrations
                     b.ToTable("setup");
                 });
 
+            modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.ClsRoteamentoDeImpressao", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("Ativo")
+                        .HasColumnType("boolean")
+                        .HasColumnName("ativo");
+
+                    b.Property<string>("ImpressoraAuxiliar")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_auxiliar");
+
+                    b.Property<string>("ImpressoraBar")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_bar");
+
+                    b.Property<string>("ImpressoraCaixa")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_caixa");
+
+                    b.Property<string>("ImpressoraCozinha1")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_cozinha1");
+
+                    b.Property<string>("ImpressoraCozinha2")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_cozinha2");
+
+                    b.Property<string>("ImpressoraCozinha3")
+                        .HasColumnType("text")
+                        .HasColumnName("impressora_cozinha3");
+
+                    b.Property<string>("NomeRota")
+                        .HasColumnType("text")
+                        .HasColumnName("nome_rota");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("roteamentodeimpressoras");
+                });
+
             modelBuilder.Entity("SysIntegradorApp.ClassesAuxiliares.EmpresasEntregaTaxyMachine", b =>
                 {
                     b.Property<int>("Id")
@@ -786,6 +832,10 @@ namespace SysIntegradorApp.Migrations
                         .HasColumnType("text")
                         .HasColumnName("apikeytaxymachine");
 
+                    b.Property<bool>("AtribuiCodEntregAutCCM")
+                        .HasColumnType("boolean")
+                        .HasColumnName("atribui_cod_entregador_aut_ccm");
+
                     b.Property<string>("CaminhoServidor")
                         .HasColumnType("text")
                         .HasColumnName("caminhoservidor");
@@ -846,6 +896,10 @@ namespace SysIntegradorApp.Migrations
                     b.Property<string>("Endereco")
                         .HasColumnType("text")
                         .HasColumnName("endereco");
+
+                    b.Property<bool>("EnderecoNaComanda")
+                        .HasColumnType("boolean")
+                        .HasColumnName("endereco_na_comanda");
 
                     b.Property<bool>("EnviaPedidoAut")
                         .HasColumnType("boolean")

@@ -183,7 +183,7 @@ public class OnPedido
                                     mesa = "WEB";
                                     DataCertaEntregarEm = pedido.Delivery.DeliveryDateTime;
                                     Complemento = pedido.Delivery.DeliveryAddressON.Complement;
-                                    EndEntrega = pedido.Delivery.DeliveryAddressON.FormattedAddress;
+                                    EndEntrega = $"{pedido.Delivery.DeliveryAddressON.Street}, {pedido.Delivery.DeliveryAddressON.Number}";
                                     BairEntrega = pedido.Delivery.DeliveryAddressON.District;
                                     Status = "P";
                                 }

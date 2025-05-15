@@ -256,13 +256,16 @@ public class CCM
                                 Status = "P";
                                 Entregador = "00";
 
-                                if (ConfigSistema.EnviaPedidoAut)
+                                if (ConfigSistema.AtribuiCodEntregAutCCM)
                                 {
                                     if (ConfigSistema.IntegraOttoEntregas)
                                         Entregador = "66";
 
                                     if (ConfigSistema.IntegraDelmatchEntregas)
                                         Entregador = "99";
+
+                                    if (ConfigSistema.IntegraJumaEntregas)
+                                        Entregador = "77";
                                 }
 
                             }
@@ -467,9 +470,9 @@ public class CCM
 
                     ClsDeSuporteAtualizarPanel.MudouDataBase = true;
 
-                    if (db.parametrosdosistema.FirstOrDefault().ImpressaoAut && db.parametrosdosistema.FirstOrDefault().AceitaPedidoAut)
+                    if (db.parametrosdosistema.FirstOrDefault()!.ImpressaoAut && db.parametrosdosistema.FirstOrDefault()!.AceitaPedidoAut)
                     {
-                        ChamaImpressaoAutomatica(pedido);
+                        ChamaImpressaoAutomatica(pedido, PedidoMesa);
                     }
 
                 }
@@ -509,16 +512,30 @@ public class CCM
         }
     }
 
-    public async void ChamaImpressaoAutomatica(Pedido PedidoCCM)
+    public async void ChamaImpressaoAutomatica(Pedido PedidoCCM, bool pedidoMesa = false)
     {
         try
         {
             using (ApplicationDbContext db = await _Db.GetContextoAsync())
             {
+                List<string> impressoras = new List<string>();
+
                 ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == PedidoCCM.NroPedido.ToString()).FirstOrDefault();
                 ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
 
-                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+                impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+                if (pedidoMesa)
+                {
+                    if (db.roteamentodeimpressoras.Any())
+                    {
+                        ClsRoteamentoDeImpressao? clsRoteamentoDeImpressao = await db.roteamentodeimpressoras.FirstOrDefaultAsync(x => x.NomeRota!.Contains("MESA", StringComparison.OrdinalIgnoreCase));
+
+                        if (clsRoteamentoDeImpressao is not null)
+                            impressoras = new List<string>() { clsRoteamentoDeImpressao.ImpressoraCaixa!, clsRoteamentoDeImpressao.ImpressoraCozinha1!, clsRoteamentoDeImpressao.ImpressoraCozinha2!, clsRoteamentoDeImpressao.ImpressoraCozinha3!, clsRoteamentoDeImpressao.ImpressoraBar!, clsRoteamentoDeImpressao.ImpressoraAuxiliar! };
+
+                    }
+                }
 
                 if (!opSistema.AgruparComandas)
                 {
@@ -526,7 +543,7 @@ public class CCM
                     {
                         if (imp != "Sem Impressora" && imp != null)
                         {
-                            ImpressaoCCM.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
+                            ImpressaoCCM.ChamaImpressoes(pedido!.Conta, pedido.DisplayId, imp);
                         }
                     }
                 }

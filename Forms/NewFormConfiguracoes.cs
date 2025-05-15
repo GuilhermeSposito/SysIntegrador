@@ -36,6 +36,9 @@ public partial class NewFormConfiguracoes : Form
 
         DefineBancoDeDados();
 
+        this.FormBorderStyle = FormBorderStyle.FixedSingle;
+
+
         InitializeComponent();
         CriaStripParaOsPainel();
 
@@ -66,8 +69,12 @@ public partial class NewFormConfiguracoes : Form
         ClsEstiloComponentes.SetRoundedRegion(panel1, 24);
         ClsEstiloComponentes.SetRoundedRegion(panel9, 24);
         ClsEstiloComponentes.SetRoundedRegion(panelDeMultiEmpresa, 24);
+        ClsEstiloComponentes.SetRoundedRegion(panelDeImpressorasEmAdicionarImp, 24);
+        ClsEstiloComponentes.SetRoundedRegion(panelDeAdicionarNovaImpressora, 24);
         this.Resize += (sender, e) =>
         {
+            ClsEstiloComponentes.SetRoundedRegion(panelDeAdicionarNovaImpressora, 24);
+            ClsEstiloComponentes.SetRoundedRegion(panelDeImpressorasEmAdicionarImp, 24);
             ClsEstiloComponentes.SetRoundedRegion(panelmpressoras, 24);
             ClsEstiloComponentes.SetRoundedRegion(panelDeConfigDeimpressao, 24);
             ClsEstiloComponentes.SetRoundedRegion(panelLogomarca, 24);
@@ -138,6 +145,7 @@ public partial class NewFormConfiguracoes : Form
             MudaOnOff(Configuracoes.ImpressaoAut, pictureBoxOnImpAut, pictureBoxOffImpAut);
             MudaOnOff(Configuracoes.UsarNomeNaComanda, pictureBoxOnNomeNaComanda, pictureBoxOffNomeNaComanda);
             MudaOnOff(Configuracoes.DestacarObs, pictureBoxOnDestacaObs, pictureBoxOffDestacaObs);
+            MudaOnOff(Configuracoes.EnderecoNaComanda, OnEnderecoNAComanda, OffEnderecoNaComanda);
             TextBoxNumeroDeViasComanda.Text = Convert.ToString(Configuracoes.NumDeViasDeComanda);
 
 
@@ -205,6 +213,9 @@ public partial class NewFormConfiguracoes : Form
 
             //tela TaxyMachine
             AdicionaEmpresasNoPageControlTaxyMachine();
+
+            //tela de roteamento de impressoras
+            AdicionaRotasDeImpressora();
         }
         catch (Exception ex)
         {
@@ -323,9 +334,16 @@ public partial class NewFormConfiguracoes : Form
         NewFormConfiguracoes instAtual = new NewFormConfiguracoes(new MeuContexto());
         instAtual.AlimentaComboBoxDeImpressoras(this);
         instAtual.DefineValoresDasConfigVindaDoBanco(this);
+        instAtual.AlimentaComboBoxDeImpressorasEmAdicionarNovaImpressora(this);
+
+
+        //FormLogin formLogin = new FormLogin();
+        //formLogin.ShowDialog();
 
         //FormLoginConfigs formLoginConfigs = new FormLoginConfigs();
         //formLoginConfigs.ShowDialog();
+
+
     }
 
 
@@ -344,6 +362,7 @@ public partial class NewFormConfiguracoes : Form
         }
     }
 
+
     public async void DefineValoresDasConfigVindaDoBanco(NewFormConfiguracoes instancia)
     {
         ParametrosDoSistema Configuracoes = await ParametrosDoSistema.GetInfosSistema();
@@ -355,6 +374,21 @@ public partial class NewFormConfiguracoes : Form
         instancia.comboBoxImpressora5.Text = Configuracoes.Impressora5;
         instancia.comboBoxImpressoraAuxiliar.Text = Configuracoes.ImpressoraAux;
 
+    }
+
+    public void AlimentaComboBoxDeImpressorasEmAdicionarNovaImpressora(NewFormConfiguracoes instancia)
+    {
+        List<string> listaDeImpressoras = ParametrosDoSistema.ListaImpressoras();
+
+        foreach (string imp in listaDeImpressoras)
+        {
+            instancia.comboBoxImpressoraCaixaAdicionar.Items.Add(imp);
+            instancia.comboBoxImpressoraAuxiliarAdicionar.Items.Add(imp);
+            instancia.comboBoxImpressoraCozinha1Adicionar.Items.Add(imp);
+            instancia.comboBoxImpressoraCozinha2Adicionar.Items.Add(imp);
+            instancia.comboBoxImpressoraCozinha3Adicionar.Items.Add(imp);
+            instancia.comboBoxImpressoraBarAdicionar.Items.Add(imp);
+        }
     }
 
     private async void pictureBoxONAgruparComanda_Click(object sender, EventArgs e)
@@ -1784,8 +1818,13 @@ public partial class NewFormConfiguracoes : Form
 
     private void NewFormConfiguracoes_Shown(object sender, EventArgs e)
     {
-        FormLoginConfigs formLoginConfigs = new FormLoginConfigs();
-        formLoginConfigs.ShowDialog();
+        //   FormLoginConfigs formLoginConfigs = new FormLoginConfigs();
+        //  formLoginConfigs.ShowDialog();
+
+
+        FormLogin formLogin = new FormLogin();
+        formLogin.ShowDialog();
+
     }
 
     private async void TextBoxNumeroDeViasComanda_ValueChanged(object sender, EventArgs e)
@@ -2636,5 +2675,141 @@ public partial class NewFormConfiguracoes : Form
 
         pictureBoxoffIntegraVariasEmpresasTaxy.Visible = true;
         pictureBoxIntegraVariasEmpresasTaxyMachine.Visible = false;
+    }
+
+    private async void pictureBoxAOffAtribuiCodEntregadorCCM_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.AtribuiCodEntregAutCCM = true;
+
+        await _db.SaveChangesAsync();
+
+        pictureBoxAOffAtribuiCodEntregadorCCM.Visible = false;
+        pictureBoxAOnAtribuiCodEntregadorCCM.Visible = true;
+    }
+
+    private async void pictureBoxAOnAtribuiCodEntregadorCCM_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.AtribuiCodEntregAutCCM = false;
+
+        await _db.SaveChangesAsync();
+
+        pictureBoxAOffAtribuiCodEntregadorCCM.Visible = true;
+        pictureBoxAOnAtribuiCodEntregadorCCM.Visible = false;
+    }
+
+    private void textBoxNomeRotaImp_TextChanged(object sender, EventArgs e)
+    {
+        int cursorPosition = textBoxNomeRotaImp.SelectionStart;
+        textBoxNomeRotaImp.Text = textBoxNomeRotaImp.Text.ToUpper();
+        textBoxNomeRotaImp.SelectionStart = cursorPosition;
+    }
+
+    private async void bTnAdicionarImpresssora_Click(object sender, EventArgs e)
+    {
+        try
+        {
+            if (String.IsNullOrEmpty(textBoxNomeRotaImp.Text))
+                throw new Exception("O campo de nome da rota de impressão não pode estar vazio");
+
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                ClsRoteamentoDeImpressao clsRoteamentoDeImpressao = new ClsRoteamentoDeImpressao()
+                {
+                    NomeRota = textBoxNomeRotaImp.Text,
+                    ImpressoraCaixa = comboBoxImpressoraCaixaAdicionar.Text,
+                    ImpressoraAuxiliar = comboBoxImpressoraAuxiliarAdicionar.Text,
+                    ImpressoraCozinha1 = comboBoxImpressoraCozinha1Adicionar.Text,
+                    ImpressoraCozinha2 = comboBoxImpressoraCozinha2Adicionar.Text,
+                    ImpressoraCozinha3 = comboBoxImpressoraCozinha3Adicionar.Text,
+                    ImpressoraBar = comboBoxImpressoraBarAdicionar.Text,
+                    Ativo = true
+                };
+
+                await db.roteamentodeimpressoras.AddAsync(clsRoteamentoDeImpressao);
+                await db.SaveChangesAsync();
+
+                AdicionaEmpresaNoTabControlDeRotaDeImpressora(clsRoteamentoDeImpressao, true);
+
+                await SysAlerta.Alerta("Sucesso", "Rota adicionada com sucesso!", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private void AdicionaEmpresaNoTabControlDeRotaDeImpressora(ClsRoteamentoDeImpressao NovaRota, bool eNovaRota = false)
+    {
+        int indexPenultimo = tabControlRoteamentoDeImpressoras.TabPages.Count - 1;
+        TabPage AbaDeNovaRota = new TabPage($"{NovaRota.NomeRota}");
+        UCRotaDeImpressora uCInfoDeNovarota = new UCRotaDeImpressora(NovaRota, tabControlRoteamentoDeImpressoras);
+
+        AbaDeNovaRota.Controls.Add(uCInfoDeNovarota);
+        tabControlRoteamentoDeImpressoras.TabPages.Insert(indexPenultimo, AbaDeNovaRota);
+
+        if (eNovaRota)
+        {
+            tabControlEmpresasTaxyMachine.SelectedTab = AbaDeNovaRota;
+            textBoxUserName.Text = "";
+            textBoxSenha.Text = "";
+        }
+    }
+
+    private async void AdicionaRotasDeImpressora()
+    {
+        try
+        {
+            using (ApplicationDbContext db = new ApplicationDbContext())
+            {
+                List<ClsRoteamentoDeImpressao>? clsRoteamentoDeImpressao = await db.roteamentodeimpressoras.ToListAsync();
+
+                if (clsRoteamentoDeImpressao is not null)
+                {
+                    foreach (ClsRoteamentoDeImpressao Rota in clsRoteamentoDeImpressao)
+                    {
+                        AdicionaEmpresaNoTabControlDeRotaDeImpressora(Rota);
+                    }
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await SysAlerta.Alerta("Ops", ex.Message, SysAlertaTipo.Erro, SysAlertaButtons.Ok);
+        }
+    }
+
+    private async void OffEnderecoNaComanda_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.EnderecoNaComanda = true;
+
+        await _db.SaveChangesAsync();
+
+        OffEnderecoNaComanda.Visible = false;
+        OnEnderecoNAComanda.Visible = true;
+
+    }
+
+    private async void OnEnderecoNAComanda_Click(object sender, EventArgs e)
+    {
+        ParametrosDoSistema? Config = await _db.parametrosdosistema.FirstOrDefaultAsync();
+
+        if (Config is not null)
+            Config.EnderecoNaComanda = false;
+
+        await _db.SaveChangesAsync();
+
+        OffEnderecoNaComanda.Visible = true;
+        OnEnderecoNAComanda.Visible = false;
     }
 }

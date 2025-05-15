@@ -378,15 +378,15 @@ public class ImpressaoCCM
                 }
 
 
-                if(pedidoCompleto.Brindes is not null)
+                if (pedidoCompleto.Brindes is not null)
                 {
                     int ContaBrinde = 1;
                     foreach (var brinde in pedidoCompleto.Brindes)
                     {
                         AdicionaConteudo($"Brinde nº:{ContaBrinde}: {brinde.Descricao}", FonteItens);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
-                        ContaBrinde++; 
-                    }   
+                        ContaBrinde++;
+                    }
 
                 }
 
@@ -487,6 +487,15 @@ public class ImpressaoCCM
                     {
                         AdicionaConteudo($"Cliente: {pedidoCompleto.Cliente.Nome}", FonteItens);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    if (TipoPedido == "DELIVERY")
+                    {
+                        if (opcDoSistema.EnderecoNaComanda)
+                        {
+                            AdicionaConteudo($"Endereço: {pedidoCompleto.Endereco.Rua}, {pedidoCompleto.Endereco.Numero} - {pedidoCompleto.Endereco.Bairro}", FonteItens);
+                            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        }
                     }
                 }
 
@@ -611,6 +620,16 @@ public class ImpressaoCCM
                     {
                         AdicionaConteudo($"Cliente: {pedidoCompleto.Cliente.Nome}", FonteItens);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+
+                    if (TipoPedido == "DELIVERY")
+                    {
+                        if (opcDoSistema.EnderecoNaComanda)
+                        {
+                            AdicionaConteudo($"Endereço: {pedidoCompleto.Endereco.Rua}, {pedidoCompleto.Endereco.Numero} - {pedidoCompleto.Endereco.Bairro}", FonteItens);
+                            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        }
                     }
 
                 }
@@ -765,6 +784,15 @@ public class ImpressaoCCM
                                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                             }
 
+
+                            if (TipoPedido == "DELIVERY")
+                            {
+                                if (opcDoSistema.EnderecoNaComanda)
+                                {
+                                    AdicionaConteudo($"Endereço: {pedidoCompleto.Endereco.Rua}, {pedidoCompleto.Endereco.Numero} - {pedidoCompleto.Endereco.Bairro}", FonteItens);
+                                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                                }
+                            }
                         }
 
                         AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
@@ -871,8 +899,6 @@ public class ImpressaoCCM
             Pedido? pedidoCompleto = JsonConvert.DeserializeObject<Pedido>(pedidoPSQL.Json);
             ParametrosDoSistema? opcSistema = dbContext.parametrosdosistema.ToList().FirstOrDefault();
 
-            string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
-            string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega Propria";
 
             foreach (var item in pedidoCompleto.Itens)
             {
@@ -999,6 +1025,18 @@ public class ImpressaoCCM
 
             AdicionaConteudo($"Entrega: \t  Nº{NumContaString.PadLeft(3, '0')}\n", FonteNomeDoCliente);
             AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+
+            string? TipoPedido = pedidoCompleto.Retira == 1 ? "TAKEOUT" : "DELIVERY";
+            string? defineEntrega = TipoPedido == "TAKEOUT" ? "Retirada" : "Entrega";
+
+            if (TipoPedido == "DELIVERY")
+            {
+                if (opcSistema.EnderecoNaComanda)
+                {
+                    AdicionaConteudo($"Endereço: {pedidoCompleto.Endereco.Rua}, {pedidoCompleto.Endereco.Numero} - {pedidoCompleto.Endereco.Bairro}", FonteItens);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                }
+            }
 
             int qtdItens = pedidoCompleto.Itens.Count();
             int contagemItemAtual = 1;

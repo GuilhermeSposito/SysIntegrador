@@ -45,6 +45,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<EmpresasIfood> empresasIfoods { get; set; }
     public DbSet<ClsEmpresasAiqFome> empresasaiqfome { get; set; }
     public DbSet<EmpresasEntregaTaxyMachine> empresastaxymachine { get; set; }
+    public DbSet<ClsRoteamentoDeImpressao> roteamentodeimpressoras { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {

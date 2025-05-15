@@ -16,6 +16,8 @@ using SysIntegradorApp.ClassesDeConexaoComApps;
 using SysIntegradorApp.data.InterfaceDeContexto;
 using SysIntegradorApp.data;
 using SysIntegradorApp.Forms.CCM;
+using SysIntegradorApp.Forms;
+using Microsoft.EntityFrameworkCore;
 
 namespace SysIntegradorApp.UserControls.UCSccm;
 
@@ -252,9 +254,10 @@ public partial class UCInfoPedidoCCM : UserControl
 
         await ccm.AceitaPedido(Pedido.NroPedido);
 
-        MessageBox.Show($"Pedido Aceito Com sucesso", "Aceito!");
+        await SysAlerta.Alerta("Pedido Aceito", "Pedido Aceito com sucesso", SysAlertaTipo.Sucesso, SysAlertaButtons.Ok);
 
-        ccm.ChamaImpressaoAutomatica(Pedido);
+        bool PedidoMesa = Pedido!.NumeroMesa > 0 ? true : false;
+        ccm.ChamaImpressaoAutomatica(Pedido, PedidoMesa);
 
         FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.SetarPanelPedidos()));
         FormMenuInicial.panelPedidos.Invoke(new Action(async () => FormMenuInicial.panelDetalhePedido.Controls.Clear()));
@@ -268,13 +271,27 @@ public partial class UCInfoPedidoCCM : UserControl
         recusa.ShowDialog();
     }
 
-    private void btnImprimir_Click(object sender, EventArgs e)
+    private async void btnImprimir_Click(object sender, EventArgs e)
     {
         using ApplicationDbContext db = new ApplicationDbContext();
         ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Pedido.NroPedido.ToString()).FirstOrDefault();
         ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+        bool PedidoMesa = Pedido!.NumeroMesa > 0 ? true : false;
 
         List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
+
+
+        if (PedidoMesa)
+        {
+            if (db.roteamentodeimpressoras.Any())
+            {
+                ClsRoteamentoDeImpressao? clsRoteamentoDeImpressao = await db.roteamentodeimpressoras.FirstOrDefaultAsync(x => x.NomeRota!.Contains("MESA", StringComparison.OrdinalIgnoreCase));
+
+                if (clsRoteamentoDeImpressao is not null)
+                    impressoras = new List<string>() { clsRoteamentoDeImpressao.ImpressoraCaixa!, clsRoteamentoDeImpressao.ImpressoraCozinha1!, clsRoteamentoDeImpressao.ImpressoraCozinha2!, clsRoteamentoDeImpressao.ImpressoraCozinha3!, clsRoteamentoDeImpressao.ImpressoraBar!, clsRoteamentoDeImpressao.ImpressoraAuxiliar! };
+
+            }
+        }
 
         bool ImprimeSoCaixa = pictureBoxDois.Visible == true && pictureBoxUm.Visible == false ? true : false;
 
@@ -298,11 +315,11 @@ public partial class UCInfoPedidoCCM : UserControl
         {
             if (opSistema.ImpCompacta)
             {
-                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, impressoras[0]);
             }
             else
             {
-                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, opSistema.Impressora1);
+                ImpressaoCCM.DefineImpressao2(pedido.Conta, pedido.DisplayId, impressoras[0]);
             }
         }
 

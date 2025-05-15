@@ -105,6 +105,8 @@ public class ParametrosDoSistema
     [Column("integra_aiqfome")] public bool IntegraAiQFome { get; set; } = false;
     [Column("integra_juma_entregas")] public bool IntegraJumaEntregas { get; set; } = false;
     [Column("integra_varias_empresas_taxymachine")] public bool IntegravariasEmpresasTaxyMachine { get; set; } = false;
+    [Column("atribui_cod_entregador_aut_ccm")] public bool AtribuiCodEntregAutCCM { get; set; } = false;
+    [Column("endereco_na_comanda")] public bool EnderecoNaComanda { get; set; } = false;
     public ParametrosDoSistema() { }
 
 

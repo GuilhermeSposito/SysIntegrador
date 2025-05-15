@@ -222,7 +222,7 @@ public class Options
     public string? id { set; get; }
     public string? name { set; get; }
     public int quantity { set; get; }
-    public string externalCode { set; get; }
+    public string externalCode { set; get; } //externalCode
     public string? unit { set; get; }
     public float unitPrice { set; get; }
     public float addition { set; get; }

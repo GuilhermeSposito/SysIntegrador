@@ -34,6 +34,12 @@
             panelLogomarca = new Panel();
             pictureBox1 = new PictureBox();
             panelDeConfigDeimpressao = new Panel();
+            panel26 = new Panel();
+            OnEnderecoNAComanda = new PictureBox();
+            OffEnderecoNaComanda = new PictureBox();
+            pictureBox17 = new PictureBox();
+            label94 = new Label();
+            pictureBox18 = new PictureBox();
             panelDeDestacObs = new Panel();
             pictureBoxOffDestacaObs = new PictureBox();
             label10 = new Label();
@@ -106,13 +112,13 @@
             textBoxEmpresaDeEntrega = new TextBox();
             label16 = new Label();
             panelDeCardapioUsado = new Panel();
-            pictureBoxIntegraVariasEmpresasTaxyMachine = new PictureBox();
             label65 = new Label();
             textBoxNomeFantasia = new TextBox();
             textBoxCardapioUsado = new TextBox();
             label15 = new Label();
             button1 = new Button();
             panelDeAceitaAut = new Panel();
+            pictureBoxIntegraVariasEmpresasTaxyMachine = new PictureBox();
             pictureBoxoffIntegraVariasEmpresasTaxy = new PictureBox();
             label73 = new Label();
             pictureBoxOffAceitaPedidoAut = new PictureBox();
@@ -186,6 +192,10 @@
             label38 = new Label();
             tabPage3 = new TabPage();
             panelCCM = new Panel();
+            panel19 = new Panel();
+            pictureBoxAOnAtribuiCodEntregadorCCM = new PictureBox();
+            pictureBoxAOffAtribuiCodEntregadorCCM = new PictureBox();
+            label83 = new Label();
             pictureBox4 = new PictureBox();
             panelCCMNome = new Panel();
             pictureBoxOffCCMIntegracao = new PictureBox();
@@ -329,11 +339,41 @@
             label78 = new Label();
             textBoxUserName = new TextBox();
             label82 = new Label();
+            Roteamento = new TabPage();
+            tabControlRoteamentoDeImpressoras = new TabControl();
+            tabPage16 = new TabPage();
+            panelDeAdicionarNovaImpressora = new Panel();
+            panelDeImpressorasEmAdicionarImp = new Panel();
+            bTnAdicionarImpresssora = new Button();
+            label93 = new Label();
+            textBoxNomeRotaImp = new TextBox();
+            comboBoxImpressoraBarAdicionar = new ComboBox();
+            label84 = new Label();
+            label85 = new Label();
+            pictureBox11 = new PictureBox();
+            pictureBox13 = new PictureBox();
+            label86 = new Label();
+            comboBoxImpressoraAuxiliarAdicionar = new ComboBox();
+            label87 = new Label();
+            label88 = new Label();
+            comboBoxImpressoraCozinha3Adicionar = new ComboBox();
+            label89 = new Label();
+            comboBoxImpressoraCozinha2Adicionar = new ComboBox();
+            label90 = new Label();
+            comboBoxImpressoraCozinha1Adicionar = new ComboBox();
+            label91 = new Label();
+            comboBoxImpressoraCaixaAdicionar = new ComboBox();
+            label92 = new Label();
             tabControlConfig.SuspendLayout();
             ImpressorasPage.SuspendLayout();
             panelLogomarca.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBox1).BeginInit();
             panelDeConfigDeimpressao.SuspendLayout();
+            panel26.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)OnEnderecoNAComanda).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)OffEnderecoNaComanda).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox17).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox18).BeginInit();
             panelDeDestacObs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffDestacaObs).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnDestacaObs).BeginInit();
@@ -376,8 +416,8 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnEnviaPedidoAut).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffEnviaPedidoAut).BeginInit();
             panelDeCardapioUsado.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxIntegraVariasEmpresasTaxyMachine).BeginInit();
             panelDeAceitaAut.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxIntegraVariasEmpresasTaxyMachine).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxoffIntegraVariasEmpresasTaxy).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffAceitaPedidoAut).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnAceitaPedidoAut).BeginInit();
@@ -411,6 +451,9 @@
             panel4.SuspendLayout();
             tabPage3.SuspendLayout();
             panelCCM.SuspendLayout();
+            panel19.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAOnAtribuiCodEntregadorCCM).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAOffAtribuiCodEntregadorCCM).BeginInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).BeginInit();
             panelCCMNome.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffCCMIntegracao).BeginInit();
@@ -478,12 +521,20 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox14).BeginInit();
             panel20.SuspendLayout();
             panel24.SuspendLayout();
+            Roteamento.SuspendLayout();
+            tabControlRoteamentoDeImpressoras.SuspendLayout();
+            tabPage16.SuspendLayout();
+            panelDeAdicionarNovaImpressora.SuspendLayout();
+            panelDeImpressorasEmAdicionarImp.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox11).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox13).BeginInit();
             SuspendLayout();
             // 
             // tabControlConfig
             // 
             tabControlConfig.Controls.Add(ImpressorasPage);
             tabControlConfig.Controls.Add(IntegracoesPage);
+            tabControlConfig.Controls.Add(Roteamento);
             tabControlConfig.Dock = DockStyle.Fill;
             tabControlConfig.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
             tabControlConfig.Location = new Point(0, 0);
@@ -510,18 +561,18 @@
             panelLogomarca.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelLogomarca.BackColor = Color.White;
             panelLogomarca.Controls.Add(pictureBox1);
-            panelLogomarca.Location = new Point(8, 530);
+            panelLogomarca.Location = new Point(8, 557);
             panelLogomarca.Name = "panelLogomarca";
-            panelLogomarca.Size = new Size(1098, 125);
+            panelLogomarca.Size = new Size(1098, 98);
             panelLogomarca.TabIndex = 4;
             // 
             // pictureBox1
             // 
             pictureBox1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             pictureBox1.Image = (Image)resources.GetObject("pictureBox1.Image");
-            pictureBox1.Location = new Point(176, 21);
+            pictureBox1.Location = new Point(123, 3);
             pictureBox1.Name = "pictureBox1";
-            pictureBox1.Size = new Size(717, 84);
+            pictureBox1.Size = new Size(822, 75);
             pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox1.TabIndex = 0;
             pictureBox1.TabStop = false;
@@ -530,6 +581,7 @@
             // 
             panelDeConfigDeimpressao.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelDeConfigDeimpressao.BackColor = SystemColors.ButtonHighlight;
+            panelDeConfigDeimpressao.Controls.Add(panel26);
             panelDeConfigDeimpressao.Controls.Add(panelDeDestacObs);
             panelDeConfigDeimpressao.Controls.Add(panelDeNumComanda);
             panelDeConfigDeimpressao.Controls.Add(panelDeNomeComanda);
@@ -543,8 +595,88 @@
             panelDeConfigDeimpressao.Controls.Add(panelDeComandaCompacta);
             panelDeConfigDeimpressao.Location = new Point(394, 18);
             panelDeConfigDeimpressao.Name = "panelDeConfigDeimpressao";
-            panelDeConfigDeimpressao.Size = new Size(712, 492);
+            panelDeConfigDeimpressao.Size = new Size(712, 533);
             panelDeConfigDeimpressao.TabIndex = 3;
+            // 
+            // panel26
+            // 
+            panel26.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel26.Controls.Add(OnEnderecoNAComanda);
+            panel26.Controls.Add(OffEnderecoNaComanda);
+            panel26.Controls.Add(pictureBox17);
+            panel26.Controls.Add(label94);
+            panel26.Controls.Add(pictureBox18);
+            panel26.Location = new Point(16, 490);
+            panel26.Name = "panel26";
+            panel26.Size = new Size(676, 40);
+            panel26.TabIndex = 44;
+            // 
+            // OnEnderecoNAComanda
+            // 
+            OnEnderecoNAComanda.Anchor = AnchorStyles.None;
+            OnEnderecoNAComanda.BackColor = Color.Transparent;
+            OnEnderecoNAComanda.Cursor = Cursors.Hand;
+            OnEnderecoNAComanda.Image = (Image)resources.GetObject("OnEnderecoNAComanda.Image");
+            OnEnderecoNAComanda.Location = new Point(609, 6);
+            OnEnderecoNAComanda.Name = "OnEnderecoNAComanda";
+            OnEnderecoNAComanda.Size = new Size(64, 34);
+            OnEnderecoNAComanda.SizeMode = PictureBoxSizeMode.Zoom;
+            OnEnderecoNAComanda.TabIndex = 38;
+            OnEnderecoNAComanda.TabStop = false;
+            OnEnderecoNAComanda.Visible = false;
+            OnEnderecoNAComanda.Click += OnEnderecoNAComanda_Click;
+            // 
+            // OffEnderecoNaComanda
+            // 
+            OffEnderecoNaComanda.Anchor = AnchorStyles.None;
+            OffEnderecoNaComanda.BackColor = Color.Transparent;
+            OffEnderecoNaComanda.Cursor = Cursors.Hand;
+            OffEnderecoNaComanda.Image = (Image)resources.GetObject("OffEnderecoNaComanda.Image");
+            OffEnderecoNaComanda.Location = new Point(609, 6);
+            OffEnderecoNaComanda.Name = "OffEnderecoNaComanda";
+            OffEnderecoNaComanda.Size = new Size(64, 34);
+            OffEnderecoNaComanda.SizeMode = PictureBoxSizeMode.Zoom;
+            OffEnderecoNaComanda.TabIndex = 37;
+            OffEnderecoNaComanda.TabStop = false;
+            OffEnderecoNaComanda.Click += OffEnderecoNaComanda_Click;
+            // 
+            // pictureBox17
+            // 
+            pictureBox17.Anchor = AnchorStyles.None;
+            pictureBox17.BackColor = Color.Transparent;
+            pictureBox17.Cursor = Cursors.Hand;
+            pictureBox17.Image = (Image)resources.GetObject("pictureBox17.Image");
+            pictureBox17.Location = new Point(847, -27);
+            pictureBox17.Name = "pictureBox17";
+            pictureBox17.Size = new Size(64, 34);
+            pictureBox17.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox17.TabIndex = 35;
+            pictureBox17.TabStop = false;
+            // 
+            // label94
+            // 
+            label94.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            label94.AutoSize = true;
+            label94.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label94.Location = new Point(3, 5);
+            label94.Name = "label94";
+            label94.Size = new Size(213, 28);
+            label94.TabIndex = 32;
+            label94.Text = "Endereço na comanda";
+            // 
+            // pictureBox18
+            // 
+            pictureBox18.Anchor = AnchorStyles.None;
+            pictureBox18.BackColor = Color.Transparent;
+            pictureBox18.Cursor = Cursors.Hand;
+            pictureBox18.Image = (Image)resources.GetObject("pictureBox18.Image");
+            pictureBox18.Location = new Point(847, -27);
+            pictureBox18.Name = "pictureBox18";
+            pictureBox18.Size = new Size(64, 34);
+            pictureBox18.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox18.TabIndex = 36;
+            pictureBox18.TabStop = false;
+            pictureBox18.Visible = false;
             // 
             // panelDeDestacObs
             // 
@@ -563,7 +695,7 @@
             pictureBoxOffDestacaObs.BackColor = Color.Transparent;
             pictureBoxOffDestacaObs.Cursor = Cursors.Hand;
             pictureBoxOffDestacaObs.Image = (Image)resources.GetObject("pictureBoxOffDestacaObs.Image");
-            pictureBoxOffDestacaObs.Location = new Point(609, 3);
+            pictureBoxOffDestacaObs.Location = new Point(609, 6);
             pictureBoxOffDestacaObs.Name = "pictureBoxOffDestacaObs";
             pictureBoxOffDestacaObs.Size = new Size(64, 34);
             pictureBoxOffDestacaObs.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1068,7 +1200,7 @@
             panelmpressoras.Controls.Add(labelImpressorasNM);
             panelmpressoras.Location = new Point(8, 17);
             panelmpressoras.Name = "panelmpressoras";
-            panelmpressoras.Size = new Size(356, 493);
+            panelmpressoras.Size = new Size(356, 534);
             panelmpressoras.TabIndex = 2;
             // 
             // comboBoxImpressora5
@@ -1089,7 +1221,7 @@
             label21.Anchor = AnchorStyles.None;
             label21.AutoSize = true;
             label21.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label21.Location = new Point(114, 703);
+            label21.Location = new Point(114, 724);
             label21.Name = "label21";
             label21.Size = new Size(92, 28);
             label21.TabIndex = 19;
@@ -1100,7 +1232,7 @@
             label20.Anchor = AnchorStyles.None;
             label20.AutoSize = true;
             label20.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
-            label20.Location = new Point(86, 678);
+            label20.Location = new Point(86, 699);
             label20.Name = "label20";
             label20.Size = new Size(182, 28);
             label20.TabIndex = 18;
@@ -1111,7 +1243,7 @@
             pictureBoxOn2.Anchor = AnchorStyles.None;
             pictureBoxOn2.Cursor = Cursors.Hand;
             pictureBoxOn2.Image = (Image)resources.GetObject("pictureBoxOn2.Image");
-            pictureBoxOn2.Location = new Point(293, 686);
+            pictureBoxOn2.Location = new Point(293, 707);
             pictureBoxOn2.Name = "pictureBoxOn2";
             pictureBoxOn2.Size = new Size(84, 45);
             pictureBoxOn2.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1124,7 +1256,7 @@
             pictureBoxOFF2.Anchor = AnchorStyles.None;
             pictureBoxOFF2.Cursor = Cursors.Hand;
             pictureBoxOFF2.Image = (Image)resources.GetObject("pictureBoxOFF2.Image");
-            pictureBoxOFF2.Location = new Point(293, 688);
+            pictureBoxOFF2.Location = new Point(293, 709);
             pictureBoxOFF2.Name = "pictureBoxOFF2";
             pictureBoxOFF2.Size = new Size(84, 43);
             pictureBoxOFF2.SizeMode = PictureBoxSizeMode.Zoom;
@@ -1450,20 +1582,6 @@
             panelDeCardapioUsado.Size = new Size(820, 112);
             panelDeCardapioUsado.TabIndex = 7;
             // 
-            // pictureBoxIntegraVariasEmpresasTaxyMachine
-            // 
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Anchor = AnchorStyles.Right;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Cursor = Cursors.Hand;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Image = (Image)resources.GetObject("pictureBoxIntegraVariasEmpresasTaxyMachine.Image");
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Location = new Point(730, 8);
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Name = "pictureBoxIntegraVariasEmpresasTaxyMachine";
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Size = new Size(84, 45);
-            pictureBoxIntegraVariasEmpresasTaxyMachine.SizeMode = PictureBoxSizeMode.Zoom;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.TabIndex = 27;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.TabStop = false;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Visible = false;
-            pictureBoxIntegraVariasEmpresasTaxyMachine.Click += pictureBoxIntegraVariasEmpresasTaxyMachine_Click;
-            // 
             // label65
             // 
             label65.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -1540,6 +1658,20 @@
             panelDeAceitaAut.Name = "panelDeAceitaAut";
             panelDeAceitaAut.Size = new Size(820, 59);
             panelDeAceitaAut.TabIndex = 5;
+            // 
+            // pictureBoxIntegraVariasEmpresasTaxyMachine
+            // 
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Anchor = AnchorStyles.Right;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Cursor = Cursors.Hand;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Image = (Image)resources.GetObject("pictureBoxIntegraVariasEmpresasTaxyMachine.Image");
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Location = new Point(730, 8);
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Name = "pictureBoxIntegraVariasEmpresasTaxyMachine";
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Size = new Size(84, 45);
+            pictureBoxIntegraVariasEmpresasTaxyMachine.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.TabIndex = 27;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.TabStop = false;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Visible = false;
+            pictureBoxIntegraVariasEmpresasTaxyMachine.Click += pictureBoxIntegraVariasEmpresasTaxyMachine_Click;
             // 
             // pictureBoxoffIntegraVariasEmpresasTaxy
             // 
@@ -2426,6 +2558,7 @@
             panelCCM.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panelCCM.AutoScroll = true;
             panelCCM.BackColor = Color.White;
+            panelCCM.Controls.Add(panel19);
             panelCCM.Controls.Add(pictureBox4);
             panelCCM.Controls.Add(panelCCMNome);
             panelCCM.Controls.Add(panel5);
@@ -2433,6 +2566,56 @@
             panelCCM.Name = "panelCCM";
             panelCCM.Size = new Size(907, 514);
             panelCCM.TabIndex = 3;
+            // 
+            // panel19
+            // 
+            panel19.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            panel19.BorderStyle = BorderStyle.FixedSingle;
+            panel19.Controls.Add(pictureBoxAOnAtribuiCodEntregadorCCM);
+            panel19.Controls.Add(pictureBoxAOffAtribuiCodEntregadorCCM);
+            panel19.Controls.Add(label83);
+            panel19.Location = new Point(46, 308);
+            panel19.Name = "panel19";
+            panel19.Size = new Size(811, 170);
+            panel19.TabIndex = 9;
+            // 
+            // pictureBoxAOnAtribuiCodEntregadorCCM
+            // 
+            pictureBoxAOnAtribuiCodEntregadorCCM.Anchor = AnchorStyles.None;
+            pictureBoxAOnAtribuiCodEntregadorCCM.Cursor = Cursors.Hand;
+            pictureBoxAOnAtribuiCodEntregadorCCM.Image = (Image)resources.GetObject("pictureBoxAOnAtribuiCodEntregadorCCM.Image");
+            pictureBoxAOnAtribuiCodEntregadorCCM.Location = new Point(418, 47);
+            pictureBoxAOnAtribuiCodEntregadorCCM.Name = "pictureBoxAOnAtribuiCodEntregadorCCM";
+            pictureBoxAOnAtribuiCodEntregadorCCM.Size = new Size(84, 45);
+            pictureBoxAOnAtribuiCodEntregadorCCM.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAOnAtribuiCodEntregadorCCM.TabIndex = 30;
+            pictureBoxAOnAtribuiCodEntregadorCCM.TabStop = false;
+            pictureBoxAOnAtribuiCodEntregadorCCM.Visible = false;
+            pictureBoxAOnAtribuiCodEntregadorCCM.Click += pictureBoxAOnAtribuiCodEntregadorCCM_Click;
+            // 
+            // pictureBoxAOffAtribuiCodEntregadorCCM
+            // 
+            pictureBoxAOffAtribuiCodEntregadorCCM.Anchor = AnchorStyles.None;
+            pictureBoxAOffAtribuiCodEntregadorCCM.Cursor = Cursors.Hand;
+            pictureBoxAOffAtribuiCodEntregadorCCM.Image = (Image)resources.GetObject("pictureBoxAOffAtribuiCodEntregadorCCM.Image");
+            pictureBoxAOffAtribuiCodEntregadorCCM.Location = new Point(289, 47);
+            pictureBoxAOffAtribuiCodEntregadorCCM.Name = "pictureBoxAOffAtribuiCodEntregadorCCM";
+            pictureBoxAOffAtribuiCodEntregadorCCM.Size = new Size(84, 43);
+            pictureBoxAOffAtribuiCodEntregadorCCM.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBoxAOffAtribuiCodEntregadorCCM.TabIndex = 29;
+            pictureBoxAOffAtribuiCodEntregadorCCM.TabStop = false;
+            pictureBoxAOffAtribuiCodEntregadorCCM.Click += pictureBoxAOffAtribuiCodEntregadorCCM_Click;
+            // 
+            // label83
+            // 
+            label83.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            label83.AutoSize = true;
+            label83.Font = new Font("Segoe UI", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label83.Location = new Point(195, 14);
+            label83.Name = "label83";
+            label83.Size = new Size(428, 28);
+            label83.TabIndex = 13;
+            label83.Text = "Atribui cádigo de entrega automaticamente";
             // 
             // pictureBox4
             // 
@@ -2504,7 +2687,7 @@
             panel5.Controls.Add(textBoxTokenCCM);
             panel5.Controls.Add(textBox3);
             panel5.Controls.Add(textBox4);
-            panel5.Location = new Point(50, 167);
+            panel5.Location = new Point(46, 120);
             panel5.Name = "panel5";
             panel5.Size = new Size(811, 170);
             panel5.TabIndex = 5;
@@ -4144,6 +4327,304 @@
             label82.TabIndex = 3;
             label82.Text = "Username:";
             // 
+            // Roteamento
+            // 
+            Roteamento.BackColor = SystemColors.AppWorkspace;
+            Roteamento.Controls.Add(tabControlRoteamentoDeImpressoras);
+            Roteamento.ForeColor = Color.OldLace;
+            Roteamento.Location = new Point(4, 37);
+            Roteamento.Name = "Roteamento";
+            Roteamento.Size = new Size(1114, 663);
+            Roteamento.TabIndex = 2;
+            Roteamento.Text = "Roteamento de Impressões";
+            // 
+            // tabControlRoteamentoDeImpressoras
+            // 
+            tabControlRoteamentoDeImpressoras.Controls.Add(tabPage16);
+            tabControlRoteamentoDeImpressoras.Dock = DockStyle.Fill;
+            tabControlRoteamentoDeImpressoras.Location = new Point(0, 0);
+            tabControlRoteamentoDeImpressoras.Name = "tabControlRoteamentoDeImpressoras";
+            tabControlRoteamentoDeImpressoras.SelectedIndex = 0;
+            tabControlRoteamentoDeImpressoras.Size = new Size(1114, 663);
+            tabControlRoteamentoDeImpressoras.TabIndex = 0;
+            // 
+            // tabPage16
+            // 
+            tabPage16.BackColor = Color.DarkGray;
+            tabPage16.Controls.Add(panelDeAdicionarNovaImpressora);
+            tabPage16.ForeColor = Color.Black;
+            tabPage16.Location = new Point(4, 37);
+            tabPage16.Name = "tabPage16";
+            tabPage16.Padding = new Padding(3);
+            tabPage16.Size = new Size(1106, 622);
+            tabPage16.TabIndex = 1;
+            tabPage16.Text = "Adicionar Impressora";
+            // 
+            // panelDeAdicionarNovaImpressora
+            // 
+            panelDeAdicionarNovaImpressora.BackColor = Color.White;
+            panelDeAdicionarNovaImpressora.Controls.Add(panelDeImpressorasEmAdicionarImp);
+            panelDeAdicionarNovaImpressora.Location = new Point(41, 6);
+            panelDeAdicionarNovaImpressora.Name = "panelDeAdicionarNovaImpressora";
+            panelDeAdicionarNovaImpressora.Size = new Size(1011, 575);
+            panelDeAdicionarNovaImpressora.TabIndex = 0;
+            // 
+            // panelDeImpressorasEmAdicionarImp
+            // 
+            panelDeImpressorasEmAdicionarImp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            panelDeImpressorasEmAdicionarImp.BackColor = SystemColors.ControlDark;
+            panelDeImpressorasEmAdicionarImp.Controls.Add(bTnAdicionarImpresssora);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label93);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(textBoxNomeRotaImp);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraBarAdicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label84);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label85);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(pictureBox11);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(pictureBox13);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label86);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraAuxiliarAdicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label87);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label88);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraCozinha3Adicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label89);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraCozinha2Adicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label90);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraCozinha1Adicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label91);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(comboBoxImpressoraCaixaAdicionar);
+            panelDeImpressorasEmAdicionarImp.Controls.Add(label92);
+            panelDeImpressorasEmAdicionarImp.Location = new Point(51, 32);
+            panelDeImpressorasEmAdicionarImp.Name = "panelDeImpressorasEmAdicionarImp";
+            panelDeImpressorasEmAdicionarImp.Size = new Size(886, 493);
+            panelDeImpressorasEmAdicionarImp.TabIndex = 3;
+            // 
+            // bTnAdicionarImpresssora
+            // 
+            bTnAdicionarImpresssora.BackColor = Color.Red;
+            bTnAdicionarImpresssora.Cursor = Cursors.Hand;
+            bTnAdicionarImpresssora.Dock = DockStyle.Bottom;
+            bTnAdicionarImpresssora.Font = new Font("Segoe UI", 10F, FontStyle.Bold);
+            bTnAdicionarImpresssora.ForeColor = SystemColors.ButtonFace;
+            bTnAdicionarImpresssora.Location = new Point(0, 441);
+            bTnAdicionarImpresssora.Name = "bTnAdicionarImpresssora";
+            bTnAdicionarImpresssora.Size = new Size(886, 52);
+            bTnAdicionarImpresssora.TabIndex = 22;
+            bTnAdicionarImpresssora.Text = "Adicionar Impressora";
+            bTnAdicionarImpresssora.UseVisualStyleBackColor = false;
+            bTnAdicionarImpresssora.Click += bTnAdicionarImpresssora_Click;
+            // 
+            // label93
+            // 
+            label93.AutoSize = true;
+            label93.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label93.Location = new Point(495, 192);
+            label93.Name = "label93";
+            label93.Size = new Size(127, 23);
+            label93.TabIndex = 21;
+            label93.Text = "Nome Da Rota";
+            // 
+            // textBoxNomeRotaImp
+            // 
+            textBoxNomeRotaImp.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            textBoxNomeRotaImp.BackColor = Color.White;
+            textBoxNomeRotaImp.Font = new Font("Segoe UI", 12F);
+            textBoxNomeRotaImp.ForeColor = SystemColors.ControlText;
+            textBoxNomeRotaImp.Location = new Point(495, 223);
+            textBoxNomeRotaImp.Name = "textBoxNomeRotaImp";
+            textBoxNomeRotaImp.PlaceholderText = "Nome da rota exemplo: MESAS";
+            textBoxNomeRotaImp.Size = new Size(309, 34);
+            textBoxNomeRotaImp.TabIndex = 20;
+            textBoxNomeRotaImp.TextChanged += textBoxNomeRotaImp_TextChanged;
+            // 
+            // comboBoxImpressoraBarAdicionar
+            // 
+            comboBoxImpressoraBarAdicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraBarAdicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraBarAdicionar.FormattingEnabled = true;
+            comboBoxImpressoraBarAdicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraBarAdicionar.Location = new Point(6, 395);
+            comboBoxImpressoraBarAdicionar.Name = "comboBoxImpressoraBarAdicionar";
+            comboBoxImpressoraBarAdicionar.Size = new Size(230, 36);
+            comboBoxImpressoraBarAdicionar.TabIndex = 9;
+            comboBoxImpressoraBarAdicionar.Text = "Sem Impressora";
+            // 
+            // label84
+            // 
+            label84.Anchor = AnchorStyles.None;
+            label84.AutoSize = true;
+            label84.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label84.Location = new Point(457, 899);
+            label84.Name = "label84";
+            label84.Size = new Size(92, 28);
+            label84.TabIndex = 19;
+            label84.Text = "No Caixa";
+            // 
+            // label85
+            // 
+            label85.Anchor = AnchorStyles.None;
+            label85.AutoSize = true;
+            label85.Font = new Font("Segoe UI Semibold", 12F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label85.Location = new Point(429, 874);
+            label85.Name = "label85";
+            label85.Size = new Size(182, 28);
+            label85.TabIndex = 18;
+            label85.Text = "Imprimir Comanda";
+            // 
+            // pictureBox11
+            // 
+            pictureBox11.Anchor = AnchorStyles.None;
+            pictureBox11.Cursor = Cursors.Hand;
+            pictureBox11.Image = (Image)resources.GetObject("pictureBox11.Image");
+            pictureBox11.Location = new Point(636, 882);
+            pictureBox11.Name = "pictureBox11";
+            pictureBox11.Size = new Size(84, 45);
+            pictureBox11.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox11.TabIndex = 17;
+            pictureBox11.TabStop = false;
+            pictureBox11.Visible = false;
+            // 
+            // pictureBox13
+            // 
+            pictureBox13.Anchor = AnchorStyles.None;
+            pictureBox13.Cursor = Cursors.Hand;
+            pictureBox13.Image = (Image)resources.GetObject("pictureBox13.Image");
+            pictureBox13.Location = new Point(636, 884);
+            pictureBox13.Name = "pictureBox13";
+            pictureBox13.Size = new Size(84, 43);
+            pictureBox13.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox13.TabIndex = 16;
+            pictureBox13.TabStop = false;
+            // 
+            // label86
+            // 
+            label86.AutoSize = true;
+            label86.Font = new Font("Segoe UI", 12F);
+            label86.Location = new Point(3, 83);
+            label86.Name = "label86";
+            label86.Size = new Size(81, 28);
+            label86.TabIndex = 15;
+            label86.Text = "Auxiliar:";
+            // 
+            // comboBoxImpressoraAuxiliarAdicionar
+            // 
+            comboBoxImpressoraAuxiliarAdicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraAuxiliarAdicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraAuxiliarAdicionar.FormattingEnabled = true;
+            comboBoxImpressoraAuxiliarAdicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraAuxiliarAdicionar.Location = new Point(3, 114);
+            comboBoxImpressoraAuxiliarAdicionar.Name = "comboBoxImpressoraAuxiliarAdicionar";
+            comboBoxImpressoraAuxiliarAdicionar.Size = new Size(233, 36);
+            comboBoxImpressoraAuxiliarAdicionar.TabIndex = 14;
+            comboBoxImpressoraAuxiliarAdicionar.Text = "Sem Impressora";
+            // 
+            // label87
+            // 
+            label87.AutoSize = true;
+            label87.Font = new Font("Segoe UI", 12F);
+            label87.Location = new Point(3, 364);
+            label87.Name = "label87";
+            label87.Size = new Size(44, 28);
+            label87.TabIndex = 10;
+            label87.Text = "Bar:";
+            // 
+            // label88
+            // 
+            label88.AutoSize = true;
+            label88.Font = new Font("Segoe UI", 12F);
+            label88.Location = new Point(3, 293);
+            label88.Name = "label88";
+            label88.Size = new Size(102, 28);
+            label88.TabIndex = 8;
+            label88.Text = "Cozinha 3:";
+            // 
+            // comboBoxImpressoraCozinha3Adicionar
+            // 
+            comboBoxImpressoraCozinha3Adicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraCozinha3Adicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraCozinha3Adicionar.FormattingEnabled = true;
+            comboBoxImpressoraCozinha3Adicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraCozinha3Adicionar.Location = new Point(3, 325);
+            comboBoxImpressoraCozinha3Adicionar.Name = "comboBoxImpressoraCozinha3Adicionar";
+            comboBoxImpressoraCozinha3Adicionar.Size = new Size(233, 36);
+            comboBoxImpressoraCozinha3Adicionar.TabIndex = 7;
+            comboBoxImpressoraCozinha3Adicionar.Text = "Sem Impressora";
+            // 
+            // label89
+            // 
+            label89.AutoSize = true;
+            label89.Font = new Font("Segoe UI", 12F);
+            label89.Location = new Point(3, 223);
+            label89.Name = "label89";
+            label89.Size = new Size(102, 28);
+            label89.TabIndex = 6;
+            label89.Text = "Cozinha 2:";
+            // 
+            // comboBoxImpressoraCozinha2Adicionar
+            // 
+            comboBoxImpressoraCozinha2Adicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraCozinha2Adicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraCozinha2Adicionar.FormattingEnabled = true;
+            comboBoxImpressoraCozinha2Adicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraCozinha2Adicionar.Location = new Point(3, 254);
+            comboBoxImpressoraCozinha2Adicionar.Name = "comboBoxImpressoraCozinha2Adicionar";
+            comboBoxImpressoraCozinha2Adicionar.Size = new Size(233, 36);
+            comboBoxImpressoraCozinha2Adicionar.TabIndex = 5;
+            comboBoxImpressoraCozinha2Adicionar.Text = "Sem Impressora";
+            // 
+            // label90
+            // 
+            label90.AutoSize = true;
+            label90.Font = new Font("Segoe UI", 12F);
+            label90.Location = new Point(3, 153);
+            label90.Name = "label90";
+            label90.Size = new Size(102, 28);
+            label90.TabIndex = 4;
+            label90.Text = "Cozinha 1:";
+            // 
+            // comboBoxImpressoraCozinha1Adicionar
+            // 
+            comboBoxImpressoraCozinha1Adicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraCozinha1Adicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraCozinha1Adicionar.FormattingEnabled = true;
+            comboBoxImpressoraCozinha1Adicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraCozinha1Adicionar.Location = new Point(0, 184);
+            comboBoxImpressoraCozinha1Adicionar.Name = "comboBoxImpressoraCozinha1Adicionar";
+            comboBoxImpressoraCozinha1Adicionar.Size = new Size(236, 36);
+            comboBoxImpressoraCozinha1Adicionar.TabIndex = 3;
+            comboBoxImpressoraCozinha1Adicionar.Text = "Sem Impressora";
+            // 
+            // label91
+            // 
+            label91.AutoSize = true;
+            label91.Font = new Font("Segoe UI", 12F);
+            label91.Location = new Point(3, 15);
+            label91.Name = "label91";
+            label91.Size = new Size(62, 28);
+            label91.TabIndex = 2;
+            label91.Text = "Caixa:";
+            // 
+            // comboBoxImpressoraCaixaAdicionar
+            // 
+            comboBoxImpressoraCaixaAdicionar.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            comboBoxImpressoraCaixaAdicionar.Font = new Font("Segoe UI", 12F);
+            comboBoxImpressoraCaixaAdicionar.FormattingEnabled = true;
+            comboBoxImpressoraCaixaAdicionar.Items.AddRange(new object[] { "Sem Impressora" });
+            comboBoxImpressoraCaixaAdicionar.Location = new Point(3, 44);
+            comboBoxImpressoraCaixaAdicionar.Name = "comboBoxImpressoraCaixaAdicionar";
+            comboBoxImpressoraCaixaAdicionar.Size = new Size(233, 36);
+            comboBoxImpressoraCaixaAdicionar.TabIndex = 1;
+            comboBoxImpressoraCaixaAdicionar.Text = "Sem Impressora";
+            // 
+            // label92
+            // 
+            label92.AutoSize = true;
+            label92.Font = new Font("Segoe UI", 10.2F, FontStyle.Bold, GraphicsUnit.Point, 0);
+            label92.Location = new Point(71, 0);
+            label92.Name = "label92";
+            label92.Size = new Size(105, 23);
+            label92.TabIndex = 0;
+            label92.Text = "Impressoras";
+            // 
             // NewFormConfiguracoes
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -4165,6 +4646,12 @@
             ((System.ComponentModel.ISupportInitialize)pictureBox1).EndInit();
             panelDeConfigDeimpressao.ResumeLayout(false);
             panelDeConfigDeimpressao.PerformLayout();
+            panel26.ResumeLayout(false);
+            panel26.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)OnEnderecoNAComanda).EndInit();
+            ((System.ComponentModel.ISupportInitialize)OffEnderecoNaComanda).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox17).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox18).EndInit();
             panelDeDestacObs.ResumeLayout(false);
             panelDeDestacObs.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffDestacaObs).EndInit();
@@ -4220,9 +4707,9 @@
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffEnviaPedidoAut).EndInit();
             panelDeCardapioUsado.ResumeLayout(false);
             panelDeCardapioUsado.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)pictureBoxIntegraVariasEmpresasTaxyMachine).EndInit();
             panelDeAceitaAut.ResumeLayout(false);
             panelDeAceitaAut.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxIntegraVariasEmpresasTaxyMachine).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxoffIntegraVariasEmpresasTaxy).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOffAceitaPedidoAut).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBoxOnAceitaPedidoAut).EndInit();
@@ -4267,6 +4754,10 @@
             panel4.PerformLayout();
             tabPage3.ResumeLayout(false);
             panelCCM.ResumeLayout(false);
+            panel19.ResumeLayout(false);
+            panel19.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAOnAtribuiCodEntregadorCCM).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBoxAOffAtribuiCodEntregadorCCM).EndInit();
             ((System.ComponentModel.ISupportInitialize)pictureBox4).EndInit();
             panelCCMNome.ResumeLayout(false);
             panelCCMNome.PerformLayout();
@@ -4359,6 +4850,14 @@
             panel20.PerformLayout();
             panel24.ResumeLayout(false);
             panel24.PerformLayout();
+            Roteamento.ResumeLayout(false);
+            tabControlRoteamentoDeImpressoras.ResumeLayout(false);
+            tabPage16.ResumeLayout(false);
+            panelDeAdicionarNovaImpressora.ResumeLayout(false);
+            panelDeImpressorasEmAdicionarImp.ResumeLayout(false);
+            panelDeImpressorasEmAdicionarImp.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)pictureBox11).EndInit();
+            ((System.ComponentModel.ISupportInitialize)pictureBox13).EndInit();
             ResumeLayout(false);
         }
 
@@ -4664,5 +5163,40 @@
         private PictureBox pictureBoxIntegraVariasEmpresasTaxyMachine;
         private PictureBox pictureBoxoffIntegraVariasEmpresasTaxy;
         private Label label73;
+        private Panel panel19;
+        private PictureBox pictureBoxAOnAtribuiCodEntregadorCCM;
+        private PictureBox pictureBoxAOffAtribuiCodEntregadorCCM;
+        private Label label83;
+        private TabPage Roteamento;
+        private TabControl tabControlRoteamentoDeImpressoras;
+        private TabPage tabPage16;
+        private Panel panelDeAdicionarNovaImpressora;
+        private Panel panelDeImpressorasEmAdicionarImp;
+        private ComboBox comboBoxImpressoraBarAdicionar;
+        private Label label84;
+        private Label label85;
+        private PictureBox pictureBox11;
+        private PictureBox pictureBox13;
+        private Label label86;
+        private ComboBox comboBoxImpressoraAuxiliarAdicionar;
+        private Label label87;
+        private Label label88;
+        private ComboBox comboBoxImpressoraCozinha3Adicionar;
+        private Label label89;
+        private ComboBox comboBoxImpressoraCozinha2Adicionar;
+        private Label label90;
+        private ComboBox comboBoxImpressoraCozinha1Adicionar;
+        private Label label91;
+        private ComboBox comboBoxImpressoraCaixaAdicionar;
+        private Label label92;
+        private Button bTnAdicionarImpresssora;
+        private Label label93;
+        private TextBox textBoxNomeRotaImp;
+        private Panel panel26;
+        private PictureBox OnEnderecoNAComanda;
+        private PictureBox OffEnderecoNaComanda;
+        private PictureBox pictureBox17;
+        private Label label94;
+        private PictureBox pictureBox18;
     }
 }

@@ -874,7 +874,7 @@ public partial class FormMenuInicial : Form
                 }
 
 
-                if (Configuracoes.IntegravariasEmpresasTaxyMachine)
+                if (!Configuracoes.IntegravariasEmpresasTaxyMachine)
                 {
                     if (Configuracoes.IntegraOttoEntregas)
                     {
@@ -1019,9 +1019,6 @@ public partial class FormMenuInicial : Form
 
     private void pictureBoxConfig_Click(object sender, EventArgs e)
     {
-        //FormDeParametrosDoSistema configs = new FormDeParametrosDoSistema();
-        //configs.ShowDialog();
-
         NewFormConfiguracoes Configs = new NewFormConfiguracoes(new MeuContexto());
         Configs.ShowDialog();
     }

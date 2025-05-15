@@ -466,27 +466,11 @@ public partial class UCPedido : UserControl
                 using ApplicationDbContext db = new ApplicationDbContext();
                 ParametrosDoPedido? pedido = db.parametrosdopedido.Where(x => x.Id == Id_pedido).FirstOrDefault();
                 ParametrosDoSistema? opSistema = db.parametrosdosistema.ToList().FirstOrDefault();
+                Pedido? PedidoDeserializado = JsonConvert.DeserializeObject<Pedido>(pedido.Json!);
+                CCM ccm = new CCM(new MeuContexto());
+                bool PedidoMesa = PedidoDeserializado!.NumeroMesa > 0 ? true : false;
 
-                List<string> impressoras = new List<string>() { opSistema.Impressora1, opSistema.Impressora2, opSistema.Impressora3, opSistema.Impressora4, opSistema.Impressora5, opSistema.ImpressoraAux };
-
-                if (!opSistema.AgruparComandas)
-                {
-                    foreach (string imp in impressoras)
-                    {
-                        if (imp != "Sem Impressora" && imp != null)
-                        {
-                            ImpressaoCCM.ChamaImpressoes(pedido.Conta, pedido.DisplayId, imp);
-                        }
-                    }
-                }
-                else
-                {
-                    ImpressaoCCM.ChamaImpressoesCasoSejaComandaSeparada(pedido.Conta, pedido.DisplayId, impressoras);
-                }
-
-
-
-                impressoras.Clear();
+                ccm.ChamaImpressaoAutomatica(PedidoDeserializado!, PedidoMesa);
             }
 
             if (Pedido.CriadoPor == "ANOTAAI")

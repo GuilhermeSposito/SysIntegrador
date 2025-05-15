@@ -651,6 +651,15 @@ public class Impressao
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
                     }
 
+                    if (pedidoCompleto.orderType == "DELIVERY")
+                    {
+                        if (opcSistema.EnderecoNaComanda)
+                        {
+                            AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.formattedAddress}", FonteItens);
+                            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        }
+                    }
+
                     int qtdItens = pedidoCompleto.items.Count();
                     int contagemItemAtual = 1;
 
@@ -748,6 +757,15 @@ public class Impressao
             {
                 AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+            }
+
+            if (pedidoCompleto.orderType == "DELIVERY")
+            {
+                if (opcSistema.EnderecoNaComanda)
+                {
+                    AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.formattedAddress}", FonteItens);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                }
             }
 
             foreach (var item in pedidoCompleto.items)
@@ -854,6 +872,15 @@ public class Impressao
                     {
                         AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
                         AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                    }
+
+                    if (pedidoCompleto.orderType == "DELIVERY")
+                    {
+                        if (opcSistema.EnderecoNaComanda)
+                        {
+                            AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.formattedAddress}", FonteItens);
+                            AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                        }
                     }
 
                     AdicionaConteudo($"Item: {contagemItemAtual}/{qtdItens}", FonteItens);
@@ -1065,6 +1092,15 @@ public class Impressao
             {
                 AdicionaConteudo(pedidoCompleto.customer.name, FonteItens);
                 AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+            }
+
+            if (pedidoCompleto.orderType == "DELIVERY")
+            {
+                if (opcSistema.EnderecoNaComanda)
+                {
+                    AdicionaConteudo($"{pedidoCompleto.delivery.deliveryAddress.formattedAddress}", FonteItens);
+                    AdicionaConteudo(AdicionarSeparador(), FonteSeparadores);
+                }
             }
 
             int qtdItens = pedidoCompleto.items.Count();

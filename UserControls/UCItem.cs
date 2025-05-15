@@ -61,7 +61,7 @@ namespace SysIntegradorApp
                 ucComplemento.SetLabels(item.name, item.price);
                 ucComplemento.Size = new Size(600, 60);
 
-                if (!item.externalCode.Contains("m") && ePizza)
+                if (!String.IsNullOrEmpty(item.externalCode) && !item.externalCode.Contains("m") && ePizza)
                 {
                     bool ExisteExternalCode = ClsDeIntegracaoSys.VerificaSeExisteProdutoComExternalCode(item.externalCode);
 
